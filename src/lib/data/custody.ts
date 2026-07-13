@@ -40,6 +40,8 @@ export interface CustodySnapshot {
   asOf: string;
   accountsCount: number;
   totalUsdcReserves: number;
+  /** BTC-family reserve total — same live Fireblocks feed as totalUsdcReserves. */
+  totalBtcReserves: number;
   accounts: CustodyAccountBalance[];
 }
 
@@ -50,6 +52,7 @@ function manualFallback(): CustodySnapshot {
     asOf: new Date().toISOString(),
     accountsCount: 0,
     totalUsdcReserves: 0,
+    totalBtcReserves: 0,
     accounts: [],
   };
 }
@@ -93,7 +96,9 @@ export async function loadCustody(): Promise<CustodySnapshot> {
       .map((s) => s.trim())
       .filter(Boolean);
 
-    const { accounts, totalUsdcReserves } = aggregateCustody(raw, { accountIds });
+    const { accounts, totalUsdcReserves, totalBtcReserves } = aggregateCustody(raw, {
+      accountIds,
+    });
 
     // Honesty guard (P1-7): an `attested` PoR requires BOTH a live signed
     // attestation AND non-zero reserves. Fireblocks may answer "live" while
@@ -112,6 +117,7 @@ export async function loadCustody(): Promise<CustodySnapshot> {
       asOf: new Date().toISOString(),
       accountsCount: accounts.length,
       totalUsdcReserves,
+      totalBtcReserves,
       accounts,
     };
   } catch {

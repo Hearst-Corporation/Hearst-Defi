@@ -4,6 +4,7 @@
  */
 
 import type { FanBand } from "@/components/admin/product-workspace/projection-area-chart";
+import { formatHashprice } from "@/lib/format/btc";
 
 /** Fan bands from the swarm pipeline are already in percent points (e.g. 9.4 = 9.4%). */
 export function formatFanPercentPoint(value: number): string {
@@ -54,10 +55,11 @@ export function formatFanMonthLabel(value: unknown): string {
   return "Month —";
 }
 
-/** Matches construction-report / construction-steps canonical hashprice display. */
+/**
+ * Matches construction-report / construction-steps canonical hashprice display.
+ * Thin wrapper over the canonical @/lib/format/btc formatter — same guard
+ * (non-finite or <= 0 → "Unavailable") and same "$X.XXX/TH·d" shape.
+ */
 export function formatHashpriceUsd(hashpriceUsdPerThDay: number): string {
-  if (!Number.isFinite(hashpriceUsdPerThDay) || hashpriceUsdPerThDay <= 0) {
-    return "Unavailable";
-  }
-  return `$${hashpriceUsdPerThDay.toFixed(3)}/TH·d`;
+  return formatHashprice(hashpriceUsdPerThDay);
 }

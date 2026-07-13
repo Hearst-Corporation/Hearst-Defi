@@ -30,12 +30,15 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HcBarChart, HcValueChart } from "@/components/dataviz/his";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { getSession } from "@/lib/auth/session";
+import { loadBitcoinReserveView } from "@/lib/data/bitcoin-reserve-view";
 import { loadPortfolioCockpit } from "@/lib/data/portfolio-cockpit";
 import { loadVaultRebalancings } from "@/lib/data/vault-rebalancings";
 import { isDemoAccount } from "@/lib/demo/allowlist";
 import { ZAND_FIXTURE_EMAIL } from "@/lib/demo/zand-fixture";
+import { formatBtc, formatHashrate } from "@/lib/format/btc";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
 import {
   formatUsdDetailed,
@@ -49,7 +52,7 @@ import { AssetRing } from "./preview/_charts/asset-ring";
 import { HcMeter } from "./preview/_charts/meter";
 import { PocketCards } from "./preview/_charts/pocket-cards";
 import { RebalancingFeed, type RebalancingEvent } from "./preview/_charts/rebalancing-feed";
-import { StatBand } from "./preview/_charts/stat-band";
+import { StatBand, type StatCell } from "./preview/_charts/stat-band";
 import { ASSET_COLOR, POCKET_ASSET } from "./preview/_data/brand";
 import { DemoTimelineControl } from "./demo-timeline-control";
 
@@ -164,10 +167,15 @@ function buildMonthlyDistributionBars(
 }
 
 export default async function PortfolioPage() {
-  const [d, session, machineMarket] = await Promise.all([
+  const [d, session, machineMarket, btcReserveView] = await Promise.all([
     loadPortfolioCockpit(),
     getSession(),
     loadMachineMarket(),
+    // Operation-level view (no investor `share`): the Bitcoin Reserve hero is
+    // the platform's own custody balance, not a per-investor allocation — the
+    // existing "Mining engine" act below already covers the investor's OWN
+    // allocated slice via `share`-scaled mining-metrics.
+    loadBitcoinReserveView(),
   ]);
   // Real vault-level rebalancing feed (RebalanceEvent table), scoped to events
   // since this investor's own first active subscription. Vault-wide operations
@@ -265,6 +273,99 @@ export default async function PortfolioPage() {
     miningAllocationUsdc - allocatedMachineCount * machineUnitPriceUsdc;
   const allocationPending = zero || allocatedMachineCount <= 0;
 
+  // ── Bitcoin Strategic Reserve hero (Dashboard re-hero — Bitcoin becomes the
+  // primary KPI, yield/APY steps down to a supporting role). Built from
+  // `loadBitcoinReserveView()` (operation-level custody + live market data),
+  // not the per-investor position above — this is the platform's own
+  // reserve, distinct from "your deposit"/"your yield" further down the page.
+  const {
+    btcPrice,
+    networkHashrateThs,
+    halving,
+    btcReserve,
+    economics,
+    fleetProduction,
+  } = btcReserveView;
+
+  // Combined USD value of the reserve is a DERIVED figure (reserve × price) —
+  // its provenance is the weaker of the two sources, never a copy of
+  // btcReserve's "attested": a stale price makes the combined figure
+  // "estimated" even though the BTC balance itself stays attested.
+  const btcReserveUsdProvenance: Provenance =
+    btcPrice.provenance === "stale" ? "estimated" : "attested";
+  const btcReserveUsd = btcReserve.value * btcPrice.value;
+
+  const bitcoinMarketStats: readonly StatCell[] = [
+    {
+      label: "BTC Price",
+      value: formatUsdFull(btcPrice.value),
+      provenance: btcPrice.provenance,
+      live: btcPrice.provenance === "live" || btcPrice.provenance === "oracle",
+      valueTone: "btc",
+    },
+    {
+      label: "Network Hashrate",
+      value: formatHashrate(networkHashrateThs.value),
+      provenance: networkHashrateThs.provenance,
+    },
+    {
+      label: "Mining Difficulty",
+      value: btcReserveView.difficulty.value.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }),
+      provenance: btcReserveView.difficulty.provenance,
+    },
+    {
+      label: "Next Halving",
+      value: `~${Math.max(0, Math.round(halving.value.estimatedDaysRemaining)).toLocaleString("en-US")}`,
+      affix: "days",
+      valueTone: "btc",
+      provenance: halving.provenance,
+    },
+  ];
+
+  const miningEconomicsStats: readonly StatCell[] | null = economics
+    ? [
+        {
+          label: "Cost to Produce 1 BTC",
+          value: formatUsdFull(economics.value.costToProduce1BtcUsd),
+          provenance: economics.provenance,
+        },
+        {
+          label: "Bitcoin Market Price",
+          value: formatUsdFull(btcPrice.value),
+          provenance: btcPrice.provenance,
+          live: btcPrice.provenance === "live" || btcPrice.provenance === "oracle",
+          valueTone: "btc",
+        },
+        {
+          label: "Production Margin",
+          value: `${economics.value.productionMarginPerBtcUsd >= 0 ? "+" : ""}${formatUsdFull(economics.value.productionMarginPerBtcUsd)}`,
+          provenance: economics.provenance,
+        },
+        {
+          label: "Break-even BTC Price",
+          value: formatUsdFull(economics.value.breakEvenBtcPriceUsd),
+          provenance: economics.provenance,
+        },
+      ]
+    : null;
+
+  const fleetProductionStats: readonly StatCell[] | null = fleetProduction
+    ? [
+        {
+          label: "Est. Daily Production",
+          value: formatBtc(fleetProduction.value.btcPerDay, { unit: true }),
+          provenance: fleetProduction.provenance,
+        },
+        {
+          label: "Est. Monthly Production",
+          value: formatBtc(fleetProduction.value.btcPerMonth, { unit: true }),
+          provenance: fleetProduction.provenance,
+        },
+      ]
+    : null;
+
   return (
     <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       <div className="flex flex-col gap-y-8 p-5 lg:p-6">
@@ -309,6 +410,96 @@ export default async function PortfolioPage() {
           </div>
         ) : null}
 
+        {/* S0 — BITCOIN STRATEGIC RESERVE HERO. Bitcoin is the primary KPI —
+            this is now the single dominant band on the page; the former
+            "Vault Health" hero (NAV chart + stat band) follows below as its
+            own act, repositioned rather than removed. The big Reserve number
+            renders neutral/white per the DS rule (a solid-amber figure reads
+            as a warning, not an asset) — amber lives on the "BTC" affix and
+            the identity dot only. */}
+        <section
+          className="relative overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card"
+          style={{ boxShadow: HERO_SHADOW }}
+          aria-label="Bitcoin Strategic Reserve"
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-24 left-1/4 h-64 w-[min(680px,80%)] opacity-[0.07]"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, var(--ct-cat-btc) 0%, transparent 70%)",
+            }}
+          />
+          <div className="relative z-10 flex flex-col">
+            <div className="flex flex-wrap items-center justify-between gap-3 p-5 lg:px-6 lg:pt-6 lg:pb-2">
+              <h1 className="h1 shrink-0">
+                Bitcoin <span className="h1-accent">Strategic Reserve</span>
+              </h1>
+              <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
+                Build, monitor and grow your Bitcoin reserve through institutional mining infrastructure.
+              </span>
+            </div>
+            <div className="px-5 pb-2 lg:px-6">
+              <StatBand
+                items={[
+                  {
+                    label: "Bitcoin Reserve",
+                    value: formatBtc(btcReserve.value),
+                    affix: "BTC",
+                    valueTone: "btc",
+                    hero: true,
+                    provenance: btcReserve.provenance,
+                  },
+                  {
+                    label: "Reserve Value",
+                    value: formatUsdFull(btcReserveUsd),
+                    provenance: btcReserveUsdProvenance,
+                  },
+                ]}
+              />
+            </div>
+            <div className="mt-2 border-t border-[var(--ct-border-soft)]">
+              <StatBand items={bitcoinMarketStats} />
+            </div>
+          </div>
+        </section>
+
+        {/* ── Act: Mining Economics — the spec calls this one of the most
+            important sections: it demonstrates mining's economic value vs
+            buying BTC outright (cost to produce vs market price). Honest
+            null-guard: no reference machine-cost basis available → an
+            explicit empty state, never a fabricated figure. */}
+        <TitledDivider
+          title="Mining Economics"
+          trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+        />
+        {miningEconomicsStats ? (
+          <div className={SUPPORT}>
+            <StatBand items={miningEconomicsStats} />
+          </div>
+        ) : (
+          <div className={SUPPORT}>
+            <div className="p-5">
+              <EmptySurface
+                message="Mining Economics is not available yet."
+                detail="Cost to produce, production margin and break-even BTC price activate once a reference machine cost basis is available."
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ── Act: Mining Production — fleet-level BTC production estimate.
+            Honest null-guard: no MiningMetric telemetry yet → empty state. */}
+        {fleetProductionStats ? (
+          <section className={SUPPORT}>
+            <CardHeader
+              title="Mining Production"
+              trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+            />
+            <StatBand items={fleetProductionStats} />
+          </section>
+        ) : null}
+
         {/* S1 — HERO: the one dominant band (glow + console header + NAV chart + stat band) */}
         <section
           className="relative overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card"
@@ -327,9 +518,7 @@ export default async function PortfolioPage() {
             {/* Header: just the title. No chips, no badges, no CTA button — the
                 chart is the hero; the Subscribe link lives in the top margin. */}
             <div className="flex flex-wrap items-center gap-3 p-5 lg:px-6 lg:pt-6 lg:pb-2">
-              <h1 className="h1 shrink-0">
-                Vault <span className="h1-accent">Health</span>
-              </h1>
+              <h2 className="ct-section-title shrink-0">Vault position</h2>
             </div>
             <div className="px-5 lg:px-6">
               <HcValueChart

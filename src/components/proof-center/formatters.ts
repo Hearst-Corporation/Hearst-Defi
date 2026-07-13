@@ -12,13 +12,10 @@ const timeUtcFmt = new Intl.DateTimeFormat("en-US", {
   hour12: false,
 });
 
+import { formatBtc as formatBtcCanonical } from "@/lib/format/btc";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 
 export { formatUsdCompact };
-
-const btcFmt = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 4,
-});
 
 const STALE_MS = 24 * 60 * 60 * 1000;
 
@@ -35,8 +32,15 @@ export function formatPorPeriod(period: bigint): string {
   return `${raw.slice(0, 4)}-${raw.slice(4)}`;
 }
 
+/**
+ * Thin wrapper over the canonical BTC formatter (@/lib/format/btc), pinned to
+ * this module's legacy precision (max 4dp, " BTC" suffix). Realistic inputs
+ * here (period-mined BTC) stay well under 100, so the canonical adaptive
+ * ceiling never engages — output is unchanged from the pre-consolidation
+ * `Intl.NumberFormat(maximumFractionDigits: 4)` implementation.
+ */
 export function formatBtc(value: number): string {
-  return `${btcFmt.format(value)} BTC`;
+  return formatBtcCanonical(value, { unit: true, maxDp: 4 });
 }
 
 export function isOlderThan24h(ts: Date): boolean {

@@ -26,55 +26,93 @@ export type NavItem = {
 };
 
 /**
- * Investor-facing navigation (Visual Direction 2026 — Archive 4).
+ * Investor-facing navigation — Bitcoin Strategic Reserve reposition (nav V2).
  *
- * Three cockpit routes: Portfolio (held positions) · Invest (subscribe to
- * admin-created vaults) · Profile. "Proofs" is removed as a standalone entry
- * — its transparency content now lives inside each Vault Details page (the
- * "Infrastructure & Proofs" section). The `/proof-center` route stays
- * reachable (deep link + admin), just off the investor rail.
+ * Hearst Connect is repositioning from a structured-yield vault product to an
+ * institutional Bitcoin Strategic Reserve platform powered by Mining-as-a-
+ * Service. Bitcoin becomes the hero KPI; yield/APY drops to a secondary
+ * metric. The 10-item target IA (Dashboard, Bitcoin Reserve, Vaults, Mining
+ * Operations, Infrastructure, Rewards, Withdrawals, Transactions, Reports,
+ * Settings) does not fit flat on the 104px rail (built for ~4-5 entries), so
+ * it ships as 6 rail entries + 4 folded into sub-nav — same pattern already
+ * used by ADMIN_SECTIONS (rail entry + <AdminSubNav> tabs), not a new
+ * mechanism. `visibleSubNavTabs` below already filters `hideFromSubNav`
+ * leaves out of the strip while the route stays reachable.
  *
- * Routing note: "Portfolio" → `/portfolio` (the investor's REAL financial
- * dashboard — zero state until a subscription exists, populated from the
- * signed-in account after). "Invest" → `/vaults` (the shipped 4-step
- * catalog/flow, kept to avoid breaking invest-routes + the LLM nav whitelist).
+ * Routing note: "Dashboard" → `/portfolio` (the SAME repositioned page, not a
+ * fork — the investor's real financial dashboard, now BTC-hero framed).
+ * "Bitcoin Reserve", "Mining Operations", "Infrastructure", "Rewards",
+ * "Withdrawals", "Transactions", "Reports" are new routes shipped as honest
+ * placeholders (EmptySurface, "being built") pending their data phase — see
+ * the plan at ~/.claude/plans/snuggly-churning-sedgewick.md. "Vaults" →
+ * `/vaults` (unchanged — the shipped subscribe/fundraising catalog). "Vault"
+ * (holdings, `/my-vaults`) is folded under Bitcoin Reserve's sub-nav rather
+ * than kept as its own rail slot, since Reserve is now the umbrella surface
+ * for BTC holdings + positions. "Settings" → `/profile` (label renamed,
+ * route unchanged so KYC/wallet/identity content stays put).
+ *
  * The mock V4 vault-health console lives at `/portfolio/preview`
  * (see `src/app/(product)/portfolio/preview/_data/mock.ts`) — a sandbox,
  * deliberately off the rail, reachable only by direct URL.
- *
- * "Holdings" → `/my-vaults` (the per-position index — each row drills into
- * `/portfolio/[positionId]`, the 6-section Vault Details page). Restored to
- * the rail: the /portfolio cockpit (dashboard/aggregate view) has no
- * drill-down of its own into individual positions, so without this entry
- * `/my-vaults` — and by extension every Vault Details page — was orphaned
- * (unreachable from in-app navigation after Portfolio moved to `/portfolio`).
  */
 export const PRODUCT_NAV: NavItem[] = [
   {
-    id: "portfolio",
-    label: "Portfolio",
+    id: "dashboard",
+    label: "Dashboard",
     href: "/portfolio",
-    icon: "PieChart",
+    icon: "LayoutDashboard",
   },
   {
-    id: "holdings",
-    label: "Vault",
-    href: "/my-vaults",
+    id: "bitcoin-reserve",
+    label: "Bitcoin Reserve",
+    railLabel: "Reserve",
+    href: "/bitcoin-reserve",
+    icon: "Bitcoin",
+  },
+  {
+    id: "vaults",
+    label: "Vaults",
+    href: "/vaults",
     icon: "Vault",
   },
   {
-    id: "invest",
-    label: "Invest",
-    href: "/vaults",
-    icon: "TrendingUp",
+    id: "mining",
+    label: "Mining Operations",
+    railLabel: "Mining",
+    href: "/mining",
+    icon: "Pickaxe",
   },
   {
-    id: "profile",
-    label: "Profile",
+    id: "infrastructure",
+    label: "Infrastructure",
+    railLabel: "Infra",
+    href: "/infrastructure",
+    icon: "Server",
+  },
+  {
+    id: "settings",
+    label: "Settings",
     href: "/profile",
-    icon: "User",
+    icon: "Settings",
   },
 ];
+
+/**
+ * Folded destinations — reachable via sub-nav under the rail entry they
+ * belong to, or by direct URL/deep-link, not their own rail slot. Same
+ * `hideFromSubNav`-eligible NavItem shape as ADMIN_SECTIONS tabs.
+ */
+export const PRODUCT_SUBNAV: Record<string, NavItem[]> = {
+  "bitcoin-reserve": [
+    { id: "holdings", label: "Vault", href: "/my-vaults", icon: "Vault" },
+    { id: "rewards", label: "Rewards", href: "/rewards", icon: "Gift" },
+    { id: "withdrawals", label: "Withdrawals", href: "/withdrawals", icon: "ArrowUpFromLine" },
+  ],
+  dashboard: [
+    { id: "transactions", label: "Transactions", href: "/transactions", icon: "ArrowLeftRight" },
+    { id: "reports", label: "Reports", href: "/reports", icon: "FileBarChart" },
+  ],
+};
 
 /**
  * Admin sections — the 5 top-level groups shown in the admin rail. Each owns a

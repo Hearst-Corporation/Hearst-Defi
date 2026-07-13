@@ -539,6 +539,17 @@ body {
 .ct-text-strong    { color: var(--ct-text-strong); }
 .ct-text-accent  { color: var(--ct-accent); }
 .ct-text-accent-strong { color: var(--ct-accent-strong); }
+/* Bitcoin category colour (amber, --ct-cat-btc) — identity affix/dot only, never
+   the dominant metric figure (a solid-amber number reads as a status/warning). */
+.ct-text-cat-btc { color: var(--ct-cat-btc); }
+
+/* Hero KPI number tier — global counterpart of admin's .admin-doc .ds-hero-figure__value
+   (design-system.css), same --ct-text-hero (40px) recipe, usable outside the admin-doc
+   scope (e.g. product-doc StatBand hero cells). No new size token. */
+.ct-text-hero-tier {
+  font-size: var(--ct-text-hero); /* 40px — the hero data tier */
+  line-height: var(--ct-leading-none);
+}
 
 .ct-link-accent {
   color: var(--ct-text-strong);

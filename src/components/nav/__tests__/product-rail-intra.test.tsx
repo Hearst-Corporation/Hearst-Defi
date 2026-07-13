@@ -63,11 +63,16 @@ describe("Product rail intra (fixed column)", () => {
     // Positional shell hooks kept; nav items are bento Tailwind now.
     expect(html).toContain("ct-rail-intra");
     expect(html).toContain("ct-rail-intra__stack");
-    expect(html).toContain('aria-label="Portfolio"');
-    // Visual Direction 2026 rail: Portfolio · Invest · Profile (Proofs removed;
-    // "Portfolio" → /portfolio, the real financial dashboard).
-    expect(html).toContain('aria-label="Invest"');
-    expect(html).toContain('aria-label="Profile"');
+    // Bitcoin Strategic Reserve rail V2: Dashboard · Bitcoin Reserve · Vaults ·
+    // Mining Operations · Infrastructure · Settings (6 rail entries; Rewards /
+    // Withdrawals / Transactions / Reports folded into sub-nav — see
+    // PRODUCT_SUBNAV in product-nav-items.ts).
+    expect(html).toContain('aria-label="Dashboard"');
+    expect(html).toContain('aria-label="Bitcoin Reserve"');
+    expect(html).toContain('aria-label="Vaults"');
+    expect(html).toContain('aria-label="Mining Operations"');
+    expect(html).toContain('aria-label="Infrastructure"');
+    expect(html).toContain('aria-label="Settings"');
     expect(html).not.toContain('aria-label="Proofs & Documents"');
     expect(html).not.toContain("ct-rail-item");
     expect(html).not.toContain("ct-rail-toggle");

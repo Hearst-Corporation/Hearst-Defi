@@ -147,8 +147,11 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
       join(ROOT, "src/components/nav/product-nav-items.ts"),
       "utf8",
     );
-    // PRODUCT_NAV = Portfolio (→ /portfolio) · Invest · Profile.
-    expect(nav).toMatch(/id:\s*"invest"/);
+    // Bitcoin Strategic Reserve rail V2 = Dashboard (→ /portfolio) · Bitcoin
+    // Reserve · Vaults (the former "Invest" subscribe/fundraising catalog,
+    // same /vaults route, id renamed to match the new IA) · Mining Operations
+    // · Infrastructure · Settings.
+    expect(nav).toMatch(/id:\s*"vaults"/);
     expect(nav).not.toMatch(/id:\s*"proof-center"/);
   });
 });
