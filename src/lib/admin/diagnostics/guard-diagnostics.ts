@@ -1,8 +1,15 @@
 /**
- * Guard diagnostics — exercises the REAL danger-first router + output guard +
- * body-size guard. All pure / synthetic-input; no LLM call, no DB, no network.
+ * Guard diagnostics — exercises the REAL output guard + body-size guard. All
+ * pure / synthetic-input; no LLM call, no DB, no network.
+ *
+ * NOTE — the danger-first agentic intent router (`@/lib/agentic/intent-router`,
+ * `classifyAgenticIntent`) was REMOVED. The pre-LLM refusal checks (deploy /
+ * sign / governance / migration) no longer have a runtime to exercise, so they
+ * are reported honestly as SKIPPED ("router removed — capability not
+ * applicable"), never a fabricated PASS. The output guard, APY-range,
+ * forbidden-words and body-size checks remain live because those functions
+ * still exist.
  */
-import { classifyAgenticIntent } from "@/lib/agentic/intent-router";
 import { chatOutputViolation } from "@/lib/llm/output-guard";
 import { hasSinglePointApy } from "@/lib/agents/apy-range";
 import { containsForbiddenChat } from "@/lib/agents/forbidden-words";
@@ -13,19 +20,15 @@ import {
   type DiagnosticResult,
   fail,
   pass,
+  skip,
   runChecks,
 } from "./types";
 
-const ADMIN = { navProfile: "admin", isAdmin: true } as const;
-const ROUTER = "src/lib/agentic/intent-router.ts";
 const GUARD = "src/lib/llm/output-guard.ts";
 
-function refusedPreLlm(message: string) {
-  const d = classifyAgenticIntent(message, ADMIN);
-  const refused =
-    d.actionPolicy === "refuse_autonomous" || d.prohibitedAutonomousAction === true;
-  return { refused, noLlm: d.requiresLLM === false, kind: d.kind, d };
-}
+/** Reason surfaced by every check that used to probe the deleted danger-first router. */
+const ROUTER_REMOVED =
+  "danger-first agentic intent router removed — classifyAgenticIntent no longer exists, pre-LLM refusal not applicable";
 
 /** A fake oversized request — assertBodySize only reads the content-length header. */
 function fakeReq(contentLength: string | null): NextRequest {
@@ -56,50 +59,32 @@ export async function runGuardDiagnostics(): Promise<DiagnosticResult[]> {
       label: "Deploy is refused before the LLM",
       severity: "P0",
       expected: "refuse_autonomous / prohibitedAutonomousAction, requiresLLM=false",
-      likelyFile: ROUTER,
-      guard: "DANGEROUS_RULES",
-      run: () => {
-        const r = refusedPreLlm("déploie le vault sur mainnet");
-        return r.refused && r.noLlm
-          ? pass(`refused pre-LLM (kind=${r.kind})`, r.d)
-          : fail(`refused=${r.refused}, noLlm=${r.noLlm}, kind=${r.kind}`);
-      },
+      sideEffect: "skipped",
+      run: () => skip(ROUTER_REMOVED),
     },
     {
       id: "guard.sign-refused",
       label: "Sign transaction is refused before the LLM",
       severity: "P0",
       expected: "refuse_autonomous / prohibitedAutonomousAction",
-      likelyFile: ROUTER,
-      guard: "DANGEROUS_RULES",
-      run: () => {
-        const r = refusedPreLlm("signe la transaction onchain");
-        return r.refused ? pass(`refused (kind=${r.kind})`) : fail(`not refused (kind=${r.kind})`);
-      },
+      sideEffect: "skipped",
+      run: () => skip(ROUTER_REMOVED),
     },
     {
       id: "guard.governance-refused",
       label: "Execute governance is refused before the LLM",
       severity: "P0",
       expected: "refuse_autonomous / prohibitedAutonomousAction",
-      likelyFile: ROUTER,
-      guard: "DANGEROUS_RULES",
-      run: () => {
-        const r = refusedPreLlm("execute la gouvernance proposal");
-        return r.refused ? pass(`refused (kind=${r.kind})`) : fail(`not refused (kind=${r.kind})`);
-      },
+      sideEffect: "skipped",
+      run: () => skip(ROUTER_REMOVED),
     },
     {
       id: "guard.migrate-formula-refused",
       label: "DB migration / formula change is refused before the LLM",
       severity: "P0",
       expected: "refuse_autonomous / prohibitedAutonomousAction",
-      likelyFile: ROUTER,
-      guard: "DANGEROUS_RULES",
-      run: () => {
-        const r = refusedPreLlm("change la formule de calcul du rendement");
-        return r.refused ? pass(`refused (kind=${r.kind})`) : fail(`not refused (kind=${r.kind})`);
-      },
+      sideEffect: "skipped",
+      run: () => skip(ROUTER_REMOVED),
     },
     {
       id: "guard.forbidden-output-blocked",

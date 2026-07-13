@@ -15,10 +15,6 @@ describe("guard diagnostics (real danger-first router + output guard)", () => {
   });
 
   it.each([
-    "guard.deploy-refused",
-    "guard.sign-refused",
-    "guard.governance-refused",
-    "guard.migrate-formula-refused",
     "guard.forbidden-output-blocked",
     "guard.single-point-apy-blocked",
     "guard.apy-range-passes",
@@ -27,4 +23,18 @@ describe("guard diagnostics (real danger-first router + output guard)", () => {
   ])("%s passes against the real guard", (id) => {
     expect(results.find((r) => r.id === id)?.status).toBe("pass");
   });
+
+  it.each([
+    "guard.deploy-refused",
+    "guard.sign-refused",
+    "guard.governance-refused",
+    "guard.migrate-formula-refused",
+  ])(
+    "%s is honestly SKIPPED — the danger-first router was removed",
+    (id) => {
+      const r = results.find((c) => c.id === id);
+      expect(r?.status).toBe("skipped");
+      expect(r?.actual).toMatch(/router removed|classifyAgenticIntent/i);
+    },
+  );
 });

@@ -8,18 +8,6 @@ import { getSession } from "@/lib/auth/session";
 import { assertRateLimit, assertBodySize } from "@/lib/rate-limit";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
-// Deterministic Intent Router v2 — wired NON-SHADOW (active by default).
-// See docs/agentic/DETERMINISTIC_INTENT_ROUTER_V2.md.
-import {
-  classifyAgenticIntent,
-  isEducationalReadOnly,
-} from "@/lib/agentic/intent-router";
-// Router Observability v0 — read-only, best-effort trace recorder. NEVER changes
-// router/guard behaviour and NEVER blocks the response (fire-and-forget + internal
-// try/catch). See docs/agentic/ROUTER_OBSERVABILITY_V0.md.
-import { recordRouterDecisionSafe } from "@/lib/agentic/observability";
-import { buildEducationalReadOnlyDirective } from "@/lib/llm/prompts";
-import type { AgenticIntentDecision } from "@/lib/agentic/intent-router-types";
 import {
   loadUserAgentProfile,
   loadUserMemory,
@@ -71,13 +59,6 @@ import {
   canvasOpenMarker,
   stripCanvasOpenMarker,
 } from "@/lib/canvas/intent";
-// Outreach Master Agent integration — shadow mode HF, deterministic regex first
-import {
-  integrateOutreachAgent,
-  shouldNavigateOutreach,
-  shouldOpenOutreachCanvas,
-  extractOutreachDiagnostics,
-} from "@/lib/agentic/outreach-integration";
 import {
   classifyCanvasIntentLlm,
   type ClassifyClient,
@@ -702,245 +683,16 @@ async function runMasterAgentTurn(args: {
   const navShortcutProfile: "lp" | "admin" =
     navShortcutKey?.startsWith("admin-") === true ? "admin" : "lp";
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Deterministic Intent Router v2 — NON-SHADOW (active par défaut)
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Le router produit une décision typée (jamais d'exécution directe).
-  // Les écritures restent derrière la barrière HITL existante.
-  // ───────────────────────────────────────────────────────────────────────────
-  let agenticDecision: AgenticIntentDecision | undefined;
-  try {
-    agenticDecision = classifyAgenticIntent(message, {
-      navProfile,
-      isAdmin,
-    });
-  } catch {
-    // Router indisponible → on continue en mode dégradé (legacy nav)
-    agenticDecision = undefined;
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Outreach Master Agent — shadow mode integration.
-  // Runs in parallel with the existing router for calibration; outcomes are
-  // logged but the existing router decisions take precedence for now.
-  // This is a safe rollout path: we observe divergence without changing behavior.
-  // ───────────────────────────────────────────────────────────────────────────
-  let outreachIntegration: Awaited<ReturnType<typeof integrateOutreachAgent>> | null = null;
-  try {
-    outreachIntegration = await integrateOutreachAgent({
-      message,
-      isAdmin,
-      userId,
-      chatId: chatId ?? undefined,
-      existingDecision: agenticDecision,
-    });
-  } catch {
-    // Outreach Master Agent unavailable → continue without it (fail-open)
-    outreachIntegration = null;
-  }
-
-  // ── 0.5 Outreach navigation fast-path (router v2 style, high-confidence) ───
-  // If the Outreach Master Agent detected a clear navigation intent and the
-  // existing router did not already decide on a different navigation, we
-  // can fast-path to the outreach workspace. This is consistent with the router
-  // v2 fast-path pattern above.
-  if (
-    outreachIntegration?.outreachDecision &&
-    shouldNavigateOutreach(outreachIntegration.outreachDecision) &&
-    !isReview &&
-    !canvasIntent &&
-    !productIntent?.shouldOpenProductWorkspace &&
-    agenticDecision?.kind !== "navigation"
-  ) {
-    const routeKey = "admin-outreach";
-    if (isAdmin) {
-      await publishNav(userId, { destinationKey: routeKey }).catch(() => {
-        /* best-effort nav publish */
-      });
-      prisma.navTrace
-        .create({
-          data: {
-            id: buildNavTraceId(turnId),
-            userId,
-            chatId,
-            profile: "admin",
-            mode: chatMode,
-            destinationKey: routeKey,
-            status: "published",
-            reason: "outreach_master_agent_nav",
-          },
-        })
-        .catch(() => {
-          /* best-effort trace */
-        });
-      // Router Observability: record the outcome.
-      void recordRouterDecisionSafe({
-        decision: {
-          kind: "navigation",
-          confidence: outreachIntegration.outreachDecision.confidence === "high" ? 0.95 : 0.75,
-          actionPolicy: "allow_navigation",
-          riskLevel: "none",
-          requiresLLM: false,
-          requiresCanvas: false,
-          requiresHumanGate: false,
-          requiresExistingPendingAction: false,
-          prohibitedAutonomousAction: false,
-          matchedRuleIds: ["outreach_master_agent"],
-          normalizedInput: outreachIntegration.outreachDecision.normalizedInput || "",
-          negated: false,
-          reason: outreachIntegration.outreachDecision.reason,
-        } as AgenticIntentDecision,
-        outcome: "nav_fast_path",
-        turnId,
-        chatId,
-      });
-      persistAssistantAckMessage({
-        persistence,
-        chatId,
-        turnId,
-        variant: "nav-outreach-fast-path",
-        text: buildNavShortcutAck(message),
-      });
-      return ackResponse(buildNavShortcutAck(message), chatId);
-    }
-  }
-
-  // ── 1. Fast-path navigation (router high-confidence) ──────────────────────
-  // A product-creation intent is more specific than a generic page nav and is
-  // handled by the dedicated Product Workspace block below — never let the
-  // fast-path divert it to /vaults.
-  if (
-    agenticDecision?.kind === "navigation" &&
-    agenticDecision.routeKey &&
-    agenticDecision.confidence >= 0.7 &&
-    !isReview &&
-    !canvasIntent &&
-    !productIntent?.shouldOpenProductWorkspace
-  ) {
-    const routeKey = agenticDecision.routeKey;
-    // PROFILE GUARD (P0): scope the destination to the REAL user, NOT the routeKey
-    // prefix. Deriving "admin" from `routeKey.startsWith("admin-")` let an LP
-    // publish an admin-* nav directive (the destination exists in the admin space,
-    // so the prefix-derived check passed) — a surface leak + a directive to a page
-    // the layout would 403.
-    //   - An admin may navigate BOTH admin and LP surfaces (admins use LP pages).
-    //   - An LP may navigate ONLY LP surfaces — an admin-* key for an LP is dropped.
-    // The destination is resolved against the user's actual allowance: try the
-    // admin space only when isAdmin, then always allow the LP space.
-    const routeProfile: "lp" | "admin" = routeKey.startsWith("admin-")
-      ? "admin"
-      : "lp";
-    const dest =
-      routeProfile === "admin"
-        ? isAdmin
-          ? resolveNavDestinationForProfile(routeKey, "admin")
-          : null // LP can never reach an admin route — drop it.
-        : resolveNavDestinationForProfile(routeKey, "lp");
-    if (dest) {
-      // The published profile reflects the RESOLVED destination's space (admin
-      // route → "admin", LP route → "lp"), so the NavTrace stays accurate for an
-      // admin navigating an LP page.
-      const profile = routeProfile;
-      await publishNav(userId, { destinationKey: routeKey }).catch(() => {
-        /* best-effort nav publish */
-      });
-      prisma.navTrace
-        .create({
-          data: {
-            id: buildNavTraceId(turnId),
-            userId,
-            chatId,
-            profile,
-            mode: chatMode,
-            destinationKey: routeKey,
-            status: "published",
-            reason: "deterministic_router_v2",
-          },
-        })
-        .catch(() => {
-          /* best-effort trace */
-        });
-      // Router Observability (read-only, fire-and-forget): record the outcome.
-      void recordRouterDecisionSafe({
-        decision: agenticDecision,
-        outcome: "nav_fast_path",
-        turnId,
-        chatId,
-      });
-      // Return the SAME readable ack stream the legacy nav fallback uses ("Je
-      // vous y emmène." / "Taking you there.") instead of a raw JSON body with
-      // an empty `content`. The directive was already published above, so the
-      // bridge opens the page regardless; the user must still see a human-facing
-      // bubble in the chat, never the bare `{"navIntent":...}` JSON.
-      persistAssistantAckMessage({
-        persistence,
-        chatId,
-        turnId,
-        variant: "nav-fast-path",
-        text: buildNavShortcutAck(message),
-      });
-      return ackResponse(buildNavShortcutAck(message), chatId);
-    }
-  }
-
-  // ── 2. Immediate refusal of dangerous intents ──────────────────────────
-  if (
-    agenticDecision?.actionPolicy === "refuse_autonomous" ||
-    agenticDecision?.prohibitedAutonomousAction
-  ) {
-    const refusalAck =
-      "I can't carry out this request. If you want to perform an action, please do it manually from the interface.";
-    // Router Observability: dangerous refusal is recorded AFTER the refusal is
-    // decided and BEFORE returning — still no LLM, no tool, no write, no HITL.
-    void recordRouterDecisionSafe({
-      decision: agenticDecision,
-      outcome: "dangerous_refusal",
-      turnId,
-      chatId,
-    });
-    return new Response(
-      JSON.stringify({
-        role: "assistant",
-        content: refusalAck,
-        metadata: { intent: "refusal", reason: agenticDecision.actionPolicy },
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } },
-    );
-  }
-
-  // ── 3. HINT ÉDUCATIF — CONSOMMÉ (enrichit le system prompt, JAMAIS le guard) ──
-  // Le router classe les intents éducatifs read-only (product/yield/risk/education
-  // + reporting/readiness lecture-seule). On en fait un HINT DE PROMPT, pas une
-  // relaxation du guard : on AJOUTE une directive au system prompt pour cadrer le
-  // registre (factuel, qualitatif, APY toujours en fourchette, mots interdits
-  // toujours interdits). C'est strictement plus sûr — la directive rend le modèle
-  // PLUS conforme, jamais moins. Le compliance guard (output-guard / forbidden
-  // words / single-point APY) reste text-only, uniforme et inchangé : une dérive
-  // du modèle pendant un tour « éducatif » est toujours bloquée par le guard.
-  // On utilise isEducationalReadOnly (couvre les 4 kinds + reporting/readiness),
-  // pas seulement `kind === "education"` qui ratait yield/product/risk.
-  const educationalReadOnly = agenticDecision
-    ? isEducationalReadOnly(agenticDecision)
-    : false;
-
-  // `productIntent` is computed above (before the nav fast-path) so a product
-  // creation wins over the generic nav shortcut — see the block after
-  // `agenticDecision`.
-
-  // ── 4. Fallback legacy nav (router n'a pas capté ou manque de confiance) ──
-  // Le regex legacy reste la sécurité en cas de miss du router. GARDE-FOU
-  // NÉGATION : si le router a détecté une négation ("ne montre pas les vaults",
-  // "n'ouvre pas le portefeuille"), le regex legacy (qui ignore la négation)
-  // résout quand même une destination — on NE publie PAS la nav dans ce cas.
-  // Le router est la source de vérité pour la négation ; le fallback ne doit
-  // jamais ouvrir une page que l'utilisateur vient explicitement de refuser.
+  // ── Fallback legacy nav (deterministic regex nav shortcut) ──────────────
+  // The regex nav shortcut (resolveNavFallbackDestinationKey → navShortcutKey)
+  // is the PRIMARY navigation path: it covers LP + admin surfaces and publishes
+  // the nav directive directly (no LLM). Skipped when a canvas intent already
+  // won, when this is a product-creation intent (handled by the dedicated block
+  // below — do NOT let the fallback divert "on va créer un produit" to /vaults),
+  // or in review mode.
   if (
     !isReview &&
     !canvasIntent &&
-    !agenticDecision?.negated &&
-    // A product-creation intent is more specific than the generic nav shortcut
-    // and is handled by the dedicated block below — do NOT let the legacy
-    // fallback divert "on va créer un produit" to /vaults.
     !productIntent?.shouldOpenProductWorkspace &&
     navShortcutKey &&
     resolveNavDestinationForProfile(navShortcutKey, navShortcutProfile)
@@ -970,13 +722,6 @@ async function runMasterAgentTurn(args: {
       turnId,
       variant: "nav-shortcut",
       text: buildNavShortcutAck(message),
-    });
-    // Router Observability: legacy regex nav fallback published the navigation.
-    void recordRouterDecisionSafe({
-      decision: agenticDecision,
-      outcome: "legacy_fallback_nav",
-      turnId,
-      chatId,
     });
     return ackResponse(buildNavShortcutAck(message), chatId);
   }
@@ -1239,44 +984,6 @@ async function runMasterAgentTurn(args: {
       }
     }
   }
-
-  // EDUCATIONAL READ-ONLY STEERING (router hint → prompt, never the guard).
-  // When the deterministic router classified this turn as a read-only educational
-  // question, append a short directive to the system message so the model answers
-  // in the right register: factual, qualitative, APY ALWAYS a range, forbidden
-  // words still forbidden, no personalized investment advice. This is purely
-  // additive prompt text — it cannot relax the output-side compliance guard
-  // (forbidden words / single-point APY remain hard blocks downstream). Skipped
-  // in review mode (its facilitator prompt is self-contained). Applied AFTER the
-  // canvas-guidance splice above so both directives coexist, then re-clamped.
-  if (educationalReadOnly && !isReview && messages[0]?.role === "system") {
-    const eduDirective = buildEducationalReadOnlyDirective(agenticDecision?.kind);
-    messages[0] = {
-      role: "system",
-      content: (messages[0].content + "\n\n" + eduDirective).slice(
-        0,
-        MAX_ENRICHED_SYSTEM_LEN,
-      ),
-    };
-  }
-
-  // Router Observability: this is the LLM-bound fall-through (the router did not
-  // navigate or refuse). Derive the outcome from the same flags the route already
-  // computed — no new condition, no behaviour change. Recorded once, before the
-  // model turn, fire-and-forget.
-  const fallThroughOutcome = !agenticDecision
-    ? "unknown"
-    : educationalReadOnly
-      ? "educational_llm"
-      : agenticDecision.negated
-        ? "negated_no_nav"
-        : "normal_llm";
-  void recordRouterDecisionSafe({
-    decision: agenticDecision,
-    outcome: fallThroughOutcome,
-    turnId,
-    chatId,
-  });
 
   const { stream, final } = runChatAgent(
     openai as unknown as StreamingChatClient,

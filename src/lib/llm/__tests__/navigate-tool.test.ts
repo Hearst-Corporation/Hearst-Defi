@@ -65,8 +65,6 @@ describe("navigate-tool whitelist", () => {
       "/admin/proof-center/full",
       "/admin/governance/allowlist",
       "/admin/governance/propose",
-      "/admin/agents",
-      "/admin/agents/new",
       "/admin/audit",
       "/admin/distributions",
       "/admin/feedback",

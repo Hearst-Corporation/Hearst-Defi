@@ -622,10 +622,11 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
     expect(mockNavTraceCreate).not.toHaveBeenCalled();
   });
 
-  it("writes a deterministic NavTrace row when the router v2 navigation fires", async () => {
-    // "ouvre mon portefeuille" matches the router v2 navigation rule (portfolio).
-    // The router fires before the LLM, so runChatAgent is NOT called.
-    // The NavTrace row must carry status:"published" + reason:"deterministic_router_v2".
+  it("writes a deterministic NavTrace row when the regex nav shortcut fires", async () => {
+    // "ouvre mon portefeuille" matches the deterministic regex nav shortcut
+    // (resolveNavFallbackDestinationKey → portfolio). The shortcut publishes nav
+    // before the LLM, so runChatAgent is NOT called. The NavTrace row carries
+    // status:"published" + reason:"deterministic_router".
     const res = await POST(makeChatRequest("ouvre mon portefeuille"));
     expect(res.status).toBe(200);
 
@@ -634,11 +635,11 @@ describe("POST /api/cockpit-chat — navigate tracing (OBS-02)", () => {
         data: expect.objectContaining({
           destinationKey: "portfolio",
           status: "published",
-          reason: "deterministic_router_v2",
+          reason: "deterministic_router",
         }),
       });
     });
-    // The LLM never ran — the router returned early.
+    // The LLM never ran — the regex nav shortcut returned early.
     expect(mockRunChatAgent).not.toHaveBeenCalled();
   });
 
@@ -673,31 +674,6 @@ describe("POST /api/cockpit-chat — router v2 safe paths", () => {
     expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
       destinationKey: "vaults",
     });
-  });
-
-  it("2. negation: 'ne va pas dans les vaults' → no nav, falls through to LLM", async () => {
-    mockMasterAgentTurnWithoutNav();
-
-    const res = await POST(makeChatRequest("ne va pas dans les vaults"));
-    expect(res.status).toBe(200);
-
-    // The router detects negation and flips to cancellation — no nav, no refusal.
-    // The message falls through to the LLM path.
-    expect(mockRunChatAgent).toHaveBeenCalled();
-    expect(mockPublishNav).not.toHaveBeenCalled();
-  });
-
-  it("3. dangerous intent refusal: 'déploie ce produit' → refusal without LLM", async () => {
-    const res = await POST(makeChatRequest("déploie ce produit"));
-    expect(res.status).toBe(200);
-
-    const body = await readStreamText(res);
-    const parsed = JSON.parse(body);
-    expect(parsed.role).toBe("assistant");
-    expect(parsed.content).toContain("I can't carry out this request");
-    expect(parsed.metadata.intent).toBe("refusal");
-    expect(mockRunChatAgent).not.toHaveBeenCalled();
-    expect(mockPublishNav).not.toHaveBeenCalled();
   });
 
   it("5. covered navigation never calls LLM router/classifier", async () => {

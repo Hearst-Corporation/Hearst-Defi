@@ -1,9 +1,16 @@
 /**
- * Chat Router diagnostics — exercises the REAL deterministic intent router and
- * product-workspace classifier (both pure, no I/O, no LLM, no DB). Every check
- * calls the live function and asserts on its real output.
+ * Chat Router diagnostics — exercises the REAL product-workspace classifier and
+ * the nav resolver (both pure, no I/O, no LLM, no DB). Every live check calls the
+ * real function and asserts on its real output.
+ *
+ * NOTE — the deterministic agentic intent router (`@/lib/agentic/intent-router`,
+ * `classifyAgenticIntent`) was REMOVED. The checks that probed it (pre-LLM
+ * deploy/send refusals, negation, agentic navigation, unknown fallthrough,
+ * bug-report non-nav) no longer have a runtime to exercise, so they are reported
+ * honestly as SKIPPED ("router removed — capability not applicable"), never a
+ * fabricated PASS. The product-workspace routing + LP nav-boundary checks remain
+ * live because those functions still exist.
  */
-import { classifyAgenticIntent } from "@/lib/agentic/intent-router";
 import { classifyProductWorkspaceIntent } from "@/lib/llm/product-workspace-intent";
 import { resolveNavDestinationForProfile } from "@/lib/llm/navigate-tool";
 import {
@@ -11,13 +18,15 @@ import {
   type DiagnosticResult,
   fail,
   pass,
+  skip,
   runChecks,
 } from "./types";
 
-const ADMIN = { navProfile: "admin", isAdmin: true } as const;
-const LP = { navProfile: "lp", isAdmin: false } as const;
-const ROUTER = "src/lib/agentic/intent-router.ts";
 const PW = "src/lib/llm/product-workspace-intent.ts";
+
+/** Reason surfaced by every check that used to probe the deleted intent router. */
+const ROUTER_REMOVED =
+  "agentic intent router removed — classifyAgenticIntent no longer exists, capability not applicable";
 
 export function runChatRouterDiagnostics(): DiagnosticResult[] {
   const specs: DiagnosticCheckSpec[] = [
@@ -72,52 +81,24 @@ export function runChatRouterDiagnostics(): DiagnosticResult[] {
       label: "Dangerous deploy prompt is refused pre-LLM",
       severity: "P0",
       expected: "actionPolicy=refuse_autonomous, prohibitedAutonomousAction=true, requiresLLM=false",
-      likelyFile: ROUTER,
-      likelyFunction: "classifyAgenticIntent",
-      guard: "DANGEROUS_RULES",
-      run: () => {
-        const d = classifyAgenticIntent("déploie le vault sur mainnet", ADMIN);
-        return d.actionPolicy === "refuse_autonomous" &&
-          d.prohibitedAutonomousAction === true &&
-          d.requiresLLM === false
-          ? pass(`kind=${d.kind}, refuse_autonomous, no LLM`, d)
-          : fail(`kind=${d.kind}, actionPolicy=${d.actionPolicy}, prohibited=${d.prohibitedAutonomousAction}, requiresLLM=${d.requiresLLM}`);
-      },
+      sideEffect: "skipped",
+      run: () => skip(ROUTER_REMOVED),
     },
     {
       id: "chat.negated-deploy-cancellation",
       label: "Negated deploy becomes cancellation, not a deploy",
       severity: "P0",
       expected: "kind=cancellation, negated=true, prohibitedAutonomousAction=false",
-      likelyFile: "src/lib/agentic/intent-router-negation.ts",
-      likelyFunction: "isNegated",
-      run: () => {
-        const d = classifyAgenticIntent("ne déploie pas ce vault", ADMIN);
-        return d.kind === "cancellation" &&
-          d.negated === true &&
-          d.prohibitedAutonomousAction === false
-          ? pass(`kind=cancellation, negated, not a deploy`, d)
-          : fail(`kind=${d.kind}, negated=${d.negated}, prohibited=${d.prohibitedAutonomousAction}`);
-      },
+      sideEffect: "skipped",
+      run: () => skip(ROUTER_REMOVED),
     },
     {
       id: "chat.outreach-send-human-gate",
       label: "Outreach send prompt requires a human gate",
       severity: "P0",
       expected: "actionPolicy=requires_human_gate, requiresHumanGate=true, prohibitedAutonomousAction=true",
-      likelyFile: "src/lib/agentic/intent-router-rules.ts",
-      guard: "SEND_SOURCE_RULES",
-      run: () => {
-        const d = classifyAgenticIntent(
-          "envoie la campagne outreach maintenant",
-          ADMIN,
-        );
-        return d.actionPolicy === "requires_human_gate" &&
-          d.requiresHumanGate === true &&
-          d.prohibitedAutonomousAction === true
-          ? pass(`kind=${d.kind}, human-gated, never auto-sent`, d)
-          : fail(`kind=${d.kind}, actionPolicy=${d.actionPolicy}, requiresHumanGate=${d.requiresHumanGate}`);
-      },
+      sideEffect: "skipped",
+      run: () => skip(ROUTER_REMOVED),
     },
     {
       id: "chat.lp-cannot-resolve-admin-nav",
@@ -142,14 +123,14 @@ export function runChatRouterDiagnostics(): DiagnosticResult[] {
       id: "chat.lp-nav-allowed",
       label: "LP can navigate its own (portfolio) destination",
       severity: "P2",
-      expected: "classifyAgenticIntent('ouvre mon portefeuille', lp) → navigation + resolvable",
-      likelyFile: ROUTER,
+      expected: "resolveNavDestinationForProfile('portfolio','lp') resolvable",
+      likelyFile: "src/lib/llm/navigate-tool.ts",
+      likelyFunction: "resolveNavDestinationForProfile",
       run: () => {
-        const d = classifyAgenticIntent("ouvre mon portefeuille", LP);
-        const dest = resolveNavDestinationForProfile(d.routeKey ?? null, "lp");
-        return d.kind === "navigation" && dest !== null
-          ? pass(`routeKey=${d.routeKey} → ${dest?.route}`, d)
-          : fail(`kind=${d.kind}, routeKey=${d.routeKey}, dest=${JSON.stringify(dest)}`);
+        const dest = resolveNavDestinationForProfile("portfolio", "lp");
+        return dest !== null
+          ? pass(`portfolio → ${dest.route}`, dest)
+          : fail(`portfolio unresolved for LP: ${JSON.stringify(dest)}`);
       },
     },
     {
@@ -157,29 +138,16 @@ export function runChatRouterDiagnostics(): DiagnosticResult[] {
       label: "Unknown prompt falls to LLM fallback, not a write action",
       severity: "P1",
       expected: "actionPolicy != refuse_autonomous, prohibitedAutonomousAction=false, requiresHumanGate=false",
-      likelyFile: ROUTER,
-      run: () => {
-        const d = classifyAgenticIntent("asdf qwer zxcv lorem ipsum", ADMIN);
-        return d.actionPolicy !== "refuse_autonomous" &&
-          d.prohibitedAutonomousAction === false &&
-          d.requiresHumanGate === false
-          ? pass(`kind=${d.kind}, actionPolicy=${d.actionPolicy} (no autonomous write)`, d)
-          : fail(`kind=${d.kind}, actionPolicy=${d.actionPolicy}, prohibited=${d.prohibitedAutonomousAction}`);
-      },
+      sideEffect: "skipped",
+      run: () => skip(ROUTER_REMOVED),
     },
     {
       id: "chat.bug-report-no-nav",
       label: "Bug report mentioning a page does not auto-navigate",
       severity: "P1",
       expected: "kind != navigation, routeKey undefined for a complaint",
-      likelyFile: ROUTER,
-      guard: "BUG_REPORT_RE",
-      run: () => {
-        const d = classifyAgenticIntent("le dashboard est cassé", ADMIN);
-        return d.kind !== "navigation" && !d.routeKey
-          ? pass(`kind=${d.kind}, no routeKey (complaint, not nav)`, d)
-          : fail(`kind=${d.kind}, routeKey=${d.routeKey}`);
-      },
+      sideEffect: "skipped",
+      run: () => skip(ROUTER_REMOVED),
     },
   ];
   return runChecks("chat-router", specs);

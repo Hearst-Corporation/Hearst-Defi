@@ -261,21 +261,6 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     description: "Create a new governance proposal.",
   },
   {
-    key: "admin-agents",
-    profile: "admin",
-    route: "/admin/agents",
-    label: "Admin — Agents",
-    description:
-      "Agents console: templates, instances, calibration and agent memory.",
-  },
-  {
-    key: "admin-agents-new",
-    profile: "admin",
-    route: "/admin/agents/new",
-    label: "Admin — New agent",
-    description: "Create a new agent template / instance.",
-  },
-  {
     key: "admin-audit",
     profile: "admin",
     route: "/admin/audit",
@@ -344,9 +329,9 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     key: "admin-agentic",
     profile: "admin",
     route: "/admin/agentic",
-    label: "Admin — Agentic Console",
+    label: "Admin — Agents (placeholder)",
     description:
-      "Agentic console (read-only): system map, router observability, tool boundary, guardrails. Visible in the Dashboard rail.",
+      "Agents placeholder: agent orchestration now lives on an external platform and will be re-integrated here. Visible in the Dashboard rail.",
   },
 ] as const;
 

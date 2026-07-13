@@ -1,19 +1,19 @@
 /**
- * Route-level tests for the Agentic Router Stabilization lot:
+ * Route-level tests for the SURVIVING deterministic navigation behaviour of the
+ * cockpit-chat route.
  *
- *  1. NEGATION GUARD — a negated navigation ("ne montre pas les vaults",
- *     "n'ouvre pas le portefeuille") must NOT publish nav, even though the legacy
- *     regex resolver (which ignores negation) still resolves a destination key.
- *     The router is the source of truth for negation; the legacy fallback is now
- *     gated on `!agenticDecision.negated`.
+ * The route was decoupled from the agentic router: the negation guard, the
+ * educational read-only steering directive, and the pre-LLM dangerous-refusal
+ * short-circuit no longer live in this route (those assertions were removed
+ * with the router lot). What REMAINS and is still asserted here:
  *
- *  2. EDUCATIONAL READ-ONLY STEERING — a read-only educational question
- *     (product / yield / risk explanation) reaches the LLM with the educational
- *     directive appended to the system prompt. This steers the register; it does
- *     NOT relax the compliance guard (that stays inside runChatAgent/output-guard).
+ *  1. POSITIVE NAV SHORTCUT — "montre les vaults" publishes nav deterministically
+ *     (regex router) and short-circuits the LLM. No regression.
  *
- *  3. DANGEROUS REFUSAL — a deploy/go-live request is refused BEFORE the LLM with
- *     no nav publish and no chat-agent call.
+ *  2. PRODUCT WORKSPACE DIVERT (admin) — vault/product-creation phrasings navigate
+ *     (admin) to the canonical Product Workspace deterministically: real
+ *     classifier, no LLM, no "section not found". A non-product message from the
+ *     same admin must NOT divert.
  *
  * These exercise the REAL router (no mock) through the POST handler.
  */
@@ -123,15 +123,7 @@ function mockTurn(finalOverride?: Partial<ChatTurnFinal>) {
   });
 }
 
-/** The system prompt passed to runChatAgent on the most recent call. */
-function systemPromptOfLastTurn(): string {
-  const call = mockRunChatAgent.mock.calls.at(-1);
-  if (!call) return "";
-  const messages = call[2] as Array<{ role: string; content: string }>;
-  return messages.find((m) => m.role === "system")?.content ?? "";
-}
-
-describe("cockpit-chat — router stabilization (negation, education, refusal)", () => {
+describe("cockpit-chat — surviving deterministic nav shortcut", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRequireAuth.mockResolvedValue({ userId: USER_ID });
@@ -151,85 +143,21 @@ describe("cockpit-chat — router stabilization (negation, education, refusal)",
     mockTurn();
   });
 
-  // ── 1. NEGATION GUARD ────────────────────────────────────────────────────
-  describe("negated navigation never publishes nav", () => {
-    for (const msg of [
-      "ne montre pas les vaults",
-      "n'ouvre pas le portefeuille",
-      "ne pas ouvrir le portefeuille",
-    ]) {
-      it(`"${msg}" → no publishNav, falls through to LLM`, async () => {
-        await POST(makeChatRequest(msg));
-        // The legacy regex resolves a key for these, but the negation guard
-        // blocks the publish — the router classified them as cancellation.
-        expect(mockPublishNav).not.toHaveBeenCalled();
-        // It still reaches the LLM (the message is answered, not nav'd).
-        expect(mockRunChatAgent).toHaveBeenCalledTimes(1);
-      });
-    }
-
-    it('positive "montre les vaults" still publishes nav (no regression)', async () => {
-      const res = await POST(makeChatRequest("montre les vaults"));
-      await readStreamText(res);
-      await vi.waitFor(() => {
-        expect(mockPublishNav).toHaveBeenCalledWith(
-          USER_ID,
-          expect.objectContaining({ destinationKey: "vaults" }),
-        );
-      });
-      // Nav shortcut path: no LLM call.
-      expect(mockRunChatAgent).not.toHaveBeenCalled();
-    });
-  });
-
-  // ── 2. EDUCATIONAL READ-ONLY STEERING ────────────────────────────────────
-  describe("educational read-only intents steer the system prompt", () => {
-    for (const msg of [
-      "explique-moi comment marchent les produits",
-      "explique comment fonctionne le yield",
-      "quels sont les risques d'un produit",
-    ]) {
-      it(`"${msg}" → LLM called with educational directive in system prompt`, async () => {
-        await POST(makeChatRequest(msg));
-        expect(mockRunChatAgent).toHaveBeenCalledTimes(1);
-        const sys = systemPromptOfLastTurn();
-        expect(sys).toContain("INTENT: read-only EDUCATIONAL question about");
-        // The directive reinforces (never relaxes) compliance.
-        expect(sys).toContain("as a range");
-        expect(sys).toMatch(/forbidden word|guaranteed/i);
-      });
-    }
-
-    it("a non-educational chat does NOT get the educational directive", async () => {
-      await POST(makeChatRequest("bonjour, tu vas bien ?"));
-      expect(mockRunChatAgent).toHaveBeenCalledTimes(1);
-      expect(systemPromptOfLastTurn()).not.toContain(
-        "INTENT: read-only EDUCATIONAL question about",
+  it('positive "montre les vaults" publishes nav and short-circuits the LLM', async () => {
+    const res = await POST(makeChatRequest("montre les vaults"));
+    await readStreamText(res);
+    await vi.waitFor(() => {
+      expect(mockPublishNav).toHaveBeenCalledWith(
+        USER_ID,
+        expect.objectContaining({ destinationKey: "vaults" }),
       );
     });
-  });
-
-  // ── 3. DANGEROUS REFUSAL ─────────────────────────────────────────────────
-  describe("dangerous intents refuse before the LLM", () => {
-    for (const msg of [
-      "déploie ce produit",
-      "mets ce vault en ligne",
-      "envoie la campagne aux prospects",
-      "source des prospects institutionnels",
-    ]) {
-      it(`"${msg}" → refusal, no LLM, no nav publish`, async () => {
-        const res = await POST(makeChatRequest(msg));
-        expect(res.status).toBe(200);
-        const body = await res.text();
-        expect(body).toContain("I can't carry out this request");
-        expect(mockRunChatAgent).not.toHaveBeenCalled();
-        expect(mockPublishNav).not.toHaveBeenCalled();
-      });
-    }
+    // Nav shortcut path: no LLM call.
+    expect(mockRunChatAgent).not.toHaveBeenCalled();
   });
 });
 
-// ── P0 — assistant navigation intent (vault / product workspace) ──────────────
+// ── assistant navigation intent (vault / product workspace) ───────────────────
 // The exact failing logs must now navigate (admin) to the canonical Product
 // Workspace, deterministically: real classifier, no LLM, no "section not found".
 describe("cockpit-chat — vault/product creation routes to Product Workspace (admin)", () => {

@@ -105,28 +105,30 @@ describe("visibleSubNavTabs", () => {
 
     const visible = visibleSubNavTabs(dashboard!.tabs).map((t) => t.id);
     expect(visible).not.toContain("onboarding-test");
-    // Agentic Console (the visual control center) leads, then the Agent Library,
-    // then the Model Bench (agent-ops comparison arena).
+    expect(visible).not.toContain("agent-canvas");
+    // The former Agent Library + Model Bench tabs were removed (their routes are
+    // deleted). Agent orchestration now lives on an external platform; the single
+    // "agentic" tab survives as an "Agents" placeholder slot.
     expect(visible).toEqual([
       "dashboard-overview",
       "customers",
       "agentic",
-      "agents",
-      "model-bench",
       "outreach",
       "feedback",
     ]);
   });
 
-  it("labels Agentic Console + Agent Library distinctly (no two 'Bot' duplicates)", () => {
+  it("keeps the single Agents placeholder tab (Agent Library + Model Bench removed)", () => {
     const dashboard = ADMIN_SECTIONS.find((s) => s.id === "dashboard");
     const agentic = dashboard!.tabs.find((t) => t.id === "agentic");
-    const agents = dashboard!.tabs.find((t) => t.id === "agents");
-    expect(agentic?.label).toBe("Agentic Console");
+    // The placeholder slot: agent orchestration moved to an external platform.
+    expect(agentic?.label).toBe("Agents");
     expect(agentic?.href).toBe("/admin/agentic");
-    expect(agents?.label).toBe("Agent Library");
-    expect(agents?.href).toBe("/admin/agents");
-    // Distinct icons so the two are not confusing.
-    expect(agentic?.icon).not.toBe(agents?.icon);
+    // The distinct Agent Library / Model Bench tabs are gone — their routes were
+    // deleted, so no dashboard tab may point at them.
+    expect(dashboard!.tabs.find((t) => t.id === "agents")).toBeUndefined();
+    expect(dashboard!.tabs.find((t) => t.id === "model-bench")).toBeUndefined();
+    expect(dashboard!.tabs.some((t) => t.href === "/admin/agents")).toBe(false);
+    expect(dashboard!.tabs.some((t) => t.href === "/admin/model-bench")).toBe(false);
   });
 });

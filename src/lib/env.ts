@@ -195,15 +195,6 @@ const serverEnvSchema = z.object({
   LANGSMITH_API_KEY: z.string().optional(),
   LANGSMITH_PROJECT: z.string().optional(),
   LANGSMITH_ENDPOINT: z.string().url().optional(),
-  // ── Model Bench (admin lab — compare alt LLMs side-by-side) ──────────────
-  // ADR-011 keeps the PRODUCT on gpt-4.1. These extra provider keys power ONLY
-  // the /admin/model-bench comparison arena — never the agents or the chat.
-  // All optional: when a key is absent, that provider is greyed out in the
-  // bench UI (never throws). All OpenAI-compatible (same SDK, swap baseURL).
-  DEEPSEEK_API_KEY: z.string().optional(),
-  DEEPSEEK_BASE_URL: z.string().url().optional(),
-  HYPERCLI_API_KEY: z.string().optional(),
-  HYPERCLI_BASE_URL: z.string().url().optional(),
   // ── Hugging Face (Inference) ──────────────────────────────────────────────
   // Used by the SEMANTIC compliance guard (zero-shot NLI) as a SECOND screen
   // behind the keyword guard. Two accepted names (HF_TOKEN is the SDK's
