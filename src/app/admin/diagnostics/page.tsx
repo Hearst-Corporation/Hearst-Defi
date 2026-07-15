@@ -7,6 +7,7 @@
 // never writes, sends, or deploys.
 
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
+import { DynavaultChainPanel } from "@/components/admin/chain/dynavault-chain-panel";
 import { DiagnosticCenter } from "@/components/admin/diagnostics/diagnostic-center";
 import { DiagnosticFlowTheater } from "@/components/admin/diagnostics/diagnostic-flow-theater";
 import { ChatActionLab } from "@/components/admin/diagnostics/chat-action-lab";
@@ -62,6 +63,18 @@ export default async function AdminDiagnosticsPage() {
       titleAccent="Diagnostics"
       contextLabel="admin product QA · dry-run · no writes, no email"
     >
+      {/* 0 — Vault contract wiring. Sits ABOVE the Overview on purpose: it is a
+          different concern from the QA labs (which contract are we pointed at
+          right now?), and keeping it out of the numbered 1-4 narrative below
+          means that list stays correct. Read-only, like everything here. */}
+      <AdminSectionCard
+        title="Vault contract wiring"
+        subtitle="Which vault contract the app is actually pointed at, and what it returns right now. Blue = the value came through the v2 adapter. An RPC outage, an absent contract, and a function the deployed contract does not have are three distinct reasons — never a fabricated value."
+        ariaLabel="Vault contract wiring"
+      >
+        <DynavaultChainPanel />
+      </AdminSectionCard>
+
       {/* 1 — Overview */}
       <AdminSectionCard
         title="Overview"

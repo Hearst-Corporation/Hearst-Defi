@@ -2,6 +2,11 @@ import "server-only";
 
 import { z } from "zod";
 
+import {
+  MIN_TICKET_USDC_ENV_SCHEMA,
+  readMinTicketOverride,
+} from "@/lib/vaults/min-ticket";
+
 /**
  * Server-side environment validation.
  *
@@ -48,6 +53,50 @@ const serverEnvSchema = z.object({
   // the module throws at boot (outside test mode).
   NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS: evmAddress.optional(),
   NEXT_PUBLIC_HEARST_VAULT_ADDRESS: evmAddress.optional(),
+  // PermissionedDynaVault v2.1 address on Base Sepolia — the REPLACEMENT for the
+  // two vault addresses above. Public (client bundle), optional: the contract is
+  // not deployed yet, so this is unset everywhere today.
+  //
+  // It is the mode switch of the chain adapter (src/lib/chain/dynavault.ts):
+  //   set + well-formed → mode "v2"     (full v2.1 surface readable)
+  //   unset             → mode "legacy" (falls back on the two names above; only
+  //                                      the common ERC-4626 subset is readable,
+  //                                      everything else is honestly unavailable)
+  // Validated here so a typo is a loud boot failure server-side: the adapter
+  // itself must ignore a malformed value (it runs in the browser, where throwing
+  // would white-screen the page), so THIS is the gate that catches it.
+  NEXT_PUBLIC_DYNAVAULT_ADDRESS: evmAddress.optional(),
+  // ── Applicative minimum ticket, in whole USDC (the asset is USDC, 6 dp) ───
+  //
+  // OVERRIDE, not a value: when unset, the canonical base applies unchanged —
+  // the share-class preset (Class A: 250_000) on the validation side, and each
+  // vault's own `VaultDeployment.minTicketUsdc` column on the data side. That
+  // is why it is `.optional()` and NOT `.default(250_000)`: a default here
+  // would flatten every vault's configured minimum onto 250_000 and silently
+  // change the behaviour of a deployment that never set this var.
+  //
+  // Resolution + precedence live in ONE place, src/lib/vaults/min-ticket.ts,
+  // which owns the schema below. Both the data layer (what the invest form
+  // shows and gates on) and `validateMinTicket` (what the server enforces after
+  // the on-chain deposit settles) read through it, so they can never disagree.
+  //
+  // Server-only on purpose — NOT NEXT_PUBLIC_. The invest form is a client
+  // component but receives the already-resolved `vault.minTicketUsdc` as a prop
+  // from a Server Component, so the browser never needs to read this.
+  //
+  // `.catch(undefined)` = a malformed value is treated as absent, which RAISES
+  // the floor back to the product default rather than lowering it, and never
+  // 500s every route in production over one bad string (same contract as
+  // NEXT_PUBLIC_CHAIN_LOG_CHUNK_SIZE below). `.positive()` additionally makes
+  // "0" unusable, so a misconfiguration can never yield a 0 USDC floor.
+  MIN_TICKET_USDC: MIN_TICKET_USDC_ENV_SCHEMA.optional().catch(undefined),
+  // DEPRECATED legacy alias of MIN_TICKET_USDC, lower precedence. It used to be
+  // inert in production (`NODE_ENV !== "production"` gate); it is now honored in
+  // every environment like any other override. Declared here so it is validated
+  // and documented rather than read as an undeclared stray var. The production
+  // guard below warns when it is the one setting the floor — a `DEMO_`-prefixed
+  // name driving a real money floor should be visible, not silent.
+  DEMO_MIN_TICKET_USDC: MIN_TICKET_USDC_ENV_SCHEMA.optional().catch(undefined),
   // Optional deploy-block hints so `eth_getLogs` can use a finite range instead
   // of scanning from genesis (Alchemy free tier caps the window at ~10 blocks).
   // See P1-4 audit. When unset, the loaders fall back to a 10-block tail of
@@ -403,6 +452,26 @@ if (IS_RUNTIME_PRODUCTION && parsed.success) {
         "emailed. Set RESEND_API_KEY to enable delivery.",
     );
   }
+  // Minimum ticket — WARN only, never throw. A lowered applicative floor is a
+  // deliberate, reversible configuration choice, not a boot error. But it is
+  // money-facing, so a production runtime must never carry one silently.
+  const minTicketOverride = readMinTicketOverride();
+  if (minTicketOverride) {
+    if (minTicketOverride.source === "DEMO_MIN_TICKET_USDC") {
+      console.warn(
+        "[env] DEMO_MIN_TICKET_USDC is DEPRECATED and is what currently sets the " +
+          `production minimum ticket (${minTicketOverride.usdc} USDC). It is now honored ` +
+          "in EVERY environment — it used to be inert in production. Rename it to " +
+          "MIN_TICKET_USDC (same value) so a `DEMO_`-prefixed var stops driving a real floor.",
+      );
+    }
+    console.warn(
+      `[env] Applicative minimum ticket is overridden to ${minTicketOverride.usdc} USDC ` +
+        `(via ${minTicketOverride.source}); the Class A product default is 250000. ` +
+        "This floor is APPLICATIVE — the deployed contract does not carry it beyond " +
+        "its own minDeposit(). Unset the var to restore the default.",
+    );
+  }
   // CHAT_MASTER_AGENT kill-switch (ADR-017): read in feature-flags.ts as ON unless
   // the value is the literal "0" (=0 → /api/cockpit-chat returns 503, no fallback).
   // Warn in production when explicitly disabled — never throw.
@@ -483,6 +552,11 @@ function resolveEnv(): ServerEnv {
       // ensuring required fields fall back to empty strings recognised by
       // downstream code as "missing". DATABASE_URL stays empty so callers
       // that need it will fail early at use-site, not at module import.
+      //
+      // NOTE: MIN_TICKET_USDC / DEMO_MIN_TICKET_USDC need no entry here — they
+      // are `.optional()` (an OVERRIDE, not a defaulted value), so `undefined`
+      // is a valid inhabitant of ServerEnv for them. Fields carrying a
+      // `.default()` are the ones that must be restored below.
       const data: ServerEnv = {
         ...lenient.data,
         DATABASE_URL: lenient.data.DATABASE_URL ?? "",

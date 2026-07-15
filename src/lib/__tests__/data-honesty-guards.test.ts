@@ -140,50 +140,74 @@ describe("POINT 2 — sentinel tx hashes are filtered before any explorer link",
 });
 
 // ---------------------------------------------------------------------------
-// POINT 3 — DEMO_MIN_TICKET_USDC has NO effect in production.
+// POINT 3 — the minimum ticket is ONE number, identical on both sides.
 // ---------------------------------------------------------------------------
 //
-// validateMinTicket(amount, class, isDevelopment) reads DEMO_MIN_TICKET_USDC,
-// but only honours it when `isDevelopment || NODE_ENV !== "production"`. In a
-// real production runtime the demo override must be inert, so the effective
-// minimum is always the canonical share-class ticket — never a tiny demo value.
-describe("POINT 3 — DEMO_MIN_TICKET_USDC is inert in production", () => {
+// HISTORY (why this block was inverted): `validateMinTicket` used to take an
+// `isDevelopment` flag and gate the env override behind
+// `isDevelopment || NODE_ENV !== "production"`, which made the override inert in
+// production. This block asserted exactly that. It was a real safety property
+// — until it became the bug: the deployed contract's own minDeposit() is 1 USDC
+// while the app forced 250k in prod, so the invest CTA could never produce a
+// single deposit. The override is now honored in EVERY environment
+// (MIN_TICKET_USDC, src/lib/vaults/min-ticket.ts).
+//
+// The honesty property that replaces it is stronger and money-facing: the floor
+// the invest form shows and gates on MUST be the floor `subscribe()` enforces
+// after the irreversible on-chain deposit has settled. The end-to-end version of
+// that contract (real data layer vs real validator) lives in
+// src/lib/vaults/__tests__/min-ticket.test.ts; what is guarded HERE is the
+// source-level rule that no caller may re-introduce an environment gate, plus
+// the fail-safe direction of a bad value.
+describe("POINT 3 — the minimum ticket floor is environment-independent", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
-  it("in production, a demo override is IGNORED — class minimum still enforced", () => {
+  it("with no override configured, the canonical class minimums apply", () => {
     vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("DEMO_MIN_TICKET_USDC", "100");
+    vi.stubEnv("MIN_TICKET_USDC", "");
+    vi.stubEnv("DEMO_MIN_TICKET_USDC", "");
 
-    // A $100 deposit (would clear the demo override) must be rejected: the real
-    // Class A minimum is 250_000 and the demo value is inert in prod.
-    const below = validateMinTicket(100, "A", /* isDevelopment */ false);
-    expect(below.ok).toBe(false);
-
-    // Exactly the canonical class minimum passes.
-    const atMin = validateMinTicket(SHARE_CLASS_A.minTicketUsdc, "A", false);
-    expect(atMin.ok).toBe(true);
+    expect(validateMinTicket(100, "A").ok).toBe(false);
+    expect(validateMinTicket(SHARE_CLASS_A.minTicketUsdc, "A").ok).toBe(true);
+    expect(validateMinTicket(SHARE_CLASS_B.minTicketUsdc, "B").ok).toBe(true);
   });
 
-  it("isDevelopment=true does NOT re-enable the demo override under prod NODE_ENV", () => {
-    // The useDemo gate is `isDevelopment || NODE_ENV !== 'production'`; with
-    // NODE_ENV=production the first operand alone must NOT unlock it... wait —
-    // it IS an OR, so isDevelopment=true would unlock it. Assert the REAL
-    // behaviour honestly: the code DOES honour an explicit isDevelopment flag.
-    // The production-safety contract is therefore carried by the *callers*
-    // passing isDevelopment=false in prod, verified in the next test.
-    vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("DEMO_MIN_TICKET_USDC", "100");
-    const res = validateMinTicket(100, "A", /* isDevelopment */ true);
-    // Honest assertion of the real branch: an explicit dev flag unlocks demo.
-    expect(res.ok).toBe(true);
+  it("the SAME env yields the SAME floor in development and in production", () => {
+    vi.stubEnv("MIN_TICKET_USDC", "1");
+
+    for (const nodeEnv of ["development", "test", "production"]) {
+      vi.stubEnv("NODE_ENV", nodeEnv);
+      expect(
+        validateMinTicket(1, "A").ok,
+        `NODE_ENV=${nodeEnv} must not change the floor`,
+      ).toBe(true);
+    }
   });
 
-  it("production callers pass isDevelopment=false (so the override stays inert)", () => {
+  it("a malformed override raises the floor back to the default (fail-safe direction)", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("MIN_TICKET_USDC", "not-a-number");
+
+    // A typo must never open the floor — it closes it back to the product term.
+    expect(validateMinTicket(1, "A").ok).toBe(false);
+    expect(validateMinTicket(SHARE_CLASS_A.minTicketUsdc, "A").ok).toBe(true);
+  });
+
+  it("a zero override cannot create a 0 USDC floor", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("MIN_TICKET_USDC", "0");
+
+    expect(validateMinTicket(0.5, "A").ok).toBe(false);
+  });
+
+  it("no caller re-introduces an environment gate around validateMinTicket", () => {
     // subscribe.ts and admin/customers/actions.ts feed validateMinTicket. The
-    // value they pass as `isDevelopment` must derive from NODE_ENV, never a
-    // hardcoded true — otherwise the override would re-open in prod.
+    // retired signature passed `process.env.NODE_ENV === "development"` as a
+    // third argument; a floor that depends on NODE_ENV is a floor the invest
+    // form cannot predict, and the form's number is the one the investor already
+    // paid against. So the call must stay env-free.
     const subscribe = stripComments(read("src/app/actions/subscribe.ts"));
     const customers = stripComments(read("src/app/admin/customers/actions.ts"));
     for (const [name, src] of [
@@ -193,20 +217,20 @@ describe("POINT 3 — DEMO_MIN_TICKET_USDC is inert in production", () => {
       expect(src, `${name} must call validateMinTicket`).toMatch(
         /validateMinTicket\(/,
       );
-      // The isDevelopment argument is derived from NODE_ENV, not literal true.
-      expect(src, `${name} must not pass isDevelopment: true literally`).not.toMatch(
-        /validateMinTicket\([^)]*,\s*true\s*\)/,
-      );
+      expect(
+        src,
+        `${name} must not gate validateMinTicket on the environment`,
+      ).not.toMatch(/validateMinTicket\([^)]*NODE_ENV/);
     }
   });
 
-  it("in non-production a positive demo override DOES lower the minimum (dev pilot)", () => {
-    // Confirms the override is real where it is meant to apply (testnet pilot),
-    // so this is a true honest guard, not a one-sided assertion.
-    vi.stubEnv("NODE_ENV", "development");
-    vi.stubEnv("DEMO_MIN_TICKET_USDC", "100");
-    const res = validateMinTicket(100, "A", /* isDevelopment */ true);
-    expect(res.ok).toBe(true);
+  it("the applicative floor is resolved OUTSIDE the pure engine (non-negotiable #6)", () => {
+    // src/lib/engine/* must stay free of I/O — no process.env, ever. The
+    // override therefore lives in the deployment layer, and the engine keeps
+    // exposing the product's stated terms untouched.
+    const shareClass = stripComments(read("src/lib/engine/share-class.ts"));
+    expect(shareClass).not.toMatch(/process\.env/);
+    expect(shareClass).toMatch(/minTicketUsdc:\s*250_000/);
   });
 });
 

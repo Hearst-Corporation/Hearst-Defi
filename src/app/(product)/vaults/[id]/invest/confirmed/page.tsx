@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { WiredChip } from "@/components/catalyst/wired-chip";
+import { WiredValue } from "@/components/catalyst/wired-value";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { DepositSuccessIcon } from "@/components/vaults/deposit-success-icon";
 import { OpsContactCard } from "@/components/onboarding/OpsContactCard";
@@ -14,8 +16,13 @@ import {
 } from "@/lib/vaults/product-display";
 import { CopyAddressButton } from "./copy-address-button";
 import { abbreviateAddress } from "@/lib/onchain";
-import { getPublicClient, explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
-import { readNavPerShare, formatNavPerShare, isVaultStale } from "@/lib/onchain/vault";
+import { explorerTxUrl, isPlaceholderTxHash } from "@/lib/chain/client";
+import { getVaultTarget, readNavPerShare } from "@/lib/chain/dynavault";
+import {
+  formatNavPerShare,
+  selectWired,
+  toWiredLike,
+} from "@/lib/chain/wired-view";
 import { getVault } from "@/lib/data/vaults";
 import { getInvestor } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
@@ -38,11 +45,6 @@ interface PageProps {
   }>;
 }
 
-const VAULT_CONTRACT =
-  process.env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS ??
-  process.env.NEXT_PUBLIC_HEARST_VAULT_ADDRESS ??
-  null;
-
 const MS_PER_DAY = 86_400_000;
 
 export default async function ConfirmedPage({ params, searchParams }: PageProps) {
@@ -54,20 +56,22 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   const hasHash = txHash !== null && !isPlaceholderTxHash(txHash);
   const baseScanHref = hasHash ? explorerTxUrl(txHash) : null;
 
-  let navDisplay = "1.0000 USDC / share";
-  let navProvenance: "live" | "estimated" = "estimated";
+  // The vault contract now comes from the adapter (the single passage point),
+  // not from a local env read — so this row shows the SAME contract every other
+  // v2-wired surface talks to, and says which one it is.
+  const target = getVaultTarget();
+  const contractTarget = target.mode === "not_configured" ? null : target;
 
-  if (VAULT_CONTRACT && !isVaultStale()) {
-    try {
-      const rawNav = await readNavPerShare(getPublicClient());
-      if (rawNav !== null) {
-        navDisplay = `${formatNavPerShare(rawNav)} USDC / share`;
-        navProvenance = "live";
-      }
-    } catch {
-      // RPC failure — graceful degradation
-    }
-  }
+  // NAV through the adapter. Previously this page defaulted to a hard-coded
+  // "1.0000 USDC / share" and showed it with an "estimated" badge whenever the
+  // read failed — a fabricated number wearing a provenance badge. Now a failed
+  // read renders an em-dash plus its reason: an RPC outage stays distinguishable
+  // from an unconfigured contract, and neither invents a price.
+  //
+  // `readNavPerShare()` returns the raw value ALONGSIDE the decimals it assumed
+  // (`assetDecimals` / `shareDecimals`), so the assumption that produced the
+  // number is inspectable rather than implicit. Only `.raw` is rendered here.
+  const nav = selectWired(await readNavPerShare(), (data) => data.raw);
 
   const vaultForLock = await getVault(id);
   const LOCK_DAYS = vaultForLock?.softLockupDays ?? 60;
@@ -190,27 +194,36 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
             </dd>
           </div>
 
-          {/* Vault contract */}
-          {VAULT_CONTRACT ? (
+          {/* Vault contract — resolved by the adapter, tagged with its mode */}
+          {contractTarget ? (
             <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[var(--ct-border-soft)]">
               <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">Vault contract</dt>
               <dd className="flex items-center gap-3 min-w-0">
-                <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums truncate">
-                  {abbreviateAddress(VAULT_CONTRACT)}
+                <span
+                  className="text-[length:var(--ct-text-sm)] font-medium text-info tabular-nums truncate"
+                  title={contractTarget.address}
+                >
+                  {abbreviateAddress(contractTarget.address)}
                 </span>
-                <CopyAddressButton address={VAULT_CONTRACT} />
+                <WiredChip state="wired" source={contractTarget.mode} />
+                <CopyAddressButton address={contractTarget.address} />
               </dd>
             </div>
           ) : null}
 
-          {/* NAV at entry */}
+          {/* NAV at entry — through the adapter, in blue. No fabricated fallback. */}
           <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[var(--ct-border-soft)]">
             <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">NAV at entry</dt>
             <dd className="flex items-center gap-3">
-              <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums">
-                {navDisplay}
-              </span>
-              <ProvenanceBadge kind={navProvenance} />
+              <WiredValue
+                wired={toWiredLike(nav)}
+                label="NAV at entry"
+                render={(raw) => (
+                  <span className="text-[length:var(--ct-text-sm)] font-medium tabular-nums">
+                    {formatNavPerShare(raw)}
+                  </span>
+                )}
+              />
             </dd>
           </div>
 

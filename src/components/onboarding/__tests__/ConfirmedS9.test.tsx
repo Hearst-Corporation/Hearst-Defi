@@ -44,6 +44,32 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
+// The confirmed page now reads NAV/share through the chain adapter (the single
+// passage point) instead of the old hard-coded "1.0000 USDC / share" fallback,
+// which was a fabricated number wearing an "estimated" badge — exactly the
+// fake-live this codebase forbids. In the test environment no contract address
+// is configured, so an UNMOCKED read returns `unavailable` and the page renders
+// an em-dash (the correct, honest degraded state). We mock a WIRED read here so
+// this test asserts the real thing it cares about: that the page renders the NAV
+// the chain gives it. `getVaultTarget` is mocked to "not_configured" so the
+// env-gated contract-address row stays hidden (the "no fabricated stub" test).
+vi.mock("@/lib/chain/dynavault", async (importActual) => {
+  const actual = await importActual<typeof import("@/lib/chain/dynavault")>();
+  return {
+    ...actual,
+    getVaultTarget: vi.fn(() => ({ mode: "not_configured" as const })),
+    // 1_000_000 raw asset units at 6 decimals = 1.0000 USDC / share.
+    readNavPerShare: vi.fn().mockResolvedValue({
+      status: "wired",
+      data: { raw: 1_000_000n, assetDecimals: 6, shareDecimals: 18 },
+      source: "v2",
+      address: "0x2bd14d52518a04f4c12949c51df03a161a9e329e",
+      chainId: 84532,
+      readAt: new Date(0).toISOString(),
+    }),
+  };
+});
+
 import ConfirmedPage from "@/app/(product)/vaults/[id]/invest/confirmed/page";
 
 /** Build a fake resolved Promise. */

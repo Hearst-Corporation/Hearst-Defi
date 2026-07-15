@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import { DynavaultChainPanel } from "@/components/admin/chain/dynavault-chain-panel";
 import { RejectDeploymentButton } from "@/components/admin/reject-deployment-button";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { VaultAdminKpiStrip } from "@/components/vaults/vault-admin-kpi-strip";
@@ -330,6 +331,20 @@ export default async function VaultDetailPage({ params }: PageProps) {
           facts={kpiFacts}
           showAumCard={vault.status === "live"}
         />
+
+        {/* ON-CHAIN — the contract's real state, in blue, next to the Prisma
+            aggregate above. The DB row and the chain are two different claims
+            about the same vault; this section is where they can be compared
+            instead of assumed equal. */}
+        <AdminDetailSection
+          label="On-chain"
+          title="Contract state"
+          description="Read live through the vault adapter. Blue = the value comes from the contract. A read that fails shows its reason and no value — never a fallback number."
+        >
+          <BentoPanel>
+            <DynavaultChainPanel dbAumUsdc={aumUsdc} />
+          </BentoPanel>
+        </AdminDetailSection>
 
         <AdminDetailSection label="Terms" title="Legal & allocation">
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">

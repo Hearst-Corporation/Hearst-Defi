@@ -2,6 +2,7 @@ import "server-only";
 
 import { type VaultDeployment } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { resolveMinTicketUsdc } from "@/lib/vaults/min-ticket";
 
 // ---------------------------------------------------------------------------
 // VaultProduct — the canonical shape consumed by /vaults and /vaults/[id].
@@ -19,6 +20,18 @@ export interface VaultProduct {
   status: "live" | "draft" | "review" | "paused" | "closed";
   apyLow: number; // %, e.g. 9.4
   apyHigh: number;
+  /**
+   * EFFECTIVE minimum ticket in whole USDC — the deployment's own
+   * `minTicketUsdc` column, lowered by the `MIN_TICKET_USDC` env override when
+   * one is configured (see src/lib/vaults/min-ticket.ts).
+   *
+   * This is the number the invest form renders AND gates on
+   * (`amount >= vault.minTicketUsdc`), so it MUST equal the floor
+   * `validateMinTicket` enforces server-side after the on-chain deposit
+   * settles — otherwise the investor's USDC is irreversibly spent while the
+   * Position is refused. Both sides call the same resolver; the identity is
+   * pinned by src/lib/vaults/__tests__/min-ticket.test.ts.
+   */
   minTicketUsdc: number;
   softLockupDays: number;
   capacityUsdc: number;
@@ -92,7 +105,11 @@ function toVaultProduct(row: VaultDeployment, aumUsdc: number): VaultProduct {
     status: normaliseStatus(row.status),
     apyLow: row.targetApyLowBps / 100,
     apyHigh: row.targetApyHighBps / 100,
-    minTicketUsdc: row.minTicketUsdc.toNumber(),
+    // The deployment's configured minimum is the BASE; the env override (when
+    // set) lowers it. Applied at this single read boundary so every consumer of
+    // VaultProduct — product cards, term sheet, invest form + its PTAI
+    // projection — shows one number, and it is the number subscribe() enforces.
+    minTicketUsdc: resolveMinTicketUsdc(row.minTicketUsdc.toNumber()),
     softLockupDays: row.softLockupDays,
     capacityUsdc: row.capacityUsdc.toNumber(),
     currentAumUsdc: aumUsdc,

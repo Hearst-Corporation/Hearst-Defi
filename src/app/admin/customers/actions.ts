@@ -190,9 +190,11 @@ export type DeployPositionResult =
  *    public Server Action RPC surface.
  *  - KYC must be "approved" — we do NOT auto-approve; the admin must set KYC
  *    first via setInvestorKyc().
- *  - Share-class minimum ticket enforced (Class A: $250k, Class B: $1M).
- *    In non-production with DEMO_MIN_TICKET_USDC set, the minimum is
- *    overridden to that value so a small demo position is allowed in dev/staging.
+ *  - Share-class minimum ticket enforced. The floor is the class preset
+ *    (Class A: $250k, Class B: $1M) unless the `MIN_TICKET_USDC` env override
+ *    lowers it — in which case it applies in EVERY environment, production
+ *    included, exactly as it does for the investor-facing subscribe(). See
+ *    src/lib/vaults/min-ticket.ts.
  *  - Vault capacity check runs inside the transaction (same as subscribe()).
  *  - txHashOpen is null (off-chain path; SQL allows multiple NULLs as distinct).
  */
@@ -248,11 +250,7 @@ export async function deployPosition(
   }
 
   // Share-class minimum ticket check.
-  const minTicketCheck = validateMinTicket(
-    amountUsdc,
-    classCode,
-    process.env.NODE_ENV === "development",
-  );
+  const minTicketCheck = validateMinTicket(amountUsdc, classCode);
   if (!minTicketCheck.ok) {
     return minTicketCheck;
   }

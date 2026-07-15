@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { SHARE_CLASS_A, SHARE_CLASS_B, type ShareClassTerms } from "@/lib/engine/share-class";
 import { formatMinTicketUsdc } from "@/lib/vaults/product-display";
+import { resolveMinTicketUsdc } from "@/lib/vaults/min-ticket";
 
 /** Sentinel thrown inside the subscribe transaction when capacity is exceeded. */
 export class CapacityError extends Error {}
@@ -24,28 +25,32 @@ export function resolveClassTerms(classCode: ShareClassCode): ShareClassTerms {
 }
 
 /**
- * Validates the subscription amount against the share class minimum ticket.
- * Handles the DEMO_MIN_TICKET_USDC override for testnet pilots.
+ * Validates the subscription amount against the effective minimum ticket.
+ *
+ * The floor is `resolveMinTicketUsdc(classTerms.minTicketUsdc)` — the share
+ * class preset (A: 250k, B: 1M), lowered by `MIN_TICKET_USDC` when that env var
+ * is configured. Resolution goes through src/lib/vaults/min-ticket.ts, the SAME
+ * module the data layer uses to build `vault.minTicketUsdc`, so the number this
+ * function enforces is the number the invest form displayed and gated on.
+ *
+ * That identity is the whole point, and it is load-bearing: this check runs
+ * AFTER the investor's on-chain USDC deposit has settled. A floor here that is
+ * higher than the one the form advertised means the deposit is irreversibly
+ * gone while the Position is never created. See
+ * src/lib/vaults/__tests__/min-ticket.test.ts.
+ *
+ * The override is honored in EVERY environment. The previous signature took an
+ * `isDevelopment` flag feeding an `isDevelopment || NODE_ENV !== "production"`
+ * gate that made the override inert in production; it is gone on purpose. Do
+ * not re-introduce an environment condition here — a floor that depends on
+ * NODE_ENV is a floor the form cannot predict.
  */
 export function validateMinTicket(
   amountUsdc: number,
   classCode: ShareClassCode,
-  isDevelopment: boolean,
 ): { ok: true } | { ok: false; error: string } {
   const classTerms = resolveClassTerms(classCode);
-  const demoMinRaw = process.env.DEMO_MIN_TICKET_USDC;
-  const demoMin = demoMinRaw ? Number(demoMinRaw) : null;
-
-  // Demo override logic:
-  // - subscribe() uses it in ANY env if present (testnet pilot).
-  // - deployPosition() uses it only in development.
-  // We'll follow the more restrictive one or pass a flag.
-  const useDemo = isDevelopment || process.env.NODE_ENV !== "production";
-
-  const effectiveMin =
-    useDemo && demoMin !== null && Number.isFinite(demoMin) && demoMin > 0
-      ? demoMin
-      : classTerms.minTicketUsdc;
+  const effectiveMin = resolveMinTicketUsdc(classTerms.minTicketUsdc);
 
   if (amountUsdc < effectiveMin) {
     return {

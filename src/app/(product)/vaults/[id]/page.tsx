@@ -5,6 +5,7 @@ import { getVault, type VaultProduct } from "@/lib/data/vaults";
 import { Button } from "@/components/catalyst/button";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
+import { VaultChainReadout } from "@/components/vaults/vault-chain-readout";
 import { vaultStatusLabel } from "@/lib/constants/vault";
 import { cn } from "@/lib/cn";
 import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
@@ -105,6 +106,12 @@ export default async function VaultDetailPage({ params }: PageProps) {
           </Button>
         )}
       </section>
+
+      {/* ON-CHAIN STATE — what the contract actually returns, in blue, with the
+          snapshot aggregate on the line below it. Sits ABOVE the term sheet on
+          purpose: the base↔chain gap should not need a scroll to be seen. The
+          term sheet below is untouched and keeps its own "estimated" sourcing. */}
+      <VaultChainReadout dbAumUsdc={vault.currentAumUsdc} />
 
       <TermSheetPreview vault={vault} />
     </InvestFlowShell>

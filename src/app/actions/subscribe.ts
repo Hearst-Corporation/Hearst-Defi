@@ -26,8 +26,11 @@ import {
  *
  * Guards:
  *  - Requires a resolved investor (Privy in prod, dev investor locally).
- *  - Validates the amount against the vault's minimum ticket and capacity.
- *  - Validates the classCode against the share class terms (A: $250k/60d, B: $1M/90d).
+ *  - Validates the amount against the effective minimum ticket and capacity.
+ *  - Validates the classCode against the share class terms (A: 60d lock-up,
+ *    B: 90d). Minimums are the class presets (A: $250k, B: $1M) unless the
+ *    `MIN_TICKET_USDC` env override lowers them — see
+ *    src/lib/vaults/min-ticket.ts.
  *  - Links `vaultDeploymentId` only when the id matches a real DB deployment;
  *    otherwise falls back to the `vaultKey` column (single-vault MVP fixture).
  *
@@ -100,11 +103,14 @@ export async function subscribe(
   }
 
   // Validate against the selected share class minimum ticket.
-  const minTicketCheck = validateMinTicket(
-    amountUsdc,
-    classCode,
-    process.env.NODE_ENV === "development",
-  );
+  //
+  // CRITICAL: by the time this runs, the investor's on-chain USDC deposit has
+  // ALREADY settled and is irreversible. This floor must therefore be the exact
+  // number the invest form displayed and gated on (`vault.minTicketUsdc`) — a
+  // stricter one here means the money is gone and no Position is created. Both
+  // sides resolve through src/lib/vaults/min-ticket.ts precisely so they cannot
+  // drift; do NOT add an environment condition around this call.
+  const minTicketCheck = validateMinTicket(amountUsdc, classCode);
   if (!minTicketCheck.ok) {
     return minTicketCheck;
   }
