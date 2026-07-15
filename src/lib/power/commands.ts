@@ -1,7 +1,7 @@
 /**
  * Command registry for the ⌘K command palette.
  *
- * 30 commands across 4 sections: Navigate, Action, Search, View.
+ * 29 commands across 4 sections: Navigate, Action, Search, View.
  * No external deps — pure data module.
  */
 
@@ -92,14 +92,6 @@ const NAVIGATE_COMMANDS: Omit<Command, "handler">[] = [
     shortcut: "g p",
   },
   {
-    id: "nav-scenarios",
-    label: "Scenarios",
-    section: "Navigate",
-    href: "/admin/scenario-lab",
-    keywords: ["scenario", "simulation", "stress", "lab", "engine"],
-    shortcut: "g l",
-  },
-  {
     id: "nav-memos",
     label: "Investor Memos",
     section: "Navigate",
@@ -125,7 +117,7 @@ const NAVIGATE_COMMANDS: Omit<Command, "handler">[] = [
   },
 ];
 
-/** Action (10) */
+/** Action (9) */
 const ACTION_COMMANDS: Omit<Command, "href">[] = [
   {
     id: "action-pause-vault",
@@ -150,12 +142,6 @@ const ACTION_COMMANDS: Omit<Command, "href">[] = [
     label: "Trigger oracle refresh",
     section: "Action",
     keywords: ["oracle", "refresh", "price", "feed", "update"],
-  },
-  {
-    id: "action-stress-scenario",
-    label: "Run scenario stress",
-    section: "Action",
-    keywords: ["stress", "scenario", "simulation", "run", "engine"],
   },
   {
     id: "action-rotate-signer",

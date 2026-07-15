@@ -55,7 +55,7 @@ const FORBIDDEN_WORDS = [
 ];
 
 describe("MemoDocument PDF rendering", () => {
-  it("renders the 8-page investor memo to a non-trivial PDF buffer", async () => {
+  it("renders the 7-page investor memo to a non-trivial PDF buffer", async () => {
     // Dynamic imports keep react-pdf out of the module graph for the other
     // tests in this repo and make sure the smoke test only runs when this
     // file is collected.

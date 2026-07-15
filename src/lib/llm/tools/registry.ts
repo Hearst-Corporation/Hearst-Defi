@@ -64,7 +64,6 @@ const MAX_TELEMETRY_ERROR_MESSAGE_LEN = 500;
 const MAX_TELEMETRY_ERROR_CODE_LEN = 120;
 const LIVE_PRICE_STALE_THRESHOLD_MS = 60_000;
 const PRODUCT_WORKSPACE_ROUTE = "/admin/product-workspace";
-const SCENARIO_LAB_ROUTE = "/admin/scenario-lab";
 const COINGECKO_BTC_SIMPLE_PRICE_URL =
   "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_last_updated_at=true";
 
@@ -227,30 +226,14 @@ function orderDemoRoutesForObjective(
   const uniqueRoutes = Array.from(new Set(routes));
   const classification = classifyProductWorkspaceIntent(objective);
 
+  // Product-creation / framing objectives lead with the Product Workspace. (The
+  // Scenario Lab secondary was removed with that route's retirement.)
   if (
     classification.shouldOpenProductWorkspace &&
     uniqueRoutes.includes(PRODUCT_WORKSPACE_ROUTE)
   ) {
     const rest = uniqueRoutes.filter((route) => route !== PRODUCT_WORKSPACE_ROUTE);
-    if (
-      classification.shouldOpenScenarioLab &&
-      rest.includes(SCENARIO_LAB_ROUTE)
-    ) {
-      return [
-        PRODUCT_WORKSPACE_ROUTE,
-        SCENARIO_LAB_ROUTE,
-        ...rest.filter((route) => route !== SCENARIO_LAB_ROUTE),
-      ];
-    }
     return [PRODUCT_WORKSPACE_ROUTE, ...rest];
-  }
-
-  if (classification.shouldOpenScenarioLab) {
-    if (!uniqueRoutes.includes(SCENARIO_LAB_ROUTE)) return uniqueRoutes;
-    return [
-      SCENARIO_LAB_ROUTE,
-      ...uniqueRoutes.filter((route) => route !== SCENARIO_LAB_ROUTE),
-    ];
   }
 
   return uniqueRoutes;

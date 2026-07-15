@@ -96,15 +96,14 @@ function normalizeDirective(
   const destination = resolveNavDestination(input.destinationKey);
   if (!destination) return null;
   // Destinations that accept a seeded objective + autostart from the agent: the
-  // product workspace, the scenario lab, and the agent-canvas family. Keeping
-  // this as a small set (not an open flag) preserves the "agent can only seed
-  // the pages we built for it" invariant.
+  // product workspace and the agent-canvas family. Keeping this as a small set
+  // (not an open flag) preserves the "agent can only seed the pages we built for
+  // it" invariant. (The scenario lab route was retired.)
   const isCanvas =
     input.destinationKey === "admin-agent-canvas" ||
     input.destinationKey === "lp-agent-canvas";
   const supportsSeededObjective =
     input.destinationKey === "admin-product-workspace" ||
-    input.destinationKey === "admin-scenario-lab" ||
     isCanvas;
   const objective = supportsSeededObjective
     ? sanitizeObjective(input.objective)

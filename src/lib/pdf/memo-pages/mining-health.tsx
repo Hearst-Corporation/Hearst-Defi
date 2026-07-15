@@ -11,12 +11,27 @@ import {
 } from "../memo-components";
 import { type MemoPdfData } from "../memo-data";
 import { styles } from "../memo-styles";
+import { FACTSHEET_DISCLAIMER } from "@/lib/products/dynavault-factsheet";
 
 function marginTone(score: number): PillTone {
   if (score >= 65) return "success";
   if (score >= 45) return "warning";
   return "danger";
 }
+
+/**
+ * Assumptions in force on the mining page, sourced ONLY from real data posture
+ * — the operational feed is still a paper/placeholder feed pending the real
+ * fleet integration (RP-10 / T-14), and the margin score is the engine-derived
+ * composite. No frozen 4-sleeve scenario number is invented; the closing line
+ * is the repo's canonical not-guaranteed disclaimer.
+ */
+const MINING_ASSUMPTIONS: readonly string[] = [
+  "Hashrate and uptime are placeholder values pending the real fleet feed (RP-10); they are badged estimated, never attested.",
+  "Margin score is the engine-derived composite of hashprice, energy cost and uptime; it is an estimate, not a measured value.",
+  "On-chain attestation is pending Phase 2 (EventLogger on Base Sepolia); until then attestation is paper-based.",
+  FACTSHEET_DISCLAIMER,
+];
 
 export function MiningHealthPage({
   data,
@@ -27,18 +42,11 @@ export function MiningHealthPage({
   pageNumber: number;
   totalPages: number;
 }) {
-  // Source the mining margin score from the base scenario (mode=balanced)
-  // when available; fall back to the first scenario.
-  const baseScenario =
-    data.input.scenarios.find((s) => s.mode === data.input.vault.mode) ??
-    data.input.scenarios[0];
-
-  // Operational numbers are sourced from `data.miningOps` (MiningMetric +
-  // Proof loader). The margin score still comes from the active scenario so
-  // it stays in lock-step with the engine output reported elsewhere in the
-  // memo; if the scenario has none we fall back to the loader's margin.
-  const marginScore =
-    baseScenario?.mining_margin_score ?? data.miningOps.margin_score;
+  // Scenario engine retired: the margin score comes straight from the mining
+  // ops loader (`MiningMetric` + Proof), badged `estimated` — the only honest
+  // source now that the 4-sleeve scenario is gone. No frozen scenario number
+  // is surfaced.
+  const marginScore = data.miningOps.margin_score;
   const hashrateDeployed = `${data.miningOps.hashrate_ph_s.toFixed(0)} PH/s`;
   const uptime = `${data.miningOps.uptime_pct.toFixed(1)}%`;
   const attestationsCount = data.miningOps.attestations_count;
@@ -101,13 +109,12 @@ export function MiningHealthPage({
       <Text style={styles.h2}>Assumptions in force</Text>
       <View style={{ gap: 4 }}>
         {/*
-          Render EVERY engine assumption — no slice. The engine emits the full
-          set (incl. the closing "Outputs are projections, not guaranteed. Past
-          performance does not predict future results." line, methodology v3.0
-          §9); truncating to 4 silently dropped that not-guaranteed disclaimer
-          from an opposable document.
+          Static, honest assumptions — the 4-sleeve scenario engine that used to
+          feed this list is retired, so nothing here is a frozen projection.
+          The closing entry is the canonical not-guaranteed disclaimer; it must
+          never be dropped from an opposable document.
         */}
-        {(baseScenario?.assumptions ?? []).map((a, idx) => (
+        {MINING_ASSUMPTIONS.map((a, idx) => (
           <Text key={idx} style={styles.bodySmall}>
             &middot; {a}
           </Text>

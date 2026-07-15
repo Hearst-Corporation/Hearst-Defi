@@ -29,18 +29,4 @@ describe("nav-channel round-trip (memNav, no Redis)", () => {
     expect(second).toBeNull();
   });
 
-  it("carries the Scenario Lab secondary when present", async () => {
-    const userId = "admin-roundtrip-2";
-    await publishNav(userId, {
-      destinationKey: "admin-product-workspace",
-      objective: "Créer un vault BTC Plus et le stresser",
-      autostart: true,
-      intentKind: "mixed_product_creation_simulation",
-      secondaryDestinationKey: "admin-scenario-lab",
-      secondaryHint: "Scenario Lab validation requested",
-    });
-    const dest = await consumeNav(userId);
-    expect(dest?.route).toBe("/admin/product-workspace");
-    expect(dest?.secondaryRoute).toBe("/admin/scenario-lab");
-  });
 });

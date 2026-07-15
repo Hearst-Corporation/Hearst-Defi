@@ -48,7 +48,6 @@ describe("navigate-tool whitelist", () => {
   it("admin whitelist exposes admin routes only", () => {
     expect(ADMIN_NAV_DESTINATIONS.map((d) => d.route)).toEqual([
       "/admin/product-workspace",
-      "/admin/scenario-lab",
       "/admin/agent-canvas",
       "/admin/dashboard",
       "/admin/vaults",
@@ -57,7 +56,6 @@ describe("navigate-tool whitelist", () => {
       "/admin/proofs",
       "/admin/governance",
       "/admin/roadmap",
-      "/admin/projection",
       "/admin",
       "/admin/vaults/new",
       "/admin/outreach/compose",

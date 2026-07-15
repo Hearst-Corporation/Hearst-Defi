@@ -14,9 +14,27 @@ import {
   COLORS,
   styles,
 } from "../memo-styles";
+import {
+  B1_MINING_ALLOCATION_BPS,
+  B2_BTC_ALLOCATION_BPS,
+  B3_USDC_ALLOCATION_BPS,
+} from "@/lib/products/dynavault-factsheet";
 
 const CHART_WIDTH = 460;
 const CHART_HEIGHT = 28;
+
+/**
+ * Fixed on-chain allocation of PermissionedDynaVault v2.1 (the v3.0 factsheet):
+ * B1 Mining 40% / B2 BTC 27% / B3 Reserve USDC 33%, derived from the bps
+ * CONSTANTS (never from the retired 4-sleeve scenario). The `bucket` keys map
+ * onto the existing `ALLOCATION_*` label/palette/hint tables. These are product
+ * constants (provenance=manual), not chain reads — badged accordingly below.
+ */
+const FACTSHEET_ALLOCATIONS: ReadonlyArray<{ bucket: string; pct: number }> = [
+  { bucket: "mining", pct: B1_MINING_ALLOCATION_BPS / 100 },
+  { bucket: "btc_tactical", pct: B2_BTC_ALLOCATION_BPS / 100 },
+  { bucket: "usdc_base", pct: B3_USDC_ALLOCATION_BPS / 100 },
+];
 
 export function AllocationBreakdownPage({
   data,
@@ -27,11 +45,9 @@ export function AllocationBreakdownPage({
   pageNumber: number;
   totalPages: number;
 }) {
-  const baseScenario =
-    data.input.scenarios.find((s) => s.mode === data.input.vault.mode) ??
-    data.input.scenarios[0];
-
-  const allocations = baseScenario?.allocations ?? [];
+  // Allocations come from the v3.0 factsheet CONSTANTS (40/27/33), not from the
+  // retired 4-sleeve scenario. The bar always sums to 100 by construction.
+  const allocations = FACTSHEET_ALLOCATIONS;
   const totalPct = allocations.reduce((sum, a) => sum + a.pct, 0) || 100;
 
   // Pre-compute x offsets for the stacked bar using reduce to avoid mutation.
@@ -150,7 +166,11 @@ export function AllocationBreakdownPage({
             >
               {ALLOCATION_HINTS[s.bucket] ?? ""}
             </Text>
-            {/* Current weight is engine-derived under the active vault mode. */}
+            {/*
+              Weight is the fixed on-chain target from the v2.1 factsheet
+              constants (product constant, not a chain read) — badge `manual`,
+              never `estimated`/`live`.
+            */}
             <View
               style={{
                 flex: 1,
@@ -158,18 +178,19 @@ export function AllocationBreakdownPage({
                 justifyContent: "flex-end",
               }}
             >
-              <PdfProvenance kind="estimated" />
+              <PdfProvenance kind="manual" />
             </View>
           </View>
         ))}
       </View>
 
       <Text style={[styles.bodySmall, { marginTop: 12 }]}>
-        Weights reflect the current vault mode ({data.input.vault.mode}) and
-        rebalance within their bands via rules R1-R8. Target bands: Mining Power
-        40%, BTC Pouch 27%, Reserve USDC 33%. The note accumulates BTC over its
-        24-month term with rule-based take-profit; there is no periodic cash
-        distribution.
+        The allocation is fixed on-chain: Mining Power 40%, BTC Pouch 27%,
+        Reserve USDC 33% (4000 / 2700 / 3300 bps). Outcomes are shaped by
+        on-chain mechanisms — take-profit tiers, the Reserve USDC vending curve
+        and mining curtailment — not by sleeve reallocation. The note
+        accumulates BTC over its 24-month term with rule-based take-profit;
+        there is no periodic cash distribution.
       </Text>
 
       <PageFooter pageNumber={pageNumber} totalPages={totalPages} />

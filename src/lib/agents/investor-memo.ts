@@ -161,24 +161,6 @@ Methodology (immutable, do not contradict):
 ${getMethodologyMd(version)}`;
 }
 
-function buildScenarioBlock(scenario: ScenarioOutput, idx: number): string {
-  const allocLines = scenario.allocations
-    .map((a) => `    - ${a.bucket}: ${a.pct}% (yield_contribution=${a.yield_contribution_bps}bps)`)
-    .join("\n");
-  const assumptionLines = scenario.assumptions.map((a) => `    - ${a}`).join("\n");
-  return [
-    `Scenario #${idx + 1} — mode=${scenario.mode}, confidence=${scenario.confidence}`,
-    `  apy_range: ${formatApyRange(scenario.apy_range, 2)}`,
-    `  stressed_apy: ${scenario.stressed_apy.toFixed(2)}%`,
-    `  risk_score: ${scenario.risk_score}`,
-    `  mining_margin_score: ${scenario.mining_margin_score}`,
-    `  allocations:`,
-    allocLines,
-    `  assumptions:`,
-    assumptionLines,
-  ].join("\n");
-}
-
 function buildBacktestBlock(bt: BacktestOutput, idx: number): string {
   const assumptionLines = bt.assumptions.map((a) => `    - ${a}`).join("\n");
   return [
@@ -199,7 +181,6 @@ function buildUserPrompt(
   input: InvestorMemoInput,
   methodologyVersion: MethodologyVersion,
 ): string {
-  const scenarioBlocks = input.scenarios.map(buildScenarioBlock).join("\n\n");
   const backtestBlocks = input.backtests.map(buildBacktestBlock).join("\n\n");
   const prov = input.provenance ?? DEFAULT_MEMO_PROVENANCE;
   const vaultName = input.vault.name ?? "Hearst Yield Vault";
@@ -223,8 +204,11 @@ function buildUserPrompt(
     `  vault_assumptions (cite at least one verbatim in vault_structure):`,
     vaultAssumptionLines,
     "",
-    `Scenarios (${input.scenarios.length}):`,
-    scenarioBlocks || "  (none provided — state this explicitly in scenario_analysis)",
+    // Scenario engine retired: the memo no longer receives a scenario
+    // projection to narrate. `input.scenarios` is always empty; do NOT invent a
+    // scenario. The section must state plainly that no scenario model is
+    // attached to this memo rather than fabricate one.
+    "Scenarios: none. The scenario projection model is not part of this memo; state this plainly in scenario_analysis and do not invent scenarios or return figures.",
     "",
     `Backtests (${input.backtests.length}):`,
     backtestBlocks || "  (none provided — state this explicitly in performance_section)",

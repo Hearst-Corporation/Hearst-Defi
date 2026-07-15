@@ -130,14 +130,6 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
       "Standalone page generated from the agent intent to frame a new product: decision, graph specs, calculation notes, assumptions and guardrails.",
   },
   {
-    key: "admin-scenario-lab",
-    profile: "admin",
-    route: "/admin/scenario-lab",
-    label: "Admin Scenario Lab",
-    description:
-      "Scenario and stress-test lab for an already-framed product: engine parameters, assumptions and simulation runbook.",
-  },
-  {
     key: "admin-agent-canvas",
     profile: "admin",
     route: "/admin/agent-canvas",
@@ -200,14 +192,6 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     label: "Admin Roadmap",
     description:
       "Product/technical execution tracking, validations and blockers.",
-  },
-  {
-    key: "admin-projection",
-    profile: "admin",
-    route: "/admin/projection",
-    label: "Admin Projection",
-    description:
-      "Internal projections/scenarios and operational risk analyses.",
   },
   {
     key: "admin-home",

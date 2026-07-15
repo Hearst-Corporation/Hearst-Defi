@@ -288,73 +288,6 @@ async function searchSignatures(q: string): Promise<SearchResult[]> {
   );
 }
 
-async function searchScenarios(q: string): Promise<SearchResult[]> {
-  const rows = await prisma.scenarioRun.findMany({
-    where: {
-      OR: [
-        { id: { contains: q } },
-        { preset: { contains: q } },
-        { status: { contains: q } },
-        { narrative: { contains: q } },
-      ],
-    },
-    orderBy: { ranAt: "desc" },
-    take: MAX_PER_SECTION * 2,
-    select: {
-      id: true,
-      preset: true,
-      status: true,
-      ranAt: true,
-      narrative: true,
-    },
-  });
-
-  return rank(
-    rows.map((r) =>({
-      entity: "scenario" as Entity,
-      id: r.id,
-      title: r.preset ?? `Scenario ${r.id.slice(0, 8)}`,
-      subtitle: r.ranAt.toISOString().slice(0, 10),
-      badge: r.status,
-      href: "/admin/scenario-lab?vault=yield",
-      score: keep(r.preset ?? r.id, r.narrative ?? undefined, q),
-    }))
-  );
-}
-
-async function searchBacktests(q: string): Promise<SearchResult[]> {
-  const rows = await prisma.backtestRun.findMany({
-    where: {
-      OR: [
-        { id: { contains: q } },
-        { backtestKey: { contains: q } },
-        { rulesMode: { contains: q } },
-        { narrative: { contains: q } },
-      ],
-    },
-    orderBy: { ranAt: "desc" },
-    take: MAX_PER_SECTION * 2,
-    select: {
-      id: true,
-      backtestKey: true,
-      rulesMode: true,
-      ranAt: true,
-    },
-  });
-
-  return rank(
-    rows.map((r) =>({
-      entity: "backtest" as Entity,
-      id: r.id,
-      title: r.backtestKey,
-      subtitle: r.ranAt.toISOString().slice(0, 10),
-      badge: r.rulesMode,
-      href: "/admin/scenario-lab?vault=yield",
-      score: keep(r.backtestKey, r.rulesMode, q),
-    }))
-  );
-}
-
 async function searchMemos(q: string): Promise<SearchResult[]> {
   const rows = await prisma.reportExport.findMany({
     where: {
@@ -455,8 +388,13 @@ function detectDirectJump(
         distribution: "/admin/distributions",
         proof: "/proof-center",
         signature: "/admin/governance",
-        scenario: "/admin/scenario-lab?vault=yield",
-        backtest: "/admin/scenario-lab?vault=yield",
+        // scenario / backtest entities are retired (the /admin/scenario-lab route
+        // was deleted) and no ID_PREFIX_MAP prefix resolves to them, so these
+        // branches are unreachable; kept only to satisfy the exhaustive
+        // Record<Entity, string> (the Entity union still lists them). Point at a
+        // live route so a hypothetical hit never 404s.
+        scenario: "/admin/vaults",
+        backtest: "/admin/vaults",
         memo: "/admin/investor-memo?vault=yield",
         event: "/admin/audit",
       };
@@ -507,8 +445,6 @@ export async function buildSearchIndex(
     distributions,
     proofs,
     signatures,
-    scenarios,
-    backtests,
     memos,
     events,
   ] = await Promise.all([
@@ -518,8 +454,6 @@ export async function buildSearchIndex(
     searchDistributions(q),
     searchProofs(q),
     searchSignatures(q),
-    searchScenarios(q),
-    searchBacktests(q),
     searchMemos(q),
     searchEvents(q),
   ]);
@@ -531,8 +465,6 @@ export async function buildSearchIndex(
     ...distributions,
     ...proofs,
     ...signatures,
-    ...scenarios,
-    ...backtests,
     ...memos,
     ...events,
   ];

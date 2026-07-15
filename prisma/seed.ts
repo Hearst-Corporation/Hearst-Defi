@@ -4,8 +4,6 @@ import { makePrismaClient } from "../scripts/lib/prisma-cli";
 // stay in sync with password.ts (OWASP argon2id: 19 MiB, t=2, p=1, Argon2id=2).
 import { hash } from "@node-rs/argon2";
 import { computeMiningRevenue } from "../src/lib/engine/mining";
-import { runBacktest } from "../src/lib/engine/backtest";
-import { getPresetInputs, runScenario } from "../src/lib/engine/scenario";
 import {
   MOCK_ATTESTOR_ADDRESS,
   signMockAttestation,
@@ -79,7 +77,16 @@ const SNAPSHOT_DATES: Record<Preset, Date> = {
   extreme_stress: presetDate(4),
 };
 
-const MINING_BASE_INPUTS: ScenarioInputs = getPresetInputs("base");
+// Base mining inputs for the dev seed (was getPresetInputs("base"); the v1.0
+// scenario engine was removed). Plain literal — only feeds the KEPT mining
+// revenue calc (src/lib/engine/mining.ts) for MiningMetric seed rows.
+const MINING_BASE_INPUTS: ScenarioInputs = {
+  btc_price_change_pct: 0,
+  hashprice_usd_th_day: 0.06,
+  energy_cost_kwh: 0.05,
+  stable_apy_pct: 8,
+  vol_index: 45,
+};
 
 const APPROVED_BY = JSON.stringify(["multisig:0xAAA", "multisig:0xBBB"]);
 
@@ -296,45 +303,6 @@ async function resetTables(): Promise<void> {
 // Vault snapshots — preset-anchored (used by memo loader) + daily timeline.
 // ---------------------------------------------------------------------------
 
-async function seedPresetVaultSnapshots(): Promise<{
-  snapshots: number;
-  allocations: number;
-}> {
-  let snapshots = 0;
-  let allocations = 0;
-  for (const preset of PRESETS) {
-    const inputs = getPresetInputs(preset);
-    const output: ScenarioOutput = runScenario(inputs, { preset, now: SEED_NOW });
-    const snap = await prisma.vaultSnapshot.create({
-      data: {
-        takenAt: SNAPSHOT_DATES[preset],
-        aumUsdc: AUM_USDC,
-        currentApyLow: output.apy_range.low,
-        currentApyHigh: output.apy_range.high,
-        stressedApy: output.stressed_apy,
-        riskScore: output.risk_score,
-        miningMarginScore: output.mining_margin_score,
-        mode: output.mode,
-        source: "computed",
-      },
-    });
-    snapshots++;
-    for (const a of output.allocations) {
-      await prisma.allocation.create({
-        data: {
-          snapshotId: snap.id,
-          bucket: a.bucket,
-          pct: a.pct,
-          valueUsdc: AUM_USDC * (a.pct / 100),
-          yieldContributionBps: a.yield_contribution_bps,
-        },
-      });
-      allocations++;
-    }
-  }
-  return { snapshots, allocations };
-}
-
 interface BucketDefinition {
   bucket: "mining" | "btc_tactical" | "usdc_base" | "stable_reserve";
   basePct: number;
@@ -426,58 +394,6 @@ async function seedDailyVaultTimeline(): Promise<{
   }
 
   return { snapshots, allocations };
-}
-
-// ---------------------------------------------------------------------------
-// Scenarios — persist one ScenarioRun per preset so the memo loader works.
-// ---------------------------------------------------------------------------
-
-async function seedScenarioRuns(): Promise<number> {
-  let count = 0;
-  for (const preset of PRESETS) {
-    const inputs = getPresetInputs(preset);
-    const output = runScenario(inputs, { preset, now: SEED_NOW });
-    await prisma.scenarioRun.create({
-      data: {
-        ranAt: SNAPSHOT_DATES[preset],
-        userId: "seed-user",
-        preset,
-        inputs: JSON.stringify(inputs),
-        outputs: JSON.stringify(output),
-        narrative: null,
-        riskWarning: null,
-        confidence: output.confidence,
-        methodologyVersion: "v1.0",
-      },
-    });
-    count++;
-  }
-  return count;
-}
-
-async function seedBacktests(): Promise<number> {
-  let count = 0;
-  for (const key of BACKTEST_KEYS) {
-    const out = runBacktest(key, { now: SEED_NOW });
-    await prisma.backtestRun.create({
-      data: {
-        backtestKey: key,
-        ranAt: SEED_NOW,
-        userId: "seed-user",
-        initialCapital: out.initialCapital,
-        rulesMode: "hearst_rules",
-        endingValue: out.endingValue,
-        totalReturnPct: out.totalReturnPct,
-        maxDrawdownPct: out.maxDrawdownPct,
-        worstMonthPct: out.worstMonthPct,
-        numRebalances: out.numRebalances,
-        monthlySeries: JSON.stringify(out.monthlySeries),
-        narrative: null,
-      },
-    });
-    count++;
-  }
-  return count;
 }
 
 // ---------------------------------------------------------------------------
@@ -950,10 +866,7 @@ async function main(): Promise<void> {
   // ShareClasses (A + B) depend on VaultDeployment rows existing first.
   const shareClasses = await seedShareClasses();
   const admins = await seedAdminUsers();
-  const presetVault = await seedPresetVaultSnapshots();
   const dailyVault = await seedDailyVaultTimeline();
-  const scenarios = await seedScenarioRuns();
-  const backtests = await seedBacktests();
   const miningMetrics = await seedMiningMetrics();
   const rebalances = await seedRebalanceEvents();
   const distributions = await seedDistributions();
@@ -963,10 +876,8 @@ async function main(): Promise<void> {
   console.log(`  VaultDeployment: ${vaultDeployments + 2} (3 first-class vaults + defensive + btc-plus testnet — ADR-006)`);
   console.log(`  ShareClass:      ${shareClasses} (A + B per vault)`);
   console.log(`  AdminUser:       ${admins}`);
-  console.log(`  VaultSnapshot:   ${presetVault.snapshots + dailyVault.snapshots} (${presetVault.snapshots} preset + ${dailyVault.snapshots} daily)`);
-  console.log(`  Allocation:      ${presetVault.allocations + dailyVault.allocations}`);
-  console.log(`  ScenarioRun:     ${scenarios}`);
-  console.log(`  BacktestRun:     ${backtests}`);
+  console.log(`  VaultSnapshot:   ${dailyVault.snapshots} (daily)`);
+  console.log(`  Allocation:      ${dailyVault.allocations}`);
   console.log(`  MiningMetric:    ${miningMetrics}`);
   console.log(`  RebalanceEvent:  ${rebalances}`);
   console.log(`  Distribution:    ${distributions}`);

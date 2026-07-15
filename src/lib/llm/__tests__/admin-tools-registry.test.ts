@@ -458,27 +458,9 @@ describe("admin read tools registry", () => {
     };
 
     expect(payload.steps?.[0]?.route).toBe("/admin/product-workspace");
-    expect(payload.routesWhitelist).toContain("/admin/scenario-lab");
-  });
-
-  it("generate_demo_plan keeps explicit simulation objectives on Scenario Lab when selected", async () => {
-    const context = { chatMode: "admin" as const, profile: "admin" as const };
-    const tool = ADMIN_READ_TOOLS.find(
-      (candidate) => candidate.id === "generate_demo_plan",
-    );
-    expect(tool).toBeDefined();
-    if (!tool) return;
-
-    const result = await executeAdminReadTool(tool, context, {
-      objective: "Simuler un scénario BTC bear dans le lab",
-      audience: "Ops team",
-    });
-    const payload = result.payload as {
-      steps?: Array<{ order: number; route: string }>;
-    };
-
-    expect(payload.steps?.map((step) => step.route)).toContain("/admin/scenario-lab");
-    expect(payload.steps?.[0]?.route).not.toBe("/admin/product-workspace");
+    // The retired Scenario Lab route is no longer part of the admin nav
+    // whitelist, so the demo plan never surfaces it.
+    expect(payload.routesWhitelist).not.toContain("/admin/scenario-lab");
   });
 
   it("export_demo_pack returns structured payload shape", async () => {

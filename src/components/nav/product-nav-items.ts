@@ -138,14 +138,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "strategies", label: "Strategies", href: "/admin/strategies", icon: "SlidersHorizontal" },
       { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: "TrendingUp" },
       { id: "source", label: "Source", href: "/admin/source", icon: "Database" },
-      { id: "projection", label: "Projection", href: "/admin/projection", icon: "FileText" },
-      // Scenario Lab = sandbox/exploration interne. Route conservée, mais retirée
-      // du sub-nav principal pour ne pas concurrencer Projection (destination
-      // officielle). Atteignable par URL / lien interne.
-      { id: "scenario-lab", label: "Scenario Lab", href: "/admin/scenario-lab", icon: "FlaskConical", hideFromSubNav: true },
-      // Projection Preview = aperçu rapport démo (fixture), PAS une page produit
-      // normale. Retirée du menu, route conservée. Label clarifié.
-      { id: "projection-preview", label: "Investor Report Preview — Demo Fixture", railLabel: "Preview", href: "/admin/projection/preview", icon: "Eye", hideFromSubNav: true },
       // Read-only product documentation page for the committed BTC product
       // (src/lib/products/*) — not a workspace/editor, not a nav destination.
       { id: "btc-mining-performance-vault", label: "BTC Mining Performance Vault", railLabel: "BTC Vault", href: "/admin/products/btc-mining-performance-vault", icon: "FileText", hideFromSubNav: true },

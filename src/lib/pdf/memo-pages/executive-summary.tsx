@@ -22,7 +22,7 @@ const FALLBACK_BULLETS: string[] = [
   "Capital stayed structured across the three pockets — Mining Power (40%), BTC Pouch (27%), Reserve USDC (33%). The estimated target return is a range in accumulated BTC over the term, not a distributed cash yield.",
   "No periodic cash distribution: BTC accumulates over the 24-month term with rule-based take-profit. No manual interventions, no unscheduled rebalances.",
   "Risk posture neutral. Mining margin score and BTC Pouch guardrails operated within nominal bands.",
-  "Five scenarios re-run on current vault state. Outputs presented as ranges, never single points.",
+  "The estimated target return is presented only as a range in accumulated BTC over the term, never a single point.",
 ];
 
 export function ExecutiveSummaryPage({
@@ -107,10 +107,7 @@ export function ExecutiveSummaryPage({
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
         <StatusPill label={`Mode ${input.vault.mode}`} tone="brand" />
         <StatusPill label="BTC accumulation" tone="neutral" />
-        <StatusPill
-          label={`${input.scenarios.length} scenarios re-run`}
-          tone="neutral"
-        />
+        <StatusPill label="24-month term" tone="neutral" />
       </View>
       <Text style={styles.bodyMuted}>
         The estimated target return is reported as a range conditional on the

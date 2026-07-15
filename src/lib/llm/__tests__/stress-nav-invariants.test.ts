@@ -149,10 +149,11 @@ describe("nav-fallback resolver — depth-priority / hand-tuned / accent / verb-
   });
 
   describe("explicit navigation intents still resolve (admin)", () => {
+    // NOTE: the scenario-lab / projection admin routes were retired, so their
+    // phrases no longer resolve — they are exercised as null-stable inputs in the
+    // determinism block below, not as resolving destinations here.
     const adminNav: Array<[string, string]> = [
-      ["ouvre scenario lab", "admin-scenario-lab"],
       ["open outreach", "admin-outreach"],
-      ["scenarion lab", "admin-scenario-lab"], // typo command
     ];
     for (const [phrase, key] of adminNav) {
       it(`"${phrase}" → ${key}`, () => {

@@ -92,21 +92,13 @@ const LP_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
 
 const ADMIN_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   // Bare admin commands: distinctive TYPOS or admin-qualified forms only. A bare
-  // correctly-spelled "dashboard"/"projection"/"scenario lab" is ambiguous with a
-  // conversational mention (and "dashboard" also collides with the LP space), so
-  // it must NOT navigate verb-less — only the typo ("dashbord admin", "projetion",
-  // "scenarion lab") or the explicit admin-qualified phrase resolves here.
+  // correctly-spelled "dashboard" is ambiguous with a conversational mention (and
+  // "dashboard" also collides with the LP space), so it must NOT navigate
+  // verb-less — only the typo ("dashbord admin") or the explicit admin-qualified
+  // phrase resolves here. (The projection / scenario-lab routes were retired.)
   {
     key: "admin-dashboard",
     re: /^\s*(?:dashboard admin|dashbord admin|admin dashboard)\s*$/i,
-  },
-  {
-    key: "admin-projection",
-    re: /^\s*(?:projetion|projection admin|projetion admin)\s*$/i,
-  },
-  {
-    key: "admin-scenario-lab",
-    re: /^\s*(?:scenarion lab)\s*$/i,
   },
   {
     key: "admin-home",
@@ -188,34 +180,6 @@ const ADMIN_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
     key: "admin-roadmap",
     re: new RegExp(`\\b(${NAV_VERB}.*roadmap|admin[/-]roadmap)\\b`, "i"),
   },
-  {
-    key: "admin-projection",
-    re: new RegExp(
-      `\\b(${NAV_VERB}.*(projection admin|admin projection)|admin[/-]projection)\\b`,
-      "i",
-    ),
-  },
-  // Scenario Lab — an explicit SIMULATION intent (an imperative simulation verb
-  // leading the message, or a nav verb before a scenario term), NOT a bare
-  // mention. The previous rule matched "simulation"/"scenario"/"stress test"
-  // anywhere, so "j'ai une question sur la simulation" navigated. Now it fires on
-  // a leading "simuler/lance/exécute/run … (stress test|scenario|monte carlo|
-  // backtest)" command or "<nav verb> … scenario lab". The bare-keyword rule
-  // above (`^scenario lab|scenarion lab$`) still covers the short command form.
-  {
-    key: "admin-scenario-lab",
-    re: new RegExp(
-      [
-        // (a) leading simulation imperative
-        "^\\s*(?:simule[rz]?|lance[rz]?|ex[eé]cute[rz]?|fais|run)\\b.*\\b(simulation|sc[eé]nario|scenario|stress[-\\s]?test|monte carlo|backtest)",
-        // (b) leading scenario/stress noun as a direct command
-        "^\\s*(?:stress[-\\s]?test|monte carlo|backtest|run scenario)\\b",
-        // (c) nav verb before a scenario-lab term
-        `\\b${NAV_VERB}.*(scenario lab|sc[eé]nario|scenario|stress[-\\s]?test|monte carlo|backtest)`,
-      ].join("|"),
-      "i",
-    ),
-  },
 ];
 
 /**
@@ -248,7 +212,6 @@ export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   "legal-terms": ["conditions", "cgu", "terms"],
   // Admin
   "admin-product-workspace": ["product workspace", "espace produit"],
-  "admin-scenario-lab": ["scenario lab", "scenarion lab", "laboratoire de scénarios", "scenario", "scénario", "projection lab"],
   "admin-agent-canvas": ["agent canvas", "canvas agent", "atelier agent"],
   "lp-agent-canvas": ["agent canvas lecture", "canvas lecture", "explication produit"],
   // "dashboard" is intentionally an admin keyword too: an ADMIN saying "ouvre
@@ -256,14 +219,13 @@ export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   // for admins. The LP resolver maps the same verb-gated phrase to `portfolio`.
   // Same phrase, different resolver → different (but each deterministic)
   // destination; that is correct profile-dependent routing, not non-determinism.
-  "admin-dashboard": ["dashboard", "dashbord", "dashboard admin", "dashbord admin", "tableau de bord admin", "command center", "admin dashboard", "projection dashboard"],
+  "admin-dashboard": ["dashboard", "dashbord", "dashboard admin", "dashbord admin", "tableau de bord admin", "command center", "admin dashboard"],
   "admin-vaults": ["vaults admin", "gestion des vaults"],
   "admin-customers": ["clients", "customers", "investisseurs", "fiche client"],
   "admin-outreach": ["outreach", "outrich", "outtrich", "prospection", "campagne email", "campagnes", "campaigns", "campaign", "campain", "campagne"],
   "admin-proofs": ["proofs admin", "gestion des proofs"],
   "admin-governance": ["gouvernance", "governance"],
   "admin-roadmap": ["roadmap", "feuille de route"],
-  "admin-projection": ["projection", "projections", "projetion", "projetion admin", "show me projection", "go to projection"],
   "admin-home": ["accueil admin", "operations admin", "console admin", "control tower", "tour de contrôle", "tour de controle", "admin"],
   "admin-vaults-new": ["vault wizard", "wizard vault", "nouveau vault wizard"],
   "admin-outreach-compose": ["composer un email", "rédiger un email", "compose"],
@@ -363,26 +325,6 @@ export const NAV_CANONICAL_MATRIX: readonly CanonicalNavMatrixRow[] = [
     aliasesFr: ["espace produit", "product workspace"],
     aliasesEn: ["product workspace"],
     typos: [],
-    requiredPermissions: "admin",
-    safe: true,
-  },
-  {
-    canonicalDestination: "projection",
-    destinationKey: "admin-projection",
-    route: "/admin/projection",
-    aliasesFr: ["projection"],
-    aliasesEn: ["projection"],
-    typos: ["projetion"],
-    requiredPermissions: "admin",
-    safe: true,
-  },
-  {
-    canonicalDestination: "scenario lab",
-    destinationKey: "admin-scenario-lab",
-    route: "/admin/scenario-lab",
-    aliasesFr: ["scenario lab", "laboratoire de scénarios"],
-    aliasesEn: ["scenario lab"],
-    typos: ["scenarion lab"],
     requiredPermissions: "admin",
     safe: true,
   },
@@ -527,16 +469,18 @@ export function resolveNavFallbackDestinationKey(args: {
   navProfile: NavProfile;
   isAdmin?: boolean;
   message: string;
-  scenarioLabDestinationKey: string;
-  scenarioLabNavEnabled: boolean;
+  /**
+   * @deprecated Scenario Lab route retired; these fields are accepted for
+   * backward-compat with existing callers but no longer influence resolution.
+   */
+  scenarioLabDestinationKey?: string;
+  /** @deprecated see {@link scenarioLabDestinationKey}. */
+  scenarioLabNavEnabled?: boolean;
 }): string | null {
-  const { navProfile, isAdmin = false, message, scenarioLabNavEnabled } = args;
+  const { navProfile, isAdmin = false, message } = args;
 
   if (navProfile === "admin" || isAdmin) {
     const adminKey = resolveAdminNavFallbackKey(message);
-    if (adminKey === "admin-scenario-lab" && !scenarioLabNavEnabled) {
-      return null;
-    }
     if (adminKey && !vaultNavSupersededByProductWorkspace(message, adminKey)) {
       return adminKey;
     }

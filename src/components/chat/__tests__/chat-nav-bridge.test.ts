@@ -53,9 +53,9 @@ describe("isSameDestination (anti-loop contract)", () => {
   });
 
   it("different pathnames are never the same destination", () => {
-    expect(isSameDestination("/admin/projection", WS)).toBe(false);
+    expect(isSameDestination("/admin/vaults", WS)).toBe(false);
     expect(
-      isSameDestination(`/admin/projection?objective=foo`, `${WS}?objective=foo`),
+      isSameDestination(`/admin/vaults?objective=foo`, `${WS}?objective=foo`),
     ).toBe(false);
   });
 

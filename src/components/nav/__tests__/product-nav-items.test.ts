@@ -37,34 +37,17 @@ describe("matchesNavPath", () => {
   });
 });
 
-describe("strategy sub-nav — projection menu simplification", () => {
+describe("strategy sub-nav — retired scenario/projection routes", () => {
   const strategy = ADMIN_SECTIONS.find((s) => s.id === "strategy");
 
-  it("Projection stays a visible sub-nav destination", () => {
-    const visible = visibleSubNavTabs(strategy!.tabs).map((t) => t.id);
-    expect(visible).toContain("projection");
-  });
-
-  it("Projection Preview is hidden from the sub-nav (route kept reachable)", () => {
-    const visible = visibleSubNavTabs(strategy!.tabs).map((t) => t.id);
-    expect(visible).not.toContain("projection-preview");
-    // route still defined (not deleted)
-    const tab = strategy!.tabs.find((t) => t.id === "projection-preview");
-    expect(tab?.href).toBe("/admin/projection/preview");
-    expect(tab?.hideFromSubNav).toBe(true);
-  });
-
-  it("Scenario Lab is sandbox/internal — hidden from sub-nav, route kept", () => {
-    const visible = visibleSubNavTabs(strategy!.tabs).map((t) => t.id);
-    expect(visible).not.toContain("scenario-lab");
-    const tab = strategy!.tabs.find((t) => t.id === "scenario-lab");
-    expect(tab?.href).toBe("/admin/scenario-lab");
-    expect(tab?.hideFromSubNav).toBe(true);
-  });
-
-  it("Preview label is clearly a demo, not a normal product page", () => {
-    const tab = strategy!.tabs.find((t) => t.id === "projection-preview");
-    expect(tab?.label.toLowerCase()).toContain("demo");
+  it("no longer exposes the retired projection / scenario-lab tabs", () => {
+    const ids = strategy!.tabs.map((t) => t.id);
+    expect(ids).not.toContain("projection");
+    expect(ids).not.toContain("scenario-lab");
+    expect(ids).not.toContain("projection-preview");
+    expect(strategy!.tabs.some((t) => t.href === "/admin/projection")).toBe(false);
+    expect(strategy!.tabs.some((t) => t.href === "/admin/scenario-lab")).toBe(false);
+    expect(strategy!.tabs.some((t) => t.href === "/admin/projection/preview")).toBe(false);
   });
 });
 

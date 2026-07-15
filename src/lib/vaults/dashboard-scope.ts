@@ -24,11 +24,6 @@ export function adminDashboardVaultHref(vaultId: string): string {
   return adminFixtureScopedHref("/admin/dashboard", vaultId);
 }
 
-/** Scenario Lab URL for an engine fixture vault id. */
-export function adminScenarioLabVaultHref(vaultId: string): string {
-  return adminFixtureScopedHref("/admin/scenario-lab", vaultId);
-}
-
 /** Distributions URL for an engine fixture vault id. */
 export function adminDistributionsVaultHref(vaultId: string): string {
   return adminFixtureScopedHref("/admin/distributions", vaultId);
@@ -41,7 +36,7 @@ export function adminSignalsVaultHref(vaultId: string): string {
 
 /**
  * Resolve `?vault=` to a fixture id (defaults to yield).
- * Used by dashboard, scenario-lab, investor-memo, signals, distributions.
+ * Used by dashboard, investor-memo, signals, distributions.
  */
 export function resolveFixtureVaultId(raw: string | undefined): VaultId {
   if (raw && isEngineFixtureVaultId(raw)) return raw;

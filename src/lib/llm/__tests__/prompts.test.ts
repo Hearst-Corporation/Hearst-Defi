@@ -91,7 +91,6 @@ describe("COCKPIT_ADMIN_SYSTEM_PROMPT", () => {
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("demo plan");
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("chart spec");
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("/admin/product-workspace");
-    expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("/admin/scenario-lab");
     expect(COCKPIT_ADMIN_SYSTEM_PROMPT).toContain("CoinGecko");
   });
 

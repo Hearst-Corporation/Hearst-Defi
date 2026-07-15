@@ -233,14 +233,13 @@ export function ChatNavBridge() {
           if (!cancelled && data.route) {
             const current = pathRef.current;
             // Build the FINAL destination (route + seeded params) BEFORE the
-            // anti-loop check. Seeded destinations (scenario lab, product
-            // workspace, agent canvas) carry the objective/autostart in the URL
-            // so the page can pick it up; the agent-canvas base route also gets
-            // the canvasId appended as a path segment (/admin/agent-canvas/<id>).
+            // anti-loop check. Seeded destinations (product workspace, agent
+            // canvas) carry the objective/autostart in the URL so the page can
+            // pick it up; the agent-canvas base route also gets the canvasId
+            // appended as a path segment (/admin/agent-canvas/<id>).
             const isCanvasRoute =
               data.route === "/agent-canvas" || data.route === "/admin/agent-canvas";
             const isSeededRoute =
-              data.route === "/admin/scenario-lab" ||
               data.route === "/admin/product-workspace" ||
               isCanvasRoute;
             const routeWithParams = isSeededRoute
@@ -255,9 +254,6 @@ export function ChatNavBridge() {
                     params.set("objective", data.objective.trim());
                   }
                   if (data.intentKind) params.set("intent", data.intentKind);
-                  if (data.secondaryRoute === "/admin/scenario-lab") {
-                    params.set("secondary", "scenario-lab");
-                  }
                   if (data.secondaryHint && data.secondaryHint.trim().length > 0) {
                     params.set("secondaryHint", data.secondaryHint.trim());
                   }

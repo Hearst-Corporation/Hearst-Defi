@@ -3,14 +3,19 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // `loadMemoInput` feeds the Investor Memo PDF (LP-visible). This suite covers
 // the loader's own logic in isolation: provenance tagging (T-15 — a
 // `VaultSnapshot.source` of "daily-seed"/"computed" must never badge
-// `attested`/`stale`, only `estimated`, no matter how fresh `takenAt` is),
-// vault-preset resolution, and the JSON rehydration of persisted scenario /
-// backtest artifacts. `loadCoverageForVault` is mocked out — its own
-// provenance resolution is that module's responsibility, not this loader's.
+// `attested`/`stale`, only `estimated`, no matter how fresh `takenAt` is) and
+// vault-preset resolution.
+//
+// Scenario / backtest retirement: the v1.0 4-sleeve scenario engine is gone, so
+// the loader no longer reads `ScenarioRun` / `BacktestRun` — `scenarios` and
+// `backtests` are ALWAYS empty and their provenance is `pending` (no
+// trustworthy number exists). These regression tests pin that the loader never
+// surfaces a frozen dead projection into the opposable memo.
+//
+// `loadCoverageForVault` is mocked out — its own provenance resolution is that
+// module's responsibility, not this loader's.
 
 const findFirstVaultSnapshot = vi.fn();
-const findManyScenarioRun = vi.fn();
-const findManyBacktestRun = vi.fn();
 const loadCoverageForVault = vi.fn();
 
 vi.mock("@/lib/db", () => ({
@@ -19,8 +24,6 @@ vi.mock("@/lib/db", () => ({
       findFirst: (...a: unknown[]) => findFirstVaultSnapshot(...a),
       findMany: (...a: unknown[]) => findManyVaultSnapshot(...a),
     },
-    scenarioRun: { findMany: (...a: unknown[]) => findManyScenarioRun(...a) },
-    backtestRun: { findMany: (...a: unknown[]) => findManyBacktestRun(...a) },
   },
 }));
 
@@ -64,52 +67,8 @@ function makeSnapshot(overrides: Partial<Record<string, unknown>> = {}) {
   };
 }
 
-function makeScenarioRow(id = "sr-1") {
-  return {
-    id,
-    outputs: JSON.stringify({
-      apy_range: { low: 9.4, high: 12.8 },
-      stressed_apy: 6.1,
-      risk_score: 42,
-      mining_margin_score: 64,
-      mode: "balanced",
-      allocations: [
-        { bucket: "mining", pct: 40, yield_contribution_bps: 400 },
-        { bucket: "usdc_base", pct: 60, yield_contribution_bps: 480 },
-      ],
-      assumptions: ["Methodology v3.0 anchor"],
-      confidence: "medium",
-      btc_tactical: {
-        triggers: [],
-        guardrails: [],
-        targetExposurePct: 0,
-      },
-    }),
-  };
-}
-
-function makeBacktestRow(id = "br-1") {
-  return {
-    id,
-    backtestKey: "bear_2022",
-    initialCapital: decimal(1_000_000),
-    endingValue: decimal(1_120_000),
-    totalReturnPct: decimal(12),
-    maxDrawdownPct: decimal(-8),
-    worstMonthPct: decimal(-3.2),
-    numRebalances: 4,
-    rulesMode: "hearst_rules",
-    monthlySeries: JSON.stringify([
-      { month: "2022-01", valueUsdc: 1_000_000, distributionUsdc: 8_000 },
-      { month: "2022-02", valueUsdc: 1_010_000, distributionUsdc: 8_100 },
-    ]),
-  };
-}
-
 beforeEach(() => {
   vi.clearAllMocks();
-  findManyScenarioRun.mockResolvedValue([makeScenarioRow()]);
-  findManyBacktestRun.mockResolvedValue([makeBacktestRow()]);
   loadCoverageForVault.mockResolvedValue(PENDING_COVERAGE);
 });
 
@@ -140,12 +99,6 @@ describe("loadMemoInput — vault resolution", () => {
 
   it("throws when no VaultSnapshot exists", async () => {
     findFirstVaultSnapshot.mockResolvedValue(null);
-    await expect(loadMemoInput("yield")).rejects.toThrow(/Vault state incomplete/i);
-  });
-
-  it("throws when there are no backtest runs", async () => {
-    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
-    findManyBacktestRun.mockResolvedValue([]);
     await expect(loadMemoInput("yield")).rejects.toThrow(/Vault state incomplete/i);
   });
 });
@@ -197,66 +150,30 @@ describe("loadMemoInput — provenance (T-15 regression)", () => {
     expect(result.provenance.coverage).toBe("pending");
   });
 
-  it("badges persisted scenarios/backtests as attested (reproducible engine artifacts)", async () => {
+  it("badges retired scenarios/backtests as pending (no trustworthy projection exists)", async () => {
     findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
     const result = await loadMemoInput("yield");
-    expect(result.provenance.scenarios).toBe("attested");
-    expect(result.provenance.backtests).toBe("attested");
+    expect(result.provenance.scenarios).toBe("pending");
+    expect(result.provenance.backtests).toBe("pending");
   });
 });
 
-describe("loadMemoInput — scenario/backtest rehydration", () => {
-  it("parses a well-formed persisted ScenarioRun into ScenarioOutput", async () => {
+describe("loadMemoInput — scenario/backtest retirement", () => {
+  it("returns empty scenarios and backtests (the engine is retired, never read from DB)", async () => {
     findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
     const result = await loadMemoInput("yield");
-    expect(result.scenarios).toHaveLength(1);
-    expect(result.scenarios[0]).toMatchObject({
-      apy_range: { low: 9.4, high: 12.8 },
-      mode: "balanced",
-      confidence: "medium",
+    expect(result.scenarios).toEqual([]);
+    expect(result.backtests).toEqual([]);
+  });
+
+  it("does NOT require any backtest runs to succeed", async () => {
+    // The old loader threw "Vault state incomplete" when no BacktestRun existed.
+    // With the engine retired, only a VaultSnapshot is required.
+    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
+    await expect(loadMemoInput("yield")).resolves.toMatchObject({
+      scenarios: [],
+      backtests: [],
     });
-  });
-
-  it("throws a clear error when ScenarioRun.outputs is not valid JSON", async () => {
-    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
-    findManyScenarioRun.mockResolvedValue([{ id: "bad-1", outputs: "{not json" }]);
-    await expect(loadMemoInput("yield")).rejects.toThrow(/not valid JSON/i);
-  });
-
-  it("throws a clear error when ScenarioRun.outputs is missing apy_range", async () => {
-    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
-    findManyScenarioRun.mockResolvedValue([
-      { id: "bad-2", outputs: JSON.stringify({ mode: "balanced" }) },
-    ]);
-    await expect(loadMemoInput("yield")).rejects.toThrow(/apy_range missing/i);
-  });
-
-  it("parses a well-formed persisted BacktestRun into BacktestOutput", async () => {
-    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
-    const result = await loadMemoInput("yield");
-    expect(result.backtests).toHaveLength(1);
-    expect(result.backtests[0]).toMatchObject({
-      key: "bear_2022",
-      startDate: "2022-01",
-      endDate: "2022-02",
-      hearstRulesMode: true,
-    });
-  });
-
-  it("throws a clear error on an unknown backtestKey", async () => {
-    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
-    findManyBacktestRun.mockResolvedValue([
-      { ...makeBacktestRow(), backtestKey: "not_a_real_key" },
-    ]);
-    await expect(loadMemoInput("yield")).rejects.toThrow(/backtestKey invalid/i);
-  });
-
-  it("throws a clear error when BacktestRun.monthlySeries is empty", async () => {
-    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
-    findManyBacktestRun.mockResolvedValue([
-      { ...makeBacktestRow(), monthlySeries: JSON.stringify([]) },
-    ]);
-    await expect(loadMemoInput("yield")).rejects.toThrow(/monthlySeries empty/i);
   });
 });
 

@@ -4,7 +4,7 @@
  * Environment: node (via vitest.config.ts — renderToStaticMarkup, no jsdom).
  *
  * Tests:
- *   1. 31 commands registered
+ *   1. 29 commands registered
  *   2. filterCommands — fuzzy search works
  *   3. filterCommands — empty query returns all
  *   4. groupBySection — correct section grouping
@@ -25,10 +25,10 @@ import {
   type CommandSection,
 } from "@/lib/power/commands";
 
-// ── 1. 31 commands registered ─────────────────────────────────────────────────
+// ── 1. 29 commands registered ─────────────────────────────────────────────────
 describe("COMMAND_REGISTRY", () => {
-  it("has exactly 31 commands", () => {
-    expect(COMMAND_REGISTRY).toHaveLength(31);
+  it("has exactly 29 commands", () => {
+    expect(COMMAND_REGISTRY).toHaveLength(29);
   });
 
   it("has no duplicate IDs", () => {
@@ -67,18 +67,19 @@ describe("COMMAND_REGISTRY", () => {
     }
   });
 
-  it("has 11 Navigate commands", () => {
-    expect(COMMAND_REGISTRY.filter((c) => c.section === "Navigate")).toHaveLength(11);
+  it("has 10 Navigate commands", () => {
+    expect(COMMAND_REGISTRY.filter((c) => c.section === "Navigate")).toHaveLength(10);
   });
 
-  it("Navigate includes Product Workspace and Scenarios as distinct destinations", () => {
+  it("Navigate includes Product Workspace and no longer the retired Scenarios destination", () => {
     const byId = new Map(COMMAND_REGISTRY.map((cmd) => [cmd.id, cmd]));
     expect(byId.get("nav-product-workspace")?.href).toBe("/admin/product-workspace");
-    expect(byId.get("nav-scenarios")?.href).toBe("/admin/scenario-lab");
+    expect(byId.has("nav-scenarios")).toBe(false);
+    expect(COMMAND_REGISTRY.some((c) => c.href === "/admin/scenario-lab")).toBe(false);
   });
 
-  it("has 10 Action commands", () => {
-    expect(COMMAND_REGISTRY.filter((c) => c.section === "Action")).toHaveLength(10);
+  it("has 9 Action commands", () => {
+    expect(COMMAND_REGISTRY.filter((c) => c.section === "Action")).toHaveLength(9);
   });
 
   it("has 5 Search commands", () => {
@@ -130,12 +131,6 @@ describe("filterCommands", () => {
     expect(ids).toContain("action-oracle-refresh");
   });
 
-  it("matches 'stress' to Run scenario stress", () => {
-    const result = filterCommands(COMMAND_REGISTRY, "stress");
-    const ids = result.map((c) => c.id);
-    expect(ids).toContain("action-stress-scenario");
-  });
-
   it("matches 'product' to Product Workspace navigation", () => {
     const result = filterCommands(COMMAND_REGISTRY, "product");
     const ids = result.map((c) => c.id);
@@ -152,18 +147,18 @@ describe("groupBySection", () => {
     }
   });
 
-  it("Navigate bucket has 11 entries", () => {
+  it("Navigate bucket has 10 entries", () => {
     const map = groupBySection(COMMAND_REGISTRY);
-    expect(map.get("Navigate")).toHaveLength(11);
+    expect(map.get("Navigate")).toHaveLength(10);
   });
 
-  it("total commands across all buckets equals 31", () => {
+  it("total commands across all buckets equals 29", () => {
     const map = groupBySection(COMMAND_REGISTRY);
     let total = 0;
     for (const bucket of map.values()) {
       total += bucket.length;
     }
-    expect(total).toBe(31);
+    expect(total).toBe(29);
   });
 });
 

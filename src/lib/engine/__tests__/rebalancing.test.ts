@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decideMode, deriveAllocations } from "../rebalancing";
+import { decideMode } from "../rebalancing";
 
 // Threshold values mirror rebalancing.ts constants:
 // DEFENSIVE: riskScore >= 65 OR marginScore < 50
@@ -45,52 +45,5 @@ describe("decideMode", () => {
 
   it("edge: risk = 64 does not trigger defensive on risk alone", () => {
     expect(decideMode(64, 60)).toBe("balanced");
-  });
-});
-
-describe("deriveAllocations", () => {
-  const baseInputs = {
-    btc_price_change_pct: 0,
-    hashprice_usd_th_day: 0.085,
-    energy_cost_kwh: 0.045,
-    stable_apy_pct: 4.5,
-    vol_index: 45,
-  };
-
-  it("defensive allocations sum to 100%", () => {
-    const allocs = deriveAllocations("defensive", baseInputs, 0.035);
-    const total = allocs.reduce((s, a) => s + a.pct, 0);
-    expect(total).toBe(100);
-  });
-
-  it("balanced allocations sum to 100%", () => {
-    const allocs = deriveAllocations("balanced", baseInputs, 0.035);
-    const total = allocs.reduce((s, a) => s + a.pct, 0);
-    expect(total).toBe(100);
-  });
-
-  it("opportunistic allocations sum to 100%", () => {
-    const allocs = deriveAllocations("opportunistic", baseInputs, 0.035);
-    const total = allocs.reduce((s, a) => s + a.pct, 0);
-    expect(total).toBe(100);
-  });
-
-  it("defensive gives mining bucket <= 30%", () => {
-    const allocs = deriveAllocations("defensive", baseInputs, 0.035);
-    const mining = allocs.find((a) => a.bucket === "mining");
-    expect(mining?.pct).toBeLessThanOrEqual(30);
-  });
-
-  it("opportunistic gives btc_tactical bucket >= 20%", () => {
-    const allocs = deriveAllocations("opportunistic", baseInputs, 0.035);
-    const btc = allocs.find((a) => a.bucket === "btc_tactical");
-    expect(btc?.pct).toBeGreaterThanOrEqual(20);
-  });
-
-  it("yield_contribution_bps are non-negative for positive net margin", () => {
-    const allocs = deriveAllocations("balanced", baseInputs, 0.04);
-    for (const a of allocs) {
-      expect(a.yield_contribution_bps).toBeGreaterThanOrEqual(0);
-    }
   });
 });

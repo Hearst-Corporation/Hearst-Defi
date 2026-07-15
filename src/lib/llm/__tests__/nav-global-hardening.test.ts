@@ -39,11 +39,8 @@ describe("global deterministic nav hardening", () => {
 
   it("routes admin destinations across FR/EN/mixed/typos", () => {
     const adminCases: Array<[string, string]> = [
-      ["go to projection", "admin-projection"],
-      ["show me projection", "admin-projection"],
-      ["projetion", "admin-projection"],
-      ["open scenario lab", "admin-scenario-lab"],
-      ["scenarion lab", "admin-scenario-lab"],
+      // The projection / scenario-lab routes were retired — those phrases no
+      // longer resolve to a destination (guarded below with the null cases).
       ["open outreach", "admin-outreach"],
       ["show campaigns", "admin-outreach"],
       ["show la campagne", "admin-outreach"],
@@ -66,6 +63,25 @@ describe("global deterministic nav hardening", () => {
           ...sharedArgs,
         }),
       ).toBe(destinationKey);
+    }
+  });
+
+  it("no longer routes the retired projection / scenario-lab phrases", () => {
+    for (const message of [
+      "go to projection",
+      "show me projection",
+      "projetion",
+      "open scenario lab",
+      "scenarion lab",
+    ]) {
+      expect(
+        resolveNavFallbackDestinationKey({
+          navProfile: "admin",
+          isAdmin: true,
+          message,
+          ...sharedArgs,
+        }),
+      ).toBeNull();
     }
   });
 

@@ -6,7 +6,6 @@
  */
 import { type DiagnosticSuiteResult, makeSuiteResult } from "./types";
 import { runChatRouterDiagnostics } from "./chat-router-diagnostics";
-import { runProjectionDiagnostics } from "./projection-diagnostics";
 import {
   runOutreachDiagnostics,
   type OutreachDiagnosticsDeps,
@@ -23,7 +22,6 @@ import {
 
 export const DIAGNOSTIC_SUITES = [
   "chat-router",
-  "projection",
   "outreach",
   "vault-hitl",
   "guards",
@@ -42,11 +40,6 @@ export const SUITE_META: Record<SuiteName, { label: string; blurb: string }> = {
     label: "Chat Router",
     blurb:
       "Real deterministic router — routing, pre-LLM refusals, negation, LP boundary.",
-  },
-  projection: {
-    label: "Projection",
-    blurb:
-      "Safe preset (no numeric prefill). Run / promote are DB-writes → skipped honestly.",
   },
   outreach: {
     label: "Outreach",
@@ -76,8 +69,6 @@ export async function runSuite(
   switch (name) {
     case "chat-router":
       return makeSuiteResult(name, runChatRouterDiagnostics());
-    case "projection":
-      return makeSuiteResult(name, runProjectionDiagnostics());
     case "outreach":
       return makeSuiteResult(name, runOutreachDiagnostics(deps.outreach));
     case "vault-hitl":

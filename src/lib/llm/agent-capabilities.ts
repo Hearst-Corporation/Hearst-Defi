@@ -107,20 +107,6 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "Navigate override + fallback intent (route.ts). autostart+objective → ChatNavBridge. Unavailable if CHAT_MASTER_AGENT=0 (503).",
   },
   {
-    id: "admin-scenario-lab-open",
-    label: "Open Scenario Lab",
-    mode: "admin",
-    kind: "navigation",
-    description:
-      "Opens Scenario Lab for an explicit simulation intent or as a secondary step of a product framing.",
-    testPrompt: "Simulate a BTC bear scenario on the vault.",
-    successCriteria:
-      "The chat opens /admin/scenario-lab or adds it as a relevant secondary step.",
-    initialStatus: "green",
-    initialNote:
-      "Product Workspace parity: navigate(admin-scenario-lab) + fallback simulation intent. Unavailable if CHAT_MASTER_AGENT=0 (503).",
-  },
-  {
     id: "admin-new-client-action",
     label: "New client / create investor",
     mode: "admin",
