@@ -1,7 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
 import { requireAuth } from "@/lib/auth/require-auth";
+import {
+  guardKeeperRequest,
+  keeperError,
+  readJsonBody,
+} from "@/lib/chain/keeper-guard";
 import {
   CHAIN_ID,
   getVaultMode,
@@ -229,4 +234,126 @@ export async function GET(): Promise<Response> {
     );
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
+}
+
+/**
+ * POST /api/rwa-vault — GATED, VALIDATED, and honestly UNAVAILABLE today.
+ *
+ * ── The gap (spec §5 ↔ contract §2) ─────────────────────────────────────────
+ * `docs/VAULT_SPEC_V2.1.md` §5 lists this keeper endpoint with a body of
+ * `{action, amount}` — "deposit yield / withdraw / deposit" against the RWA
+ * adapter. But §2 (the contract's owner/keeper surface) exposes NO such
+ * function: there is no deposit-to-adapter, no withdraw-from-adapter, and no
+ * deposit-yield anywhere in PermissionedDynaVault v2.1. The user-facing
+ * `deposit` / `redeem` (§1) move the VAULT's own shares — an investor operation,
+ * not a keeper action against an adapter. And the contract is not even deployed
+ * (the app runs in `legacy` mode until `NEXT_PUBLIC_DYNAVAULT_ADDRESS` is set).
+ *
+ * So this route does everything a real keeper route does — fail-closed
+ * `requireAdmin`, kill-switch, rate-limit, Zod body — and then returns an honest
+ * `not_supported_by_contract` (501) instead of calling a function that does not
+ * exist. It invents NO contract function and adds nothing to `keeper.ts` or
+ * `dynavault.ts`. The day §2 grows the function, the wiring is a one-liner:
+ * replace the `notSupported(...)` return with the keeper call, exactly as
+ * `/api/rebalancing/execute` does today.
+ *
+ * ⚠️ THIS ROUTE MOVES NO FUNDS. It signs nothing, touches no chain, writes no
+ * audit row — there is, by construction, nothing to move.
+ */
+
+/** Human-approved, occasional keeper surface. Not a hot path. */
+const KEEPER_POST_RATE_MAX = 5;
+
+/** Largest uint256, as a decimal string: exactly 78 digits. */
+const UINT256_MAX = 2n ** 256n - 1n;
+const UINT256_MAX_DIGITS = 78;
+
+/**
+ * `BigInt()` THROWS on a non-numeric string and Zod does not short-circuit a
+ * `.refine()` after a failed `.regex()`, so parse defensively and stay total —
+ * a bad `amount` must be a 400, never a 500. Same rationale as
+ * `/api/rebalancing/execute`.
+ */
+function toBigIntOrNull(value: string): bigint | null {
+  try {
+    return BigInt(value);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Base-unit amount as a decimal STRING → `bigint`, never `number` (a uint256
+ * does not survive a double). `.max(78)` caps the length BEFORE `BigInt()` ever
+ * sees the string; the regex pins canonical form (no sign, no leading zero, no
+ * `0x`, no exponent); the refine enforces the uint256 ceiling and strict
+ * positivity.
+ */
+const AmountSchema = z
+  .string()
+  .regex(/^(0|[1-9][0-9]*)$/, "must be a base-10 integer string in base units")
+  .max(UINT256_MAX_DIGITS, "far exceeds the uint256 range")
+  .refine((value) => {
+    const parsed = toBigIntOrNull(value);
+    return parsed !== null && parsed > 0n && parsed <= UINT256_MAX;
+  }, "amount must be a positive integer within the uint256 range");
+
+/** The spec §5 body, validated strictly. `action` is a closed set. */
+const RwaVaultActionSchema = z
+  .object({
+    action: z.enum(["deposit", "withdraw", "deposit_yield"]),
+    amount: AmountSchema,
+  })
+  .strict();
+
+/**
+ * 501 Not Implemented — the HTTP surface exists, the contract function does not.
+ * Not a `KeeperErrorReason` (that union is owned by `keeper-guard.ts` and closed),
+ * so it is built here rather than through `keeperError`. No `detail` from the
+ * chain, no exception text — a fixed, honest, machine-readable reason.
+ */
+function notSupported(reason: string, detail: string): NextResponse {
+  return NextResponse.json(
+    { error: "This action is not supported by the vault contract.", reason, detail },
+    { status: 501, headers: { "Cache-Control": "no-store" } },
+  );
+}
+
+export async function POST(request: NextRequest): Promise<Response> {
+  // Fail-closed preamble (requireAdmin → body size → rate-limit → kill-switch),
+  // identical to the three shipped keeper routes.
+  const guard = await guardKeeperRequest(
+    request,
+    "keeper:rwa-vault",
+    KEEPER_POST_RATE_MAX,
+  );
+  if (!guard.ok) return guard.response;
+
+  const body = await readJsonBody(request);
+  if (!body.ok) return keeperError("invalid_body");
+
+  const parsed = RwaVaultActionSchema.safeParse(body.value);
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        error: "Invalid request body.",
+        reason: "invalid_body",
+        issues: z.flattenError(parsed.error),
+      },
+      { status: 400, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+
+  // The body is well-formed and the keeper is armed — and there is STILL nothing
+  // to call. The contract exposes no matching function (see header). Log the
+  // reached-but-unsupported attempt; do not audit (no chain state changed).
+  logger.info("[keeper] rwa-vault POST reached but unsupported by contract", {
+    userId: guard.admin.userId,
+    action: parsed.data.action,
+  });
+
+  return notSupported(
+    "not_supported_by_contract",
+    "PermissionedDynaVault v2.1 exposes no deposit/withdraw/deposit_yield action against the RWA adapter in its §2 surface. Wire this the day the contract function exists.",
+  );
 }
