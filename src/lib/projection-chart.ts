@@ -49,19 +49,66 @@ export function buildProjectionSeries(
 }
 
 /**
- * Estimate how many months until principal reaches a target cumulative yield %.
- * Returns null if never reached within the horizon.
+ * Estimate how many months a single compounding rate takes to reach a target
+ * cumulative yield %. Returns null if never reached within the horizon.
+ *
+ * INTERNAL ONLY — not exported. A single rate produces a single milestone
+ * month, which would publish a point estimate to the investor (non-negotiable
+ * #1: figures are always a range). Callers must use `monthsToTargetRange`, which
+ * derives the fast/slow bounds from the APY band and never leaks the midpoint.
  */
-export function monthsToTarget(
-  apyMid: number,
+function monthsToTargetForRate(
+  apy: number,
   targetCumulativePct: number,
-  maxMonths = 24,
+  maxMonths: number,
 ): number | null {
-  const monthlyRate = apyMid / 100 / 12;
+  const monthlyRate = apy / 100 / 12;
   let nav = 1;
   for (let m = 1; m <= maxMonths; m++) {
     nav *= 1 + monthlyRate;
     if ((nav - 1) * 100 >= targetCumulativePct) return m;
   }
   return null;
+}
+
+/**
+ * Number of months to reach a target cumulative yield %, expressed as a
+ * FOURCHETTE (range), never a single point — non-negotiable #1.
+ *
+ * The high APY reaches the target sooner (`fast`); the low APY reaches it later
+ * (`slow`). Either bound is null when that rate never reaches the target inside
+ * `maxMonths`. Consumers render this as e.g. "6–9 months"; they must never
+ * average the two into a single milestone month.
+ *
+ * @param apyLow   - low bound APY (e.g. 9.4)  → the SLOW milestone
+ * @param apyHigh  - high bound APY (e.g. 12.8) → the FAST milestone
+ * @param targetCumulativePct - cumulative yield % to reach (e.g. 10)
+ * @param maxMonths - projection horizon
+ */
+export function monthsToTargetRange(
+  apyLow: number,
+  apyHigh: number,
+  targetCumulativePct: number,
+  maxMonths = 24,
+): { fast: number | null; slow: number | null } {
+  return {
+    fast: monthsToTargetForRate(apyHigh, targetCumulativePct, maxMonths),
+    slow: monthsToTargetForRate(apyLow, targetCumulativePct, maxMonths),
+  };
+}
+
+/**
+ * @deprecated Single-milestone-month helper — kept ONLY as a build-compat shim
+ * for `time-to-target-chart.tsx`, which positions a marker/label from a single
+ * rate. It publishes a point milestone (`+X% at M{n}`) that violates
+ * non-negotiable #1 and is flagged for the same range treatment as invest-form.
+ * NEW callers MUST use `monthsToTargetRange` and render a fourchette. Do not add
+ * consumers of this export.
+ */
+export function monthsToTarget(
+  apy: number,
+  targetCumulativePct: number,
+  maxMonths = 24,
+): number | null {
+  return monthsToTargetForRate(apy, targetCumulativePct, maxMonths);
 }

@@ -30,7 +30,7 @@ import {
   ConfigError,
   ChainError,
 } from "@/lib/onchain/vault";
-import { monthsToTarget } from "@/lib/projection-chart";
+import { monthsToTargetRange } from "@/lib/projection-chart";
 import { subscribe, checkSubscribeEligibility } from "@/app/actions/subscribe";
 import { DemoDepositSimulate } from "@/components/vaults/demo-deposit-simulate";
 import { isDemoAccount } from "@/lib/demo/allowlist";
@@ -82,16 +82,43 @@ function ctaLabel(state: CtaState, amount: number): string {
  */
 const PRODUCT_TERM_MONTHS = 24;
 
+/**
+ * Render a fast/slow milestone-month pair as a human range — never a point.
+ * `fast` = the sooner bound (high APY), `slow` = the later bound (low APY).
+ *   - both present, differ → "6–9 months"
+ *   - both present, equal  → "~6 months"
+ *   - only the fast bound reaches the target inside the horizon → "from ~6 months"
+ *   - neither reaches it   → "within {horizon} months"
+ */
+function formatMonthsRange(
+  months: { fast: number | null; slow: number | null },
+  horizonMonths: number,
+): string {
+  const { fast, slow } = months;
+  if (fast !== null && slow !== null) {
+    return fast === slow ? `~${fast} months` : `${fast}–${slow} months`;
+  }
+  if (fast !== null) {
+    // The slow (low-APY) bound never reaches the target inside the horizon.
+    return `from ~${fast} months`;
+  }
+  return `within ${horizonMonths} months`;
+}
+
 function buildPtai(
   amount: number,
   vault: VaultProduct,
 ): { projection: string; trigger: string; action: string; impact: string } {
-  // Mid-band is a MODEL INPUT for the accumulation trajectory only — it is
-  // never published as a headline figure (non-negotiable #1: range only).
-  const midApy = (vault.apyLow + vault.apyHigh) / 2;
-  const months10 = monthsToTarget(midApy, 10, PRODUCT_TERM_MONTHS);
-  const months10Str =
-    months10 !== null ? `~${months10} months` : `within ${PRODUCT_TERM_MONTHS} months`;
+  // The +10% milestone is published as a FOURCHETTE of months (fast = high APY,
+  // slow = low APY) — never a single point (non-negotiable #1: range only). The
+  // midpoint is never computed or published here.
+  const months10 = monthsToTargetRange(
+    vault.apyLow,
+    vault.apyHigh,
+    10,
+    PRODUCT_TERM_MONTHS,
+  );
+  const months10Str = formatMonthsRange(months10, PRODUCT_TERM_MONTHS);
 
   // PTAI per methodology v3.0 §8: Action = the pocket / curtailment /
   // take-profit step; Impact = effect on the BTC-accumulation range, the term

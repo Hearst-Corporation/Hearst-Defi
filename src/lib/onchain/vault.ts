@@ -11,6 +11,18 @@
 //  - `publicClient` is caller-supplied for `waitForTransactionReceipt`; callers
 //    that can't supply one get a typed `ConfigError` rather than a silent fail.
 //  - ABI is declared inline — no imports from `contracts/out/`.
+//
+// ── WRITE-PATH SAFETY (v2 trap, É-1) ──────────────────────────────────────────
+// This module's `VAULT_ADDRESS` resolves ONLY the LEGACY vault
+// (NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS / …_HEARST_VAULT_ADDRESS). The
+// canonical passage point `@/lib/chain/dynavault` also understands the v2
+// address (NEXT_PUBLIC_DYNAVAULT_ADDRESS) and picks v2 when it is set. If v2 is
+// ever configured, every READ moves to v2 while these WRITES would keep
+// targeting the OLD legacy vault — silently. To close that trap, `approveUsdc`
+// and `depositToVault` assert `getVaultMode() === "legacy"` and THROW a
+// `ConfigError` under mode "v2" instead of routing funds to the wrong contract.
+// Wiring the v2 write path (approve + deposit against DynaVault) is OUT OF SCOPE
+// here — this guard only fails loud until that work lands.
 
 import {
   createPublicClient,
@@ -25,6 +37,7 @@ import {
   type Address,
 } from "viem";
 import { getDeployment } from "@/lib/chain/deployments";
+import { getVaultMode } from "@/lib/chain/dynavault";
 // Privy's EIP1193Provider uses `on(eventName: string, ...)` which is structurally
 // narrower than viem's generic-overloaded signature. Bridging via `unknown` is the
 // only safe cast — we never use the `on`/`removeListener` methods ourselves, and
@@ -219,6 +232,22 @@ export class ChainError extends Error {
   }
 }
 
+/**
+ * Guards every write in this module against the v2 trap (see file header).
+ * Throws a `ConfigError` when the app is pointed at the v2 DynaVault, because
+ * the writes here still target the LEGACY `VAULT_ADDRESS`. Mode "legacy" (and
+ * "not_configured", which then fails on the null `VAULT_ADDRESS` check) proceed.
+ */
+function assertLegacyWritePath(): void {
+  if (getVaultMode() === "v2") {
+    throw new ConfigError(
+      "v2 deposit path not wired — route writes to DynaVault before enabling v2. " +
+        "NEXT_PUBLIC_DYNAVAULT_ADDRESS is set, so reads use v2 while these writes " +
+        "still target the legacy vault. Refusing to deposit to the wrong contract.",
+    );
+  }
+}
+
 /** Shared helper for write-and-wait-receipt flow. */
 async function writeContractAndAwaitReceipt(
   walletClient: WalletClient,
@@ -325,6 +354,10 @@ export interface ApproveUsdcResult {
  * Throws the underlying viem/RPC error for any contract-level rejection.
  */
 export async function approveUsdc(opts: ApproveUsdcOpts): Promise<ApproveUsdcResult> {
+  // v2 trap guard (see file header): never approve the legacy vault as spender
+  // when the app has moved its reads to v2.
+  assertLegacyWritePath();
+
   if (!VAULT_ADDRESS) {
     throw new ConfigError(
       "NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS is not configured. " +
@@ -375,6 +408,11 @@ export interface DepositToVaultResult {
 export async function depositToVault(
   opts: DepositToVaultOpts,
 ): Promise<DepositToVaultResult> {
+  // v2 trap guard (see file header): refuse to deposit into the legacy vault
+  // when the app has moved its reads to v2 — throw rather than route funds to
+  // the wrong contract.
+  assertLegacyWritePath();
+
   if (!VAULT_ADDRESS) {
     throw new ConfigError(
       "NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS is not configured. " +
@@ -395,81 +433,4 @@ export async function depositToVault(
   });
 
   return { txHash, amountUsdc: opts.amountUsdc };
-}
-
-
-// ---------------------------------------------------------------------------
-// Read-only NAV helpers — caller supplies a ReadContractClient so these work
-// in BOTH server components (pass getPublicClient() from src/lib/chain/client.ts)
-// AND browser components (pass getBrowserPublicClient()).
-//
-// We use a structural interface rather than viem's `PublicClient` to avoid the
-// dual-viem-version collision that surfaces when @walletconnect/utils pins an
-// older viem alongside ours. Both createPublicClient instances satisfy this shape.
-// ---------------------------------------------------------------------------
-
-/**
- * Minimal structural type for a viem client that can call readContract.
- * Params/result stay deliberately loose (not viem's generic ReadContractParameters)
- * to dodge the dual-viem-version collision documented above — call sites cast the
- * awaited result to the concrete return type (e.g. `as Promise<bigint>`).
- */
-type ReadContractArgs = {
-  address: Address;
-  abi: Abi;
-  functionName: string;
-  args: readonly unknown[];
-};
-type ReadContractClient = {
-  readContract: (params: ReadContractArgs) => Promise<unknown>;
-};
-
-/** 1e18 share units — ERC-4626 shares use 18 decimals. */
-const ONE_SHARE = BigInt(10 ** 18);
-
-/**
- * Total USDC assets under management in the vault (6-decimal raw value).
- * Returns null when the vault address is not configured.
- *
- * @param client - A viem PublicClient. From a Server Component pass
- *   `getPublicClient()` (src/lib/chain/client.ts); from a browser context
- *   pass `getBrowserPublicClient()`.
- */
-async function readTotalAssets(client: ReadContractClient): Promise<bigint | null> {
-  if (!VAULT_ADDRESS) return null;
-  return client.readContract({
-    address: VAULT_ADDRESS,
-    abi: ERC4626_ABI,
-    functionName: "totalAssets",
-    args: [],
-  }) as Promise<bigint>;
-}
-
-/**
- * NAV per share, expressed as a 6-decimal USDC raw value (e.g. 1_000_000n = 1.000000 USDC).
- * Derived from `convertToAssets(1e18)` — the canonical ERC-4626 way to get price-per-share.
- * Returns null when the vault address is not configured.
- *
- * @param client - A viem PublicClient. From a Server Component pass
- *   `getPublicClient()` (src/lib/chain/client.ts); from a browser context
- *   pass `getBrowserPublicClient()`.
- */
-export async function readNavPerShare(client: ReadContractClient): Promise<bigint | null> {
-  if (!VAULT_ADDRESS) return null;
-  return client.readContract({
-    address: VAULT_ADDRESS,
-    abi: ERC4626_ABI,
-    functionName: "convertToAssets",
-    args: [ONE_SHARE],
-  }) as Promise<bigint>;
-}
-
-/**
- * Format a raw 6-decimal USDC NAV value (from readNavPerShare) as a display
- * string, e.g. 1_000_000n → "1.0000".
- */
-export function formatNavPerShare(raw: bigint): string {
-  const whole = raw / BigInt(10 ** USDC_DECIMALS);
-  const frac = raw % BigInt(10 ** USDC_DECIMALS);
-  return `${whole.toString()}.${frac.toString().padStart(USDC_DECIMALS, "0").slice(0, 4)}`;
 }
