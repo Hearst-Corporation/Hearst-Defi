@@ -200,7 +200,7 @@ Substitutes: "target", "conditional projection", "target range", "subject to", "
 - **Methodology**: **v3.0 is the ACTIVE methodology** (the mining note, ADR-019). v1.0 (the retired distributed-yield model) and v2.0 (Monte Carlo p5/p50/p95 *alongside* the rule-based engine) remain **immutable, on-file records** — an output generated under an earlier version keeps its original version and is never retroactively rewritten. Any change = new version + ADR.
 
 # BTC mining (cashflow mechanics)
-- Hearst **does not operate its own ASICs**: revenue-share with 1-2 partner farms, monthly USDC payouts via signed attestation.
+- Hearst **does not operate its own ASICs**: revenue-share with 1-2 partner farms, settled monthly in USDC **to the note** (signed attestation) — the farm→note leg, **not an LP distribution** (the note accumulates BTC over its 24-month term; there is no periodic cash payout to LPs).
 - Cashflow metric #1 = **hashprice** ($/TH/day), sensitive to BTC, difficulty (next halving ~2028), pool fees (1-2 %), fleet J/TH (S19/S21 around 17-22 J/TH), partner electricity cost.
 - Mining revenue ∝ BTC × hashprice. **NEVER** claim that the yield is isolated from the BTC price.
 - Stressed APY: combined scenario BTC -40 % + hashprice -30 % to show alongside the APY range if asked.
