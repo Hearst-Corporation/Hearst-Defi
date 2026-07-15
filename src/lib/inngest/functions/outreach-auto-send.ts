@@ -10,6 +10,7 @@ import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 import { logEmailActivity } from "@/lib/hubspot/sync-prospect";
 import { isSuppressed } from "@/lib/outreach/suppression";
 import { containsForbidden } from "@/lib/agents/forbidden-words";
+import { hasSinglePointApy } from "@/lib/agents/apy-range";
 import { isTier, type Tier } from "@/lib/outreach/tier";
 import {
   decideAutoSend,
@@ -220,6 +221,45 @@ export async function outreachAutoSendHandler({
               tier: item.tier,
               autonomy,
               found: forbidden.found,
+            },
+          });
+        } catch (auditErr) {
+          logger.error("[outreach-auto-send] failed to audit blocked send", {
+            emailId: item.emailId,
+            error: auditErr instanceof Error ? auditErr.message : String(auditErr),
+          });
+        }
+        return "blocked" as const;
+      }
+
+      // Compliance gate (non-negotiable #1): APY is ALWAYS a range, never a
+      // single point. The drafting agent already guards, but never auto-send a
+      // "target APY 11%" body even if a draft was hand-edited. Use the canonical
+      // non-throw detector (parity with the forbidden-words gate above) so the
+      // block is an explicit, audited outcome (reason "single_point_apy",
+      // channel "auto_send") distinct from a Resend failure. The row is marked
+      // "failed" and nothing is sent.
+      if (hasSinglePointApy(`${item.subject}\n${item.body}`, true)) {
+        await prisma.outreachEmail
+          .update({ where: { id: item.emailId }, data: { status: "failed" } })
+          .catch(() => {});
+        logger.error("[outreach-auto-send] blocked single-point APY", {
+          emailId: item.emailId,
+        });
+        // Best-effort audit — runs AFTER the no-send decision, so an audit
+        // failure can never turn a blocked email into a sent one.
+        try {
+          await recordAdminAudit({
+            actorWallet: "system:outreach-auto-send",
+            action: "outreach.blockedSend",
+            entityType: "OutreachEmail",
+            entityId: item.emailId,
+            after: {
+              reason: "single_point_apy",
+              channel: "auto_send",
+              prospectId: item.prospectId ?? null,
+              tier: item.tier,
+              autonomy,
             },
           });
         } catch (auditErr) {

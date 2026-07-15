@@ -13,7 +13,7 @@
 import "server-only";
 
 import { z } from "zod";
-import { assertNoForbiddenWords } from "@/lib/agents/validators";
+import { assertSendCopyCompliant } from "@/lib/outreach/send-compliance";
 import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
@@ -139,7 +139,8 @@ function parseAndGuardWhatsApp(text: string): WhatsAppDraft {
     throw new Error(`WhatsApp agent invalid: ${JSON.stringify(result.error.issues)}`);
   }
   const draft = result.data;
-  assertNoForbiddenWords(draft.body);
+  // Forbidden words (#5) + APY always a range (#1) — shared send-copy gate.
+  assertSendCopyCompliant(draft.body);
   // Ensure CTA link is present
   return { body: ensureCtaInBody(draft.body, "[CTA link]") };
 }
@@ -279,7 +280,8 @@ function parseAndGuardLinkedIn(text: string): LinkedInDraft {
     throw new Error(`LinkedIn agent invalid: ${JSON.stringify(result.error.issues)}`);
   }
   const draft = result.data;
-  assertNoForbiddenWords(draft.body);
+  // Forbidden words (#5) + APY always a range (#1) — shared send-copy gate.
+  assertSendCopyCompliant(draft.body);
   return { body: ensureCtaInBody(draft.body, "[CTA link]") };
 }
 

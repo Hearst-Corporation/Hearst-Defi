@@ -14,7 +14,7 @@ import {
   type OutreachAudience,
   type OutreachLanguage,
 } from "@/lib/agents/outreach-writer";
-import { assertNoForbiddenWords } from "@/lib/agents/validators";
+import { assertSendCopyCompliant } from "@/lib/outreach/send-compliance";
 import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { inngest } from "@/lib/inngest/client";
 import { OUTREACH_EVENTS } from "@/lib/outreach/events";
@@ -237,10 +237,10 @@ export async function createCampaign(formData: FormData): Promise<void> {
   });
   if (!parsed.success) throw new Error("createCampaign: invalid input");
 
-  // Guard the operator-authored brief against forbidden vocabulary before it is
-  // ever handed to the drafting agent.
+  // Guard the operator-authored brief against forbidden vocabulary AND a
+  // single-point APY before it is ever handed to the drafting agent.
   if (parsed.data.bodyTemplate) {
-    assertNoForbiddenWords(parsed.data.bodyTemplate);
+    assertSendCopyCompliant(parsed.data.bodyTemplate);
   }
 
   const campaign = await prisma.outreachCampaign.create({
@@ -319,8 +319,8 @@ export async function updateEmail(formData: FormData): Promise<void> {
   if (!parsed.success) throw new Error("updateEmail: invalid input");
 
   // An edited draft is still operator-facing copy headed to a real recipient —
-  // re-run the forbidden-words guard on the human-supplied text.
-  assertNoForbiddenWords(`${parsed.data.subject}\n${parsed.data.body}`);
+  // re-run the send-copy guard (forbidden words + APY-range) on the human text.
+  assertSendCopyCompliant(parsed.data.subject, parsed.data.body);
 
   const existing = await prisma.outreachEmail.findUnique({
     where: { id: parsed.data.emailId },
@@ -459,7 +459,7 @@ export async function draftAllCampaignEmails(
         userId: user.id,
         brief: campaign.bodyTemplate,
       });
-      assertNoForbiddenWords(`${subject}\n${body}`);
+      assertSendCopyCompliant(subject, body);
       await prisma.outreachEmail.create({
         data: {
           campaignId: campaign.id,
@@ -513,7 +513,7 @@ export async function draftAllCampaignEmails(
         audience,
         language,
       });
-      assertNoForbiddenWords(`${subject}\n${body}`);
+      assertSendCopyCompliant(subject, body);
       await prisma.outreachEmail.create({
         data: {
           campaignId: campaign.id,
@@ -606,7 +606,7 @@ export async function draftDirectEmail(
     brief: parsed.data.brief ?? null,
     typeformUrl: resolveCtaUrl(),
   });
-  assertNoForbiddenWords(`${subject}\n${body}`);
+  assertSendCopyCompliant(subject, body);
   return { subject, body };
 }
 
@@ -652,8 +652,9 @@ export async function draftEmailForProspect(
     typeformUrl: resolveCtaUrl(),
     audience: "distributor",
   });
-  // Non-negotiable #5 — never persist a draft carrying a forbidden claim.
-  assertNoForbiddenWords(`${subject}\n${body}`);
+  // Non-negotiables #5 + #1 — never persist a draft carrying a forbidden claim
+  // or a single-point APY.
+  assertSendCopyCompliant(subject, body);
 
   const campaignId = await getDirectCampaignId(admin.userId);
   const email = await prisma.outreachEmail.create({
@@ -715,11 +716,13 @@ export async function sendDirectEmail(
   }
 
   try {
-    assertNoForbiddenWords(`${parsed.data.subject}\n${parsed.data.body}`);
+    assertSendCopyCompliant(parsed.data.subject, parsed.data.body);
   } catch {
     return {
       ok: false,
-      error: "Blocked: contains a forbidden word (guarantee/promise/risk-free…).",
+      error:
+        "Blocked: contains a forbidden word (guarantee/promise/risk-free…) " +
+        'or a single-point APY (write a range like "8-15%", never "11%").',
     };
   }
 

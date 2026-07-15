@@ -3,7 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { renderAgentMemoryBlock } from "@/lib/agents/memory";
-import { assertNoForbiddenWords } from "@/lib/agents/validators";
+import { assertSendCopyCompliant } from "@/lib/outreach/send-compliance";
 import { parseLlmJsonObject } from "@/lib/agents/parse-llm-json";
 import { callLlm, type LlmClientLike } from "@/lib/llm/client";
 import { LLM_MODEL } from "@/lib/llm/openai";
@@ -18,7 +18,8 @@ import { ensureCtaInBody } from "@/lib/outreach/cta-url";
  * to every generated string before it is returned to the caller:
  *  - STRICT JSON-only contract in the system prompt (defensive fence-stripping
  *    parse on the way out).
- *  - `assertNoForbiddenWords` on subject + body (CLAUDE.md non-negotiable #5).
+ *  - `assertSendCopyCompliant` on subject + body — forbidden words (#5) AND
+ *    APY-always-a-range (#1), the shared outreach send-copy gate.
  *  - The estimated target return is only ever surfaced as a range, never a
  *    single point (#1); the prompt forbids fabricated numbers entirely and
  *    never describes a periodic cash distribution or a fixed APY (the product
@@ -250,9 +251,9 @@ function parseAndGuard(text: string): OutreachDraft {
     );
   }
   const draft = result.data;
-  // Non-negotiable #5: forbidden-word linter on every surfaced string.
-  assertNoForbiddenWords(draft.subject);
-  assertNoForbiddenWords(draft.body);
+  // Non-negotiables #5 (forbidden words) + #1 (APY always a range) on every
+  // surfaced string — the same gate every outreach send path shares.
+  assertSendCopyCompliant(draft.subject, draft.body);
   return draft;
 }
 

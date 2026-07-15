@@ -8,6 +8,7 @@ import { env } from "@/lib/env";
 import { sendTrackedEmail, renderPlainHtml } from "@/lib/email/send";
 import { isSuppressed } from "@/lib/outreach/suppression";
 import { containsForbidden } from "@/lib/agents/forbidden-words";
+import { hasSinglePointApy } from "@/lib/agents/apy-range";
 import { draftColdEmail } from "@/lib/agents/outreach-writer";
 import { isTier, type Tier } from "@/lib/outreach/tier";
 import { decideAutoSend, type Autonomy } from "@/lib/outreach/send-policy";
@@ -225,6 +226,58 @@ export async function outreachFollowupsHandler({
                 tier,
                 autonomy,
                 found: forbidden.found,
+              },
+            });
+          } catch (auditErr) {
+            logger.error("[outreach-followups] failed to audit blocked send", {
+              prospectId: p.id,
+              emailId: blocked.id,
+              error:
+                auditErr instanceof Error ? auditErr.message : String(auditErr),
+            });
+          }
+          return "blocked" as const;
+        }
+
+        // Compliance gate (non-negotiable #1): never send a follow-up quoting a
+        // single-point APY. Use the canonical non-throw detector (parity with
+        // the forbidden-words gate above) so the block is an explicit, audited
+        // outcome (reason "single_point_apy", channel "followup") distinct from
+        // a Resend failure. The drafted row is persisted as "failed" (existing
+        // status, no new model) and audited; nothing is sent. Audit is
+        // best-effort and runs AFTER the no-send decision.
+        if (hasSinglePointApy(`${subject}\n${body}`, true)) {
+          const blocked = await prisma.outreachEmail.create({
+            data: {
+              campaignId,
+              prospectId: p.id,
+              toEmail: p.email,
+              subject,
+              body,
+              status: "failed",
+              draftedByAgent: true,
+              tierAtSend: tier,
+              autonomyAtSend: autonomy,
+            },
+            select: { id: true },
+          });
+          logger.error("[outreach-followups] blocked single-point APY", {
+            prospectId: p.id,
+            emailId: blocked.id,
+          });
+          try {
+            await recordAdminAudit({
+              actorWallet: "system:outreach-followups",
+              action: "outreach.blockedSend",
+              entityType: "OutreachEmail",
+              entityId: blocked.id,
+              after: {
+                reason: "single_point_apy",
+                channel: "followup",
+                prospectId: p.id,
+                step: nextStep,
+                tier,
+                autonomy,
               },
             });
           } catch (auditErr) {

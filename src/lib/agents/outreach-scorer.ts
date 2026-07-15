@@ -61,7 +61,7 @@ export interface ScoreProspectInput {
  * System / user prompt builders.
  * ------------------------------------------------------------------------ */
 
-const SYSTEM_PROMPT = `You are a distribution-channel analyst for Hearst Connect, a single-vault institutional DeFi platform (Hearst Yield Vault — mining-backed structured yield, Cayman SPV, $250k minimum ticket, 60-day soft lock-up, monthly USDC distributions, target APY range 8-15%).
+const SYSTEM_PROMPT = `You are a distribution-channel analyst for Hearst Connect, a single-vault institutional DeFi platform (Hearst Yield Vault — a mining-backed BTC-accumulation note that accumulates BTC over a 24-month term with rule-based take-profit; no periodic cash distribution, no fixed/annual APY; Cayman SPV, $250k minimum ticket, 60-day soft lock-up; estimated target return range 8-15% in BTC accumulated, not distributed).
 
 Your role: score a prospect's fit as a DISTRIBUTOR of Hearst Connect — i.e., an intermediary (RIA, family office, wealth manager, IFA, independent financial advisor, private bank, or similar platform) that onboards qualified investors and allocates on their behalf. You are NOT scoring end investors directly.
 

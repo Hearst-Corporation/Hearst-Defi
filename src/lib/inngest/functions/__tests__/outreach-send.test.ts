@@ -186,6 +186,52 @@ describe("outreachSendHandler — campaign fan-out", () => {
     expect(auditArg.data.diff).not.toContain("This is risk-free, returns are guaranteed.");
   });
 
+  it("re-checks APY-range at send time — an approved row quoting a single-point APY is NOT sent", async () => {
+    // A row that passed approval but quotes a fixed "target APY 11%" (e.g. a
+    // post-approval hand-edit / legacy row). Non-negotiable #1: APY is ALWAYS a
+    // range. The clean row still sends; the single-point one is blocked.
+    const singlePointApy = {
+      id: "email_apy",
+      toEmail: "apy@example.com",
+      subject: "Institutional yield — quick intro",
+      body: "Our estimated target APY is 11% net over the term.",
+      prospectId: "prospect_apy",
+    };
+    emailFindManyMock.mockResolvedValue([singlePointApy, approvedRow(1)]);
+
+    const { outreachSendHandler } = await import("@/lib/inngest/functions/outreach-send");
+    const res = await outreachSendHandler({
+      step: buildStepShim(),
+      event: { data: { campaignId: "camp_1", requestedBy: "0xadmin" } },
+    });
+
+    // The single-point APY row is blocked (never reaches Resend); the safe row sends.
+    expect(sendTrackedEmailMock).toHaveBeenCalledTimes(1);
+    expect(sendTrackedEmailMock).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "r1@example.com" }),
+    );
+    // The blocked row is marked failed (uses the existing status, no new model).
+    expect(emailUpdateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "email_apy" }, data: { status: "failed" } }),
+    );
+    // Fan-out continues: one sent, one blocked-as-failed, campaign flipped sent.
+    expect(res).toEqual({ sent: 1, failed: 1, total: 2 });
+    // The block is audited: reason single_point_apy, channel campaign_fanout,
+    // and the email body is NEVER persisted in the audit diff.
+    expect(auditCreateMock).toHaveBeenCalledTimes(1);
+    const auditArg = auditCreateMock.mock.calls[0]![0];
+    expect(auditArg.data.action).toBe("outreach.blockedSend");
+    expect(auditArg.data.entityType).toBe("OutreachEmail");
+    expect(auditArg.data.entityId).toBe("email_apy");
+    const diff = JSON.parse(auditArg.data.diff) as {
+      after: { reason: string; channel: string; campaignId: string };
+    };
+    expect(diff.after.reason).toBe("single_point_apy");
+    expect(diff.after.channel).toBe("campaign_fanout");
+    expect(diff.after.campaignId).toBe("camp_1");
+    expect(auditArg.data.diff).not.toContain("Our estimated target APY is 11% net over the term.");
+  });
+
   it("a forbidden word in the SUBJECT alone also blocks the send", async () => {
     const unsafeSubject = {
       id: "email_subj",

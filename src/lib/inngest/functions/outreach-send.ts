@@ -10,6 +10,7 @@ import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 import { logEmailActivity } from "@/lib/hubspot/sync-prospect";
 import { isSuppressed } from "@/lib/outreach/suppression";
 import { containsForbidden } from "@/lib/agents/forbidden-words";
+import { hasSinglePointApy } from "@/lib/agents/apy-range";
 import { recordAdminAudit } from "@/lib/admin/audit";
 import { OUTREACH_EVENTS } from "@/lib/outreach/events";
 import type { OutreachCampaignSendPayload } from "@/lib/outreach/events";
@@ -155,6 +156,48 @@ export async function outreachSendHandler({
                 campaignId,
                 prospectId: email.prospectId ?? null,
                 found: forbidden.found,
+              },
+            });
+          } catch (auditErr) {
+            logger.error("[outreach-send] failed to audit blocked send", {
+              campaignId,
+              emailId: email.id,
+              error:
+                auditErr instanceof Error ? auditErr.message : String(auditErr),
+            });
+          }
+          return { ok: false as const, blocked: true };
+        }
+
+        // Compliance gate (non-negotiable #1): APY is ALWAYS a range, never a
+        // single point. A post-approval hand-edit or a legacy row could carry a
+        // "target APY 11%" the draft-time guard never saw. Use the same
+        // canonical non-throw detector the four batch agents + the LP chat use
+        // (`hasSinglePointApy`, buffered → final=true), so a block here is an
+        // explicit, audited outcome distinct from a Resend failure — parity with
+        // the forbidden-words gate above. The row is marked "failed", the block
+        // is audited (reason "single_point_apy"), and nothing is sent; the
+        // fan-out continues for the rest.
+        if (hasSinglePointApy(`${email.subject}\n${email.body}`, true)) {
+          await prisma.outreachEmail.update({
+            where: { id: email.id },
+            data: { status: "failed" },
+          });
+          logger.error("[outreach-send] blocked single-point APY at send time", {
+            campaignId,
+            emailId: email.id,
+          });
+          try {
+            await recordAdminAudit({
+              actorWallet: requestedBy,
+              action: "outreach.blockedSend",
+              entityType: "OutreachEmail",
+              entityId: email.id,
+              after: {
+                reason: "single_point_apy",
+                channel: "campaign_fanout",
+                campaignId,
+                prospectId: email.prospectId ?? null,
               },
             });
           } catch (auditErr) {
