@@ -445,6 +445,188 @@ describe("v2 mode — wired reads", () => {
     expect(result.data.lastElecPaymentTime).toBe(1_752_000_000n);
     expect(result.data.canPay).toBe(true);
   });
+
+  it("readMiningMetrics exposes the 3rd component as lastReportTime (spec §9.1)", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const client = fakeClient({
+      miningMetrics: [182_000n, 12_345_678n, 1_752_100_000n],
+    });
+
+    const result = await mod.readMiningMetrics({ client });
+    expect(result.status).toBe("wired");
+    if (result.status !== "wired") return;
+    expect(result.data.reportedHashrateTh).toBe(182_000n);
+    expect(result.data.totalBtcEarnedSats).toBe(12_345_678n);
+    expect(result.data.lastReportTime).toBe(1_752_100_000n);
+  });
+
+  it("readGovernance reads keeper() + owner()", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const client = fakeClient({ keeper: USER_ADDR, owner: USDC_ADDR });
+
+    const result = await mod.readGovernance({ client });
+    expect(result.status).toBe("wired");
+    if (result.status !== "wired") return;
+    expect(result.source).toBe("v2");
+    expect(result.data.keeper).toBe(USER_ADDR);
+    expect(result.data.owner).toBe(USDC_ADDR);
+  });
+
+  it("readGovernance decode_errors when keeper()/owner() is not an address", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const client = fakeClient({ keeper: 42n, owner: USDC_ADDR });
+
+    const result = await mod.readGovernance({ client });
+    expect(result.status).toBe("unavailable");
+    if (result.status === "unavailable") {
+      expect(result.reason).toBe(UNAVAILABLE_REASONS.DECODE_ERROR);
+    }
+  });
+
+  it("readOpsState reads isCurtailed()/currentMonth()/miningNoteMode()", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const client = fakeClient({
+      isCurtailed: true,
+      currentMonth: 7n,
+      miningNoteMode: false,
+    });
+
+    const result = await mod.readOpsState({ client });
+    expect(result.status).toBe("wired");
+    if (result.status !== "wired") return;
+    expect(result.data.isCurtailed).toBe(true);
+    expect(result.data.currentMonth).toBe(7n);
+    expect(result.data.miningNoteMode).toBe(false);
+  });
+
+  it("readOpsState decode_errors when a component has the wrong type", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    // currentMonth() answering with a bool instead of a uint256.
+    const client = fakeClient({
+      isCurtailed: false,
+      currentMonth: true,
+      miningNoteMode: true,
+    });
+
+    const result = await mod.readOpsState({ client });
+    expect(result.status).toBe("unavailable");
+    if (result.status === "unavailable") {
+      expect(result.reason).toBe(UNAVAILABLE_REASONS.DECODE_ERROR);
+    }
+  });
+
+  it("readProductDurationMonths reads the uint256 term", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const client = fakeClient({ productDurationMonths: 24n });
+
+    const result = await mod.readProductDurationMonths({ client });
+    expect(result.status).toBe("wired");
+    if (result.status !== "wired") return;
+    expect(result.data.months).toBe(24n);
+  });
+
+  it("readProductDurationMonths decode_errors on a non-uint256", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const client = fakeClient({ productDurationMonths: USER_ADDR });
+
+    const result = await mod.readProductDurationMonths({ client });
+    expect(result.status).toBe("unavailable");
+    if (result.status === "unavailable") {
+      expect(result.reason).toBe(UNAVAILABLE_REASONS.DECODE_ERROR);
+    }
+  });
+
+  it("readConvertToShares previews a deposit in v2 (6-dec shares)", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const client = fakeClient({ convertToShares: 250_000_000n });
+
+    const result = await mod.readConvertToShares(250_000_000n, { client });
+    expect(result.status).toBe("wired");
+    if (result.status !== "wired") return;
+    expect(result.source).toBe("v2");
+    expect(result.data.shares).toBe(250_000_000n);
+    expect(result.data.assetDecimals).toBe(6);
+    expect(result.data.shareDecimals).toBe(6);
+  });
+
+  it("readConvertToShares rejects a negative amount without touching the chain", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const client = throwingClient(new Error("should never be called"));
+
+    const result = await mod.readConvertToShares(-1n, { client });
+    expect(result.status).toBe("unavailable");
+    if (result.status === "unavailable") {
+      expect(result.reason).toBe(UNAVAILABLE_REASONS.INVALID_INPUT);
+    }
+  });
+
+  it("readConvertToShares decode_errors on a non-uint256", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const client = fakeClient({ convertToShares: USER_ADDR });
+
+    const result = await mod.readConvertToShares(1_000_000n, { client });
+    expect(result.status).toBe("unavailable");
+    if (result.status === "unavailable") {
+      expect(result.reason).toBe(UNAVAILABLE_REASONS.DECODE_ERROR);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// New reads — legacy support boundary
+// ---------------------------------------------------------------------------
+
+describe("new reads — legacy / not_configured boundary", () => {
+  it("v2-only reads (governance / opsState / productDuration) are not_supported_by_legacy", async () => {
+    const mod = await importWithEnv({
+      NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS: LEGACY_ADDR,
+    });
+    const client = throwingClient(new Error("guard must fire before any call"));
+
+    const results = await Promise.all([
+      mod.readGovernance({ client }),
+      mod.readOpsState({ client }),
+      mod.readProductDurationMonths({ client }),
+    ]);
+
+    for (const result of results) {
+      expect(result.status).toBe("unavailable");
+      if (result.status === "unavailable") {
+        expect(result.reason).toBe(UNAVAILABLE_REASONS.NOT_SUPPORTED_BY_LEGACY);
+        expect(result.detail).toContain("NEXT_PUBLIC_DYNAVAULT_ADDRESS");
+      }
+    }
+  });
+
+  it("readConvertToShares works in LEGACY mode (convertToShares is ERC-4626) with 18-dec shares", async () => {
+    const mod = await importWithEnv({
+      NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS: LEGACY_ADDR,
+    });
+    const client = fakeClient({ convertToShares: 12_000_000_000_000_000_000n });
+
+    const result = await mod.readConvertToShares(12_000_000n, { client });
+    expect(result.status).toBe("wired");
+    if (result.status !== "wired") return;
+    expect(result.source).toBe("legacy");
+    expect(result.data.shares).toBe(12_000_000_000_000_000_000n);
+    expect(result.data.shareDecimals).toBe(18);
+  });
+
+  it("new v2-only reads report not_deployed when nothing is configured", async () => {
+    const mod = await importWithEnv({});
+    const results = await Promise.all([
+      mod.readGovernance(),
+      mod.readOpsState(),
+      mod.readProductDurationMonths(),
+      mod.readConvertToShares(1_000_000n),
+    ]);
+    for (const result of results) {
+      expect(result.status).toBe("unavailable");
+      if (result.status === "unavailable") {
+        expect(result.reason).toBe(UNAVAILABLE_REASONS.NOT_DEPLOYED);
+      }
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -759,6 +941,42 @@ describe("DYNAVAULT_ABI — the v2.1 divergences from ERC-4626", () => {
         "bool",
       ]);
     }
+  });
+
+  it("declares the view functions the new reads depend on", () => {
+    for (const name of [
+      "convertToShares",
+      "keeper",
+      "owner",
+      "isCurtailed",
+      "currentMonth",
+      "miningNoteMode",
+      "productDurationMonths",
+    ]) {
+      const fn = abiItem(name);
+      expect(fn, `${name} missing from DYNAVAULT_ABI`).toBeDefined();
+      expect(fn?.type).toBe("function");
+      if (fn?.type === "function") {
+        expect(fn.stateMutability).toBe("view");
+      }
+    }
+  });
+
+  it("miningMetrics() 3rd output is named lastReportTime, not the old guess", () => {
+    const fn = abiItem("miningMetrics");
+    expect(fn?.type).toBe("function");
+    if (fn?.type === "function") {
+      expect(fn.outputs.map((o) => o.name)).toEqual([
+        "reportedHashrateTh",
+        "totalBtcEarnedSats",
+        "lastReportTime",
+      ]);
+    }
+  });
+
+  it("the legacy read ABI carries convertToShares (ERC-4626 preview bridge)", () => {
+    const names = LEGACY_VAULT_READ_ABI.map((item) => item.name);
+    expect(names).toContain("convertToShares");
   });
 
   it("the legacy read ABI carries the bridge pair totalSupply/balanceOf", () => {

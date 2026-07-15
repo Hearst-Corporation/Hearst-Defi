@@ -562,16 +562,16 @@ export const DYNAVAULT_ABI = [
   },
   {
     // (uint256, uint256, uint256) per spec. The first two mirror the standalone
-    // getters and reportMiningMetrics(uint256,uint256). The THIRD is genuinely
-    // ambiguous — `lastReportedAt` is a guess (could be `currentMonth`).
-    // UNCONFIRMED.
+    // getters and reportMiningMetrics(uint256,uint256). The THIRD is
+    // `lastReportTime` — a unix timestamp of the last reportMiningMetrics()
+    // call, settled by VAULT_SPEC_V2.1.md §9.1.
     type: "function",
     name: "miningMetrics",
     inputs: [],
     outputs: [
       { name: "reportedHashrateTh", type: "uint256" },
       { name: "totalBtcEarnedSats", type: "uint256" },
-      { name: "lastReportedAt", type: "uint256" },
+      { name: "lastReportTime", type: "uint256" },
     ],
     stateMutability: "view",
   },
@@ -1179,9 +1179,9 @@ export interface StrategyInfo {
 export interface MiningMetrics {
   reportedHashrateTh: bigint;
   totalBtcEarnedSats: bigint;
-  /** UNCONFIRMED semantics — 3rd component of `miningMetrics()` (could be
-   *  `currentMonth` rather than a timestamp). */
-  lastReportedAt: bigint;
+  /** Unix timestamp of the last `reportMiningMetrics()` call — 3rd component of
+   *  `miningMetrics()` (VAULT_SPEC_V2.1.md §9.1). */
+  lastReportTime: bigint;
 }
 
 export interface ElecStatus {
@@ -1230,6 +1230,39 @@ export interface NavPerShare {
   raw: bigint;
   assetDecimals: number;
   shareDecimals: number;
+}
+
+export interface ConvertToShares {
+  /** `convertToShares(assets)` — share units minted for `assets` asset units. */
+  shares: bigint;
+  assetDecimals: number;
+  shareDecimals: number;
+}
+
+export interface Governance {
+  /** `keeper()` — the operational keeper EOA (v2 only; legacy has no keeper). */
+  keeper: Address;
+  /** `owner()` — the Ownable owner. */
+  owner: Address;
+}
+
+export interface OpsState {
+  /** `isCurtailed()` — mining fleet is currently curtailed. */
+  isCurtailed: boolean;
+  /** `currentMonth()` — the product month index the engine has advanced to. */
+  currentMonth: bigint;
+  /**
+   * `miningNoteMode()` — when true the 40/27/33 allocation is CONTRACTUALLY
+   * enforced (the Mining Note is the operative product); when false the same
+   * split is advisory only. UNCONFIRMED type: the spec gives no setter — read as
+   * `bool` by analogy, so a uint8 enum would decode_error rather than lie.
+   */
+  miningNoteMode: boolean;
+}
+
+export interface ProductDuration {
+  /** `productDurationMonths()` — the product term in months. */
+  months: bigint;
 }
 
 // ---------------------------------------------------------------------------
@@ -1432,6 +1465,59 @@ export async function readNavPerShare(
   }
 }
 
+/**
+ * `convertToShares(assets)` — preview the shares a deposit of `assets` asset
+ * units would mint. Available in BOTH modes: `convertToShares` exists on the
+ * v2.1 surface AND on the legacy ERC-4626 vault. Share decimals track the mode
+ * (v2 = 6, legacy = 18); `assetDecimals` is always USDC's 6. This is the only v2
+ * way to preview a deposit — the spec lists no `previewDeposit`.
+ */
+export async function readConvertToShares(
+  assets: bigint,
+  opts?: ReadOpts,
+): Promise<Wired<ConvertToShares>> {
+  if (assets < 0n) {
+    return unavailable<ConvertToShares>(
+      UNAVAILABLE_REASONS.INVALID_INPUT,
+      "assets must be a non-negative bigint in asset units.",
+    );
+  }
+
+  const target = MODULE_TARGET;
+  if (target.mode === "not_configured") return notDeployed<ConvertToShares>();
+
+  const client = opts?.client ?? getReadClient();
+  const abi = target.mode === "v2" ? DYNAVAULT_ABI : LEGACY_VAULT_READ_ABI;
+  const shareDecimals = shareDecimalsForMode(target.mode);
+
+  try {
+    const raw = await client.readContract({
+      address: target.address,
+      abi,
+      functionName: "convertToShares",
+      args: [assets],
+    });
+    const shares = asBigint(raw);
+    if (shares === null) {
+      return unavailable<ConvertToShares>(
+        UNAVAILABLE_REASONS.DECODE_ERROR,
+        "convertToShares() did not return a uint256.",
+      );
+    }
+    return wired<ConvertToShares>(
+      {
+        shares,
+        assetDecimals: USDC_DECIMALS,
+        shareDecimals,
+      },
+      target,
+    );
+  } catch (err) {
+    const { reason, detail } = classifyError(err);
+    return unavailable<ConvertToShares>(reason, detail);
+  }
+}
+
 /** All strategies. v2 only — the legacy vault holds no strategy at all. */
 export async function readStrategies(
   opts?: ReadOpts,
@@ -1577,11 +1663,11 @@ export async function readMiningMetrics(
     }
     const reportedHashrateTh = asBigint(tuple[0]);
     const totalBtcEarnedSats = asBigint(tuple[1]);
-    const lastReportedAt = asBigint(tuple[2]);
+    const lastReportTime = asBigint(tuple[2]);
     if (
       reportedHashrateTh === null ||
       totalBtcEarnedSats === null ||
-      lastReportedAt === null
+      lastReportTime === null
     ) {
       return unavailable<MiningMetrics>(
         UNAVAILABLE_REASONS.DECODE_ERROR,
@@ -1589,7 +1675,7 @@ export async function readMiningMetrics(
       );
     }
     return wired<MiningMetrics>(
-      { reportedHashrateTh, totalBtcEarnedSats, lastReportedAt },
+      { reportedHashrateTh, totalBtcEarnedSats, lastReportTime },
       target,
     );
   } catch (err) {
@@ -1821,5 +1907,143 @@ export async function readVendingCurve(
   } catch (err) {
     const { reason, detail } = classifyError(err);
     return unavailable<VendingCurvePoint>(reason, detail);
+  }
+}
+
+/**
+ * `keeper()` + `owner()`. v2 only as a PAIR: the legacy HearstYieldVault does
+ * expose `owner()` (it is Ownable), but has no `keeper` — so a `{keeper, owner}`
+ * tuple cannot be honestly filled in legacy mode. Rather than fabricate a keeper
+ * or return a half-tuple, the whole read is `not_supported_by_legacy`. A caller
+ * that only needs the legacy owner reads it through `src/lib/onchain/vault.ts`.
+ */
+export async function readGovernance(
+  opts?: ReadOpts,
+): Promise<Wired<Governance>> {
+  const guard = requireV2<Governance>("keeper()");
+  if (!guard.ok) return guard.wired;
+
+  const target = guard.target;
+  const client = opts?.client ?? getReadClient();
+
+  try {
+    const [rawKeeper, rawOwner] = await Promise.all([
+      client.readContract({
+        address: target.address,
+        abi: DYNAVAULT_ABI,
+        functionName: "keeper",
+        args: [],
+      }),
+      client.readContract({
+        address: target.address,
+        abi: DYNAVAULT_ABI,
+        functionName: "owner",
+        args: [],
+      }),
+    ]);
+
+    const keeper = asAddress(rawKeeper);
+    const owner = asAddress(rawOwner);
+    if (keeper === null || owner === null) {
+      return unavailable<Governance>(
+        UNAVAILABLE_REASONS.DECODE_ERROR,
+        "keeper() / owner() did not return an address.",
+      );
+    }
+
+    return wired<Governance>({ keeper, owner }, target);
+  } catch (err) {
+    const { reason, detail } = classifyError(err);
+    return unavailable<Governance>(reason, detail);
+  }
+}
+
+/**
+ * `isCurtailed()` + `currentMonth()` + `miningNoteMode()`. v2 only — none of
+ * these exist on the legacy ERC-4626 vault. Grouped because a readout of the
+ * operational state wants all three at once; three independent reads would let
+ * one revert hide the other two, so they are read together and decoded as a set.
+ */
+export async function readOpsState(opts?: ReadOpts): Promise<Wired<OpsState>> {
+  const guard = requireV2<OpsState>("isCurtailed()");
+  if (!guard.ok) return guard.wired;
+
+  const target = guard.target;
+  const client = opts?.client ?? getReadClient();
+
+  try {
+    const [rawCurtailed, rawMonth, rawNoteMode] = await Promise.all([
+      client.readContract({
+        address: target.address,
+        abi: DYNAVAULT_ABI,
+        functionName: "isCurtailed",
+        args: [],
+      }),
+      client.readContract({
+        address: target.address,
+        abi: DYNAVAULT_ABI,
+        functionName: "currentMonth",
+        args: [],
+      }),
+      client.readContract({
+        address: target.address,
+        abi: DYNAVAULT_ABI,
+        functionName: "miningNoteMode",
+        args: [],
+      }),
+    ]);
+
+    const isCurtailed = asBoolean(rawCurtailed);
+    const currentMonth = asBigint(rawMonth);
+    const miningNoteMode = asBoolean(rawNoteMode);
+    if (
+      isCurtailed === null ||
+      currentMonth === null ||
+      miningNoteMode === null
+    ) {
+      return unavailable<OpsState>(
+        UNAVAILABLE_REASONS.DECODE_ERROR,
+        "isCurtailed() / currentMonth() / miningNoteMode() did not match (bool,uint256,bool).",
+      );
+    }
+
+    return wired<OpsState>(
+      { isCurtailed, currentMonth, miningNoteMode },
+      target,
+    );
+  } catch (err) {
+    const { reason, detail } = classifyError(err);
+    return unavailable<OpsState>(reason, detail);
+  }
+}
+
+/** `productDurationMonths()`. v2 only — the product term as read from chain. */
+export async function readProductDurationMonths(
+  opts?: ReadOpts,
+): Promise<Wired<ProductDuration>> {
+  const guard = requireV2<ProductDuration>("productDurationMonths()");
+  if (!guard.ok) return guard.wired;
+
+  const target = guard.target;
+  const client = opts?.client ?? getReadClient();
+
+  try {
+    const raw = await client.readContract({
+      address: target.address,
+      abi: DYNAVAULT_ABI,
+      functionName: "productDurationMonths",
+      args: [],
+    });
+    const months = asBigint(raw);
+    if (months === null) {
+      return unavailable<ProductDuration>(
+        UNAVAILABLE_REASONS.DECODE_ERROR,
+        "productDurationMonths() did not return a uint256.",
+      );
+    }
+    return wired<ProductDuration>({ months }, target);
+  } catch (err) {
+    const { reason, detail } = classifyError(err);
+    return unavailable<ProductDuration>(reason, detail);
   }
 }

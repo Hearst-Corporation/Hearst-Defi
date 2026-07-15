@@ -29,10 +29,14 @@ import {
   getVaultMode,
   readElecStatus,
   readMiningMetrics,
+  readOpsState,
   readStrategies,
+  readVendingCurve,
   type ElecStatus,
   type MiningMetrics,
+  type OpsState,
   type StrategyInfo,
+  type VendingCurvePoint,
   type Wired,
 } from "@/lib/chain/dynavault";
 import {
@@ -97,21 +101,52 @@ function OpsRow<T>({
   );
 }
 
+/** How many vending-curve months to trace, starting at the current month. */
+const VENDING_WINDOW = 6;
+
 export async function DynavaultOpsReadout() {
   const mode = getVaultMode();
 
-  // Three independent reads — see file header for why they are not grouped.
-  const [strategies, mining, elec] = await Promise.all([
+  // Independent reads — see file header for why they are not grouped. opsState
+  // groups the three operational booleans/counters that a readout wants at once.
+  const [strategies, mining, elec, ops] = await Promise.all([
     readStrategies(),
     readMiningMetrics(),
     readElecStatus(),
+    readOpsState(),
   ]);
+
+  // The Mining Note allocation (40/27/33) is CONTRACTUALLY enforced only when
+  // miningNoteMode is on; otherwise the same split is advisory. Default to
+  // advisory when the state is unreadable — never claim enforcement we can't see.
+  const miningNoteEnforced =
+    ops.status === "wired" && ops.data.miningNoteMode === true;
+  const pocketBasis = miningNoteEnforced ? "enforced" : "advisory";
+
+  // Trace the vending curve only when currentMonth is actually known — the curve
+  // has no meaningful anchor otherwise, and we do not invent one.
+  const currentMonth =
+    ops.status === "wired" ? Number(ops.data.currentMonth) : null;
+  const vendingMonths =
+    currentMonth !== null && Number.isFinite(currentMonth)
+      ? Array.from({ length: VENDING_WINDOW }, (_unused, i) => currentMonth + i)
+      : [];
+  const vendingPoints: Wired<VendingCurvePoint>[] = await Promise.all(
+    vendingMonths.map((month) => readVendingCurve(month)),
+  );
 
   return (
     <dl className="flex flex-col">
       {/* ── Strategy pockets ─────────────────────────────────────────────── */}
       <div className={cn(SECTION_TITLE, "flex items-center justify-between")}>
-        <span>Strategy pockets</span>
+        <span>
+          Strategy pockets ·{" "}
+          {ops.status === "wired"
+            ? miningNoteEnforced
+              ? "targets enforced"
+              : "targets advisory"
+            : "basis unknown"}
+        </span>
         {strategies.status === "wired" ? (
           <WiredChip state="wired" source={strategies.source} />
         ) : mode === "not_configured" ? (
@@ -145,7 +180,7 @@ export async function DynavaultOpsReadout() {
                 }
                 note={
                   expected
-                    ? `Target ${formatBps(expected.targetBps)}${expected.idle ? " · idle" : ""} · adapter ${abbreviateAddress(strategy.adapter)}`
+                    ? `Target ${formatBps(expected.targetBps)} (${pocketBasis})${expected.idle ? " · idle" : ""} · adapter ${abbreviateAddress(strategy.adapter)}`
                     : `adapter ${abbreviateAddress(strategy.adapter)}`
                 }
                 read={allocation}
@@ -227,13 +262,73 @@ export async function DynavaultOpsReadout() {
         last
       />
 
+      {/* ── Operational state ────────────────────────────────────────────── */}
+      <div className={SECTION_TITLE}>Operational state</div>
+
+      <OpsRow
+        label="Curtailment"
+        note="isCurtailed() — mining fleet paused when BTC price crosses the threshold."
+        read={selectWired<OpsState, boolean>(ops, (o) => o.isCurtailed)}
+        render={(curtailed) => (
+          <span className={VALUE}>{curtailed ? "Curtailed" : "Active"}</span>
+        )}
+      />
+
+      <OpsRow
+        label="Current month"
+        note="currentMonth() — product month the monthly engine has advanced to."
+        read={selectWired<OpsState, bigint>(ops, (o) => o.currentMonth)}
+        render={(month) => (
+          <span className={VALUE}>{month.toString()}</span>
+        )}
+      />
+
+      <OpsRow
+        label="Mining Note mode"
+        note="miningNoteMode() — on ⇒ the 40/27/33 split is contractually enforced; off ⇒ advisory."
+        read={selectWired<OpsState, boolean>(ops, (o) => o.miningNoteMode)}
+        render={(on) => (
+          <span className={VALUE}>{on ? "Enforced" : "Advisory"}</span>
+        )}
+        last
+      />
+
+      {/* ── Vending curve ────────────────────────────────────────────────── */}
+      <div className={SECTION_TITLE}>
+        Vending curve
+        {currentMonth !== null ? ` (from month ${currentMonth})` : ""}
+      </div>
+
+      {currentMonth === null ? (
+        // currentMonth is null iff ops is unavailable (Number(bigint) is never
+        // null), so ops carries the real reason the curve cannot be anchored.
+        // Project to a never-rendered field so the row just shows the reason.
+        <OpsRow
+          label="Vending curve"
+          note="vendingCurveBps(month) — traced once currentMonth() is readable."
+          read={selectWired<OpsState, null>(ops, () => null)}
+          render={() => null}
+          last
+        />
+      ) : (
+        vendingPoints.map((point, i) => (
+          <OpsRow
+            key={vendingMonths[i]}
+            label={`Month ${vendingMonths[i]}`}
+            read={selectWired<VendingCurvePoint, bigint>(point, (p) => p.bps)}
+            render={(bps) => <span className={VALUE}>{formatBps(bps)}</span>}
+            last={i === vendingPoints.length - 1}
+          />
+        ))
+      )}
+
       <p className="ct-metric-caption border-t border-[var(--ct-border-soft)] px-5 py-4 leading-relaxed">
         Blue marks a value read through the v2 adapter. Everything here is
         exclusive to PermissionedDynaVault v2.1 — until it is deployed
         (NEXT_PUBLIC_DYNAVAULT_ADDRESS), the deployed vault exposes none of it and
         each row states so rather than showing a fabricated number. The vending
-        curve is omitted: it needs a currentMonth() read the adapter does not yet
-        expose.
+        curve is anchored on the on-chain currentMonth() read; without it, no
+        month window is drawn rather than an invented one.
       </p>
     </dl>
   );

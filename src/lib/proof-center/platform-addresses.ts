@@ -1,10 +1,10 @@
 import "server-only";
 
 import type { PlatformAddressEntry } from "@/components/proof-center/contracts-audit-trail";
+import { getVaultTarget } from "@/lib/chain/dynavault";
 import { getDeployment } from "@/lib/chain/deployments";
 import { EXPLORER_ADDRESS_BASE, getHearstPublisherAddress } from "@/lib/chain/client";
 import type { CustodySnapshot } from "@/lib/data/custody";
-import { resolveVaultAddress } from "@/lib/onchain/vault";
 import { getVaultFullLabel } from "@/lib/vaults/dashboard-scope";
 
 /** Vault / manager / custody rows for the Proof Center address panel. */
@@ -12,9 +12,13 @@ export function buildPlatformAddresses(
   custody: CustodySnapshot | null,
   vaultRef?: string,
 ): PlatformAddressEntry[] {
-  const vaultFromEnv = resolveVaultAddress();
+  // Resolve through the single vault passage point: which contract this app is
+  // actually pointed at (v2 PermissionedDynaVault vs legacy ERC-4626) decides
+  // both the address AND the standard label — hardcoding "(ERC-4626)" would lie
+  // once the v2 vault is configured.
+  const target = getVaultTarget();
   const vaultFromRegistry = getDeployment("vault").address;
-  const vaultAddr = vaultFromEnv ?? vaultFromRegistry;
+  const vaultAddr = target.address ?? vaultFromRegistry;
   const manager = getHearstPublisherAddress();
 
   const custodyScope =
@@ -24,12 +28,20 @@ export function buildPlatformAddresses(
 
   const vaultLabel = getVaultFullLabel(vaultRef ?? "yield");
 
+  // v2 is NOT an ERC-4626 (renamed views, non-standard events — see the adapter
+  // header); legacy is the deployed ERC-4626. In not-configured mode we fall
+  // back to the registry address, which is the legacy ERC-4626 deployment.
+  const isV2 = target.mode === "v2";
+  const standardLabel = isV2 ? "PermissionedDynaVault v2.1" : "ERC-4626";
+  const vaultDescription = isV2
+    ? "PermissionedDynaVault v2.1 share vault on Base Sepolia. USDC deposits mint vault shares (totalShares/shares, non-standard events) representing pro-rata NAV."
+    : "ERC-4626 share vault on Base Sepolia. USDC deposits mint vault shares representing pro-rata NAV.";
+
   return [
     {
-      label: `${vaultLabel} (ERC-4626)`,
+      label: `${vaultLabel} (${standardLabel})`,
       address: vaultAddr,
-      description:
-        "ERC-4626 share vault on Base Sepolia. USDC deposits mint vault shares representing pro-rata NAV.",
+      description: vaultDescription,
       href: vaultAddr ? `${EXPLORER_ADDRESS_BASE}${vaultAddr}` : null,
     },
     {
