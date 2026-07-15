@@ -410,11 +410,18 @@ soupçon « c'est probablement `bytes` » subsiste et n'est levé que par le byt
 - **Incohérence méthodologie (décalage confirmé).** `src/lib/engine/methodology.ts` a l'en-tête
   « Methodology **v3.0** » mais la constante `METHODOLOGY_VERSION = "v1.0"` (+ `@see v1.0.md`). Le
   bump v3.0 est **à moitié appliqué** — à réconcilier (une seule version affichée par les projections).
-- **Allocations 40/27/33.** Absentes de `src/lib/product-strategies/strategies.config.ts` (qui
-  porte d'autres produits yield/defensive/btc-plus) et de `dynavault-factsheet.ts` — vérifier où
-  le 40/27/33 du Mining Note est réellement porté côté UI (ops-readout lit la chaîne en v2).
-- **B2 = LBTC.** LBTC n'est référencé que dans `src/app/api/rwa-vault/route.ts` — modélisation
-  fine (solde/holdings LBTC) quasi absente côté app.
+- ✅ **Allocations 40/27/33 — VÉRIFIÉ CONFORME (2026-07-16), aucun décalage.** Correctement portées :
+  `dynavault-factsheet.ts` (`B1_MINING_ALLOCATION_BPS = 4_000`, `B2_BTC_ALLOCATION_BPS = 2_700`,
+  `B3_USDC_ALLOCATION_BPS = 3_300`, total `10_000`, source citée « v2.1 §Appendix », + override chaîne
+  via `resolveField`), `dynavault-ops-readout.tsx` (targets B1/B2/B3), `engine/vaults.ts`, et le memo
+  PDF (`allocation-breakdown.tsx` : « target bands 40 / 27 / 33 »). *(L'alerte initiale était un FAUX
+  POSITIF : les constantes s'écrivent avec des séparateurs numériques `4_000`/`2_700`/`3_300`, que le
+  grep ne matchait pas ; `strategies.config.ts` porte un AUTRE produit.)*
+- ✅ **B2 = LBTC — pas un décalage du code, une limite du CONTRAT.** La §5 promet « LBTC balance /
+  holdings », mais la §3 n'expose **aucun solde par stratégie** (`strategies()` ne rend qu'une
+  allocation *cible*). Le code le dit honnêtement (`not_exposed_by_contract`, `api/rwa-vault/route.ts`)
+  au lieu de faire passer une cible pour un solde. **Contradiction interne à la spec (§5 vs §3)** —
+  à résoudre côté contrat, pas côté app.
 - **Take-profit / curtailment / halving / durée.** L'adaptateur exécute (`executeTakeProfit`,
   `curtail`, `runMonthlyEngine`, `vendingCurveBps`, `productDurationMonths`) mais **ne peut ni lire
   ni écrire** les paramètres (`setCurtailmentThresholds`, `setHalvingMonth`, `setTakeProfitTier`,
