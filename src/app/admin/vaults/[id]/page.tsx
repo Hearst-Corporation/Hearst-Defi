@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
 import { DynavaultChainPanel } from "@/components/admin/chain/dynavault-chain-panel";
+import { DynavaultOpsReadout } from "@/components/admin/chain/dynavault-ops-readout";
 import { RejectDeploymentButton } from "@/components/admin/reject-deployment-button";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { VaultAdminKpiStrip } from "@/components/vaults/vault-admin-kpi-strip";
@@ -343,6 +344,16 @@ export default async function VaultDetailPage({ params }: PageProps) {
         >
           <BentoPanel>
             <DynavaultChainPanel dbAumUsdc={aumUsdc} />
+          </BentoPanel>
+        </AdminDetailSection>
+
+        <AdminDetailSection
+          label="On-chain"
+          title="Vault operations (v2)"
+          description="Strategy pockets, mining and electricity — exclusive to PermissionedDynaVault v2.1. Blue = read through the v2 adapter; until v2 is deployed each row states its absence rather than a fabricated number."
+        >
+          <BentoPanel>
+            <DynavaultOpsReadout />
           </BentoPanel>
         </AdminDetailSection>
 

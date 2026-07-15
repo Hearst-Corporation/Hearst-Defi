@@ -164,3 +164,19 @@ export function formatNavPerShare(raw: bigint): string {
 export function formatShareAmount(raw: bigint, decimals: number): string {
   return formatScaled(raw, decimals, 2);
 }
+
+/** Allocation in basis points → percentage: 4000n → "40.00%". */
+export function formatBps(bps: bigint): string {
+  // bps/100 = percent; render with 2 dp via the 2-decimal scale.
+  return `${formatScaled(bps, 2, 2)}%`;
+}
+
+/** Hashrate in TH/s (integer bigint) → "182,000 TH/s". */
+export function formatHashrateTh(th: bigint): string {
+  return `${formatScaled(th, 0, 0)} TH/s`;
+}
+
+/** BTC earned in satoshis (8 decimals) → "0.12345678 BTC". */
+export function formatBtcFromSats(sats: bigint): string {
+  return `${formatScaled(sats, 8, 8)} BTC`;
+}

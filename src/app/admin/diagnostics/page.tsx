@@ -8,6 +8,7 @@
 
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { DynavaultChainPanel } from "@/components/admin/chain/dynavault-chain-panel";
+import { DynavaultOpsReadout } from "@/components/admin/chain/dynavault-ops-readout";
 import { DiagnosticCenter } from "@/components/admin/diagnostics/diagnostic-center";
 import { DiagnosticFlowTheater } from "@/components/admin/diagnostics/diagnostic-flow-theater";
 import { ChatActionLab } from "@/components/admin/diagnostics/chat-action-lab";
@@ -73,6 +74,14 @@ export default async function AdminDiagnosticsPage() {
         ariaLabel="Vault contract wiring"
       >
         <DynavaultChainPanel />
+      </AdminSectionCard>
+
+      <AdminSectionCard
+        title="Vault operations (v2)"
+        subtitle="The operational surface of PermissionedDynaVault v2.1 — strategy pockets (B1/B2/B3), reported mining metrics, and the electricity account. Blue = read through the v2 adapter; every row is exclusive to v2, so until it is deployed each states its absence rather than a fabricated value."
+        ariaLabel="Vault operations v2"
+      >
+        <DynavaultOpsReadout />
       </AdminSectionCard>
 
       {/* 1 — Overview */}
