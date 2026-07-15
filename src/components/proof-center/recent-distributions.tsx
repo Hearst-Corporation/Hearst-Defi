@@ -60,9 +60,9 @@ export function RecentDistributions({
         {!bare && (
           <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
             <div className="flex flex-col gap-1.5">
-              <MicroLabel>Latest distributions</MicroLabel>
+              <MicroLabel>Latest proceeds</MicroLabel>
               <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
-                Awaiting first distribution
+                Awaiting first proceeds
               </h3>
             </div>
           </div>
@@ -89,12 +89,12 @@ export function RecentDistributions({
         <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
           <div className="flex flex-col gap-1.5">
             <MicroLabel>
-              {sectionLed ? "Latest distributions" : "Payout history"}
+              {sectionLed ? "Latest proceeds" : "Proceeds history"}
             </MicroLabel>
             <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
               {sectionLed
-                ? `Last ${distributions.length} USDC distributions`
-                : "USDC Distributions"}
+                ? `Last ${distributions.length} USDC proceeds`
+                : "USDC proceeds"}
             </h3>
           </div>
           <div className="flex shrink-0 items-center gap-2 pb-0.5">

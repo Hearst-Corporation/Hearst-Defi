@@ -144,7 +144,7 @@ export default async function ProfilePage() {
 
         <BentoPanel aria-labelledby="prof-summary-label">
           <BentoHeader id="prof-summary-label" title="Investment summary"
-            trailing={hasPositions ? <Badge variant="success">Live</Badge> : undefined}
+            trailing={hasPositions ? <Badge variant="accent">Active</Badge> : undefined}
           />
           {hasPositions ? (
             <div className="grid grid-cols-1 border-b ct-bento-divider ct-bento-inset-band sm:grid-cols-2">
@@ -197,7 +197,7 @@ export default async function ProfilePage() {
             description={
               session.walletAddress
                 ? "Wallet connected — ready for deposits"
-                : "Connect the wallet that will receive your USDC distributions. Optional — you can also connect at deposit time."
+                : "Connect the wallet used for your deposit and for delivery of accrued BTC at maturity. Optional — you can also connect at deposit time."
             }
             action={
               session.walletAddress ? (

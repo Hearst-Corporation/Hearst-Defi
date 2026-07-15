@@ -35,9 +35,9 @@ export const OFF_CHAIN_PROOFS_EMPTY = {
 } as const;
 
 export const RECENT_DISTRIBUTIONS_EMPTY = {
-  message: "No distributions recorded yet.",
+  message: "No proceeds recorded yet.",
   detail:
-    "Monthly USDC distributions will appear here after the first vault period closes and multisig approval completes.",
+    "This note accumulates Bitcoin across its three pockets and settles at maturity — there is no periodic cash distribution. Proceeds and on-chain settlement events appear here as they are recorded (Methodology v3.0).",
 } as const;
 
 export const REBALANCING_EVENTS_EMPTY = {

@@ -19,8 +19,8 @@ const UNLOCKS = [
     icon: Zap,
   },
   {
-    title: "Distributions & events",
-    detail: "USDC payouts, rebalances, and the on-chain event log.",
+    title: "Accumulation & events",
+    detail: "BTC accumulation, rebalances, and the on-chain event log.",
     icon: BarChart3,
   },
   {

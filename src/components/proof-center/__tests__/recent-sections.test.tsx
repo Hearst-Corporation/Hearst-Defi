@@ -7,7 +7,7 @@ import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-t
 describe("RecentDistributions", () => {
   it("renders empty state when no rows", () => {
     const html = renderToStaticMarkup(<RecentDistributions distributions={[]} />);
-    expect(html).toContain("No distributions recorded yet.");
+    expect(html).toContain("No proceeds recorded yet.");
     expect(html).toContain("ct-empty-surface--widget");
   });
 

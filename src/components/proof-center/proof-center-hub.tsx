@@ -201,16 +201,16 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-bot">
               <div className="dashboard-cockpit-cell">
                 <ProofHubCard
-                  eyebrow="Payout history"
-                  title="Latest distributions"
+                  eyebrow="Proceeds history"
+                  title="Latest proceeds"
                   provenance="manual"
                   href={fullHref}
                   variant={variant}
                 >
                   {recentDistributions.length === 0 ? (
                     <EmptySurface
-                      message="No distributions yet"
-                      detail="USDC payouts will appear once the vault operates."
+                      message="No proceeds yet"
+                      detail="This note accumulates Bitcoin and settles at maturity — no periodic cash distribution. Proceeds and on-chain settlement events appear here once the vault operates."
                     />
                   ) : (
                     <RecentDistributions
