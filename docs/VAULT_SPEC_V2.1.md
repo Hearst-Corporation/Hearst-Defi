@@ -400,9 +400,14 @@ soupçon « c'est probablement `bytes` » subsiste et n'est levé que par le byt
 
 ### 9.6 — Alignement config app (à vérifier)
 
-- **Allocations 40/27/33 (B1/B2/B3).** `src/lib/product-strategies/strategies.config.ts` porte
-  d'autres produits (yield/defensive/btc-plus : 500/5500/4000, 1500/4000/4500 bps) — **pas** le
-  40/27/33 du Mining Note. Vérifier que la factsheet / l'UI ops-readout portent bien 40/27/33.
+- **Reframe v2 EST sur main** (commit `453dfcf0` « aligne l'UI et les documents sur le modèle
+  note-de-mining v2 », HEAD actuel `e26aa2be`) — l'UI/docs sont déjà passés au modèle Mining Note.
+- **Incohérence méthodologie (décalage confirmé).** `src/lib/engine/methodology.ts` a l'en-tête
+  « Methodology **v3.0** » mais la constante `METHODOLOGY_VERSION = "v1.0"` (+ `@see v1.0.md`). Le
+  bump v3.0 est **à moitié appliqué** — à réconcilier (une seule version affichée par les projections).
+- **Allocations 40/27/33.** Absentes de `src/lib/product-strategies/strategies.config.ts` (qui
+  porte d'autres produits yield/defensive/btc-plus) et de `dynavault-factsheet.ts` — vérifier où
+  le 40/27/33 du Mining Note est réellement porté côté UI (ops-readout lit la chaîne en v2).
 - **B2 = LBTC.** LBTC n'est référencé que dans `src/app/api/rwa-vault/route.ts` — modélisation
   fine (solde/holdings LBTC) quasi absente côté app.
 - **Take-profit / curtailment / halving / durée.** L'adaptateur exécute (`executeTakeProfit`,
