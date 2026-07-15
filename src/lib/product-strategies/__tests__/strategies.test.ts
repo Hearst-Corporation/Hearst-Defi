@@ -72,6 +72,31 @@ describe("strategy config — validation", () => {
     broken.disclaimers = ["This product guarantees a 12% return."];
     expect(validateStrategy(broken).some((v) => v.code === "forbidden_wording")).toBe(true);
   });
+
+  it("validation catches 'promise' wording the old regex missed", () => {
+    // Regression: the retired local regex only matched guarantee/risk-free/…,
+    // so "We promise a 12% return" passed. The canonical detector
+    // (@/lib/agents/forbidden-words) catches "promise" — this must now reject.
+    const broken = structuredCloneStrategy(PRODUCT_STRATEGIES[0]!);
+    broken.description = "We promise a 12% return.";
+    expect(validateStrategy(broken).some((v) => v.code === "forbidden_wording")).toBe(true);
+  });
+
+  it("validation catches bare 'assured' / 'certain' claims via the canonical list", () => {
+    const assured = structuredCloneStrategy(PRODUCT_STRATEGIES[0]!);
+    assured.disclaimers = ["Returns are assured over the term."];
+    expect(validateStrategy(assured).some((v) => v.code === "forbidden_wording")).toBe(true);
+
+    const certain = structuredCloneStrategy(PRODUCT_STRATEGIES[0]!);
+    certain.name = "A certain 12% product";
+    expect(validateStrategy(certain).some((v) => v.code === "forbidden_wording")).toBe(true);
+  });
+
+  it("the honest 'not guaranteed' disclaimer is NOT flagged (negation exempt)", () => {
+    const ok = structuredCloneStrategy(PRODUCT_STRATEGIES[0]!);
+    ok.disclaimers = ["Returns are not guaranteed."];
+    expect(validateStrategy(ok).filter((v) => v.code === "forbidden_wording")).toEqual([]);
+  });
 });
 
 describe("selectProductStrategy — deterministic matching", () => {

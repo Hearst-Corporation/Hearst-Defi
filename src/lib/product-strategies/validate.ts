@@ -5,6 +5,8 @@
  * Returns a list of violations (empty = valid); never throws.
  */
 
+import { containsForbidden } from "@/lib/agents/forbidden-words";
+
 import type {
   ProductStrategy,
   ProductStrategyScenario,
@@ -18,9 +20,6 @@ export interface StrategyViolation {
 }
 
 const TOTAL_BPS = 10_000; // 100%
-// Promise-language guard. Deliberately allows the honest disclaimer "not
-// guaranteed" (negated) while catching a positive guarantee/promise.
-const FORBIDDEN = /(?<!\bnot\s)\b(guarantee|guaranteed|guarantees|risk-?free|no risk|will deliver|certain return)\b/i;
 
 function allocationTotal(s: ProductStrategyScenario): number {
   const a = s.allocation;
@@ -93,7 +92,12 @@ export function validateStrategy(strategy: ProductStrategy): StrategyViolation[]
     }
   }
 
-  // No guaranteed wording anywhere on the strategy.
+  // No guaranteed/promise wording anywhere on the strategy. The matcher is the
+  // canonical, negation-aware detector from `@/lib/agents/forbidden-words`
+  // (Non-négociable #5) — NOT a local regex — so this rule enforces the exact
+  // same superset list ("guarantee", "promise", "certain", "will deliver",
+  // "risk-free", "no risk", "assured") as every other Hearst surface, while the
+  // honest disclaimer "not guaranteed" stays exempt via the negation window.
   const textBlobs = [
     strategy.name,
     strategy.description,
@@ -101,8 +105,12 @@ export function validateStrategy(strategy: ProductStrategy): StrategyViolation[]
     ...scenarios.flatMap((s) => (s ? s.narrativeBullets : [])),
   ];
   for (const t of textBlobs) {
-    if (FORBIDDEN.test(t)) {
-      push("forbidden_wording", `forbidden wording in "${t.slice(0, 60)}…"`);
+    const hit = containsForbidden(t);
+    if (hit) {
+      push(
+        "forbidden_wording",
+        `forbidden wording (${hit.found.join(", ")}) in "${t.slice(0, 60)}…"`,
+      );
     }
   }
 
