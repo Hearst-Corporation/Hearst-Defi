@@ -126,9 +126,17 @@ function deploymentToProfile(deployment: VaultDeployment): VaultProfile {
 
   // Forbidden-words linter (#5): never use guarantee/promise/certain/will deliver/risk-free.
   // "not guaranteed" is the allowed pattern per CLAUDE.md rule #8.
+  //
+  // Copy tracks methodology v3.0 (the mining note, ADR-019): the note accrues
+  // BTC over its term and settles at maturity — §2 "There is no periodic cash
+  // distribution and no fixed APY" — and the soft lock-up is contractual /
+  // applicative, "the contract does not enforce a minDeposit or a lock-up".
+  // The distribution layer is retired platform-wide (ADR-019 §Consequences),
+  // so no deployment can assert distribution terms.
   const assumptions: string[] = [
-    `Strategy: ${strategyLabel}; allocations target the configured sleeve mix.`,
-    `${lockupDays}-day soft lock-up applies; distributions subject to vault terms.`,
+    `Strategy: ${strategyLabel}; allocations target the configured pocket mix.`,
+    `${lockupDays}-day soft lock-up applies contractually and is not enforced on-chain.`,
+    "Return accrues as BTC accumulated over the term and settled at maturity; there is no periodic cash distribution.",
     "Outputs are projections, not guaranteed. Past performance does not predict future results.",
   ];
 
@@ -142,7 +150,10 @@ function deploymentToProfile(deployment: VaultDeployment): VaultProfile {
     allocationTargets,
     shareClasses,
     defaultProvenance: "estimated",
-    methodologyVersion: "v1.0",
+    // Active methodology for the current product (ADR-019). The engine fixtures
+    // in `src/lib/engine/vaults.ts` carry the same version; v1.0 stays reserved
+    // for re-citing an output actually produced under it.
+    methodologyVersion: "v3.0",
     assumptions,
   };
 }

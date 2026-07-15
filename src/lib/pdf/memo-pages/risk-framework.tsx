@@ -92,8 +92,8 @@ export function RiskFrameworkPage({
         <KpiCell
           label="Composite risk score"
           value={`${data.input.vault.riskScore} / 100`}
-          hint="Lower is safer; methodology v1.0"
-          // Engine composite under methodology v1.0.
+          hint="Lower is safer; methodology v3.0"
+          // Engine composite under methodology v3.0.
           provenance="estimated"
         />
         <KpiCell
@@ -105,7 +105,7 @@ export function RiskFrameworkPage({
         />
         <KpiCell
           label="Methodology"
-          value="v1.0"
+          value="v3.0"
           hint="Immutable; bump on change"
           // Methodology version is curated and immutable per release.
           provenance="manual"
@@ -148,7 +148,7 @@ export function RiskFrameworkPage({
 
       <Text style={[styles.bodySmall, { marginTop: 14 }]}>
         The composite risk score weights each dimension under methodology
-        v1.0. It is a backward-looking and forward-looking blend; outcomes are
+        v3.0. It is a backward-looking and forward-looking blend; outcomes are
         not guaranteed. A breach in any dimension triggers an explicit
         rebalancing rule (R1-R8); none were triggered outside the published
         ruleset during the period.

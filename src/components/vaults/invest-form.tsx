@@ -75,33 +75,42 @@ function ctaLabel(state: CtaState, amount: number): string {
   }
 }
 
+/**
+ * Product term of the mining note — methodology v3.0 §2 ("Term: 24 months",
+ * mirroring `productDurationMonths()` on-chain). `VaultProduct` does not carry
+ * the column, so the term is pinned here for every horizon this form renders.
+ */
+const PRODUCT_TERM_MONTHS = 24;
+
 function buildPtai(
   amount: number,
   vault: VaultProduct,
 ): { projection: string; trigger: string; action: string; impact: string } {
+  // Mid-band is a MODEL INPUT for the accumulation trajectory only — it is
+  // never published as a headline figure (non-negotiable #1: range only).
   const midApy = (vault.apyLow + vault.apyHigh) / 2;
-  const months10 = monthsToTarget(midApy, 10, 24);
-  const months10Str = months10 !== null ? `~${months10} months` : "within 24 months";
+  const months10 = monthsToTarget(midApy, 10, PRODUCT_TERM_MONTHS);
+  const months10Str =
+    months10 !== null ? `~${months10} months` : `within ${PRODUCT_TERM_MONTHS} months`;
 
-  const annualYield =
-    amount > 0 ? Math.round((amount * midApy) / 100) : null;
-
+  // PTAI per methodology v3.0 §8: Action = the pocket / curtailment /
+  // take-profit step; Impact = effect on the BTC-accumulation range, the term
+  // and the provenance. The note makes no periodic cash distribution (§2), so
+  // no cash-yield figure is derived from the ticket size.
   return {
     projection:
       amount > 0
-        ? `At ${formatUsdAmount(amount)} principal you reach +10% cumulative yield in ${months10Str} under base assumptions.`
+        ? `At ${formatUsdAmount(amount)} principal you reach +10% cumulative BTC accumulation in ${months10Str} under base assumptions.`
         : `Deposit at least ${formatUsdAmount(vault.minTicketUsdc, true)} to see your personalized projection.`,
 
     trigger:
       `Hashprice ≥ $0.085/TH/day AND BTC ≥ $60,000 AND mining uptime ≥ 95% sustained over 30 days.`,
 
     action:
-      `Monthly USDC distributions via Distribution.distributedAt on-chain event log. Rebalancing by rule-based triggers (Methodology v3.0).`,
+      `No periodic cash distribution — BTC accumulates across the three pockets: mining power 40%, BTC pouch 27%, USDC reserve 33%. Take-profit realises BTC at configured price tiers; the mining pocket is curtailed below the configured BTC threshold (Methodology v3.0).`,
 
     impact:
-      annualYield !== null
-        ? `Estimated ${formatUsdAmount(annualYield)} annual yield — range ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Indicative testnet estimate, not a return projection — subject to assumptions, see methodology v3.0.`
-        : `Target APY ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Indicative testnet estimate, not a return projection — subject to assumptions, see methodology v3.0.`,
+      `Estimated return ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}% expressed as a range in accumulated BTC — not distributed, not guaranteed. Accumulated BTC is delivered at maturity of the ${PRODUCT_TERM_MONTHS}-month term. Indicative testnet estimate, subject to assumptions — see methodology v3.0.`,
   };
 }
 
@@ -116,7 +125,7 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
     <dl className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-lg overflow-hidden border border-[var(--ct-border-soft)] bg-[var(--ct-border-soft)]">
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
         <dt className="ct-bento-label text-[var(--ct-text-faint)]">
-          Target APY
+          Est. yield range
         </dt>
         <dd>
           <ApyRange
@@ -812,7 +821,7 @@ function InvestFormLive({
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
-                    <span className="text-[var(--ct-text-faint)]">Target APY</span>
+                    <span className="text-[var(--ct-text-faint)]">Est. yield range</span>
                     <ApyRange
                       low={vault.apyLow}
                       high={vault.apyHigh}
@@ -838,8 +847,9 @@ function InvestFormLive({
                 <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] leading-relaxed m-0">
                   Base Sepolia testnet transaction — for pilot testing only.
                   Irreversible once submitted. Subject to{" "}
-                  {vault.softLockupDays}-day soft lock-up. Target APY shown as a
-                  range — indicative estimate, not a return projection. See
+                  {vault.softLockupDays}-day soft lock-up, applied contractually
+                  and not enforced on-chain. Estimated return shown as a range in
+                  accumulated BTC — not distributed, not guaranteed. See
                   methodology v3.0.
                 </p>
                 {demoMode ? (

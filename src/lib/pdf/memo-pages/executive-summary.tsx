@@ -65,7 +65,7 @@ export function ExecutiveSummaryPage({
           label="Est. target return (term)"
           value="8.0-15.0%"
           hint="Mining-note mandate, not guaranteed"
-          // Mandate band fixed in methodology v1.0 — human-curated boundary.
+          // Mandate band fixed in methodology v3.0 — human-curated boundary.
           provenance="manual"
         />
         <KpiCell

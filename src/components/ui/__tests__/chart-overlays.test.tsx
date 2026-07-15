@@ -170,7 +170,7 @@ describe("ChartDisclaimerUnderlay", () => {
     ).props.children;
     const text = (innerSpan.props as { children: string }).children;
     expect(text).toContain("projections");
-    expect(text).toContain("methodology v1.0");
+    expect(text).toContain("methodology v3.0");
   });
 
   // ─────────────────────────────────────────────────────────────────────────

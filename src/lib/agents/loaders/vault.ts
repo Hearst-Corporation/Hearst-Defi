@@ -20,6 +20,7 @@ import type {
   VaultId,
   VaultMode,
 } from "@/lib/engine/types";
+import { METHODOLOGY_VERSION } from "@/lib/engine/methodology";
 import { VAULTS, VAULT_YIELD } from "@/lib/engine/vaults";
 
 /**
@@ -458,11 +459,15 @@ function parseBacktestOutput(row: BacktestRunRow): BacktestOutput {
   // Assumptions are not stored on BacktestRun (schema decision: spec lives in
   // the engine). We synthesise a minimal, factual assumption that points the
   // memo agent to the methodology version and the rules mode actually used.
+  // The version tracks the engine constant rather than a literal: the producer
+  // (`src/lib/engine/backtest.ts`) stamps the same `METHODOLOGY_VERSION` into
+  // its own assumptions, so a hardcoded version here would drift out of the
+  // engine that computed the very rows this loader reads.
   const assumptions = [
     `backtest_key=${row.backtestKey}; window=${firstMonth}..${lastMonth}`,
     `rulesMode=${row.rulesMode}; numRebalances=${row.numRebalances}`,
     "Historical simulation — not a projection of future performance",
-    "methodology_version=v1.0",
+    `methodology_version=${METHODOLOGY_VERSION}`,
   ];
 
   return {

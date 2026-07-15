@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 
 const DEFAULT_TEXT =
-  "projections · not guaranteed · methodology v1.0" as const;
+  "projections · not guaranteed · methodology v3.0" as const;
 
 export interface ChartDisclaimerUnderlayProps {
   text?: string;

@@ -76,9 +76,9 @@ export function CoverPage({ data }: { data: MemoPdfData }) {
           <Text style={styles.coverKpiLabel}>Risk score</Text>
           <Text style={styles.coverKpiValue}>{input.vault.riskScore} / 100</Text>
           <Text style={styles.coverKpiHint}>
-            Composite, methodology v1.0 weighting
+            Composite, methodology v3.0 weighting
           </Text>
-          {/* Composite — derived from sub-scores under methodology v1.0. */}
+          {/* Composite — derived from sub-scores under methodology v3.0. */}
           <View style={{ marginTop: 6 }}>
             <PdfProvenance kind="estimated" />
           </View>
