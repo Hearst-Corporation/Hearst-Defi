@@ -17,10 +17,9 @@ const RUN: LatestStudyRunSummary = {
   confidence: "medium",
 };
 
-const PAGE_SRC = readFileSync(
-  new URL("../../../app/admin/projection/preview/page.tsx", import.meta.url),
-  "utf8",
-);
+// The projection preview PAGE (and its route) were retired; the reusable banner
+// component survives and is still asserted below. The page-wiring assertion
+// (Test 8) was removed with the route.
 const BANNER_SRC = readFileSync(
   new URL("../../../components/admin/projection/preview-source-banner.tsx", import.meta.url),
   "utf8",
@@ -122,12 +121,9 @@ describe("validateProjectionRun", () => {
 });
 
 describe("preview wiring", () => {
-  it("Test 8: page computes validation and passes it to the banner", () => {
-    expect(PAGE_SRC).toContain("validateProjectionRun");
-    expect(PAGE_SRC).toContain("defaultRunValidationContext");
-    expect(PAGE_SRC).toContain("validation={validation}");
-  });
-
+  // Test 8 asserted the retired projection preview PAGE computed validation and
+  // passed it to the banner. The route was removed, so that page-source assertion
+  // was dropped; the banner still renders the validation status (Test 9 below).
   it("Test 9: banner renders validation status + GO ADMIN ONLY, both modes", () => {
     expect(BANNER_SRC).toContain("Validation:");
     expect(BANNER_SRC).toContain("Investor-blocked");

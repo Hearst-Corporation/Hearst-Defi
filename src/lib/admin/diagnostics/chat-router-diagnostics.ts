@@ -50,17 +50,14 @@ export function runChatRouterDiagnostics(): DiagnosticResult[] {
       id: "chat.simulation-scenario-lab",
       label: "Explicit simulation prompt routes to Scenario Lab",
       severity: "P2",
-      expected: "classifyProductWorkspaceIntent → shouldOpenScenarioLab = true",
+      expected: "Scenario Lab route retired — capability not applicable",
       likelyFile: PW,
       likelyFunction: "classifyProductWorkspaceIntent",
-      run: () => {
-        const c = classifyProductWorkspaceIntent(
-          "run a monte carlo simulation for this vault",
-        );
-        return c.shouldOpenScenarioLab
-          ? pass(`kind=${c.kind}, opens Scenario Lab`, c)
-          : fail(`kind=${c.kind}, shouldOpenScenarioLab=${c.shouldOpenScenarioLab}`);
-      },
+      sideEffect: "skipped",
+      run: () =>
+        skip(
+          "Scenario Lab route retired — classifyProductWorkspaceIntent no longer routes a standalone simulation to a destination (it falls to the LLM)",
+        ),
     },
     {
       id: "chat.create-projection-not-product",

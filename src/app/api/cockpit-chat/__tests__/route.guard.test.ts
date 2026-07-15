@@ -114,7 +114,6 @@ vi.mock("@/lib/llm/product-workspace-intent", async (importOriginal) => {
     classifyProductWorkspaceIntent: vi.fn().mockReturnValue({
       kind: "none",
       shouldOpenProductWorkspace: false,
-      shouldOpenScenarioLab: false,
     }),
   };
 });

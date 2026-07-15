@@ -13,12 +13,12 @@ vi.mock("@/lib/db", () => ({
 
 import { getLatestProjectionStudyRun } from "../latest-study-run";
 
+// The projection preview PAGE (src/app/admin/projection/preview/page.tsx) and its
+// route were retired; only the pure module + the reusable banner component survive.
+// The banner source is still asserted below; the page-wiring assertions were
+// removed with the route.
 const BANNER_SRC = readFileSync(
   new URL("../../../components/admin/projection/preview-source-banner.tsx", import.meta.url),
-  "utf8",
-);
-const PAGE_SRC = readFileSync(
-  new URL("../../../app/admin/projection/preview/page.tsx", import.meta.url),
   "utf8",
 );
 
@@ -115,13 +115,8 @@ describe("preview banner — truth wording (source check)", () => {
     expect(rendered).not.toMatch(/investor[ -]ready/i);
   });
 
-  it("Test 9: page picks header per mode (Latest Study Run vs Demo Fixture)", () => {
-    expect(PAGE_SRC).toContain("getLatestProjectionStudyRun");
-    expect(PAGE_SRC).toContain('latestRun ? "Latest Study Run" : "Demo Fixture"');
-  });
-
-  it("Test 10: page renders the source banner above the fixture", () => {
-    expect(PAGE_SRC).toContain("PreviewSourceBanner");
-    expect(PAGE_SRC).toContain("ProjectionReportPreview");
-  });
+  // Tests 9 & 10 asserted the retired projection preview PAGE's wiring
+  // (header-per-mode + banner placement). The route was removed, so those
+  // page-source assertions were dropped with it; the banner-component and
+  // pure-module behaviour above remain covered.
 });

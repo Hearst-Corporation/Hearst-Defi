@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveNavFallbackDestinationKey } from "@/lib/llm/nav-fallback-intent";
-import { SCENARIO_LAB_DESTINATION_KEY } from "@/lib/llm/product-workspace-intent";
-
-const sharedArgs = {
-  scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-  scenarioLabNavEnabled: true,
-};
 
 describe("global deterministic nav hardening", () => {
   it("routes LP destinations across FR/EN/mixed/typos", () => {
@@ -31,7 +25,6 @@ describe("global deterministic nav hardening", () => {
           navProfile: "lp",
           isAdmin: false,
           message,
-          ...sharedArgs,
         }),
       ).toBe(destinationKey);
     }
@@ -60,7 +53,6 @@ describe("global deterministic nav hardening", () => {
           navProfile: "admin",
           isAdmin: true,
           message,
-          ...sharedArgs,
         }),
       ).toBe(destinationKey);
     }
@@ -79,7 +71,6 @@ describe("global deterministic nav hardening", () => {
           navProfile: "admin",
           isAdmin: true,
           message,
-          ...sharedArgs,
         }),
       ).toBeNull();
     }
@@ -97,7 +88,6 @@ describe("global deterministic nav hardening", () => {
           navProfile: "lp",
           isAdmin: false,
           message,
-          ...sharedArgs,
         }),
       ).toBeNull();
     }
@@ -116,7 +106,6 @@ describe("global deterministic nav hardening", () => {
           navProfile: "admin",
           isAdmin: true,
           message,
-          ...sharedArgs,
         }),
       ).toBeNull();
     }

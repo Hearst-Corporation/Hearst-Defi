@@ -469,13 +469,6 @@ export function resolveNavFallbackDestinationKey(args: {
   navProfile: NavProfile;
   isAdmin?: boolean;
   message: string;
-  /**
-   * @deprecated Scenario Lab route retired; these fields are accepted for
-   * backward-compat with existing callers but no longer influence resolution.
-   */
-  scenarioLabDestinationKey?: string;
-  /** @deprecated see {@link scenarioLabDestinationKey}. */
-  scenarioLabNavEnabled?: boolean;
 }): string | null {
   const { navProfile, isAdmin = false, message } = args;
 

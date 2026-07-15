@@ -45,7 +45,6 @@ import {
 } from "@/lib/llm/navigate-tool";
 import {
   PRODUCT_WORKSPACE_DESTINATION_KEY,
-  SCENARIO_LAB_DESTINATION_KEY,
 } from "@/lib/llm/product-workspace-intent";
 import {
   classifyProductWorkspaceIntent,
@@ -618,9 +617,6 @@ async function runMasterAgentTurn(args: {
   ];
 
   const startedAt = Date.now();
-  const scenarioLabNavEnabled = ADMIN_NAV_DESTINATIONS.some(
-    (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
-  );
 
   // Admin product-creation/framing intent — the MOST SPECIFIC admin intent, so it
   // is computed FIRST (before the speculative outreach/history canvas detection
@@ -677,8 +673,6 @@ async function runMasterAgentTurn(args: {
     navProfile,
     isAdmin,
     message,
-    scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-    scenarioLabNavEnabled,
   });
   const navShortcutProfile: "lp" | "admin" =
     navShortcutKey?.startsWith("admin-") === true ? "admin" : "lp";
@@ -772,14 +766,6 @@ async function runMasterAgentTurn(args: {
       ...(workspaceObjective ? { objective: workspaceObjective } : {}),
       autostart: true,
       intentKind: productIntent.kind,
-      // Carry Scenario Lab as secondary metadata when the same message also
-      // asked to simulate, so the workspace can surface that next step.
-      ...(productIntent.shouldOpenScenarioLab && scenarioLabNavEnabled
-        ? {
-            secondaryDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-            secondaryHint: "Scenario Lab validation requested",
-          }
-        : {}),
     }).catch(() => {
       /* best-effort nav publish */
     });

@@ -437,10 +437,14 @@ describe("POINT 9 — Investor Memo vault/mining provenance respects VaultSnapsh
     expect(loader).toMatch(/!isLiveTimelineSource\(snapshot\.source\)\s*\?\s*"estimated"/);
   });
 
-  it("seed.ts still writes non-live sources 'computed'/'daily-seed' (sanity anchor)", () => {
+  it("seed.ts still writes a non-live 'daily-seed' source (sanity anchor)", () => {
+    // The preset-snapshot seeder (which wrote a "computed" source) was retired;
+    // the only synthetic source the seed writes now is "daily-seed". The intent of
+    // this anchor is unchanged: the seed never writes a live/oracle/attested
+    // source that would be mistaken for a real measurement.
     const seed = stripComments(read("prisma/seed.ts"));
-    expect(seed).toMatch(/source:\s*"computed"/);
     expect(seed).toMatch(/source:\s*"daily-seed"/);
+    expect(seed).not.toMatch(/source:\s*"(?:live|oracle|attested)"/);
   });
 
   it("isLiveTimelineSource excludes 'computed'/'daily-seed' from the live set (sanity anchor)", () => {

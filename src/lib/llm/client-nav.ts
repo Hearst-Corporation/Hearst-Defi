@@ -39,23 +39,9 @@ import {
   buildNavShortcutAck,
   buildNavRejectAck,
 } from "@/lib/llm/nav-fallback-intent";
-import {
-  ADMIN_NAV_DESTINATIONS,
-  resolveNavDestinationForProfile,
-} from "@/lib/llm/navigate-tool";
-import { SCENARIO_LAB_DESTINATION_KEY } from "@/lib/llm/product-workspace-intent";
+import { resolveNavDestinationForProfile } from "@/lib/llm/navigate-tool";
 
 export { NAV_SHORTCUT_ACK, NAV_REJECT_ACK };
-
-/**
- * The Scenario Lab destination is only navigable when it is present in the admin
- * whitelist. Computed once from the same source the server uses, so there is no
- * drift between the two paths. (At LP scope this never resolves an admin key, so
- * the flag is inert for the common case — kept for parity with the server call.)
- */
-const SCENARIO_LAB_NAV_ENABLED = ADMIN_NAV_DESTINATIONS.some(
-  (d) => d.key === SCENARIO_LAB_DESTINATION_KEY,
-);
 
 export type ClientNavKind = "nav" | "reject" | "chat";
 
@@ -91,8 +77,6 @@ export function resolveClientNav(message: string): ClientNavResult {
     navProfile: "lp",
     isAdmin: false,
     message: text,
-    scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-    scenarioLabNavEnabled: SCENARIO_LAB_NAV_ENABLED,
   });
 
   if (navKey) {

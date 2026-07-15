@@ -62,7 +62,10 @@ describe("GET /api/chat-nav — single-fire nav-channel cycle (integration)", ()
     await expect(second.json()).resolves.toEqual({ route: null });
   });
 
-  it("carries the full directive payload (objective / autostart / intentKind / secondary)", async () => {
+  it("carries the full directive payload (objective / autostart / intentKind)", async () => {
+    // The Scenario Lab route was retired, so a "admin-scenario-lab" secondary key
+    // no longer resolves and the channel drops it — the payload carries only the
+    // primary Product Workspace metadata.
     await publishNav(USER_A, {
       destinationKey: "admin-product-workspace",
       objective: "Créer un vault Defensive puis valider en stress test",
@@ -80,9 +83,6 @@ describe("GET /api/chat-nav — single-fire nav-channel cycle (integration)", ()
       objective: "Créer un vault Defensive puis valider en stress test",
       autostart: true,
       intentKind: "mixed_product_creation_simulation",
-      secondaryRoute: "/admin/scenario-lab",
-      secondaryLabel: expect.any(String),
-      secondaryHint: "Scenario Lab validation requested",
     });
 
     // Cleared after the single read.

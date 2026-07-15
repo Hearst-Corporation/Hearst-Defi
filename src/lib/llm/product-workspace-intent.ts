@@ -1,5 +1,4 @@
 export const PRODUCT_WORKSPACE_DESTINATION_KEY = "admin-product-workspace";
-export const SCENARIO_LAB_DESTINATION_KEY = "admin-scenario-lab";
 
 const MAX_OBJECTIVE_LEN = 220;
 
@@ -66,13 +65,14 @@ const WORKSPACE_NOUN_RE = /\bworkspace\b/i;
 const NON_PRODUCT_GUARD_RE =
   /\b(produit scalaire|produit vectoriel|produit cartésien|produit cartesien|dot product|scalar product|cross product|tension|voltage|ampérage|amperage|\d+\s*volts?|watt|watts|unité électrique|unite electrique|css|stylesheet|tailwind)\b/i;
 
-// A simulation/projection ask routes to the Scenario Lab (NEVER the Product
-// Workspace — see `hasCreation` gating below). "projection"/"projeter" and the
-// English "forecast" are included so a bare "je veux faire une projection" /
-// "I want to run a projection" resolves DETERMINISTICALLY to the lab instead of
-// falling through to the LLM. This does NOT open the Product Workspace: those
-// words carry no product noun, so `hasCreation` stays false and the
-// explicit_simulation branch (Scenario Lab) wins.
+// A simulation/projection mention. It NEVER opens the Product Workspace on its
+// own (see `hasCreation` gating below): those words carry no product noun, so a
+// bare "je veux faire une projection" is NOT a product-creation intent. The
+// Scenario Lab route it used to open was RETIRED, so a standalone simulation ask
+// now carries no deterministic destination and falls through to the LLM. This RE
+// still classifies the MIXED case ("créer un produit puis simuler …"), where the
+// product-creation half opens the Product Workspace and the simulation half is
+// only recorded in the `kind`.
 export const EXPLICIT_SIMULATION_INTENT_RE =
   /\b(simuler|simulation|scenario|scénario|stress test|stress-test|monte carlo|backtest|run scenario|projection|projections|projeter|prevision|prévision|forecast)\b/i;
 
@@ -88,11 +88,8 @@ export interface ProductWorkspaceIntentClassification {
   kind: ProductWorkspaceIntentKind;
   objective?: string;
   primaryDestinationKey?: string;
-  secondaryDestinationKey?: string;
-  secondaryHint?: string;
   autostart?: boolean;
   shouldOpenProductWorkspace: boolean;
-  shouldOpenScenarioLab: boolean;
 }
 
 export function isExplicitSimulationIntent(message: string): boolean {
@@ -113,7 +110,6 @@ export function classifyProductWorkspaceIntent(
     return {
       kind: "none",
       shouldOpenProductWorkspace: false,
-      shouldOpenScenarioLab: false,
     };
   }
 
@@ -125,7 +121,6 @@ export function classifyProductWorkspaceIntent(
       kind: "none",
       objective,
       shouldOpenProductWorkspace: false,
-      shouldOpenScenarioLab: false,
     };
   }
 
@@ -155,11 +150,11 @@ export function classifyProductWorkspaceIntent(
   // P0 NOTE — projection/product confusion is closed by `hasCreation` above: a
   // bare creation verb ("create", "monter") only signals PRODUCT creation when a
   // product/vault noun is present. So "create projection" / "make a forecast"
-  // (no product noun) → hasCreation=false. They then fall through to either the
-  // explicit_simulation branch (if a simulation verb is present, → Scenario Lab,
-  // NEVER the Product Workspace) or the final `none`. We deliberately do NOT add a
-  // hard short-circuit here: a genuine simulation must keep its
-  // `shouldOpenScenarioLab` routing (the demo-plan builder depends on it).
+  // (no product noun) → hasCreation=false, and — with the Scenario Lab route now
+  // RETIRED — a standalone simulation carries no deterministic destination: it
+  // falls through to the final `none` (handled by the LLM). Only the MIXED case
+  // (product creation/framing that ALSO mentions a simulation) still routes, and
+  // it opens the Product Workspace; the simulation half is recorded only in `kind`.
 
   if ((hasCreation || hasFraming) && hasSimulation) {
     return {
@@ -168,11 +163,8 @@ export function classifyProductWorkspaceIntent(
         : "mixed_product_framing_simulation",
       objective,
       primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-      secondaryDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-      secondaryHint: "Scenario Lab validation requested",
       autostart: true,
       shouldOpenProductWorkspace: true,
-      shouldOpenScenarioLab: true,
     };
   }
 
@@ -183,7 +175,6 @@ export function classifyProductWorkspaceIntent(
       primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
       autostart: true,
       shouldOpenProductWorkspace: true,
-      shouldOpenScenarioLab: false,
     };
   }
 
@@ -194,17 +185,18 @@ export function classifyProductWorkspaceIntent(
       primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
       autostart: true,
       shouldOpenProductWorkspace: true,
-      shouldOpenScenarioLab: false,
     };
   }
 
+  // A standalone simulation/projection ask (no product context). The Scenario Lab
+  // it used to open was retired, so there is no deterministic destination — it
+  // falls to the LLM. The `kind` still reflects the classification for callers
+  // that only inspect the intent.
   if (hasSimulation) {
     return {
       kind: "explicit_simulation",
       objective,
-      primaryDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
       shouldOpenProductWorkspace: false,
-      shouldOpenScenarioLab: true,
     };
   }
 
@@ -212,7 +204,6 @@ export function classifyProductWorkspaceIntent(
     kind: "none",
     objective,
     shouldOpenProductWorkspace: false,
-    shouldOpenScenarioLab: false,
   };
 }
 

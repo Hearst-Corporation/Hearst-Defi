@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
 
 import { buildInvestorReportViewModel } from "../investor-report-view-model";
 import type { LatestStudyRunSummary } from "../latest-study-run";
@@ -31,10 +30,8 @@ function validation(
   };
 }
 
-const PAGE_SRC = readFileSync(
-  new URL("../../../app/admin/projection/preview/page.tsx", import.meta.url),
-  "utf8",
-);
+// The projection preview PAGE (and its route) were retired; only the pure
+// view-model builder survives, so the page-wiring assertion was removed.
 
 describe("buildInvestorReportViewModel — modes", () => {
   it("Test 1: no run → NO_RUN", () => {
@@ -119,12 +116,5 @@ describe("safety", () => {
       validation({ warnings: ["Risk baselines UNAUDITED", "Assumptions CONFIGURED"] }),
     );
     expect(r.warnings).toEqual(["Risk baselines UNAUDITED", "Assumptions CONFIGURED"]);
-  });
-});
-
-describe("preview wiring", () => {
-  it("page builds + renders the readiness block", () => {
-    expect(PAGE_SRC).toContain("buildInvestorReportViewModel");
-    expect(PAGE_SRC).toContain("InvestorReportReadiness");
   });
 });

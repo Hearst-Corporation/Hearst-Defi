@@ -42,6 +42,9 @@ describe("GET /api/chat-nav", () => {
   });
 
   it("returns Product Workspace metadata once and then clears it", async () => {
+    // A retired secondary key ("admin-scenario-lab") no longer resolves in the
+    // whitelist, so the channel drops it — the directive carries the primary
+    // Product Workspace metadata only.
     await publishNav("chat-nav-user", {
       destinationKey: "admin-product-workspace",
       objective: "Créer un produit Defensive puis simuler un stress test",
@@ -59,9 +62,6 @@ describe("GET /api/chat-nav", () => {
       objective: "Créer un produit Defensive puis simuler un stress test",
       autostart: true,
       intentKind: "mixed_product_creation_simulation",
-      secondaryRoute: "/admin/scenario-lab",
-      secondaryLabel: "Admin Scenario Lab",
-      secondaryHint: "Scenario Lab validation requested",
     });
 
     const second = await GET();

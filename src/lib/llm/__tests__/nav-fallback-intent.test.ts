@@ -12,7 +12,6 @@ import {
   resolveLpNavDestinationKey,
   resolveNavFallbackDestinationKey,
 } from "@/lib/llm/nav-fallback-intent";
-import { SCENARIO_LAB_DESTINATION_KEY } from "@/lib/llm/product-workspace-intent";
 
 describe("nav-fallback-intent", () => {
   it("exposes a short navigation ack", () => {
@@ -89,10 +88,10 @@ describe("nav-fallback-intent", () => {
       expect(resolveAdminNavFallbackKey("show campaigns")).toBe(
         ADMIN_OUTREACH_DESTINATION_KEY,
       );
-      expect(resolveAdminNavFallbackKey("open scenario lab")).toBe(
-        SCENARIO_LAB_DESTINATION_KEY,
-      );
-      expect(resolveAdminNavFallbackKey("go to projection")).toBe("admin-projection");
+      // Scenario Lab + Projection routes were RETIRED — an explicit nav phrase for
+      // them now resolves nothing (they fall through to the LLM, no dead routing).
+      expect(resolveAdminNavFallbackKey("open scenario lab")).toBeNull();
+      expect(resolveAdminNavFallbackKey("go to projection")).toBeNull();
       expect(resolveAdminNavFallbackKey("open control tower")).toBe("admin-home");
       expect(resolveAdminNavFallbackKey("va sur le dashboard admin")).toBe(
         "admin-dashboard",
@@ -110,10 +109,9 @@ describe("nav-fallback-intent", () => {
       expect(resolveAdminNavFallbackKey("campain outreach")).toBe(
         ADMIN_OUTREACH_DESTINATION_KEY,
       );
-      expect(resolveAdminNavFallbackKey("scenarion lab")).toBe(
-        SCENARIO_LAB_DESTINATION_KEY,
-      );
-      expect(resolveAdminNavFallbackKey("projetion admin")).toBe("admin-projection");
+      // Scenario Lab / Projection typos no longer resolve — routes retired.
+      expect(resolveAdminNavFallbackKey("scenarion lab")).toBeNull();
+      expect(resolveAdminNavFallbackKey("projetion admin")).toBeNull();
     });
 
     it("returns null for unrelated admin ops", () => {
@@ -136,15 +134,15 @@ describe("nav-fallback-intent", () => {
   });
 
   describe("resolveNavFallbackDestinationKey", () => {
-    it("keeps Scenario Lab fallback for admin simulation", () => {
+    it("no longer resolves an admin simulation to a destination (Scenario Lab retired)", () => {
+      // The Scenario Lab route was removed, so a standalone simulation ask matches
+      // no whitelisted destination and falls through to the LLM.
       expect(
         resolveNavFallbackDestinationKey({
           navProfile: "admin",
           message: "simuler un stress test BTC bear",
-          scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-          scenarioLabNavEnabled: true,
         }),
-      ).toBe(SCENARIO_LAB_DESTINATION_KEY);
+      ).toBeNull();
     });
 
     it("scopes LP profile to LP keys only", () => {
@@ -152,8 +150,6 @@ describe("nav-fallback-intent", () => {
         resolveNavFallbackDestinationKey({
           navProfile: "lp",
           message: "ouvre mon portefeuille",
-          scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-          scenarioLabNavEnabled: true,
         }),
       ).toBe("portfolio");
 
@@ -162,8 +158,6 @@ describe("nav-fallback-intent", () => {
           navProfile: "lp",
           isAdmin: false,
           message: "créer un nouveau client",
-          scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-          scenarioLabNavEnabled: true,
         }),
       ).toBeNull();
     });
@@ -174,8 +168,6 @@ describe("nav-fallback-intent", () => {
           navProfile: "lp",
           isAdmin: true,
           message: "montre le portefeuille client",
-          scenarioLabDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
-          scenarioLabNavEnabled: true,
         }),
       ).toBe(ADMIN_CUSTOMERS_DESTINATION_KEY);
     });

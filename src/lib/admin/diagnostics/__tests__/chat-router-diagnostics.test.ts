@@ -17,12 +17,17 @@ describe("chat-router diagnostics (real product-workspace classifier + nav resol
 
   it.each([
     "chat.product-creation",
-    "chat.simulation-scenario-lab",
     "chat.create-projection-not-product",
     "chat.lp-cannot-resolve-admin-nav",
     "chat.lp-nav-allowed",
   ])("%s passes against the live functions", (id) => {
     expect(results.find((r) => r.id === id)?.status).toBe("pass");
+  });
+
+  it("chat.simulation-scenario-lab is honestly SKIPPED — the Scenario Lab route was retired", () => {
+    const r = results.find((c) => c.id === "chat.simulation-scenario-lab");
+    expect(r?.status).toBe("skipped");
+    expect(r?.actual).toMatch(/scenario lab route retired/i);
   });
 
   it.each([

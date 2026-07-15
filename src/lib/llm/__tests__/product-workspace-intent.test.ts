@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   PRODUCT_WORKSPACE_DESTINATION_KEY,
-  SCENARIO_LAB_DESTINATION_KEY,
   classifyProductWorkspaceIntent,
   deriveProductWorkspaceObjective,
   isExplicitSimulationIntent,
@@ -33,18 +32,21 @@ describe("product workspace intent", () => {
     expect(isExplicitSimulationIntent("cadrer une stratégie produit")).toBe(false);
   });
 
-  it("classifies mixed product creation and simulation as Product Workspace first", () => {
+  it("classifies mixed product creation and simulation as Product Workspace (no dead Scenario Lab secondary)", () => {
+    // The Scenario Lab route was retired: a mixed product+simulation intent still
+    // opens the Product Workspace, and the simulation half is recorded only in the
+    // `kind` — there is no `secondaryDestinationKey`/`shouldOpenScenarioLab`.
     const classification = classifyProductWorkspaceIntent(
       "Créer un produit Defensive puis simuler un stress test",
     );
     expect(classification).toMatchObject({
       kind: "mixed_product_creation_simulation",
       primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-      secondaryDestinationKey: SCENARIO_LAB_DESTINATION_KEY,
       shouldOpenProductWorkspace: true,
-      shouldOpenScenarioLab: true,
       autostart: true,
     });
+    expect(classification).not.toHaveProperty("secondaryDestinationKey");
+    expect(classification).not.toHaveProperty("shouldOpenScenarioLab");
     expect(isProductWorkspaceIntent("Créer un produit Defensive puis simuler un stress test")).toBe(
       true,
     );

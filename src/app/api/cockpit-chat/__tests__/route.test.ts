@@ -91,7 +91,6 @@ vi.mock("@/lib/llm/product-workspace-intent", async (importOriginal) => {
     classifyProductWorkspaceIntent: vi.fn().mockReturnValue({
       kind: "none",
       shouldOpenProductWorkspace: false,
-      shouldOpenScenarioLab: false,
     }),
   };
 });
@@ -125,7 +124,6 @@ function classifyNotProduct() {
   mockClassify.mockReturnValue({
     kind: "none",
     shouldOpenProductWorkspace: false,
-    shouldOpenScenarioLab: false,
   });
 }
 
@@ -219,7 +217,6 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
       primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
       autostart: true,
       shouldOpenProductWorkspace: true,
-      shouldOpenScenarioLab: false,
     });
 
     const res = await POST(makeChatRequest("monte-moi un truc défensif"));
@@ -262,7 +259,6 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
       primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
       autostart: true,
       shouldOpenProductWorkspace: true,
-      shouldOpenScenarioLab: false,
     });
 
     const res = await POST(
@@ -284,22 +280,21 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     });
   });
 
-  it("carries Scenario Lab as secondary metadata when the product intent also wants simulation", async () => {
+  it("opens the Product Workspace for a mixed product-creation + simulation intent (no dead Scenario Lab secondary)", async () => {
+    // The Scenario Lab route was retired: a mixed product+simulation intent still
+    // opens the Product Workspace, but the classifier no longer carries a
+    // scenario-lab secondary, and the route publishes the primary directive only.
     mockClassify.mockReturnValue({
       kind: "mixed_product_creation_simulation",
       objective: "Créer un vault BTC Plus défensif",
       primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
-      secondaryDestinationKey: "admin-scenario-lab",
-      secondaryHint: "Scenario Lab validation requested",
       autostart: true,
       shouldOpenProductWorkspace: true,
-      shouldOpenScenarioLab: true,
     });
 
     // Use a message that the product-workspace classifier catches (mocked to return
     // shouldOpenProductWorkspace: true) but that the pre-LLM regex shortcut does
-    // NOT catch (no nav verb + no standalone "simuler" keyword that would route to
-    // scenario-lab first).
+    // NOT catch (no nav verb).
     const res = await POST(makeChatRequest("créer un vault BTC Plus défensif avec validation"));
     expect(res.status).toBe(200);
     await vi.waitFor(() => {
@@ -308,10 +303,13 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
         objective: "Créer un vault BTC Plus défensif",
         autostart: true,
         intentKind: "mixed_product_creation_simulation",
-        secondaryDestinationKey: "admin-scenario-lab",
-        secondaryHint: "Scenario Lab validation requested",
       });
     });
+    // No dead scenario-lab secondary is published.
+    expect(mockPublishNav).not.toHaveBeenCalledWith(
+      USER_ID,
+      expect.objectContaining({ secondaryDestinationKey: "admin-scenario-lab" }),
+    );
   });
 
   it("retired [[canvas:create-vault]] marker routes to Product Workspace, not agent-canvas", async () => {
@@ -321,7 +319,6 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
       primaryDestinationKey: PRODUCT_WORKSPACE_DESTINATION_KEY,
       autostart: true,
       shouldOpenProductWorkspace: true,
-      shouldOpenScenarioLab: false,
     });
 
     const res = await POST(
@@ -359,19 +356,19 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     await vi.waitFor(() => expect(mockLlmRunCreate).toHaveBeenCalled());
   });
 
-  it("falls back to Scenario Lab for a standalone simulation intent in plain text (regex nav)", async () => {
+  it("does NOT navigate a standalone simulation intent — Scenario Lab route retired, falls to the LLM", async () => {
     classifyNotProduct();
     mockMasterAgentTurnWithoutNav();
 
-    // "simuler" is handled by the pre-LLM regex shortcut (resolveNavFallbackDestinationKey)
-    // — it routes directly before the LLM runs.
+    // The Scenario Lab route was removed, so "simuler …" no longer matches a
+    // deterministic nav destination: it falls through to the normal chat turn.
     const res = await POST(makeChatRequest("simuler un stress test BTC bear"));
     expect(res.status).toBe(200);
-    await vi.waitFor(() => {
-      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
-        destinationKey: "admin-scenario-lab",
-      });
-    });
+    expect(mockRunChatAgent).toHaveBeenCalled();
+    expect(mockPublishNav).not.toHaveBeenCalledWith(
+      USER_ID,
+      expect.objectContaining({ destinationKey: "admin-scenario-lab" }),
+    );
   });
 
   it("falls back to Customers when admin asks to create a client in plain text (regex nav)", async () => {
@@ -682,13 +679,13 @@ describe("POST /api/cockpit-chat — router v2 safe paths", () => {
     // here — the 5 unwired portfolio sub-leaves (positions/activity/distributions/
     // yield/tax) were dropped from the nav whitelist (PR #149) so the chat no
     // longer routes investors to blank pages; they now fall through to the LLM by
-    // design (covered by test 5b).
+    // design (covered by test 5b). "Show me projection" / "Ouvre scenario lab"
+    // were likewise removed — the Scenario Lab + Projection routes were RETIRED,
+    // so those phrases now fall through to the LLM too (no dead-route navigation).
     const coveredMessages = [
       "Amène-moi au dashboard",
       "Open my portfolio",
       "Va sur proof center",
-      "Show me projection",
-      "Ouvre scenario lab",
       "Open outreach",
       "Montre les campagnes",
       "Va dans control tower",
