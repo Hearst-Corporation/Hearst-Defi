@@ -58,6 +58,7 @@ describe("DepositSummary — vault panel DS patterns", () => {
     expect(html).toContain("text-[var(--ct-text-strong)]");
     expect(html).toContain("9.4");
     expect(html).toContain("12.8");
+    // Principal is a fact, not a projection — it stays a single figure.
     expect(html).toContain("$500,000 USDC");
   });
 
@@ -66,5 +67,60 @@ describe("DepositSummary — vault panel DS patterns", () => {
 
     expect(html).toContain("ct-text-muted");
     expect(html).toContain("Methodology v3.0");
+  });
+
+  // ── Non-negotiable #1: no single-point money figure derived from the band
+  //    midpoint. Every projected money value must be published as a RANGE. ──
+  it("publishes the projected total and accumulation as ranges, never a point", () => {
+    const html = renderToStaticMarkup(
+      <DepositSummary vault={VAULT} amount={500_000} />,
+    );
+
+    // Headline is a band (low–high USDC), derived from apyLow/apyHigh, not a
+    // single mid-derived figure.
+    expect(html).toContain("$602,975–$645,001 USDC");
+    // Accumulation legend is a band too.
+    expect(html).toContain("~$102,975–$145,001");
+
+    // The retired single-point figures must be gone: no mid-derived yearly cash
+    // yield ("~$52,700"-style), no "Est. gross yield (p.a.)" tile, and no
+    // soft-close anchoring. A money amount immediately followed by "USDC" with
+    // NO en-dash range separator before it would be a single-point publish.
+    expect(html).not.toContain("Est. gross yield (p.a.)");
+    expect(html).not.toContain("soft close");
+    expect(html).not.toContain("Projected at soft close");
+    // Old mid-derived p.a. figure for this vault (~11.1% × 500k) must not appear.
+    expect(html).not.toContain("~$55,500");
+  });
+
+  it("anchors delivery on the 24-month maturity, not the 60-day soft close", () => {
+    const html = renderToStaticMarkup(
+      <DepositSummary vault={VAULT} amount={500_000} />,
+    );
+
+    // Re-anchored on the term (v3.0 §2): BTC delivered at maturity, no periodic
+    // distribution, soft lock-up is not a realisation date.
+    expect(html).toContain("24 months");
+    expect(html).toContain("delivered at maturity");
+    expect(html).toContain("no periodic cash distribution");
+    expect(html).toContain("not a realisation date");
+  });
+
+  it("keeps no forbidden vocabulary in the rendered surface", () => {
+    const html = renderToStaticMarkup(
+      <DepositSummary vault={VAULT} amount={500_000} />,
+    );
+    for (const word of [
+      "guarantee",
+      "promise",
+      "certain",
+      "will deliver",
+      "risk-free",
+    ]) {
+      // "not guaranteed" is explicitly permitted (v3.0 §9) — check the bare
+      // forbidden stems don't appear except inside that allowed phrase.
+      const stripped = html.replace(/not guaranteed/gi, "");
+      expect(stripped.toLowerCase()).not.toContain(word);
+    }
   });
 });

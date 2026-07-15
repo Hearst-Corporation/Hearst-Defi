@@ -4,7 +4,6 @@ import { monthsToTarget, buildProjectionSeries } from "@/lib/projection-chart";
 import type { VaultProduct } from "@/lib/data/vaults";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
-import { formatUsdFull } from "@/lib/vaults/product-display";
 
 interface TimeToTargetChartProps {
   amount: number; // USDC
@@ -166,15 +165,13 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
   // Target milestone vertical line
   const targetX = months10pct !== null ? xAt(months10pct, totalPts) : null;
 
-  // Label for target: USDC value at milestone month
-  const targetNav = months10pct !== null ? (midPts[months10pct]?.nav ?? null) : null;
-  const targetUsdcRaw = targetNav !== null && amount > 0 ? (targetNav / 100) * amount : null;
+  // Label for target: the MILESTONE only. The mid-band legitimately drives the
+  // trace and the marker position, but a USDC value read off the mid curve would
+  // publish that midpoint as a single-point figure to the investor — forbidden
+  // by non-negotiable #1 (headline is always a range). The canvas therefore
+  // states the cumulative milestone, not a derived dollar amount.
   const targetLabel =
-    targetUsdcRaw !== null
-      ? `Target: ${formatUsdFull(Math.round(targetUsdcRaw))} at M${months10pct ?? "—"}`
-      : months10pct !== null
-        ? `+${TARGET_CUMULATIVE_PCT}% at M${months10pct}`
-        : null;
+    months10pct !== null ? `+${TARGET_CUMULATIVE_PCT}% at M${months10pct}` : null;
 
   // Horizontal grid lines (3 guides)
   const gridYs = [0.25, 0.5, 0.75].map((frac) => PAD_T + INNER_H * (1 - frac));
