@@ -93,7 +93,7 @@ function allocationChart(vault: VaultDefinition, status: ProductChatChartStatus)
   };
 }
 
-function distributionChart(
+function accumulationChart(
   vault: VaultDefinition,
   status: ProductChatChartStatus,
 ): ProductChatChart {
@@ -106,12 +106,12 @@ function distributionChart(
         }))
       : undefined;
   return {
-    id: "distribution-path",
+    id: "accumulation-path",
     kind: "distribution_range",
     status,
-    title: "Distribution Path",
-    metric: `${vault.apyTarget.low}-${vault.apyTarget.high}% target APY range`,
-    note: "Range only; no single-point yield claim.",
+    title: "Accumulation Path",
+    metric: `${vault.apyTarget.low}-${vault.apyTarget.high}% estimated target range (BTC accumulated, not distributed)`,
+    note: "Range only; BTC accumulated over the term, no periodic distribution, no single-point yield claim.",
     provenance: "Estimated",
     progress: status === "ready" ? 100 : 60,
     ...(points ? { points } : {}),
@@ -144,8 +144,8 @@ function chartsForObjective(objective: string | undefined): ProductChatChart[] {
   return [
     allocationChart(vault, "building"),
     allocationChart(vault, "ready"),
-    distributionChart(vault, "building"),
-    distributionChart(vault, "ready"),
+    accumulationChart(vault, "building"),
+    accumulationChart(vault, "ready"),
     stressChart(vault),
   ];
 }

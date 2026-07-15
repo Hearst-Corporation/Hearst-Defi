@@ -44,7 +44,7 @@ const memoOutputFake: InvestorMemoOutput = {
   performance_section:
     "No backtests supplied; this assumes the memo cron was triggered out-of-cycle.",
   methodology_note:
-    "Methodology v1.0 — assumes the immutable rubric is up to date.",
+    "Methodology v3.0 — assumes the immutable rubric is up to date.",
   disclaimer:
     "Projection only; past performance is not indicative of future results. Outputs are not guaranteed.",
 };

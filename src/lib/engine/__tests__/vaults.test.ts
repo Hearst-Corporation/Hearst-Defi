@@ -9,6 +9,7 @@ import {
   type VaultDefinition,
 } from "../vaults";
 import type { VaultId } from "../types";
+import { containsForbidden } from "@/lib/agents/forbidden-words";
 
 const ALL: VaultDefinition[] = [VAULT_YIELD, VAULT_DEFENSIVE, VAULT_BTC_PLUS];
 
@@ -95,5 +96,66 @@ describe("vaultAllocationWeights", () => {
 
   it("defaults to the Yield Vault when called with no argument (retro-compat)", () => {
     expect(vaultAllocationWeights()).toEqual(vaultAllocationWeights(VAULT_YIELD));
+  });
+
+  it("maps the Yield 3-pocket target onto weights (mining .40 / btc .27 / usdc .33)", () => {
+    const w = vaultAllocationWeights(VAULT_YIELD);
+    expect(w.mining).toBeCloseTo(0.4, 9);
+    expect(w.btcTactical).toBeCloseTo(0.27, 9);
+    expect(w.usdcBase).toBeCloseTo(0.33, 9);
+    expect(w.stableReserve).toBeCloseTo(0, 9);
+  });
+});
+
+describe("VAULT_YIELD — v2 mining-note canon (PermissionedDynaVault v2.1)", () => {
+  const yieldText = [VAULT_YIELD.description, ...VAULT_YIELD.assumptions]
+    .join(" ")
+    .toLowerCase();
+
+  it("targets the 3-pocket allocation (mining 40 / BTC 27 / USDC 33), legacy stable sleeve retired", () => {
+    expect(VAULT_YIELD.allocationTargets).toEqual({
+      mining: 40,
+      btc_tactical: 27,
+      usdc_base: 33,
+      stable_reserve: 0,
+    });
+    // Mirrors the v2.1 §Appendix on-chain pocket bps (4000 / 2700 / 3300).
+    expect(VAULT_YIELD.allocationTargets.mining * 100).toBe(4_000);
+    expect(VAULT_YIELD.allocationTargets.btc_tactical * 100).toBe(2_700);
+    expect(VAULT_YIELD.allocationTargets.usdc_base * 100).toBe(3_300);
+  });
+
+  it("keeps the headline as a RANGE (#1), never a single point", () => {
+    expect(VAULT_YIELD.apyTarget).toEqual({ low: 8, high: 15 });
+    expect(VAULT_YIELD.apyTarget.low).toBeLessThan(VAULT_YIELD.apyTarget.high);
+    expect(VAULT_YIELD.defaultProvenance).toBe("estimated");
+  });
+
+  it("bumps methodology to v3.0 with the product model change", () => {
+    expect(VAULT_YIELD.methodologyVersion).toBe("v3.0");
+  });
+
+  it("carries the 24-month product term", () => {
+    expect(VAULT_YIELD.productDurationMonths).toBe(24);
+  });
+
+  it("drops all periodic cash-distribution wording (no monthly USDC payout)", () => {
+    expect(yieldText).not.toMatch(/monthly/);
+    expect(yieldText).not.toContain("usdc distributions");
+    expect(yieldText).toContain("no periodic cash distribution");
+  });
+
+  it("describes the v2 accumulation model (BTC accumulated, 24-month term, take-profit)", () => {
+    expect(yieldText).toMatch(/accumulat/);
+    expect(yieldText).toMatch(/24-month/);
+    expect(yieldText).toMatch(/take-profit/);
+  });
+
+  it("stays compliant: no forbidden words, retains the 'not guaranteed' disclaimer", () => {
+    expect(containsForbidden(VAULT_YIELD.description)).toBeNull();
+    for (const a of VAULT_YIELD.assumptions) {
+      expect(containsForbidden(a)).toBeNull();
+    }
+    expect(yieldText).toContain("not guaranteed");
   });
 });

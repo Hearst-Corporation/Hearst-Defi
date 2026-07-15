@@ -12,35 +12,28 @@ import { COLORS, styles } from "../memo-styles";
 
 interface PerfRow {
   month: string;
-  apyRange: string;
-  apyAchieved: string;
-  distributionUsdc: number;
+  returnBand: string;
   navUsdc: number;
 }
 
 function buildRows(data: MemoPdfData): PerfRow[] {
-  // Source of truth for the 4-month look-back is now `data.monthlyHistory`
-  // (VaultSnapshot ⊕ Distribution via the Phase 1 loader). The loader
-  // already pads its output with a deterministic synthetic series when the
-  // DB has fewer months than the requested window, so this code path no
-  // longer needs a "no data" branch.
+  // Source of truth for the 4-month look-back is `data.monthlyHistory`
+  // (VaultSnapshot ⊕ the loader's deterministic padding). We surface the
+  // estimated return band (a range, non-negotiable #1) and NAV — the marked
+  // value of the three pockets — and no longer a periodic cash distribution.
   const history = data.monthlyHistory;
   if (history.length === 0) {
     return [
       {
         month: data.period,
-        apyRange: "9.4-12.8%",
-        apyAchieved: "10.8%",
-        distributionUsdc: 196_800,
+        returnBand: "9.4-12.8%",
         navUsdc: data.input.vault.aumUsdc,
       },
     ];
   }
   return history.map((row) => ({
     month: row.period,
-    apyRange: `${row.apy_low.toFixed(1)}-${row.apy_high.toFixed(1)}%`,
-    apyAchieved: `${row.apy_achieved.toFixed(1)}%`,
-    distributionUsdc: row.distribution_usdc,
+    returnBand: `${row.apy_low.toFixed(1)}-${row.apy_high.toFixed(1)}%`,
     navUsdc: row.nav_usdc,
   }));
 }
@@ -61,25 +54,17 @@ export function PerformanceOverviewPage({
 
       <EyebrowTitle
         eyebrow="02 / Performance overview"
-        title="Trailing 4-month performance"
+        title="Trailing 4-month progress"
       />
 
       <View style={styles.table}>
         <View style={styles.tableHeader}>
-          <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Month</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.4 }]}>APY range</Text>
-          <Text
-            style={[styles.tableHeaderCell, { flex: 1.2, textAlign: "right" }]}
-          >
-            APY achieved
+          <Text style={[styles.tableHeaderCell, { flex: 1.6 }]}>Month</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 2 }]}>
+            Est. return band
           </Text>
           <Text
-            style={[styles.tableHeaderCell, { flex: 1.3, textAlign: "right" }]}
-          >
-            Distribution
-          </Text>
-          <Text
-            style={[styles.tableHeaderCell, { flex: 1.3, textAlign: "right" }]}
+            style={[styles.tableHeaderCell, { flex: 1.8, textAlign: "right" }]}
           >
             NAV
           </Text>
@@ -98,25 +83,14 @@ export function PerformanceOverviewPage({
               idx === rows.length - 1 ? styles.tableRowLast : {},
             ]}
           >
-            <Text style={[styles.tableCell, { flex: 1.2 }]}>{r.month}</Text>
-            <Text style={[styles.tableCell, { flex: 1.4 }]}>{r.apyRange}</Text>
+            <Text style={[styles.tableCell, { flex: 1.6 }]}>{r.month}</Text>
+            <Text style={[styles.tableCell, { flex: 2 }]}>{r.returnBand}</Text>
             <Text
-              style={[styles.tableCell, { flex: 1.2, textAlign: "right" }]}
-            >
-              {r.apyAchieved}
-            </Text>
-            <Text
-              style={[styles.tableCell, { flex: 1.3, textAlign: "right" }]}
-            >
-              {formatUsd(r.distributionUsdc)}
-            </Text>
-            <Text
-              style={[styles.tableCell, { flex: 1.3, textAlign: "right" }]}
+              style={[styles.tableCell, { flex: 1.8, textAlign: "right" }]}
             >
               {formatUsd(r.navUsdc)}
             </Text>
-            {/* Row blends attested distribution + live NAV snapshot +
-                estimated APY achieved -> partial. */}
+            {/* Row blends an estimated return band + a live NAV snapshot -> partial. */}
             <View
               style={{
                 flex: 1.1,
@@ -131,9 +105,10 @@ export function PerformanceOverviewPage({
       </View>
 
       <Text style={[styles.bodySmall, { marginTop: 8, color: COLORS.textDim }]}>
-        APY achieved is derived by annualising the realised monthly NAV change.
-        It is a backward-looking realised metric; published target APY remains
-        a range conditional on the stated assumptions.
+        NAV is the end-of-period marked value of the three pockets. The estimated
+        target return is a range in accumulated BTC over the term, conditional on
+        the stated assumptions; it is not a distributed cash yield and is not
+        guaranteed.
       </Text>
 
       <Text style={styles.h2}>Backtest cross-check</Text>
@@ -200,11 +175,11 @@ export function PerformanceOverviewPage({
       </View>
 
       <Commentary>
-        Vault performance over the period sat inside the published APY range,
-        with the realised monthly distribution paid in USDC as scheduled.
-        Backtests across bear, halving, and mining-crunch windows are listed
-        for context; they are simulations of the same rule set on historical
-        data, not forecasts.
+        The note accumulates BTC over its 24-month term with rule-based
+        take-profit; there is no periodic cash distribution. NAV tracks the
+        marked value of the three pockets across the period. Backtests across
+        bear, halving, and mining-crunch windows are simulations of the same
+        rule set on historical data, not forecasts.
       </Commentary>
 
       <PageFooter pageNumber={pageNumber} totalPages={totalPages} />

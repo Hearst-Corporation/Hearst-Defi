@@ -30,7 +30,7 @@ const mockProspect: ColdEmailProspect = {
 
 const mockInputWhatsApp: DraftWhatsAppInput = {
   prospect: mockProspect,
-  brief: "UAE distributors interested in DeFi yield",
+  brief: "UAE distributors interested in a BTC-accumulation mining note",
   typeformUrl: "https://app.hearst.io/apply",
   language: "en",
   audience: "distributor",
@@ -53,7 +53,7 @@ const mockLlmClient = {
           {
             message: {
               content: JSON.stringify({
-                body: "Hi Jean, quick note on the Hearst Yield Vault — structured DeFi with monthly USDC distributions (target 8-15% APY). Interested? Apply here: https://app.hearst.io/apply",
+                body: "Hi Jean, quick note on the Hearst Yield Vault — a structured mining note accumulating BTC over a 24-month term (estimated target 8-15%, not guaranteed). Interested? Apply here: https://app.hearst.io/apply",
               }),
             },
           },
@@ -99,7 +99,7 @@ describe("WhatsApp Draft", () => {
 
 describe("LinkedIn Draft", () => {
   it("schema accepts valid body", () => {
-    const valid = { body: "A professional message about the Hearst Yield Vault. It offers structured DeFi yield with monthly USDC distributions. Target range is 8-15% APY. Would you be interested in learning more?" };
+    const valid = { body: "A professional message about the Hearst Yield Vault. It is a structured mining note that accumulates BTC over a 24-month term with rule-based take-profit. Estimated target range is 8-15% (BTC accumulated, not distributed, not guaranteed). Would you be interested in learning more?" };
     const result = LinkedInDraftSchema.safeParse(valid);
     expect(result.success).toBe(true);
   });
@@ -198,7 +198,7 @@ describe("Campaign Brief Templates", () => {
 // -----------------------------------------------------------------------------
 
 describe("Template Safety", () => {
-  const forbiddenWords = ["guarantee", "promise", "certain", "risk-free", "garanti", "promesse", "certain", "sans risque"];
+  const forbiddenWords = ["guarantee", "promise", "certain", "risk-free", "garanti", "promesse", "sans risque"];
 
   it("no forbidden words in email follow-up templates", () => {
     const result = buildEmailFollowUpTemplate("John", "Test", 5, "en");
@@ -223,10 +223,10 @@ describe("Template Safety", () => {
 });
 
 // -----------------------------------------------------------------------------
-// APY Range Format
+// Estimated-return Range Format
 // -----------------------------------------------------------------------------
 
-describe("APY Range Format", () => {
+describe("Estimated-return Range Format", () => {
   it("all templates use range format not single point", () => {
     const email = buildEmailFollowUpTemplate("John", "Test", 5, "en");
     const whatsapp = buildWhatsAppFollowUpTemplate("John", 5, "en");

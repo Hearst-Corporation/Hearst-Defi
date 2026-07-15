@@ -14,7 +14,10 @@
  *
  * Honesty rules (non-negotiables #1, #5, #10):
  *   - every return is a RANGE, never a single point;
- *   - the monthly distribution target is INCLUSIVE in the total performance
+ *   - v2 is a mining NOTE: the estimated-yield band
+ *     (`monthlyDistributionTargetAnnualized`, kept under its legacy field name)
+ *     is BTC ACCUMULATED over the ~24-month term via rule-based take-profit,
+ *     NOT a periodic cash distribution. It is INCLUSIVE in the total performance
  *     target — never additive (see `totalPerformanceTarget.inclusiveOfDistributions`);
  *   - no guarantee language; `guarantees` are all `false`.
  *
@@ -110,9 +113,16 @@ export interface RegimeAllocationBand {
 }
 
 // ---------------------------------------------------------------------------
-// Targets (doc §11, §12) — both ALWAYS ranges; total is INCLUSIVE of distributions.
+// Targets (doc §11, §12) — both ALWAYS ranges; total is INCLUSIVE of the
+// accumulation layer (v2: BTC accumulated over the term, not a cash distribution).
 // ---------------------------------------------------------------------------
 
+/**
+ * Estimated-yield target band. v2 semantic: BTC accumulated over the ~24-month
+ * term with rule-based take-profit — NOT a periodic cash distribution. The
+ * field name is legacy (consumers depend on it); the meaning is the mining
+ * note's estimated accumulation band.
+ */
 export interface DistributionTarget {
   /** Lower bound, fraction (0.08 = 8%). */
   readonly min: number;
@@ -258,14 +268,17 @@ export const BTC_MINING_PERFORMANCE_VAULT: BtcMiningPerformanceVault = {
   status: "CONFIGURED",
   targetDurationMonths: 24,
 
-  // Doc §11 — 8–12% annualized monthly distribution target (range, coverage-gated).
+  // Doc §11 — 8–12% annualized estimated-yield band (range, coverage-gated).
+  // v2: BTC accumulated over the term with rule-based take-profit, not a cash
+  // distribution. Legacy field name retained for consumers.
   monthlyDistributionTargetAnnualized: {
     min: 0.08,
     max: 0.12,
     status: "CONFIGURED",
   },
 
-  // Doc §12 — ~20–24% total over ~24 months, INCLUSIVE of distributions (never additive).
+  // Doc §12 — ~20–24% total over ~24 months, INCLUSIVE of the accumulation
+  // layer (never additive).
   totalPerformanceTarget: {
     min: 0.2,
     max: 0.24,

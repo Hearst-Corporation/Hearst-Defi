@@ -1,10 +1,11 @@
 // Vault — held-positions index (Visual Direction 2026, Archive 4 · Workstream A/C).
 //
 // The "Vault" rail entry lands here: only the vaults the investor already holds.
-// Each row opens the per-position detail (/portfolio/[positionId], the 6-section
-// Vault Details page). Bound to REAL data (loadPortfolio) — honest empty state
-// when there are no positions, no fabricated lock/withdraw affordances (the full
-// lock-progress + Withdraw live on the detail page, which knows the term).
+// Each row opens the per-position detail (/portfolio/[positionId], the Vault
+// Details page). Bound to REAL data (loadPortfolio) — honest empty state when
+// there are no positions, no fabricated affordances. v2 note-of-mining model:
+// each position ACCUMULATES BTC over its term — there is NO periodic cash
+// distribution, so the index shows accrued value, never a "next distribution".
 
 import Link from "next/link";
 
@@ -26,27 +27,12 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Vault",
-  description: "The vaults you hold — performance, lock progress and distributions.",
+  description: "The vaults you hold — performance, lock progress and accrued BTC.",
 };
 
 const TABLE_HEAD = "bg-transparent ct-bento-label";
 const ROW =
   "border-transparent transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]";
-
-/**
- * Relative next-distribution label from a position's own boundary — or an
- * honest "—" when the position has none (matured/exited, or zero yield).
- * Never falls back to a portfolio-wide date: each row states its own truth.
- */
-function formatNextDistribution(next: Date | null): string {
-  if (!next) return "—";
-  const now = new Date();
-  const startOfDay = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-  const days = Math.round((startOfDay(next) - startOfDay(now)) / 86_400_000);
-  const time = `${String(next.getUTCHours()).padStart(2, "0")}:${String(next.getUTCMinutes()).padStart(2, "0")} UTC`;
-  const rel = days <= 0 ? "Today" : days === 1 ? "Tomorrow" : `In ${days} days`;
-  return `${rel} · ${time}`;
-}
 
 export default async function MyVaultsPage() {
   const { positions } = await loadPortfolio();
@@ -85,7 +71,7 @@ export default async function MyVaultsPage() {
                   <TableHeader className={`${TABLE_HEAD} pl-5`}>Vault</TableHeader>
                   <TableHeader className={`${TABLE_HEAD} text-right`}>Deposited</TableHeader>
                   <TableHeader className={`${TABLE_HEAD} text-right`}>Current Value</TableHeader>
-                  <TableHeader className={TABLE_HEAD}>Next Distribution</TableHeader>
+                  <TableHeader className={`${TABLE_HEAD} text-right`}>Accrued value</TableHeader>
                   <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>Actions</TableHeader>
                 </TableRow>
               </TableHead>
@@ -128,8 +114,8 @@ export default async function MyVaultsPage() {
                           </span>
                         </span>
                       </TableCell>
-                      <TableCell className="ct-metric-caption text-[var(--ct-text-secondary)]">
-                        {formatNextDistribution(p.nextDistributionAt)}
+                      <TableCell className="ct-metric-value text-right">
+                        {formatUsdFull(p.accruedYieldUsdc)}
                       </TableCell>
                       <TableCell className="pr-5 text-right">
                         <span aria-hidden="true" className="ct-text-muted">→</span>
@@ -144,7 +130,7 @@ export default async function MyVaultsPage() {
           <EmptySurface
             variant="widget"
             message="No vaults yet"
-            detail="Once you subscribe to a vault, your deployed capital, yield history and lock progress appear here."
+            detail="Once you subscribe to a vault, your deployed capital, accrued BTC and lock progress appear here."
             link={{ href: "/vaults", label: "Explore vaults to invest →" }}
             ariaLabel="No held vaults"
           />

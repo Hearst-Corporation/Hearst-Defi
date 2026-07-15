@@ -210,12 +210,12 @@ function composeCreateVault(
       fields: [
         {
           key: "allocation",
-          label: "Allocation (mining / BTC / USDC / reserve)",
-          value: `${VAULT_YIELD.allocationTargets.mining} / ${VAULT_YIELD.allocationTargets.btc_tactical} / ${VAULT_YIELD.allocationTargets.usdc_base} / ${VAULT_YIELD.allocationTargets.stable_reserve}%`,
+          label: "Allocation (mining / BTC / USDC reserve)",
+          value: `${VAULT_YIELD.allocationTargets.mining} / ${VAULT_YIELD.allocationTargets.btc_tactical} / ${VAULT_YIELD.allocationTargets.usdc_base}%`,
           provenance: "Estimated",
           editable: true,
           inputBinding: { toolInputKey: "targetMiningBps" },
-          note: "Four sleeves; bps must sum to exactly 10000.",
+          note: "Three pockets (B1 mining / B2 BTC / B3 USDC reserve); bps must sum to exactly 10000.",
         },
         {
           key: "minTicket",

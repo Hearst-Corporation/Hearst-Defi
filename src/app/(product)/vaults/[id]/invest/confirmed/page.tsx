@@ -9,7 +9,6 @@ import { DepositSuccessIcon } from "@/components/vaults/deposit-success-icon";
 import { OpsContactCard } from "@/components/onboarding/OpsContactCard";
 import { getIrContact } from "@/lib/ir-contact";
 import {
-  buildDistributionIcsUri,
   daysFromNow,
   formatDateGb,
   formatUsdcFromParam,
@@ -96,7 +95,8 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
   // Real elapsed lock days from the position's subscription timestamp — never a
   // fabricated 0%. If the position can't be resolved, we drop the progress bar
-  // entirely rather than render a structurally-pinned 0% (audit I16).
+  // entirely rather than render a structurally-pinned 0% (audit I16). The
+  // soft-lock is CONTRACTUAL (v2 has no on-chain lock-up).
   let currentDay: number | null = null;
   if (position) {
     const elapsed = Math.floor((new Date().getTime() - position.subscribedAt.getTime()) / MS_PER_DAY);
@@ -104,10 +104,6 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   }
   const unlockDate = daysFromNow(LOCK_DAYS);
   const lockPct = currentDay !== null ? Math.round((currentDay / LOCK_DAYS) * 100) : 0;
-
-  const today = new Date();
-  const nextDistrib = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-  const icsUri = buildDistributionIcsUri("Hearst Yield Vault — Distribution", nextDistrib);
 
   const hasOnChainProof = hasHash && positionId;
   const irContact = getIrContact();
@@ -237,11 +233,12 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
             </div>
           ) : null}
 
-          {/* Soft-lock progress — only when we have a real elapsed day count */}
-          <div className="flex flex-col gap-3 px-5 py-4 border-b border-[var(--ct-border-soft)] bg-surface-inset">
+          {/* Soft-lock progress — CONTRACTUAL, not on-chain. Only when we have a
+              real elapsed day count. */}
+          <div className="flex flex-col gap-3 px-5 py-4 bg-surface-inset">
             <div className="flex items-center justify-between gap-4">
               <span className="ct-bento-label text-[var(--ct-text-faint)]">
-                Soft-lock
+                Soft-lock · contractual
               </span>
               <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] tabular-nums">
                 {currentDay !== null
@@ -267,24 +264,9 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
                 />
               </div>
             ) : null}
-          </div>
-
-          {/* Next distribution */}
-          <div className="flex items-center justify-between gap-4 px-5 py-4">
-            <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">Next distribution</dt>
-            <dd className="flex items-center gap-3">
-              <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums">
-                {formatDateGb(nextDistrib)}
-              </span>
-              <a
-                href={icsUri}
-                download="hearst-distribution.ics"
-                aria-label="Add distribution date to calendar (.ics download)"
-                className="shrink-0 text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-accent)] hover:text-[var(--ct-text-strong)] transition-colors"
-              >
-                Add to calendar
-              </a>
-            </dd>
+            <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] leading-snug">
+              Applied contractually — not enforced on-chain.
+            </p>
           </div>
         </dl>
       </section>
@@ -297,7 +279,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
         <ul className="flex flex-col">
           <li className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-sm)] text-[var(--ct-text-body)]">
             <span className="size-1.5 rounded-full bg-[var(--ct-accent)] shrink-0" />
-            Track your position and distributions in Portfolio
+            Track your position and accrued BTC in Portfolio
           </li>
           <li className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-sm)] text-[var(--ct-text-body)]">
             <span className="size-1.5 rounded-full bg-[var(--ct-accent)] shrink-0" />
@@ -335,7 +317,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       </div>
 
       <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)] text-center">
-        A receipt and the Methodology v1.0 PDF will be emailed to your registered address.
+        A receipt and the Methodology v3.0 PDF will be emailed to your registered address.
       </p>
     </InvestFlowShell>
   );

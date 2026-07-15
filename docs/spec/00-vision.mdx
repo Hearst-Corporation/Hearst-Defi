@@ -7,37 +7,53 @@ order: 0
 
 ## What it is
 
-A single institutional USDC vault — **Hearst Yield Vault** — combining three yield engines in one envelope:
+A single institutional product — a **mining note** running on **PermissionedDynaVault v2.1** —
+that **accumulates Bitcoin**, backed by real BTC mining, structured in **3 on-chain pockets**:
 
-1. **Bitcoin Mining Cashflow** (30–40% AUM) — revenue-share with farm(s), distributed in USDC monthly.
-2. **USDC Yield Base** (25–60% AUM) — T-bills tokenisées (Ondo) + lending stable (Maple/Aave).
-3. **BTC Tactical** (0–30% AUM) — accumulation at low prices, profit-taking at high prices, sized by rules.
+1. **B1 · Mining Power (40%)** — exposure to real Bitcoin mining cashflow via revenue-share
+   with partner farm(s) (ADR-003). Net mining margin accrues to the note in BTC; the pocket's
+   electricity is settled on-chain through the electricity account (`payElectricity()`), never
+   as a cash payout to LPs.
+2. **B2 · BTC Pouch (27%)** — BTC accumulated and held, sized by rules; profit-taking at
+   configured price tiers (`setTakeProfitTier` / `executeTakeProfit`).
+3. **B3 · Reserve USDC (33%)** — USDC reserve that funds operations over the term, depleting
+   along a fixed **vending curve** across the 24-month term (`vendingCurveBps`).
 
-## Headline target
+Allocation is **fixed on-chain** at 40 / 27 / 33 (bps 4000 / 2700 / 3300) — it is not a
+variable sleeve mix.
 
-**APY target range 9.4–12.8%** (broader 8–15% envelope under stress), always presented with stressed APY visible.
-Distributions: **monthly in USDC**.
-Minimum ticket: **$250k**.
-Soft lock-up: **60 days**.
-Fees: **1% mgmt + 10% perf** (high-watermark).
-Structure: **Cayman Exempted Limited Partnership (ELP)**, pro investors only.
+## Headline
+
+The note **accumulates BTC over a 24-month term** and **delivers BTC at maturity**. There is
+**no periodic cash distribution** and **no fixed APY**.
+
+- **Estimated target return** — mining note, expressed in **accumulated BTC, not distributed,
+  not guaranteed**: **8–15%** range, always shown with its assumptions and a stressed view.
+  Provenance: `Estimated`. Never a single point — always a range.
+- **Term**: 24 months (`productDurationMonths()`).
+- **Minimum ticket**: $250k — **contractual / applicative** (v2 has no on-chain `minDeposit`).
+- **Soft lock-up**: 60 days — **contractual, not enforced on-chain** (the on-chain gates are
+  `tvlCap` + `whitelist`; there is no on-chain lock-up).
+- **Fees**: 1% mgmt + 10% perf (high-watermark), applicative.
+- **Structure**: Cayman Exempted Limited Partnership (ELP), professional investors only.
 
 ## Three product promises
 
 1. **Lisibility** — a LP must understand the strategy in 5 minutes.
-2. **Simulability** — every yield assumption must be stressable interactively.
-3. **Auditability** — proof of reserves, smart contract events, published methodology.
+2. **Simulability** — every assumption must be stressable interactively.
+3. **Auditability** — proof of reserves, on-chain contract events, published methodology.
 
 ## What we are NOT
 
-- Not a multi-vault platform (single product at MVP).
+- Not a monthly-distribution / fixed-APY yield product — the note accumulates BTC and delivers
+  it at maturity.
 - Not a quant terminal (no VaR/CVaR/Sharpe headline).
 - Not retail.
 - Not a DeFi protocol — we are a **manager** consuming protocols.
 
 ## The 4 MVP screens
 
-1. **Dashboard** — what the vault is today
-2. **Scenario Lab** — what the vault becomes tomorrow under stated assumptions
+1. **Dashboard** — what the note is today (pockets, mining, electricity, accumulated BTC)
+2. **Scenario Lab** — what the note becomes tomorrow under stated assumptions
 3. **Proof Center** — why the numbers can be trusted
 4. **Investor Memo** — 8-page PDF generated in one click

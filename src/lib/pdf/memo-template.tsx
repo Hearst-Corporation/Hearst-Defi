@@ -26,7 +26,7 @@ export function MemoDocument({ data }: { data: MemoPdfData }) {
       title={`Hearst Yield Vault — Investor Memo — ${data.period}`}
       author="Hearst Connect"
       subject="Hearst Yield Vault Monthly Investor Memo"
-      keywords="Hearst Connect, investor memo, mining-backed yield, Cayman SPV"
+      keywords="Hearst Connect, investor memo, mining-backed note, BTC accumulation, Cayman SPV"
     >
       <CoverPage data={data} />
       <ExecutiveSummaryPage data={data} pageNumber={2} totalPages={TOTAL_PAGES} />

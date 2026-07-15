@@ -1,19 +1,21 @@
 /**
  * S9 Confirmed page — structural presence tests.
  *
- * Verifies that the confirmation page contains all 9 required elements:
+ * Verifies that the confirmation page contains all required elements:
  *   1. TX hash area
- *   2. [oracle] provenance badge (txHash is a URL param, not server-attested)
+ *   2. [manual] provenance badge (txHash is a URL param, not server-attested)
  *   3. Base Sepolia explorer link
  *   4. Vault contract address — env-gated, no fabricated stub
  *   5. NAV at entry "1.0000 USDC / share" [manual]
- *   6. Soft-lock progress bar (role=progressbar)
+ *   6. Soft-lock progress bar (role=progressbar) — contractual, not on-chain
  *   7. "Day 0 of 60" text
- *   8. Next distribution + calendar (.ics) download
- *   9. Ops contact card (Sarah Chen, IR)
- *  10. "Go to portfolio" primary CTA
- *  11. Receipt email notice
- *  12. "not guaranteed" disclaimer
+ *   8. Ops contact card (Sarah Chen, IR)
+ *   9. "Go to portfolio" primary CTA
+ *  10. Receipt email notice
+ *  11. "not guaranteed" disclaimer
+ *
+ * v2 note-of-mining model: there is NO periodic cash distribution, so the page
+ * no longer surfaces a "Next distribution" row or a calendar (.ics) download.
  */
 
 import { renderToStaticMarkup } from "react-dom/server";
@@ -155,10 +157,13 @@ describe("S9 ConfirmedPage — all required elements present", () => {
     expect(html).toContain("Day 0 of 60");
   });
 
-  it("shows the next distribution date and calendar download link", async () => {
+  it("frames the soft-lock as contractual, not on-chain (v2 note of mining)", async () => {
     const html = await getHtml();
-    expect(html).toContain(".ics");
-    expect(html).toContain("Next distribution");
+    expect(html).toContain("contractual");
+    // v2 has no periodic cash distribution — no calendar download, no payout row.
+    expect(html).not.toContain(".ics");
+    expect(html).not.toContain("Next distribution");
+    expect(html).not.toContain("Add to calendar");
   });
 
   it("shows the OpsContactCard with Sarah Chen", async () => {
@@ -177,7 +182,7 @@ describe("S9 ConfirmedPage — all required elements present", () => {
 
   it("shows receipt + Methodology PDF email notice", async () => {
     const html = await getHtml({ email: "investor@firm.com" });
-    expect(html).toContain("Methodology v1.0 PDF");
+    expect(html).toContain("Methodology v3.0 PDF");
     // The notice is generic ("your registered address") on purpose: the page does
     // NOT echo a URL-supplied email back into the document (unverified input).
     expect(html).toContain("will be emailed to your registered address");
@@ -196,7 +201,6 @@ describe("S9 ConfirmedPage — all required elements present", () => {
     expect(html).toContain("bg-surface-card");
     expect(html).not.toContain("vault-panel-row");
     expect(html).not.toContain("vault-panel-inset-block");
-    expect(html).toContain("Add to calendar");
     expect(html).toContain("View other products");
   });
 });

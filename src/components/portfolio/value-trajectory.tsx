@@ -3,7 +3,7 @@
  *
  * One instrument, one shared time axis. LEFT of the "Today" divider: the
  * REALIZED value path (solid accent, Attested). RIGHT: a graphite PROJECTION
- * cone bounded by the vault's real APY range (low ↔ high), midline muted-dashed
+ * cone bounded by the vault's real yield range (low ↔ high), midline muted-dashed
  * — never accent, never green-as-guaranteed. The y-axis is scaled to the data
  * EXTENT (HcFanChart convention) so the cone is legible — every tick is labelled
  * with its real value and the footer stamps assumptions + "not guaranteed", so
@@ -326,8 +326,8 @@ export function ValueTrajectory({
 
       {/* Assumptions footer */}
       <p className="ct-metric-caption">
-        Projection assumes the vault&apos;s realized APY range {apyLowPct}–{apyHighPct}%, simple
-        (non-compounded), distributions not reinvested, net of fees.{" "}
+        Projection assumes the note&apos;s estimated yield range {apyLowPct}–{apyHighPct}%, simple
+        (non-compounded), net of fees.{" "}
         <span style={{ color: "var(--ct-text-muted)" }}>Not guaranteed.</span>
       </p>
     </div>

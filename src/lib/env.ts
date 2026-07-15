@@ -156,7 +156,7 @@ const serverEnvSchema = z.object({
   DEFILLAMA_COINS_BASE_URL: z.string().url().optional(),
   // Mining energy cost override (USD per kWh). When unset, the loader falls
   // back to the industry default 0.05 USD/kWh and surfaces a `Manual`
-  // provenance badge. Methodology v1.0 promises a partner-attested feed
+  // provenance badge. Methodology v3.0 promises a partner-attested feed
   // (out-of-scope for the current cluster); this env var is the bridge.
   MINING_ENERGY_COST_USD_PER_KWH: z.coerce.number().positive().optional(),
   // Hearst's mining revenue-share, in basis points (e.g. 4000 = 40%). The

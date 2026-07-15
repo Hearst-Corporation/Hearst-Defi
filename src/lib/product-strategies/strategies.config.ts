@@ -6,6 +6,12 @@
  * pure (no Date.now at import time).
  *
  * bps: 1% = 100bps. Each scenario's 4 sleeves sum to 10_000.
+ *
+ * v2 note (BTC Mining Performance): the product is a mining NOTE that accumulates
+ * BTC over the term with rule-based take-profit — there is NO periodic cash
+ * distribution. The `distributionTargetLowBps` / `distributionTargetHighBps`
+ * fields (legacy names, kept for consumers) carry the estimated take-profit /
+ * accumulation target band, not a cash payout rate.
  */
 
 import type { ProductStrategy, ProductStrategyScenario } from "./types";
@@ -53,7 +59,7 @@ const miningBalanced: ProductStrategyScenario = {
   constraints: { minMiningBps: 3000, maxBtcBps: 3500 },
   narrativeBullets: [
     "Balanced mining/BTC blend — the recommended default.",
-    "Yield overlay funds the monthly distribution.",
+    "Rule-based take-profit converts gains into accumulated BTC over the term.",
   ],
 };
 
@@ -171,7 +177,7 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     slug: "btc-mining-performance",
     name: "BTC Mining Performance",
     description:
-      "Mining-backed structured yield with a 30% mining floor, monthly distributions, and a BTC-holding sleeve for upside.",
+      "Mining-backed BTC accumulation note with a 30% mining floor and a BTC-holding sleeve for upside. Rule-based take-profit accumulates BTC over a ~24-month term; no periodic cash distribution.",
     status: "active",
     productFamily: "btc_mining",
     defaultRiskProfile: "balanced",

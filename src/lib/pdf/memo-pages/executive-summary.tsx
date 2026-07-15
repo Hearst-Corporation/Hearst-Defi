@@ -18,9 +18,9 @@ import {
 import { styles } from "../memo-styles";
 
 const FALLBACK_BULLETS: string[] = [
-  "Vault remained inside its target APY range, driven primarily by mining-backed cash flow and the USDC base sleeve.",
-  "Monthly USDC distribution wired on schedule; no manual interventions, no unscheduled rebalances.",
-  "Risk posture neutral. Mining margin score and BTC tactical guardrails operated within nominal bands.",
+  "Capital stayed structured across the three pockets — Mining Power (40%), BTC Pouch (27%), Reserve USDC (33%). The estimated target return is a range in accumulated BTC over the term, not a distributed cash yield.",
+  "No periodic cash distribution: BTC accumulates over the 24-month term with rule-based take-profit. No manual interventions, no unscheduled rebalances.",
+  "Risk posture neutral. Mining margin score and BTC Pouch guardrails operated within nominal bands.",
   "Five scenarios re-run on current vault state. Outputs presented as ranges, never single points.",
 ];
 
@@ -38,10 +38,6 @@ export function ExecutiveSummaryPage({
     ? extractBullets(memo.executive_summary, 4).map(stripMarkdown)
     : FALLBACK_BULLETS;
   const safeBullets = bullets.length > 0 ? bullets : FALLBACK_BULLETS;
-  // Distribution is loaded from the `Distribution` table (or its synthesised
-  // fallback) and reported verbatim — no longer derived from AUM × 0.8%.
-  const distributionUsdc = data.distribution?.amount_usdc ?? 0;
-  const distributionStatus = data.distribution?.status ?? "pending";
 
   return (
     <Page size="A4" style={styles.page}>
@@ -59,30 +55,25 @@ export function ExecutiveSummaryPage({
 
       <View style={[styles.twoColGrid, { marginTop: 18 }]}>
         <KpiCell
-          label="APY range — period"
+          label="Est. return — period"
           value={formatApyRange(input.vault.apyRange)}
-          hint="Reported as low-high band only"
+          hint="Accumulated-BTC band, not distributed"
           // Engine-published projection for the period (range only).
           provenance="estimated"
         />
         <KpiCell
-          label="Target APY range"
+          label="Est. target return (term)"
           value="8.0-15.0%"
-          hint="Vault mandate, methodology v1.0"
+          hint="Mining-note mandate, not guaranteed"
           // Mandate band fixed in methodology v1.0 — human-curated boundary.
           provenance="manual"
         />
         <KpiCell
-          label={
-            distributionStatus === "paid"
-              ? "Distribution paid"
-              : "Distribution scheduled"
-          }
-          value={formatUsd(distributionUsdc)}
-          hint="USDC, monthly, all LPs"
-          // Once paid the ledger entry is attested; while scheduled it's an
-          // engine-produced projection.
-          provenance={distributionStatus === "paid" ? "attested" : "estimated"}
+          label="Term"
+          value="24 months"
+          hint="BTC delivered at maturity"
+          // Product term — a v2.1 product constant, human-curated.
+          provenance="manual"
         />
       </View>
 
@@ -113,25 +104,18 @@ export function ExecutiveSummaryPage({
       <Text style={styles.h2}>Posture statement</Text>
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
         <StatusPill label={`Mode ${input.vault.mode}`} tone="brand" />
-        <StatusPill
-          label={
-            distributionStatus === "paid"
-              ? "Distribution paid"
-              : distributionStatus === "scheduled"
-                ? "Distribution scheduled"
-                : "Distribution pending"
-          }
-          tone={distributionStatus === "paid" ? "success" : "neutral"}
-        />
+        <StatusPill label="BTC accumulation" tone="neutral" />
         <StatusPill
           label={`${input.scenarios.length} scenarios re-run`}
           tone="neutral"
         />
       </View>
       <Text style={styles.bodyMuted}>
-        APY is reported as a range conditional on the stated assumptions. No
-        single-point figure is published. Past performance does not indicate
-        future results. Full disclaimers appear on page {totalPages}.
+        The estimated target return is reported as a range conditional on the
+        stated assumptions and expressed in accumulated BTC over the term — no
+        single-point figure and no distributed cash yield is published. Past
+        performance does not indicate future results. Full disclaimers appear on
+        page {totalPages}.
       </Text>
 
       <PageFooter pageNumber={pageNumber} totalPages={totalPages} />

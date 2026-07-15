@@ -84,7 +84,7 @@ const AUDIT_ENTRIES: ReadonlyArray<AuditEntry> = [
     href: null,
   },
   {
-    label: "Methodology v1.0",
+    label: "Methodology v3.0",
     status: "Published",
     variant: "success",
     href: "/docs/methodology/v1.0.md",

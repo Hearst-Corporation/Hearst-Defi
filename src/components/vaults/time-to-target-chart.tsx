@@ -99,7 +99,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
           />
         </ChartFrame>
         <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] text-center tracking-wide">
-          Conditional projection — not a projection of future returns. Methodology v1.0.
+          Conditional projection — not a projection of future returns. Methodology v3.0.
         </p>
       </div>
     );
@@ -129,7 +129,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
           />
         </ChartFrame>
         <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] text-center tracking-wide">
-          Conditional projection — not a projection of future returns. Methodology v1.0.
+          Conditional projection — not a projection of future returns. Methodology v3.0.
         </p>
       </div>
     );
@@ -318,7 +318,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
       )}
 
       <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] text-center tracking-wide">
-        Conditional projection — not a projection of future returns. Methodology v1.0.
+        Conditional projection — not a projection of future returns. Methodology v3.0.
       </p>
     </div>
   );

@@ -19,13 +19,23 @@ export type Provenance =
   | "manual"
   | "stale";
 
-// APY targets are ALWAYS a range (non-negotiable #1) — never a single point.
+// Headline return targets are ALWAYS a range (non-negotiable #1) — never a
+// single point. For the flagship mining note this band is an ESTIMATED target
+// expressed in BTC accumulated over the term, not a distributed cash APY; the
+// range format and the "estimated" provenance are preserved, only the meaning
+// shifts (relabel, not removal).
 export interface ApyTargetRange {
   low: number;
   high: number;
 }
 
 // Target allocation, in percent (0–100), per sleeve. Sums to ~100 per vault.
+// v2 flagship reality (PermissionedDynaVault v2.1 §Appendix): the note is
+// structured in THREE pockets — B1 mining / B2 BTC / B3 USDC reserve. It maps
+// onto the four historical sleeve keys with the legacy `stable_reserve` retired
+// to 0 and the single USDC reserve carried by `usdc_base`. Keeping the 4-key
+// shape avoids churning the shared AllocationBucket type (./types) and its many
+// downstream consumers.
 export type AllocationTargets = Record<AllocationBucket, number>;
 
 export interface VaultDefinition {
@@ -34,11 +44,15 @@ export interface VaultDefinition {
   label: string;
   /** One-line strategy description. Forbidden-words rule (#5) applies. */
   description: string;
-  /** Annual APY target band (percent). low < high, always a range. */
+  /**
+   * Estimated target return band (percent), always a range (#1). For the mining
+   * note this represents BTC accumulated over the term (rule-based take-profit),
+   * NOT a distributed cash yield — never a single point, never guaranteed.
+   */
   apyTarget: ApyTargetRange;
   /** Default vault mode the strategy centres on. */
   baseMode: VaultMode;
-  /** Target sleeve allocation (percent, sums to ~100). */
+  /** Target pocket / sleeve allocation (percent, sums to ~100). */
   allocationTargets: AllocationTargets;
   /** Share classes this vault offers. */
   shareClasses: ShareClassTerms[];
@@ -46,38 +60,52 @@ export interface VaultDefinition {
   defaultProvenance: Provenance;
   /** Methodology version these assumptions belong to. */
   methodologyVersion: string;
+  /**
+   * Product term in months, when the vault carries a fixed maturity. The v2
+   * mining note accumulates BTC over this term and settles at maturity (mirrors
+   * `productDurationMonths()` on-chain — PermissionedDynaVault v2.1 §Appendix).
+   * Optional: presets without a fixed term leave it undefined.
+   */
+  productDurationMonths?: number;
   /** Per-vault assumptions surfaced with every projection (#10). */
   assumptions: string[];
 }
 
-const METHODOLOGY_V1 = "v1.0";
+// Methodology bumps with the product: the platform moves from the cash-yield
+// model (v1.0) to the BTC-accumulation mining note (v3.0). Shared across the
+// presets so a single edit tracks the platform methodology version.
+const METHODOLOGY_V3 = "v3.0";
 
-// ── Hearst Yield Vault — existing flagship, 8–15% APY ────────────────────────
+// ── Hearst Yield Vault (HYV) — flagship mining note: 3 pockets, 24-month BTC accumulation ──
 export const VAULT_YIELD: VaultDefinition = {
   id: "yield",
   ticker: "HYV",
   label: "Hearst Yield Vault",
   description:
-    "Mining-backed structured yield with monthly USDC distributions, dynamically rebalanced across four sleeves by rule-based triggers.",
+    "Mining-backed BTC accumulation note: real Bitcoin mining structured across three pockets (mining power, BTC, USDC reserve), accumulating BTC over a 24-month term with rule-based take-profit; accumulated BTC is settled at maturity, with no periodic cash distribution.",
   apyTarget: { low: 8, high: 15 },
   baseMode: "balanced",
+  // Three-pocket target (v2.1 §Appendix, bps 4000 / 2700 / 3300): B1 mining 40%,
+  // B2 BTC 27%, B3 USDC reserve 33%. The legacy stable_reserve sleeve is retired
+  // (0) — the single reserve is the USDC pocket carried by usdc_base.
   allocationTargets: {
-    mining: 60,
-    btc_tactical: 25,
-    usdc_base: 10,
-    stable_reserve: 5,
+    mining: 40,
+    btc_tactical: 27,
+    usdc_base: 33,
+    stable_reserve: 0,
   },
   shareClasses: [SHARE_CLASS_A, SHARE_CLASS_B],
   defaultProvenance: "estimated",
-  methodologyVersion: METHODOLOGY_V1,
+  methodologyVersion: METHODOLOGY_V3,
+  productDurationMonths: 24,
   assumptions: [
-    "Balanced sleeve mix; mining is the dominant yield source.",
-    "Monthly USDC distributions, 60-day soft lock-up (class A).",
-    "Outputs are projections, not guaranteed. Past performance does not predict future results.",
+    "Three-pocket structure — 40% mining power, 27% BTC, 33% USDC reserve — driven by real Bitcoin mining; $250k minimum ticket and 60-day soft lock-up are contractual, not enforced on-chain.",
+    "Return accrues as BTC accumulated over a 24-month term with rule-based take-profit; there is no periodic cash distribution — accumulated BTC is settled at maturity.",
+    "Estimated target range is expressed in accumulated BTC, not a distributed cash yield. Outputs are projections, not guaranteed. Past performance does not predict future results.",
   ],
 };
 
-// ── Hearst Defensive Vault — lower risk, 5–8% APY, mining 15–25% ─────────────
+// ── Hearst Defensive Vault — lower risk, 5–8% estimated band, mining 15–25% ──
 export const VAULT_DEFENSIVE: VaultDefinition = {
   id: "defensive",
   ticker: "HDV",
@@ -94,7 +122,7 @@ export const VAULT_DEFENSIVE: VaultDefinition = {
   },
   shareClasses: [SHARE_CLASS_A, SHARE_CLASS_B],
   defaultProvenance: "estimated",
-  methodologyVersion: METHODOLOGY_V1,
+  methodologyVersion: METHODOLOGY_V3,
   assumptions: [
     "Mining exposure held in the 15–25% band; majority in stable reserve and USDC base.",
     "Designed to reduce volatility versus the Yield Vault, at the cost of upside.",
@@ -102,7 +130,7 @@ export const VAULT_DEFENSIVE: VaultDefinition = {
   ],
 };
 
-// ── Hearst BTC Plus Vault — higher tactical BTC, 10–20% APY ──────────────────
+// ── Hearst BTC Plus Vault — higher tactical BTC, 10–20% estimated band ──
 export const VAULT_BTC_PLUS: VaultDefinition = {
   id: "btc-plus",
   ticker: "HBP",
@@ -119,7 +147,7 @@ export const VAULT_BTC_PLUS: VaultDefinition = {
   },
   shareClasses: [SHARE_CLASS_A, SHARE_CLASS_B],
   defaultProvenance: "estimated",
-  methodologyVersion: METHODOLOGY_V1,
+  methodologyVersion: METHODOLOGY_V3,
   assumptions: [
     "BTC tactical sleeve is the largest single allocation; mining is secondary.",
     "Higher projected band reflects greater BTC delta and lower stable buffer.",

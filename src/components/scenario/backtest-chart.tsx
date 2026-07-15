@@ -298,7 +298,7 @@ export function BacktestChart({ series }: BacktestChartProps) {
       {/* Footer disclaimer */}
       <p className="body-xs ct-text-muted leading-tight">
         Projections only. Not guaranteed. Past results do not predict future
-        returns. See Methodology v1.0.
+        returns. See Methodology v3.0.
       </p>
     </div>
   );

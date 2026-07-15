@@ -33,11 +33,12 @@ export function VaultAdminKpiStrip({
           showAumCard ? "lg:grid-cols-4" : "lg:grid-cols-3",
         )}
       >
-        {/* Target APY */}
+        {/* Estimated yield — v2 mining note: BTC accumulated over the term, not
+            a paid APY. Range format kept (non-negotiable #1). */}
         <div className="bg-surface-card p-5 flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2 min-h-5">
             <span className="ct-bento-label">
-              Target APY
+              Est. yield
             </span>
             <ProvenanceBadge kind="estimated" />
           </div>
@@ -77,7 +78,7 @@ export function VaultAdminKpiStrip({
           <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
             {facts.softLockupDays}d
           </span>
-          <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide">Soft lock-up</p>
+          <p className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide">Contractual soft lock-up</p>
         </div>
 
         {/* AUM */}

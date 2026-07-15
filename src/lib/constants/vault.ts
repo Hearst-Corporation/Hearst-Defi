@@ -67,7 +67,7 @@ export const APY_DISCLAIMER_SUFFIX = "APY ranges are target projections — not 
 /** Shown wherever a vault has no AUM/capital yet (term sheet, product card). */
 export const AUM_PENDING_LABEL = "Pending";
 
-/** Methodology v1.0 stress regime data — Bull / Bear postures. */
+/** Methodology v3.0 stress regime data — Bull / Bear postures. */
 export interface StressRegime {
   id: string;
   label: string;

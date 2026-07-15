@@ -39,7 +39,6 @@ export function AllocationBreakdownPage({
     Array<{
       bucket: string;
       pct: number;
-      yieldBps: number;
       width: number;
       x: number;
       fill: string;
@@ -52,7 +51,6 @@ export function AllocationBreakdownPage({
       {
         bucket: a.bucket,
         pct: a.pct,
-        yieldBps: a.yield_contribution_bps,
         width,
         x,
         fill: ALLOCATION_PALETTE[a.bucket] ?? COLORS.borderStrong,
@@ -66,13 +64,14 @@ export function AllocationBreakdownPage({
 
       <EyebrowTitle
         eyebrow="06 / Allocation breakdown"
-        title="Four buckets, regime-aware"
+        title="Three pockets"
       />
 
       <Text style={styles.bodyMuted}>
-        Allocation buckets are mandated by methodology v1.0. The bar below
-        shows the current weight of each bucket; bucket yield contribution is
-        published in basis points alongside the regime mode.
+        Capital is structured into three pockets under PermissionedDynaVault
+        v2.1, with target bands 40 / 27 / 33 (4000 / 2700 / 3300 bps). The bar
+        below shows the current weight of each pocket; the note accumulates BTC
+        over its term and pays no periodic cash distribution.
       </Text>
 
       <View style={{ marginTop: 14 }}>
@@ -109,78 +108,68 @@ export function AllocationBreakdownPage({
               {ALLOCATION_LABELS[s.bucket] ?? s.bucket}
             </Text>
             <Text style={styles.allocationPct}>{s.pct.toFixed(0)}%</Text>
-            <Text style={styles.allocationHint}>
-              {ALLOCATION_HINTS[s.bucket] ?? ""}
-            </Text>
           </View>
         ))}
       </View>
 
-      <Text style={styles.h2}>Yield contribution by bucket</Text>
+      <Text style={styles.h2}>Pocket roles</Text>
       <View style={styles.table}>
         <View style={styles.tableHeader}>
-          <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Bucket</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.8 }]}>Pocket</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: "right" }]}>
             Weight
           </Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.4, textAlign: "right" }]}>
-            Yield contribution
-          </Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.6, textAlign: "right" }]}>
-            % of yield
-          </Text>
+          <Text style={[styles.tableHeaderCell, { flex: 3.2 }]}>Role</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: "right" }]}>
             Source
           </Text>
         </View>
-        {(() => {
-          const totalBps =
-            segments.reduce((sum, s) => sum + s.yieldBps, 0) || 1;
-          return segments.map((s, idx) => (
-            <View
-              key={s.bucket}
+        {segments.map((s, idx) => (
+          <View
+            key={s.bucket}
+            style={[
+              styles.tableRow,
+              idx % 2 === 1 ? styles.tableRowAlt : {},
+              idx === segments.length - 1 ? styles.tableRowLast : {},
+              { alignItems: "flex-start" },
+            ]}
+          >
+            <Text
               style={[
-                styles.tableRow,
-                idx % 2 === 1 ? styles.tableRowAlt : {},
-                idx === segments.length - 1 ? styles.tableRowLast : {},
+                styles.tableCell,
+                { flex: 1.8, fontFamily: "Helvetica-Bold" },
               ]}
             >
-              <Text style={[styles.tableCell, { flex: 2 }]}>
-                {ALLOCATION_LABELS[s.bucket] ?? s.bucket}
-              </Text>
-              <Text style={[styles.tableCell, { flex: 1, textAlign: "right" }]}>
-                {s.pct.toFixed(0)}%
-              </Text>
-              <Text
-                style={[styles.tableCell, { flex: 1.4, textAlign: "right" }]}
-              >
-                {s.yieldBps} bps
-              </Text>
-              <Text
-                style={[styles.tableCell, { flex: 1.6, textAlign: "right" }]}
-              >
-                {((s.yieldBps / totalBps) * 100).toFixed(0)}%
-              </Text>
-              {/* Weights & yield contribution are engine-derived under the
-                  current vault mode. */}
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <PdfProvenance kind="estimated" />
-              </View>
+              {ALLOCATION_LABELS[s.bucket] ?? s.bucket}
+            </Text>
+            <Text style={[styles.tableCell, { flex: 1, textAlign: "right" }]}>
+              {s.pct.toFixed(0)}%
+            </Text>
+            <Text
+              style={[styles.tableCell, { flex: 3.2, color: COLORS.textMuted }]}
+            >
+              {ALLOCATION_HINTS[s.bucket] ?? ""}
+            </Text>
+            {/* Current weight is engine-derived under the active vault mode. */}
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "flex-end",
+              }}
+            >
+              <PdfProvenance kind="estimated" />
             </View>
-          ));
-        })()}
+          </View>
+        ))}
       </View>
 
       <Text style={[styles.bodySmall, { marginTop: 12 }]}>
-        Weights reflect the current vault mode ({data.input.vault.mode}). Yield
-        contribution is in basis points under methodology v1.0; numbers shift
-        when the regime changes via rules R1-R8.
+        Weights reflect the current vault mode ({data.input.vault.mode}) and
+        rebalance within their bands via rules R1-R8. Target bands: Mining Power
+        40%, BTC Pouch 27%, Reserve USDC 33%. The note accumulates BTC over its
+        24-month term with rule-based take-profit; there is no periodic cash
+        distribution.
       </Text>
 
       <PageFooter pageNumber={pageNumber} totalPages={totalPages} />

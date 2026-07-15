@@ -7,7 +7,6 @@ import {
 import { Card } from "@/components/catalyst/card";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { BTC_MINING_PERFORMANCE_VAULT } from "@/lib/products/btc-mining-performance-vault";
-import { formatTargetsSafely } from "@/lib/products/guards";
 import { buildBtcMiningVaultBrief } from "@/lib/product-workspace/btc-mining-vault-preset";
 
 /**
@@ -17,9 +16,10 @@ import { buildBtcMiningVaultBrief } from "@/lib/product-workspace/btc-mining-vau
  * page on the canon shell (AdminPageShell + AdminSectionCard, DS tokens only).
  *
  * Honesty (non-negotiables #1, #5, #10; doc §12, §22):
- *  - figures are READ from BTC_MINING_PERFORMANCE_VAULT + formatTargetsSafely;
- *  - the monthly distribution target and the total target are shown as the two
- *    SAFE strings — NEVER summed into a single "8–12% + 20–24%" headline;
+ *  - figures are READ from BTC_MINING_PERFORMANCE_VAULT;
+ *  - v2 is a mining NOTE: the estimated-yield band and the total target are BTC
+ *    ACCUMULATED over the term (rule-based take-profit), NEVER a periodic cash
+ *    distribution, and the two bands are NEVER summed into a single headline;
  *  - the mining floor (30%) is always visible; configured values are labelled
  *    "configured, not validated" and gated by a warning strip.
  *
@@ -39,7 +39,6 @@ export const metadata = {
 export default async function BtcMiningPerformanceVaultPage() {
   await requireAdmin();
 
-  const safe = formatTargetsSafely(PRODUCT);
   const brief = buildBtcMiningVaultBrief(PRODUCT);
   const a = PRODUCT.allocation;
 
@@ -103,13 +102,15 @@ export default async function BtcMiningPerformanceVaultPage() {
               hoverOverlay={false}
               contentClassName="flex flex-col gap-1"
             >
-              <span className="ct-bento-label">Monthly distribution target</span>
+              <span className="ct-bento-label">Estimated yield target</span>
               <span className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
                 {pct(PRODUCT.monthlyDistributionTargetAnnualized.min)}–
                 {pct(PRODUCT.monthlyDistributionTargetAnnualized.max)}%
               </span>
               <span className="ct-metric-caption">
-                {safe.distribution} — coverage-gated, paid in USDC.
+                Mining note — BTC accumulated over the ~
+                {PRODUCT.targetDurationMonths}-month term with rule-based
+                take-profit. Not distributed, not guaranteed.
               </span>
             </Card>
             <Card
@@ -122,12 +123,17 @@ export default async function BtcMiningPerformanceVaultPage() {
                 {pct(PRODUCT.totalPerformanceTarget.min)}–
                 {pct(PRODUCT.totalPerformanceTarget.max)}%
               </span>
-              <span className="ct-metric-caption">{safe.total}.</span>
+              <span className="ct-metric-caption">
+                {pct(PRODUCT.totalPerformanceTarget.min)}–
+                {pct(PRODUCT.totalPerformanceTarget.max)}% total target over ~
+                {PRODUCT.targetDurationMonths} months, inclusive of the
+                accumulation layer.
+              </span>
             </Card>
           </div>
           <p className="ct-metric-caption italic">
-            The total target is inclusive of the monthly distributions — the two
-            layers describe the same cycle and never sum.
+            The total target is inclusive of the estimated-yield accumulation
+            layer — the two bands describe the same cycle and never sum.
           </p>
         </div>
       </AdminSectionCard>

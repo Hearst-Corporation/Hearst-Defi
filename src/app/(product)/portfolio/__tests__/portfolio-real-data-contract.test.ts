@@ -9,14 +9,18 @@ import { describe, expect, it } from "vitest";
  * Regression cover against a static mock page. /portfolio is now the RICH V4
  * vault-health console (same composition as /portfolio/preview) but it BINDS the
  * real loader (loadPortfolioCockpit → loadPortfolioDashboard, derived only from
- * the signed-in account's persisted positions / NAV / yield) and renders on HIS
+ * the signed-in account's persisted positions / NAV) and renders on HIS
  * primitives, so the investor sees the same truth as /profile & /admin/customers.
  * The MOCK V4 console (100% fabricated dataset) lives ONLY at /portfolio/preview.
  *
- * The console adds pockets/collateral (Estimated, derived from the real deposit)
- * and mining/risk/agent panels (pilot sample, badged Simulated) — this contract
+ * The console adds pockets (Estimated, derived from the real deposit) and
+ * mining/risk/agent panels (pilot sample, badged Simulated) — this contract
  * keeps its anti-mock teeth: /portfolio must never import the sandbox mock
  * dataset (./preview/_data/mock) and must never hardcode the mock's demo figures.
+ *
+ * v2 (PermissionedDynaVault, mining note): NO periodic cash distribution — the
+ * page carries no "distributions" ledger and no "yield paid" stat; rendement is
+ * BTC accumulated over a 24-month term with rule-based take-profit.
  *
  * Text assertions on the page source (same approach as the other contracts).
  */
@@ -24,7 +28,7 @@ const read = (rel: string) => readFileSync(join(process.cwd(), rel), "utf8");
 const stripComments = (s: string) =>
   s
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+    .replace(/\{\/\*[\s\S]*?\*\//g, "")
     .replace(/(^|[^:])\/\/.*$/gm, "$1");
 
 const page = stripComments(
@@ -41,10 +45,8 @@ describe("portfolio binds real data (no static mock)", () => {
 
   it("renders on HIS data-viz primitives (not a mock chart)", () => {
     expect(page).toMatch(/@\/components\/dataviz\/his/);
-    // Hero NAV chart = HcValueChart (fed by real NAV points); realized
-    // distributions = HcBarChart. Both are HIS primitives.
+    // Hero NAV chart = HcValueChart (fed by real NAV points).
     expect(page).toMatch(/HcValueChart/);
-    expect(page).toMatch(/HcBarChart/);
   });
 
   it("imports NONE of the mock V4 data (that lives only under ./preview/_data)", () => {
@@ -59,6 +61,15 @@ describe("portfolio binds real data (no static mock)", () => {
   it("never ships a 'Demo data' badge or a chart placeholder", () => {
     expect(page).not.toMatch(/Demo data/);
     expect(page).not.toMatch(/Chart Placeholder/);
+  });
+
+  it("carries no periodic-distribution layer (v2 mining note)", () => {
+    // v2 accumulates BTC over the term; there is no distributions ledger or
+    // "yield paid" stat on the console anymore.
+    expect(page).not.toMatch(/Yield & distributions/);
+    expect(page).not.toMatch(/Yield paid/);
+    expect(page).not.toMatch(/Monthly USDC distributions/);
+    expect(page).not.toMatch(/Distribution history/);
   });
 
   it("derives headline + stat band from the loader view model, not hardcodes", () => {

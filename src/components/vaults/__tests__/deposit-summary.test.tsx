@@ -65,6 +65,6 @@ describe("DepositSummary — vault panel DS patterns", () => {
     const html = renderToStaticMarkup(<DepositSummary vault={VAULT} amount={0} />);
 
     expect(html).toContain("ct-text-muted");
-    expect(html).toContain("Methodology v1.0");
+    expect(html).toContain("Methodology v3.0");
   });
 });

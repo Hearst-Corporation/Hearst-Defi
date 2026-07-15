@@ -2,26 +2,31 @@
  * /portfolio — the investor's REAL vault-health console.
  *
  * One shadowed hero (NAV chart + stat band) → acts opened by titled hairline
- * dividers (Vault health · Mining engine · Yield & distributions) → one footer
- * disclaimer. Wired end-to-end on the signed-in investor's own persisted data
- * via `loadPortfolioCockpit` — NOT the sandbox mock (this page imports NONE of
+ * dividers (Vault health · Mining engine) → one footer disclaimer. Wired
+ * end-to-end on the signed-in investor's own persisted data via
+ * `loadPortfolioCockpit` — NOT the sandbox mock (this page imports NONE of
  * ./preview/_data). It starts at ZERO (no position) and fills in after the
  * first subscription.
  *
+ * PRODUCT (v2 — PermissionedDynaVault, a MINING NOTE): capital is structured in
+ * 3 pockets and ACCUMULATES BTC over a 24-month term with rule-based take-profit
+ * (deposit ×1.24), delivered at maturity. There is NO periodic cash
+ * distribution — so there is no yield-paid stat and no distributions ledger on
+ * this console; rendement is BTC accumulated, shown as progress toward the +24%
+ * take-profit, never a single-point APY.
+ *
  * HONESTY TIERS, each carried on its own badge:
- *   • REAL      — deposit, deployed value, accrued, yield paid, NAV history,
- *                 distributions (bars + ledger, attested when tx-hashed, manual
- *                 when book-entry), lock-up, status, APY range. Rebalancings
- *                 come from the real RebalanceEvent table (vault-level ops,
- *                 badged Manual — never presented as per-investor).
+ *   • REAL      — deposit, deployed value, BTC accumulated, NAV history,
+ *                 lock-up, status, APY range (estimated · non-distributed).
+ *                 Rebalancings come from the real RebalanceEvent table
+ *                 (vault-level ops, badged Manual — never per-investor).
  *   • ESTIMATED — DERIVED from the real deposit, labelled "target allocation":
- *                 the 3 pockets, collateral. Mining rates (uptime, efficiency)
- *                 are fleet-level readings, Estimated.
+ *                 the 3 pockets. Mining rates (uptime, efficiency) are
+ *                 fleet-level readings, Estimated.
  *   • SIMULATED — zero-state preview only: the pilot orchestration topology +
  *                 sample rebalancing feed, so a not-yet-funded investor can see
  *                 the shape of the operational layer. Always badged Simulated;
- *                 never rendered on a funded position. Distributions never fall
- *                 back to a sample: no data → an honest empty state.
+ *                 never rendered on a funded position.
  *
  * Token-only (--ct-*). The charts under ./preview/_charts/* are data-agnostic
  * and reused directly.
@@ -29,7 +34,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { HcBarChart, HcValueChart } from "@/components/dataviz/his";
+import { HcValueChart } from "@/components/dataviz/his";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { getSession } from "@/lib/auth/session";
 import { loadPortfolioCockpit } from "@/lib/data/portfolio-cockpit";
@@ -37,10 +42,7 @@ import { loadVaultRebalancings } from "@/lib/data/vault-rebalancings";
 import { isDemoAccount } from "@/lib/demo/allowlist";
 import { ZAND_FIXTURE_EMAIL } from "@/lib/demo/zand-fixture";
 import { loadMachineMarket } from "@/lib/telegram/read-machines";
-import {
-  formatUsdDetailed,
-  formatUsdFull,
-} from "@/lib/vaults/product-display";
+import { formatUsdFull } from "@/lib/vaults/product-display";
 
 import "./preview/_styles.css";
 import { AgentCanvas } from "./preview/_charts/agent-canvas";
@@ -58,7 +60,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Portfolio",
   description:
-    "Your Hearst Yield Vault position — vault health, pockets, yield, NAV history and advisory.",
+    "Your Hearst mining-note position — vault health, pockets, BTC accumulation, NAV history and advisory.",
 };
 
 /** Bare-hairline support surface (no shadow — the chrome budget reserves elevation for the hero). */
@@ -67,10 +69,10 @@ const SUPPORT =
 const HERO_SHADOW = "var(--ct-shadow-depth), var(--ct-glass-bevel-subtle)";
 
 /**
- * Tooltip for the pockets / collateral / safety badges. They carry the
- * "estimated" chrome, but they are a DETERMINISTIC target split of the real
- * deposit — NOT a forward projection. This override keeps the honesty tier
- * honest (the default "estimated" copy would wrongly say "projection").
+ * Tooltip for the pockets badges. They carry the "estimated" chrome, but they
+ * are a DETERMINISTIC target split of the real deposit — NOT a forward
+ * projection. This override keeps the honesty tier honest (the default
+ * "estimated" copy would wrongly say "projection").
  */
 const DERIVED_ALLOCATION_TIP =
   "Derived — target allocation computed deterministically from your real deposit, not a forward projection.";
@@ -99,69 +101,27 @@ function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }
   );
 }
 
-/** "Aug 1, 2025" — full distribution date, one clean line. */
-const DISTRIB_DATE = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-  timeZone: "UTC",
-});
 /**
  * PILOT sample — rebalancing notifications for the Agent orchestration footer.
  * Deterministic, newest first. There are deliberately few (rebalancings are
  * rare, deterministic events); the footer shows the latest and a scrollable
  * "History" of the rest. ALWAYS badged Simulated — advisory, held for multisig,
- * never auto-executed.
+ * never auto-executed. v2 language: BTC accumulation / take-profit / reserve —
+ * no Morpho safety-margin mechanics.
  */
 const PILOT_REBALANCINGS: readonly RebalancingEvent[] = [
-  { id: "rb-6", at: "Dec 2025", summary: "wBTC pocket trimmed 2% → USDC buffer topped up ahead of the electricity draw.", tone: "done" },
-  { id: "rb-5", at: "Oct 2025", summary: "Safety margin above the 55% recharge line — no de-risk armed. Rule R2 held.", tone: "info" },
-  { id: "rb-4", at: "Aug 2025", summary: "Market-risk 52 (amber) → review of the safety margin suggested; de-risk arms only at the 45% band.", tone: "review" },
-  { id: "rb-3", at: "Jun 2025", summary: "Mining pocket rebought after hashrate NFT settlement cleared. Rule R4.", tone: "done" },
-  { id: "rb-2", at: "Apr 2025", summary: "Electricity reserve refilled from realized yield — buffer restored to target.", tone: "done" },
-  { id: "rb-1", at: "Feb 2025", summary: "Opening allocation set to 40 / 37 / 23 (mining / wBTC / USDC).", tone: "info" },
+  { id: "rb-6", at: "Dec 2025", summary: "BTC pouch trimmed 2% into the USDC reserve ahead of the electricity draw.", tone: "done" },
+  { id: "rb-5", at: "Oct 2025", summary: "Accumulation on track toward the +24% take-profit — no take-profit armed this cycle.", tone: "info" },
+  { id: "rb-4", at: "Aug 2025", summary: "BTC drawdown reviewed against the take-profit rules; no action triggered.", tone: "review" },
+  { id: "rb-3", at: "Jun 2025", summary: "Mining pocket rebought after hashrate NFT settlement cleared.", tone: "done" },
+  { id: "rb-2", at: "Apr 2025", summary: "Electricity reserve refilled from mining cashflow — buffer restored to target.", tone: "done" },
+  { id: "rb-1", at: "Feb 2025", summary: "Opening allocation set across the three pockets (mining / BTC / reserve).", tone: "info" },
 ];
-
-/** Short month-year label for a distribution bar, UTC, deterministic. */
-const DISTRIB_BAR_LABEL = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  year: "2-digit",
-  timeZone: "UTC",
-});
 
 // Estimated institutional machine assumptions used to translate the B1 mining
 // allocation into an indicative "machines + total hashrate" view for LPs.
 const FALLBACK_MACHINE_PRICE_USDC = 3_500;
 const FALLBACK_MACHINE_HASHRATE_TH = 234;
-
-/**
- * Aggregate real distributions into monthly bars (label + summed amount),
- * oldest → newest. Pure/deterministic: groups by the UTC year-month of each
- * distribution's `paidAt`, no clock, no PRNG. Returns [] when there are none,
- * so the caller renders an empty state rather than a fabricated pilot year.
- */
-function buildMonthlyDistributionBars(
-  distributions: readonly { amountUsdc: number; paidAt: Date }[],
-): { label: string; value: number }[] {
-  const byMonth = new Map<string, { at: Date; total: number }>();
-  for (const dist of distributions) {
-    const at = dist.paidAt;
-    const key = `${at.getUTCFullYear()}-${String(at.getUTCMonth()).padStart(2, "0")}`;
-    const bucket = byMonth.get(key);
-    if (bucket) {
-      bucket.total += dist.amountUsdc;
-    } else {
-      // Anchor each bucket to the 1st of its month (UTC) for a stable label.
-      byMonth.set(key, {
-        at: new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), 1)),
-        total: dist.amountUsdc,
-      });
-    }
-  }
-  return [...byMonth.values()]
-    .sort((a, b) => a.at.getTime() - b.at.getTime())
-    .map((b) => ({ label: DISTRIB_BAR_LABEL.format(b.at), value: b.total }));
-}
 
 export default async function PortfolioPage() {
   const [d, session, machineMarket] = await Promise.all([
@@ -179,21 +139,6 @@ export default async function PortfolioPage() {
   } = await loadVaultRebalancings("yield", 12, { since: d.subscribedAt });
   const isDemo = isDemoAccount(session?.email);
 
-  // Real monthly distribution bars, aggregated from the investor's OWN paid
-  // distributions (d.distributions, attested). Grouped by calendar month of
-  // paidAt, oldest → newest, summed. Empty when the account has no real
-  // distributions yet — the chart then shows its own "No distributions yet"
-  // empty state instead of a fabricated pilot year.
-  const realDistributionBars = buildMonthlyDistributionBars(d.distributions);
-  const hasRealDistributions = realDistributionBars.length > 0;
-  // Distribution provenance is EARNED, not asserted: rows carrying an on-chain
-  // txHash are attested; book-entry rows (e.g. the seeded fixture ledger) are
-  // Manual — "entered by administrators" is the truth for them.
-  const distributionsProvenance: "attested" | "manual" =
-    hasRealDistributions && d.distributions.every((t) => t.txHash)
-      ? "attested"
-      : "manual";
-
   // ── FULL COCKPIT — ONE render path for EVERY state (zero → funded → matured) ─
   // At zero the loader (emptyCockpit) returns the same full view-model with REAL
   // figures at $0, empty real history, and the same Simulated-badged PILOT tiers
@@ -203,13 +148,7 @@ export default async function PortfolioPage() {
   // details (Subscribe CTA + "not funded yet" note vs the Active pulse / NAV curve).
   const zero = !d.hasPosition;
 
-  // On a REAL funded position, drop the pilot "Safety margin · …" stat (a 62%
-  // placeholder with no attested collateral / LLTV feed) from the health band —
-  // it is only meaningful in the zero-state preview. Every other health stat
-  // (collateral target, debt) is kept.
-  const healthStats = zero
-    ? d.healthStats
-    : d.healthStats.filter((s) => !s.label.startsWith("Safety margin"));
+  const healthStats = d.healthStats;
 
   // Per-asset ring segments (green / orange / blue) — matches the pocket identity.
   const pocketRing = d.pockets.map((p, i) => ({
@@ -357,24 +296,20 @@ export default async function PortfolioPage() {
         />
         <div className={SUPPORT}>
           <StatBand items={healthStats} />
-          {/* No distance-to-liquidation gauge is drawn ANYWHERE yet: the 62%
-              margin was a pilot placeholder with no attested collateral / LLTV
-              feed behind it, so rendering it on a live position would present a
-              made-up number as a live reading. One honest note per state
-              instead; the gauge ships with the attested feed. */}
+          {/* v2 is a BTC-accumulation mining note: no periodic cash
+              distribution, no Morpho collateral / debt / liquidation. One honest
+              note per state describing the accumulation term + take-profit. */}
           <div className="border-t border-[var(--ct-border-soft)] p-5">
             <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
               {zero
-                ? "Not funded yet — there is no live collateral position to margin. Collateral, debt and the distance-to-liquidation gauge activate on your first subscription."
-                : !d.safetyIsLive
-                  ? `No live safety margin on a ${d.lifecycle} vault — there is no active collateral position to margin. The figures above are historical.`
-                  : "Distance-to-liquidation activates with the attested collateral & LLTV feed — no placeholder margin is shown on a live position."}
+                ? "Not funded yet — after your first subscription this vault accumulates BTC over a 24-month term, with rule-based take-profit toward +24%. There is no periodic cash distribution; the accumulated BTC is delivered at maturity."
+                : "This vault accumulates BTC over a 24-month term, with rule-based take-profit toward +24%. There is no periodic cash distribution; the accumulated BTC is delivered at maturity."}
             </span>
           </div>
 
           {/* Capital + pockets — no separate card: same surface, split from the
-              safety block above by a single internal hairline (donut + legend on
-              the left, per-pocket breakdown on the right). One card, full height. */}
+              note above by a single internal hairline (donut + legend on the
+              left, per-pocket breakdown on the right). One card, full height. */}
           <CardHeader
             title="Capital · 3 pockets · target allocation"
             trailing={
@@ -452,8 +387,7 @@ export default async function PortfolioPage() {
 
         {/* ── Act: Mining engine — fleet-level operational readings. Rates are
             Estimated (fleet telemetry / placeholders, never per-investor); the
-            zero state is an explicitly Simulated preview. The investor's real
-            distributions live in the Yield & distributions act below. */}
+            zero state is an explicitly Simulated preview. */}
         <TitledDivider
           title={
             zero
@@ -571,130 +505,19 @@ export default async function PortfolioPage() {
           )}
         </section>
 
-        {/* ── Act: Yield & distributions (real) ─────────────────────────────── */}
-        <TitledDivider
-          title="Yield & distributions"
-          trailing={
-            hasRealDistributions ? (
-              <ProvenanceBadge kind={distributionsProvenance} variant="compact" />
-            ) : undefined
-          }
-        />
-        <section className="grid grid-cols-1 gap-5">
-          {/* Monthly bars — the investor's OWN paid distributions, aggregated
-              by calendar month. Real data or an honest empty chart; there is
-              deliberately NO fabricated sample year in any state. */}
-          <div className={SUPPORT}>
-            <CardHeader
-              title="Distributions paid · by month"
-              trailing={
-                hasRealDistributions ? (
-                  <ProvenanceBadge kind={distributionsProvenance} variant="compact" />
-                ) : undefined
-              }
-            />
-            <div className="p-5">
-              <HcBarChart
-                bars={realDistributionBars}
-                height={190}
-                highlightLast
-                emptyMessage="No distributions yet"
-                aria-label={
-                  hasRealDistributions
-                    ? "Monthly distributions paid"
-                    : "No distributions yet"
-                }
-              />
-            </div>
-          </div>
-          <div className={`${SUPPORT} flex flex-col`}>
-            <CardHeader title="Distribution history" />
-            {/* Real distributions only. At zero / no history: a genuine empty
-                state, NOT a fabricated Simulated sample ledger. */}
-            {d.distributions.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-[var(--ct-border-soft)]">
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Date</th>
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Amount</th>
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Currency</th>
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Vault</th>
-                      <th className="ct-bento-label px-5 py-3 text-center font-medium">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {d.distributions.map((dist) => (
-                      <tr
-                        key={dist.id}
-                        className="border-b border-[var(--ct-border-soft)] last:border-b-0 transition-colors hover:bg-[var(--ct-surface-inset)]"
-                      >
-                        {/* Date — clean full date, centered */}
-                        <td className="px-5 py-4 text-center">
-                          <span className="text-[length:var(--ct-text-sm)] font-medium ct-text-strong tabular-nums">
-                            {DISTRIB_DATE.format(dist.paidAt)}
-                          </span>
-                        </td>
-                        {/* Amount */}
-                        <td className="px-5 py-4 text-center">
-                          <span className="text-[length:var(--ct-text-base)] font-semibold ct-text-strong tabular-nums">
-                            {formatUsdDetailed(dist.amountUsdc)}
-                          </span>
-                        </td>
-                        {/* Currency — USDC logo + label, centered */}
-                        <td className="px-5 py-4">
-                          <div className="flex items-center justify-center gap-2">
-                            <AssetBadge asset="usdc" size={18} />
-                            <span className="text-[length:var(--ct-text-xs)] font-medium ct-text-body">
-                              USDC
-                            </span>
-                          </div>
-                        </td>
-                        {/* Vault — the product the payout came from (never
-                            mislabelled as a chain/network) */}
-                        <td className="px-5 py-4 text-center">
-                          <span className="text-[length:var(--ct-text-xs)] ct-text-muted">
-                            {dist.vaultName ?? "—"}
-                          </span>
-                        </td>
-                        {/* Status — provenance is per-row and EARNED: tx-hashed
-                            payouts are Attested, book-entry rows are Manual */}
-                        <td className="px-5 py-4">
-                          <div className="flex justify-center">
-                            <ProvenanceBadge
-                              kind={dist.txHash ? "attested" : "manual"}
-                              variant="compact"
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="p-5">
-                <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-                  No distributions yet. Monthly USDC distributions appear here
-                  once your position starts paying out.
-                </span>
-              </div>
-            )}
-          </div>
-        </section>
-
         {/* single global disclaimer */}
         <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-          Financial figures (deposit, value, accrued, yield paid, NAV, distributions)
-          reflect your own account only; each carries its own provenance badge.
-          Pockets and collateral are Estimated target allocations derived from your
-          deposit. Mining rates are fleet-level operational readings (Estimated),
-          never per-investor measurements. Rebalancing entries are vault-level
-          operational records (Manual) — they apply to the whole vault, not to your
-          individual position. Panels badged Simulated are illustrative previews,
-          not records. Distributions shown are what was actually paid; forward
-          figures are projections shown as a range under stated assumptions, not
-          guaranteed.
+          Financial figures (deposit, value, BTC accumulated, NAV) reflect your
+          own account only; each carries its own provenance badge. Pockets are
+          Estimated target allocations derived from your deposit. This is a
+          mining note: it accumulates BTC over a 24-month term with rule-based
+          take-profit and has no periodic cash distribution — the accumulated BTC
+          is delivered at maturity. Mining rates are fleet-level operational
+          readings (Estimated), never per-investor measurements. Rebalancing
+          entries are vault-level operational records (Manual) — they apply to
+          the whole vault, not to your individual position. Panels badged
+          Simulated are illustrative previews, not records. Forward figures are
+          projections shown as a range under stated assumptions, not guaranteed.
         </p>
       </div>
     </div>

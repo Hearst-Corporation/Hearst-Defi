@@ -209,7 +209,7 @@ export function CompareMode({ active = true, vaultId }: CompareModeProps) {
         <span className="font-semibold not-italic ct-text-body">
           Not guaranteed.
         </span>{" "}
-        Projections are conditional on stated assumptions. Methodology v1.0. Past
+        Projections are conditional on stated assumptions. Methodology v3.0. Past
         performance does not predict future returns.
       </p>
     </div>

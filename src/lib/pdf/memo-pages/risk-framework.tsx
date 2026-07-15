@@ -32,7 +32,7 @@ function buildRisks(riskScore: number): RiskRow[] {
       status: "Phase 1 paper",
       tone: "neutral",
       detail:
-        "Testnet EventLogger ships Phase 2 on Base Sepolia. Audited ERC-4626 vault scheduled Phase 3 with external audit gate.",
+        "Testnet EventLogger live in Phase 2 on Base Sepolia. PermissionedDynaVault v2.1 (ERC-4626 core) is written and tested on Base Sepolia; mainnet deployment is gated on a completed Spearbit audit and remediation.",
     },
     {
       id: "mining_operations",
@@ -40,7 +40,7 @@ function buildRisks(riskScore: number): RiskRow[] {
       status: "Within band",
       tone: overall,
       detail:
-        "Operator JV with margin score above the R2 threshold. Hashprice and energy exposure capped by allocation bucket cap.",
+        "Operator JV with margin score above the R2 threshold. Hashprice and energy exposure capped by the pocket allocation band.",
     },
     {
       id: "counterparty",
@@ -48,7 +48,7 @@ function buildRisks(riskScore: number): RiskRow[] {
       status: "Diversified",
       tone: "success",
       detail:
-        "Custody, USDC base sleeve, and reserve venues split across three counterparties; no single venue exceeds the 40% concentration cap.",
+        "Custody, the Reserve USDC pocket, and mining-operator venues split across three counterparties; no single venue exceeds the 40% concentration cap.",
     },
     {
       id: "market",
@@ -56,7 +56,7 @@ function buildRisks(riskScore: number): RiskRow[] {
       status: "Range-bound",
       tone: overall,
       detail:
-        "BTC tactical sleeve sized inside its volatility guardrail. Allocation re-runs across five scenarios are reported page 6.",
+        "The BTC Pouch is sized inside its volatility guardrail. Allocation re-runs across five scenarios are reported on the allocation page.",
     },
     {
       id: "regulatory",

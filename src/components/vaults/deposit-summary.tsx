@@ -113,7 +113,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       <dl className="grid grid-cols-1 sm:grid-cols-2 border-b border-[var(--ct-border-soft)] bg-surface-inset">
         <div className="flex flex-col gap-2 p-5 border-b sm:border-r border-[var(--ct-border-soft)]">
           <dt className="ct-bento-label">
-            Target APY
+            Est. yield range
           </dt>
           <dd>
             <ApyRange
@@ -154,8 +154,8 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       {/* Disclaimer */}
       <p className="p-5 text-[length:var(--ct-text-micro)] leading-relaxed text-[var(--ct-text-faint)]">
         Figures shown are gross (before fees). Net yield after management and
-        performance fees will be lower. Uses APY range midpoint — not a
-        commitment of future returns. Methodology v1.0.
+        performance fees will be lower. Uses estimated yield range midpoint — not
+        a commitment of future returns. Methodology v3.0.
       </p>
     </section>
   );

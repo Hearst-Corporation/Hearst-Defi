@@ -36,7 +36,7 @@ export function BtcTacticalPage({
   pageNumber: number;
   totalPages: number;
 }) {
-  // Use BTC tactical state from the mode-matched scenario.
+  // Use BTC Pouch state from the mode-matched scenario.
   const baseScenario =
     data.input.scenarios.find((s) => s.mode === data.input.vault.mode) ??
     data.input.scenarios[0];
@@ -50,7 +50,7 @@ export function BtcTacticalPage({
       <PageHeader period={data.period} />
 
       <EyebrowTitle
-        eyebrow="04 / BTC tactical sleeve"
+        eyebrow="04 / BTC Pouch"
         title="Exposure, triggers, guardrails"
       />
 
@@ -58,7 +58,7 @@ export function BtcTacticalPage({
         <KpiCell
           label="Target exposure"
           value={`${targetPct}%`}
-          hint="of AUM, rule-bound"
+          hint="of capital, rule-bound"
           // Engine-derived target tied to active scenario.
           provenance="estimated"
         />
@@ -103,9 +103,9 @@ export function BtcTacticalPage({
           </View>
         ) : (
           triggers.map((t) => {
-            const projection = `APY ${targetPct}% BTC tactical target maintained while the trigger is ${t.armed ? "armed" : "idle"}.`;
+            const projection = `Target BTC Pouch exposure ${targetPct}% of capital maintained while the trigger is ${t.armed ? "armed" : "idle"}.`;
             const impact = t.armed
-              ? `Engine will execute "${t.action}" on the BTC tactical sleeve to stay within target bands.`
+              ? `Engine will execute "${t.action}" on the BTC Pouch to stay within target bands.`
               : "No allocation change while idle — guardrails remain the only active safeguard.";
             return (
               <View
@@ -225,10 +225,12 @@ export function BtcTacticalPage({
       </View>
 
       <Commentary>
-        The BTC tactical sleeve operates under the PTAI framework: every
-        change is bound to a published trigger (Projection - Trigger - Action
-        - Impact). There is no discretionary trading. Triggers and guardrails
-        listed above are the live rule set for the current vault state.
+        The BTC Pouch operates under the PTAI framework: every change is bound to
+        a published trigger (Projection - Trigger - Action - Impact). There is
+        no discretionary trading. Take-profit and accumulation triggers are the
+        note's rule-based path to BTC accumulation over the term. Triggers and
+        guardrails listed above are the live rule set for the current vault
+        state.
       </Commentary>
 
       <PageFooter pageNumber={pageNumber} totalPages={totalPages} />

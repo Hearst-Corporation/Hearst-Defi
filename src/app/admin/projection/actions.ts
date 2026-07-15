@@ -402,7 +402,7 @@ export async function promoteStudyToDraft(
     data: {
       ticker: derivedTicker,
       name: study.label ?? `Projection Draft — ${derivedTicker}`,
-      description: `Seeded from ProjectionStudyRun ${study.id}. Methodology v1.0.`,
+      description: `Seeded from ProjectionStudyRun ${study.id}. Methodology v3.0.`,
       strategy: "mining_yield",
       status: "draft",
       minTicketUsdc: PROMOTE_DEFAULTS.minTicketUsdc,

@@ -105,7 +105,7 @@ export function BacktestPanel({ output, isPending }: BacktestPanelProps) {
           Not guaranteed.
         </span>{" "}
         Historical simulation based on stated assumptions. Past performance does
-        not predict future returns. Methodology v1.0. This is not a projection
+        not predict future returns. Methodology v3.0. This is not a projection
         of future performance.
       </p>
     </div>

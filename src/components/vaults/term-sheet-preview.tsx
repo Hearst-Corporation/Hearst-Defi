@@ -48,7 +48,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-px bg-[var(--ct-border-soft)]">
           <BentoKpiTile
-            label="Target APY"
+            label="Est. yield range"
             accent
             value={
               <span className="flex items-baseline gap-1.5">
@@ -60,19 +60,19 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
                 <span className="text-base text-[var(--ct-text-muted)] font-normal">%</span>
               </span>
             }
-            sub="Target projection — not guaranteed"
+            sub="BTC accrued, not distributed — not guaranteed"
             className={TERM_TILE}
           />
           <BentoKpiTile
             label="Min Ticket"
             value={formatMinTicketUsdc(vault.minTicketUsdc)}
-            sub="USDC"
+            sub="USDC · contractual"
             className={TERM_TILE}
           />
           <BentoKpiTile
             label="Soft Lock-up"
             value={`${vault.softLockupDays}d`}
-            sub="Redemption queue"
+            sub="Contractual — not on-chain"
             className={TERM_TILE}
           />
           <BentoKpiTile
@@ -108,7 +108,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
       <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
         <BentoHeader
           title="Target Allocation"
-          subtitle="Sleeve mix at inception"
+          subtitle="Pocket mix at inception"
         />
         <div className="p-6">
           <VaultAllocationInvestorList facts={allocationFacts} />
@@ -119,7 +119,7 @@ export function TermSheetPreview({ vault }: TermSheetPreviewProps) {
       <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
         <BentoHeader
           title="Regime Scenarios"
-          subtitle="Conditional stress postures · Methodology v1.0"
+          subtitle="Conditional stress postures · Methodology v3.0"
         />
         <RegimeScenarioTable vault={vault} />
         <div className="px-5 pb-5">

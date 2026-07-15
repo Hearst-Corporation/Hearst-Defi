@@ -53,7 +53,7 @@ const OPS_WINDOW_DAYS = 30;
 const OPS_FALLBACK: MiningOpsSnapshot = {
   hashrate_ph_s: 0,
   uptime_pct: 0,
-  margin_score: METHODOLOGY_ANCHORS.MINING_MARGIN_SCORE, // Methodology v1.0 anchor
+  margin_score: METHODOLOGY_ANCHORS.MINING_MARGIN_SCORE, // Methodology v3.0 anchor
   attestations_count: 0,
 };
 

@@ -71,7 +71,7 @@ describe("buildAdminContextBlock", () => {
     const block = await buildAdminContextBlock();
     expect(block).toContain("ADMIN LIVE CONTEXT");
     expect(block).toContain("CANONICAL ALLOCATIONS");
-    expect(block).toContain("HYV: mining 60%");
+    expect(block).toContain("HYV: mining 40%");
     expect(block).toContain("MARKET SNAPSHOT");
     expect(block).toContain("btc_price_usd: 69250");
     expect(block).toContain("apy_target_range: 8.00% to 15.00%");

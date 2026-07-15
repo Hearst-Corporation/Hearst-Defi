@@ -11,21 +11,26 @@ order: 5
 mining_revenue       = deployed_hashrate (TH/s) × hashprice ($/TH/day) × uptime (%)
 operating_costs      = energy_cost + hosting_cost + pool_fee + maintenance
 mining_gross_margin  = mining_revenue − operating_costs
-distributable_yield  = (mining_gross_margin × revenue_share_hearst) − management_fee
 ```
 
-Hearst does NOT operate ASICs directly. The vault buys **exposure to the cashflow** via revenue-share with 1-2 partner farms. Mining yield is delivered in USDC monthly via attestation.
+Hearst does NOT operate ASICs directly. The note buys **exposure to the cashflow** via
+revenue-share with 1–2 partner farms (ADR-003). Under **PermissionedDynaVault v2.1** the net
+mining margin does **not** become a monthly USDC payout to LPs: it feeds the note's **BTC
+accumulation** (pockets B1/B2), while the mining pocket's electricity is settled on-chain
+through the **electricity account** (`payElectricity()` / `elecStatus()` / `monthlyElecCost()`).
+On-chain mining is reported via `miningMetrics()` → (`hashrateTh`, `totalBtcEarnedSats`),
+`Attested` provenance.
 
 ## Variables (Phase 1 — paper, Phase 2+ — partner-attested)
 
 | Variable | Source | Frequency |
 |---|---|---|
-| deployed_hashrate | internal contracted | monthly |
+| deployed_hashrate | internal contracted / on-chain `miningMetrics().hashrateTh` | monthly |
 | hashprice | Luxor / Hashrate Index API | daily |
 | BTC price | Chainlink + Coingecko fallback | 1min |
 | network difficulty | mempool.space | per adjustment |
 | uptime | partner reporting | daily |
-| energy_cost | contractual + spot index | monthly |
+| energy_cost | contractual + spot index; settled via `payElectricity()` | monthly |
 | pool fee | pool config | static |
 | revenue_share_hearst | contract | static |
 
@@ -51,12 +56,18 @@ score = 50% × (uptime_30d / 95%, capped 100)
       + 20% × energy_cost_stability
 ```
 
-## Conditional logic into rebalancing
+## Conditional logic into v2 mechanics
 
-| Condition | Action |
+Allocation is fixed on-chain (40 / 27 / 33); the note responds through **curtailment**, the
+**vending curve**, and **take-profit**, not sleeve reallocation:
+
+| Condition | v2 response |
 |---|---|
-| BTC ↑ + difficulty ↑ proportionnel | Mining yield stable → no action |
-| BTC ↓ + energy ↑ | Mining margin < 50 → ↓ mining, ↑ stable reserve |
-| Hashprice < $0.04/TH/day for 30d | Trigger human review |
-| Mining margin score > 75 + BTC momentum + | Maintain or ↑ mining +10% |
-| Halving D-30 | Pre-position: ↑ reserve, prepare margin compression scenario |
+| BTC price below the configured pre/post-halving threshold | Mining pocket B1 is **curtailed** (`isCurtailed()` / `curtail()`; thresholds via `setCurtailmentThresholds` + `setHalvingMonth`) |
+| BTC price above a configured tier | **Take-profit** executes on B2 (`setTakeProfitTier` / `executeTakeProfit` → `TakeProfitExecuted`) |
+| Operating months elapse | B3 Reserve USDC depletes along the fixed **vending curve** (`vendingCurveBps(month)`, over `productDurationMonths()`) |
+| Mining margin score < 50 sustained | Trigger human review (PTAI); no autonomous financial action |
+| Halving approaching | Pre-position curtailment thresholds (`setHalvingMonth`) |
+
+Curtailment thresholds, take-profit tiers, and the vending curve are **configured contract
+parameters**, not promised performance figures.

@@ -168,11 +168,11 @@ describe("cloneFormValues — fixture (yield)", () => {
     if (!ref) throw new Error("fixture not resolved");
     const values = cloneFormValues(ref);
 
-    // VAULT_YIELD.allocationTargets: mining=60, btc_tactical=25, usdc_base=10, stable_reserve=5
-    expect(values.targetMiningBps).toBe(6_000);
-    expect(values.targetBtcTacticalBps).toBe(2_500);
-    expect(values.targetUsdcBaseBps).toBe(1_000);
-    expect(values.targetStableReserveBps).toBe(500);
+    // VAULT_YIELD.allocationTargets (v2 3-pocket): mining=40, btc_tactical=27, usdc_base=33, stable_reserve=0
+    expect(values.targetMiningBps).toBe(4_000);
+    expect(values.targetBtcTacticalBps).toBe(2_700);
+    expect(values.targetUsdcBaseBps).toBe(3_300);
+    expect(values.targetStableReserveBps).toBe(0);
   });
 
   it("maps btc-plus fixture APY (10–20%) to correct bps range", async () => {

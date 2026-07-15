@@ -385,8 +385,8 @@ function StatementDocument({ data }: { data: StatementData }) {
     })),
   );
 
-  // APY range in percent (default: 9.4–12.8%). Uses the first position's data; all
-  // positions in a single-vault statement share the same target range.
+  // Est. return range in percent (default: 9.4–12.8%). Uses the first position's
+  // data; all positions in a single-vault statement share the same target range.
   const apyRangeLabel = formatApyRange({
     low: data.positions[0]?.apyLow ?? 9.4,
     high: data.positions[0]?.apyHigh ?? 12.8,
@@ -405,7 +405,7 @@ function StatementDocument({ data }: { data: StatementData }) {
           <View style={styles.headerLeft}>
             <LogoSvg />
             <Text style={[styles.tagline, { marginTop: 6 }]}>
-              Institutional RWA Yield · Hearst Yield Vault
+              Institutional Bitcoin mining note · Hearst Yield Vault
             </Text>
           </View>
           <View style={styles.headerRight}>
@@ -462,7 +462,7 @@ function StatementDocument({ data }: { data: StatementData }) {
 
           {aggregatePnl.annualizedReturnPct !== null && (
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryLabel}>APY Range (Target)</Text>
+              <Text style={styles.summaryLabel}>Est. Return (Target)</Text>
               <Text style={styles.summaryValue}>{apyRangeLabel}</Text>
               <Text style={styles.summaryUnit}>
                 Annualized: {pct(aggregatePnl.annualizedReturnPct)}
@@ -484,7 +484,7 @@ function StatementDocument({ data }: { data: StatementData }) {
             <Text style={styles.tableHeaderCellRight}>Principal</Text>
             <Text style={styles.tableHeaderCellRight}>Accrued Yield</Text>
             <Text style={styles.tableHeaderCellRight}>Distributed</Text>
-            <Text style={styles.tableHeaderCellRight}>APY Range</Text>
+            <Text style={styles.tableHeaderCellRight}>Est. Return</Text>
             <Text style={styles.tableHeaderCellRight}>Since</Text>
             <Text style={styles.tableHeaderCellRight}>Source</Text>
           </View>
@@ -501,14 +501,14 @@ function StatementDocument({ data }: { data: StatementData }) {
               <Text style={styles.cellAccent}>{usd(p.accruedYieldUsdc)}</Text>
               {/* distributed = attested (cumulative paid in USDC) */}
               <Text style={styles.cellRight}>{usd(p.distributedUsdc)}</Text>
-              {/* APY range = estimated (vault target) */}
+              {/* Est. return range = estimated (vault target) */}
               <Text style={styles.cellAccent}>
                 {p.apyLow}–{p.apyHigh}%
               </Text>
               <Text style={styles.cellMuted}>{fmtDate(p.subscribedAt)}</Text>
               {/* Composite source badge for the row — partial because the
                   row mixes attested principal/distributed with estimated
-                  accrued and target APY. */}
+                  accrued and target return. */}
               <View style={styles.cellProvenance}>
                 <PdfProvenance kind="partial" />
               </View>
@@ -618,16 +618,19 @@ function StatementDocument({ data }: { data: StatementData }) {
 
         {/* ── Footer disclaimer ─────────────────────────────────────────── */}
         <Text style={styles.disclaimer}>
-          Projections — not guaranteed. APY ranges ({apyRangeLabel}) are target
-          projections based on stated assumptions and Methodology v1.0. They do
-          not constitute a commitment or promise of future returns. Accrued yield
-          figures are indicative and subject to change based on vault conditions.
-          Past performance does not predict future results. Hearst Connect is a
-          Cayman SPV structured yield product. $250,000 minimum ticket size.
-          60-day soft lock-up period applies. This document is provided for
-          informational purposes only and does not constitute investment advice,
-          solicitation or an offer to buy or sell any security. Eligible investors
-          only.
+          Projections — not guaranteed. The estimated target return range
+          ({apyRangeLabel}) is expressed in accumulated BTC over the term, based
+          on stated assumptions and Methodology v3.0; it is not a distributed
+          cash yield and is not a commitment of future returns. Accrued figures
+          are indicative and subject to change based on vault conditions. Past
+          performance does not predict future results. Hearst Connect is a
+          Cayman SPV mining-backed note that accumulates BTC over a 24-month
+          term with rule-based take-profit; there is no periodic cash
+          distribution. $250,000 minimum ticket size and a 60-day soft lock-up
+          apply contractually (not enforced on-chain). This document is provided
+          for informational purposes only and does not constitute investment
+          advice, solicitation or an offer to buy or sell any security. Eligible
+          investors only.
         </Text>
 
         <View style={styles.footer}>

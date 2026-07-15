@@ -31,7 +31,7 @@ function buildMarkdown(memo: InvestorMemoOutput, vaultName: string): string {
     `# ${vaultName} — Investor Memo`,
     "",
     `_Generated ${new Date().toISOString()}_`,
-    "_Methodology v1.0_",
+    "_Methodology v3.0_",
     "",
   ].join("\n");
   const body = SECTIONS.map(

@@ -1,8 +1,15 @@
 # Hearst Connect
 
-Single-vault institutional DeFi platform. **Hearst Yield Vault** : mining-backed
-structured yield, monthly USDC distributions, target APY 8–15%. Cayman SPV,
-$250k min ticket, 60-day soft lock-up.
+Single-vault institutional DeFi platform. Product = a **mining note** — a BTC-accumulation
+instrument backed by real Bitcoin mining, running on **PermissionedDynaVault v2.1** (Base
+Sepolia; mainnet gated on the Spearbit audit — ADR-006). Structured in **3 on-chain pockets**
+— **B1 Mining Power 40% · B2 BTC Pouch 27% · B3 Reserve USDC 33%** (allocation bps
+4000 / 2700 / 3300) — it **accumulates BTC over a 24-month term** with **rule-based take-profit**
+and delivers BTC at maturity. **No periodic cash distribution.** Estimated target return
+(mining note, expressed in **accumulated BTC — not distributed, not guaranteed**): **8–15%**
+range (`Estimated` provenance). Cayman SPV; **$250k minimum ticket** and **60-day soft
+lock-up** are **contractual / applicative — not enforced on-chain** (v2 exposes `tvlCap` +
+`whitelist`; no `minDeposit`, no on-chain lock-up). See methodology v3.0 + ADR-019.
 
 Stack : Next.js 16 (App Router, Server Components by default) · TypeScript strict
 · Tailwind CSS v4 (`@theme` in `globals.css`, **no `tailwind.config.js`**) ·

@@ -64,7 +64,7 @@ export function KpiCell({
   /**
    * Provenance badge printed under the value. Mandatory per CLAUDE.md §2
    * for every metric reaching investors. Optional only for non-numeric
-   * descriptors (e.g. "Methodology v1.0") — but should be passed where
+   * descriptors (e.g. "Methodology v3.0") — but should be passed where
    * meaningful.
    */
   provenance?: PdfProvenanceKind;

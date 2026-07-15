@@ -426,20 +426,27 @@ export const ALLOCATION_PALETTE: Record<string, string> = {
   stable_reserve: PDF_ALLOCATION.stable_reserve,
 };
 
+// PermissionedDynaVault v2.1 pockets (spec §Appendix), mapped onto the existing
+// engine bucket keys so the memo needs no engine enum change:
+//   mining       -> B1 Mining Power  (40% / 4000 bps)
+//   btc_tactical -> B2 BTC Pouch     (27% / 2700 bps)
+//   usdc_base    -> B3 Reserve USDC  (33% / 3300 bps)
+// `stable_reserve` is the superseded v1.0 sleeve; kept defensively in case a
+// legacy engine payload still emits it.
 export const ALLOCATION_LABELS: Record<string, string> = {
-  mining: "Mining-backed",
-  usdc_base: "USDC base yield",
-  btc_tactical: "BTC tactical",
-  stable_reserve: "Stable reserve",
+  mining: "B1 · Mining Power",
+  btc_tactical: "B2 · BTC Pouch",
+  usdc_base: "B3 · Reserve USDC",
+  stable_reserve: "Reserve (legacy)",
 };
 
 export const ALLOCATION_HINTS: Record<string, string> = {
   mining:
-    "Hashrate-backed cash flow from operator JV contracts. Yield floats with hashprice and energy.",
-  usdc_base:
-    "Conservative USDC base yield. Vehicle floor across regimes; primary monthly distribution driver.",
+    "Buys hashrate (RWA-backed) and mines BTC — the note's primary BTC-accumulation engine. Output floats with hashprice and energy cost.",
   btc_tactical:
-    "Rule-bound BTC tactical sleeve. No discretionary trading; PTAI triggers only.",
+    "Holds BTC and runs the rule-based take-profit sleeve. No discretionary trading; PTAI triggers only.",
+  usdc_base:
+    "USDC reserve. Funds the electricity account, re-entry windows, and the drawdown buffer.",
   stable_reserve:
-    "Stablecoin reserve sized by regime. Funds re-entry windows and absorbs drawdown shocks.",
+    "Legacy stable reserve — superseded by the three-pocket structure.",
 };

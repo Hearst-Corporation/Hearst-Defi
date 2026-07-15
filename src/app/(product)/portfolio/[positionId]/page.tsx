@@ -4,13 +4,16 @@
 // support surface is a bare hairline card; the chrome budget reserves elevation
 // for the hero alone. Symmetric 1fr/1fr grids. Bound to real data (loadPosition);
 // every projection an honest range, never a promise. Next.js 16 async params.
+//
+// v2 note-of-mining model: the position ACCUMULATES BTC over its term with
+// rule-based take-profit — there is NO periodic cash distribution, so this page
+// carries no monthly-payout calendar and no "yield paid" tallies.
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Badge } from "@/components/catalyst/badge";
-import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { StepTimeline } from "@/components/catalyst/step-timeline";
 import { StatBand, type StatCell } from "@/app/(product)/portfolio/preview/_charts/stat-band";
 import {
@@ -25,14 +28,11 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { ValueTrajectory } from "@/components/portfolio/value-trajectory";
 import { LockArc } from "@/components/portfolio/lock-arc";
 import { CumulativeTargetBullet } from "@/components/portfolio/cumulative-target-bullet";
-import { PositionYieldHistory } from "@/components/portfolio/position-yield-history";
 import { PositionCapitalProtection } from "@/components/portfolio/position-capital-protection";
 import { PositionStrategyAllocation } from "@/components/portfolio/position-strategy-allocation";
 import { PositionInfrastructureProofs } from "@/components/portfolio/position-infrastructure-proofs";
 import { projectValueTrajectory } from "@/lib/engine/value-projection";
-import { buildYieldHistory } from "@/lib/portfolio/yield-history";
 import { explorerTxUrl } from "@/lib/chain/explorer";
-import { getInvestor } from "@/lib/auth/session";
 import { loadPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
 import { formatApyRange } from "@/lib/format/apy";
 import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
@@ -53,7 +53,7 @@ const TX_LABEL: Record<string, string> = {
   deposit: "Deposit",
   claim: "Claim",
   withdraw: "Withdrawal",
-  distribution: "Payout",
+  distribution: "Proceeds",
 };
 
 const DAY_MS = 86_400_000;
@@ -102,10 +102,7 @@ function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }
 
 export default async function VaultDetailPage({ params }: PageProps) {
   const { positionId } = await params;
-  const [position, investor] = await Promise.all([
-    loadPosition(positionId),
-    getInvestor(),
-  ]);
+  const position = await loadPosition(positionId);
   if (!position) notFound();
 
   const now = new Date();
@@ -132,11 +129,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
   // whose mechanical horizon already fell in the past (renewal / pending
   // settlement — the ledger status is the source of truth, not the derived
   // date), anchor the engines' horizon at "now + term" instead of a stale
-  // past date — otherwise the pure engines read `matured: true` and both
-  // silently drop the forward projection cone AND cap the distribution
-  // calendar's "projected" months at a horizon that already passed, which is
-  // how an active $250k position showed "Matured" plus distributions dated
-  // past its own maturity.
+  // past date — otherwise the pure engine reads `matured: true` and silently
+  // drops the forward projection cone, which is how an active $250k position
+  // showed "Matured" while still live.
   const mechanicalHorizonMs = position.maturedAt
     ? position.maturedAt.getTime()
     : position.softLockupDays > 0
@@ -150,7 +145,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         )
       : position.maturedAt;
 
-  // Engines (pure, clock injected) — the honest value cone + yield series.
+  // Engine (pure, clock injected) — the honest value cone.
   const projection = projectValueTrajectory({
     principalUsdc: position.principalUsdc,
     currentValueUsdc: value,
@@ -160,19 +155,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
     now,
     maturityAt: effectiveMaturityAt,
     softLockupDays: position.softLockupDays,
-  });
-  const yieldHistory = buildYieldHistory({
-    transactions: position.transactions.map((t) => ({
-      type: t.type,
-      amountUsdc: t.amountUsdc,
-      occurredAt: t.occurredAt,
-    })),
-    principalUsdc: position.principalUsdc,
-    realizedApyLowPct: apyLowPct,
-    realizedApyHighPct: apyHighPct,
-    subscribedAt: position.subscribedAt,
-    maturityAt: effectiveMaturityAt,
-    now,
   });
 
   const daysHeld = Math.max(
@@ -188,18 +170,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
       ? "Matured"
       : formatAdminDate(new Date(projection.horizonMs));
 
-  // Transactions summary — real distribution figures only, no fabricated reports.
-  const distributions = position.transactions.filter(
-    (t) => t.type === "distribution",
-  );
-  const lastPayout =
-    distributions.length > 0
-      ? formatAdminDate(
-          distributions.reduce((a, b) => (a.occurredAt > b.occurredAt ? a : b))
-            .occurredAt,
-        )
-      : "—";
-
   const statusColor =
     position.status === "active"
       ? "green"
@@ -211,8 +181,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
   // Hero edge stat band — the position's four real headline metrics (4-up = a
   // perfectly symmetric rail, StatBand caps at 4 cols). Deposited (Manual) ·
-  // Current value (Attested + delta) · Yield paid (Attested) · APY range
-  // (Estimated). Maturity moves to a header chip. No red anywhere.
+  // Current value (Attested + delta) · Accrued value (Estimated — BTC/value
+  // accumulated, NOT distributed) · Est. yield range (Estimated). Maturity moves
+  // to a header chip. No red anywhere.
   const heroStats: StatCell[] = [
     {
       label: "Deposited",
@@ -229,33 +200,14 @@ export default async function VaultDetailPage({ params }: PageProps) {
       provenance: "attested",
     },
     {
-      label: "Yield paid",
-      value: formatUsdFull(position.distributedUsdc),
-      provenance: "attested",
-    },
-    {
-      label: "Current APY",
-      value: apyLabel,
+      label: "Accrued (est.)",
+      value: formatUsdFull(position.accruedYieldUsdc),
       provenance: "estimated",
     },
-  ];
-
-  // Transactions summary band.
-  const txStats: StatCell[] = [
     {
-      label: "Total distributed",
-      value: formatUsdFull(position.distributedUsdc),
-      provenance: "attested",
-    },
-    {
-      label: "Payouts",
-      value: `${distributions.length}`,
-      provenance: "attested",
-    },
-    {
-      label: "Last payout",
-      value: lastPayout,
-      provenance: "attested",
+      label: "Est. yield",
+      value: apyLabel,
+      provenance: "estimated",
     },
   ];
 
@@ -374,51 +326,17 @@ export default async function VaultDetailPage({ params }: PageProps) {
           </div>
           <div className={SUPPORT}>
             <CardHeader
-              title="Cumulative target"
+              title="Accumulation progress"
               trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
             />
             <CumulativeTargetBullet distributedUsdc={position.distributedUsdc} />
           </div>
         </section>
         <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-          Your invested capital unlocks for withdrawal when the cumulative
-          distribution target is reached or at the soft lock-up horizon, whichever
-          comes first. Projections are conditional and not guaranteed.
+          Your invested capital unlocks for withdrawal at the note&apos;s 24-month
+          term or the soft lock-up horizon (contractual, not enforced on-chain),
+          whichever comes first. Projections are conditional and not guaranteed.
         </p>
-
-        {/* ── Act: Yield history ───────────────────────────────────────────── */}
-        <TitledDivider
-          title="Yield history · monthly distributions"
-          trailing={
-            <div className="flex shrink-0 items-center gap-3">
-              {investor ? (
-                <Button variant="ghost" size="md" asChild>
-                  <a
-                    href={`/api/statements/${investor.id}/pdf`}
-                    download
-                    aria-label="Download investor statement (PDF)"
-                  >
-                    Download statement
-                  </a>
-                </Button>
-              ) : null}
-              <ProvenanceBadge kind="estimated" variant="compact" />
-            </div>
-          }
-        />
-        <div className={SUPPORT}>
-          <PositionYieldHistory
-            distributedUsdc={position.distributedUsdc}
-            accruedYieldUsdc={position.accruedYieldUsdc}
-            apyRangeLabel={apyLabel}
-            apyLowPct={apyLowPct}
-            apyHighPct={apyHighPct}
-            nextPayoutLo={yieldHistory.nextPayoutLo}
-            nextPayoutHi={yieldHistory.nextPayoutHi}
-            months={yieldHistory.months}
-            cumulative={yieldHistory.cumulative}
-          />
-        </div>
 
         {/* ── Act: Capital protection ──────────────────────────────────────── */}
         <TitledDivider
@@ -519,7 +437,6 @@ export default async function VaultDetailPage({ params }: PageProps) {
               title="Transactions"
               trailing={<ProvenanceBadge kind="attested" variant="compact" />}
             />
-            <StatBand items={txStats} />
             {position.transactions.length > 0 ? (
               <Table
                 dense
@@ -564,8 +481,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
               </div>
             )}
             <p className="ct-metric-caption mt-auto border-t border-[var(--ct-border-soft)] p-5">
-              Distributions are paid monthly once yield and performance fees are
-              calculated. Amounts settle in USDC to your wallet.
+              This note accumulates BTC over its 24-month term with rule-based
+              take-profit. There is no periodic cash distribution; proceeds and
+              accrued BTC are delivered at the note&apos;s maturity.
             </p>
           </div>
         </section>
@@ -586,8 +504,8 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
         {/* single global disclaimer */}
         <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
-          Projections are conditional ranges, never a promise — they assume the
-          vault&apos;s realized APY range, simple (non-compounded), net of fees.
+          Projections are conditional ranges, never a commitment — they assume the
+          note&apos;s estimated yield range, simple (non-compounded), net of fees.
           Capital protection is best-effort and structural, never guaranteed.
         </p>
       </div>

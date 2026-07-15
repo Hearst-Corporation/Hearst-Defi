@@ -27,24 +27,29 @@ import {
   TAKE_PROFIT_MULTIPLE,
 } from "@/app/(product)/portfolio/_cockpit/pilot-fixtures";
 
-import { loadPortfolioDashboard, type PortfolioDashboard, type PortfolioDistribution } from "./portfolio-dashboard";
+import { loadPortfolioDashboard, type PortfolioDashboard } from "./portfolio-dashboard";
 import { loadMiningMetrics } from "./mining-metrics";
-import type { YieldHistory } from "@/lib/portfolio/yield-history";
 
 /**
  * portfolio-cockpit — the RICH V4 vault-health console view model, wired to the
  * signed-in investor's REAL position (never the sandbox mock).
  *
+ * PRODUCT (v2 — PermissionedDynaVault, a MINING NOTE): capital is structured
+ * into 3 pockets and ACCUMULATES BTC over a 24-month term, with rule-based
+ * take-profit (deposit ×1.24). There is NO periodic cash distribution; the BTC
+ * is delivered at maturity. Rendement is therefore BTC accumulated, not a paid
+ * yield — never presented as a distribution, never as a single-point APY.
+ *
  * Three honesty tiers, each carried on every value:
  *
  *   REAL      — direct from the persisted position: deposit, current value,
- *               accrued, distributed, NAV series, distributions, lock-up, status,
- *               APY range (bps→pct), KYC / share class, take-profit progress
- *               (accrued / (deposit×0.24)) and target (deposit×1.24).
+ *               accrued (BTC accumulated so far), NAV series, lock-up, status,
+ *               APY range (bps→pct, estimated · non-distributed), KYC / share
+ *               class, take-profit progress (accrued / (deposit×0.24)) and
+ *               target (deposit×1.24).
  *
  *   ESTIMATED — deterministically DERIVED from the real deposit and labelled
- *               "target allocation": the 3 pockets (B1 40% / B2 37% / B3 23%),
- *               collateral (from the B2 wBTC pocket), safety margin. At zero → 0.
+ *               "target allocation": the 3 pockets. At zero → 0.
  *
  *   PILOT     — operational figures with NO attested source yet (mining
  *               production, hashrate, uptime, efficiency, risk dimensions, agent
@@ -78,11 +83,12 @@ export interface PortfolioCockpit {
   depositUsdc: number;
   deployedValueUsdc: number;
   accruedUsdc: number;
-  distributedUsdc: number;
   totalChangePct: number;
   totalChangeText: string;
   lifecycle: CockpitLifecycle;
   isActive: boolean;
+  /** Product term in months (24 — accumulation horizon). */
+  termMonths: number;
   /** deposit × 1.24 (REAL, from real deposit). */
   takeProfitTargetUsdc: number;
   /** accrued / (deposit × 0.24), clamped 0–100 (REAL). */
@@ -108,18 +114,7 @@ export interface PortfolioCockpit {
   pockets: readonly PocketCard[];
   pocketTotalUsdc: number;
 
-  // ── Vault health (DERIVED collateral + PILOT safety) ─────────────────────────
-  collateralUsdc: number;
-  debtUsdc: number;
-  safetyMarginPct: number;
-  /**
-   * true only while the vault is live (active / recovery). On matured / closed
-   * positions there is no live collateral to margin, so the "62% healthy" pilot
-   * reading is meaningless — consumers must render a neutral N/A state instead.
-   */
-  safetyIsLive: boolean;
-  lltvLivePct: number;
-  safetyTicks: readonly MeterTick[];
+  // ── Take-profit meter (REAL — progress toward +24% accumulation) ─────────────
   takeProfitTicks: readonly MeterTick[];
 
   // ── Mining engine (PILOT fixtures, or Estimated-derived from MiningMetric) ──
@@ -137,9 +132,7 @@ export interface PortfolioCockpit {
   /** Projection fan (PILOT, seeded, %). Empty at zero. */
   projection: readonly HcHonestBand[];
 
-  // ── Yield & distributions (REAL) ─────────────────────────────────────────────
-  yieldHistory: YieldHistory | null;
-  distributions: readonly PortfolioDistribution[];
+  // ── Positions (REAL) ─────────────────────────────────────────────────────────
   positionsCount: number;
   /** One entry per held vault (for the 2+ vault switcher). Empty at zero. */
   positionsSummary: readonly { id: string; vaultName: string; valueUsdc: number }[];
@@ -148,14 +141,8 @@ export interface PortfolioCockpit {
 const DISCLAIMER =
   "Deterministic, oracle-driven (Chainlink). Indicative only, not a commitment to any specific outcome. Best-effort, never guaranteed.";
 
-/** Constant safety values while there is no attested collateral / LLTV feed. */
-const PILOT_SAFETY = { value: 62, max: 80, healthyFloor: 55, lltvLivePct: 86 } as const;
-
-const SAFETY_TICKS: readonly MeterTick[] = [
-  { at: 40, label: "40 stop" },
-  { at: 45, label: "45 de-risk" },
-  { at: 55, label: "55 recharge" },
-];
+/** Product accumulation horizon — 24-month term (rule-based take-profit at +24%). */
+const PRODUCT_TERM_MONTHS = 24;
 
 const EXIT_PATHS: readonly ExitPathRow[] = [
   { label: "Take-profit", mechanism: "Deployed ≥ deposit ×1.24 → vault expires", outcome: "+24%", kind: "take-profit" },
@@ -208,7 +195,7 @@ function dataQualitySignal(): AgentSignal {
     headline: "Mining & risk operational feed is pilot/sample — not attested canon.",
     observedAt: "pilot",
     signal:
-      "The operational figures on this console — mining production, hashrate, uptime, efficiency, risk dimensions and the agent advisory — are pilot / sample values awaiting an attested feed. Your financial figures (deposit, value, accrued, yield paid, NAV history, distributions) ARE real and derived from your own account. Figures carrying an Estimated or Simulated badge are indicative placeholders, not attested records.",
+      "The operational figures on this console — mining production, hashrate, uptime, efficiency, risk dimensions and the agent advisory — are pilot / sample values awaiting an attested feed. Your financial figures (deposit, value, BTC accumulated, NAV history) ARE real and derived from your own account. Figures carrying an Estimated or Simulated badge are indicative placeholders, not attested records.",
     evidence: [
       { label: "Financial figures", value: "real / attested", provenance: "attested" },
       { label: "Operational feed", value: "pilot sample", provenance: "simulated" },
@@ -227,56 +214,7 @@ function pilotSignals(
   deployedValueUsdc: number,
   takeProfitTargetUsdc: number,
   takeProfitProgressPct: number,
-  safetyIsLive: boolean,
 ): readonly AgentSignal[] {
-  // The margin / market-risk signals speak about a LIVE safety margin. On a
-  // matured / closed vault there is none, so asserting "healthy 62%, debt 0"
-  // would be false — drop those two and keep only the take-profit progress
-  // (real) and the data-quality disclaimer.
-  const marginSignals: readonly AgentSignal[] = safetyIsLive
-    ? [
-        {
-          agent: "Margin Agent",
-          area: "safety · collateral",
-          severity: "green",
-          headline: "Safety margin healthy, above the recharge line. Debt 0.",
-          observedAt: "pilot",
-          signal:
-            "Distance to liquidation is above the 55% recharge line and the vault carries no debt. Thresholds float on the live Morpho LLTV, so no defensive sell is indicated by the deterministic rule. Pilot values pending an attested collateral feed.",
-          evidence: [
-            { label: "Safety margin", value: `${PILOT_SAFETY.value}%`, provenance: "estimated" },
-            { label: "Debt", value: "$0", provenance: "estimated" },
-          ],
-          suggestedReview: "No action — margin rule is above the recharge band",
-          reviewHref: "/portfolio",
-          impactedModule: "Vault health → safety margin",
-          status: "observed",
-          advisoryLabel: "Advisory · Estimated evidence (pilot)",
-          disclaimer: DISCLAIMER,
-        },
-        {
-          agent: "Risk Agent",
-          area: "risk · market",
-          severity: "amber",
-          headline: "BTC drawdown would compress margin before the wall.",
-          observedAt: "pilot",
-          signal:
-            "Under the assumption BTC trades within its recent range, a further drawdown would compress the safety margin toward the 45% de-risk band before approaching the Morpho wall. Market is the most salient dimension this snapshot. Pilot risk figures.",
-          evidence: [
-            { label: "Market risk", value: "52 / amber", provenance: "estimated" },
-            { label: "Safety margin", value: `${PILOT_SAFETY.value}%`, provenance: "estimated" },
-          ],
-          suggestedReview: "Deterministic de-risk arms only at the 45% band",
-          reviewHref: "/portfolio",
-          impactedModule: "Vault health → safety margin",
-          status: "review-suggested",
-          advisoryLabel: "Advisory · Estimated evidence (pilot)",
-          disclaimer:
-            "Modeled hypothesis, not a forecast. Best-effort, never guaranteed. Past performance is not a reliable indicator.",
-        },
-      ]
-    : [];
-
   const takeProfitSignal: AgentSignal = {
     agent: "Take-Profit Agent",
     area: "lifecycle",
@@ -284,7 +222,7 @@ function pilotSignals(
     headline: `${takeProfitProgressPct}% of the way to the +24% take-profit expiry.`,
     observedAt: "pilot",
     signal:
-      `Deployed value is ${usdShort(deployedValueUsdc)} against a ${usdShort(takeProfitTargetUsdc)} take-profit target (deposit ×1.24). On reaching it the vault expires and returns capital +24%; the lock is a maximum duration, not a fixed term. Progress is real; the projection band is a pilot model.`,
+      `Deployed value is ${usdShort(deployedValueUsdc)} against a ${usdShort(takeProfitTargetUsdc)} take-profit target (deposit ×1.24). On reaching it the vault expires and returns capital +24% in BTC; the lock is a maximum duration, not a fixed term. There is no periodic cash distribution — BTC accumulates over the term. Progress is real; the projection band is a pilot model.`,
     evidence: [
       { label: "Deployed", value: usdShort(deployedValueUsdc), provenance: "estimated" },
       { label: "Target (+24%)", value: usdShort(takeProfitTargetUsdc), provenance: "manual" },
@@ -297,7 +235,7 @@ function pilotSignals(
     disclaimer: DISCLAIMER,
   };
 
-  return [...marginSignals, takeProfitSignal, dataQualitySignal()];
+  return [takeProfitSignal, dataQualitySignal()];
 }
 
 /**
@@ -313,8 +251,8 @@ function pilotSignals(
  * `hasPosition:false` and `isActive:false` stay honest (no Live pulse, no
  * fabricated NAV curve); the page renders a Subscribe CTA into the hero.
  *
- * The 3 pockets show at $0 but keep their target-allocation percentages (40 /
- * 37 / 23) so the "target allocation" story is legible before any capital is in.
+ * The 3 pockets show at $0 but keep their target-allocation percentages so the
+ * "target allocation" story is legible before any capital is in.
  */
 function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
   // Same narrative row as the funded hero, all at $0 (StatBand renders zeros in
@@ -322,15 +260,15 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
   const zeroStats: readonly StatCell[] = [
     { label: "Deposit", value: formatUsdFull(0), provenance: "attested", valueTone: "neutral" },
     { label: "Today's value", value: formatUsdFull(0), provenance: "estimated", valueTone: "neutral" },
-    { label: "Yield paid", value: formatUsdFull(0), provenance: "attested", valueTone: "neutral" },
+    { label: "Take-profit target · +24%", value: formatUsdFull(0), provenance: "manual", valueTone: "neutral" },
     { label: "Total return", value: formatUsdFull(0), provenance: "estimated", valueTone: "neutral" },
   ];
 
   // 3 pockets at $0 but with their deterministic target-allocation percentages.
   const zeroPockets: readonly PocketCard[] = [
     { label: "B1 · Mining power", valueUsdc: 0, pct: POCKET_SPLIT.b1MiningPct, role: "Buys the hashrate NFT (RWA-backed) · target allocation", asset: "hearst" },
-    { label: "B2 · wBTC", valueUsdc: 0, pct: POCKET_SPLIT.b2WbtcPct, role: "Yield + collateral · target allocation", asset: "bitcoin" },
-    { label: "B3 · USDC", valueUsdc: 0, pct: POCKET_SPLIT.b3UsdcPct, role: "Funds electricity first · target allocation", asset: "usdc" },
+    { label: "B2 · wBTC", valueUsdc: 0, pct: POCKET_SPLIT.b2WbtcPct, role: "Accumulates BTC over the term · target allocation", asset: "bitcoin" },
+    { label: "B3 · USDC", valueUsdc: 0, pct: POCKET_SPLIT.b3UsdcPct, role: "Reserve · funds electricity first · target allocation", asset: "usdc" },
   ];
 
   return {
@@ -342,11 +280,11 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
     depositUsdc: 0,
     deployedValueUsdc: 0,
     accruedUsdc: 0,
-    distributedUsdc: 0,
     totalChangePct: 0,
     totalChangeText: "—",
     lifecycle: "active",
     isActive: false,
+    termMonths: PRODUCT_TERM_MONTHS,
     takeProfitTargetUsdc: 0,
     takeProfitProgressPct: 0,
     allocatedHashrate: PILOT_ALLOCATED_HASHRATE,
@@ -357,22 +295,15 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
     lockupTicks: [],
     navPoints: [],
     heroStats: zeroStats,
-    // Not funded yet → no live safety margin to assert. Collateral / debt at $0,
-    // margin shown as "—" (never a false "62% healthy" on an empty vault).
+    // Not funded yet → no accumulation to read. Term stated, progress and
+    // accumulated at zero (never a fabricated reading on an empty vault).
     healthStats: [
-      { label: "Safety margin · not funded", value: "—", provenance: "manual" },
-      { label: "Collateral · wBTC (target)", value: usdShort(0), provenance: "estimated", asset: "bitcoin" },
-      { label: "Debt", value: usdShort(0), provenance: "attested" },
+      { label: "Term", value: `${PRODUCT_TERM_MONTHS} months`, provenance: "manual" },
+      { label: "Take-profit progress", value: "0%", provenance: "estimated" },
+      { label: "BTC accumulated (est.)", value: usdShort(0), provenance: "estimated", asset: "bitcoin" },
     ],
     pockets: zeroPockets,
     pocketTotalUsdc: 0,
-    collateralUsdc: 0,
-    debtUsdc: 0,
-    safetyMarginPct: 0,
-    // Empty vault → not a live margin claim (page renders a "not funded yet" note).
-    safetyIsLive: false,
-    lltvLivePct: PILOT_SAFETY.lltvLivePct,
-    safetyTicks: SAFETY_TICKS,
     takeProfitTicks: [
       { at: 0, label: "0%" },
       { at: 100, label: "+24%" },
@@ -390,16 +321,11 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
       score: 0,
       band: "green" as const,
     })), // structure kept, every dimension at 0 (no risk feed yet)
-    // At $0 the take-profit / margin advisory rows have no real progress to speak
-    // to (safetyIsLive:false drops the margin signals); keep only the data-quality
-    // disclaimer so the advisory act is present and honest, not empty.
+    // At $0 the take-profit advisory row has no real progress to speak to; keep
+    // only the data-quality disclaimer so the advisory act is present and honest.
     signals: [dataQualitySignal()],
     // Keep the orchestration TOPOLOGY (nodes/edges = structure of what will run)
-    // but neutralize `latest`: at $0 there is no decision in flight. The funded
-    // fixture asserts a live "Risk Agent · market-risk 52 (amber)" action over a
-    // safety margin that doesn't exist yet — that would be a fabricated
-    // operation on an empty vault, and it contradicts the risk dimensions we
-    // zero out above. Show a neutral, simulated "awaiting feed" line instead.
+    // but neutralize `latest`: at $0 there is no decision in flight.
     orchestration: {
       ...PILOT_ORCHESTRATION,
       latest: {
@@ -411,12 +337,8 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
     },
     exitPaths: EXIT_PATHS,
     // Projection fan is a forward trajectory of DEPLOYED capital — there is none
-    // at $0. Empty it (HcHonestFan renders its own clean empty state) rather than
-    // draw a +24% p5/p50/p95 band for a position that doesn't exist.
+    // at $0. Empty it rather than draw a +24% band for a position that doesn't exist.
     projection: [],
-    // Real history is genuinely empty until the first subscription.
-    yieldHistory: null,
-    distributions: [],
     positionsCount: 0,
     positionsSummary: [],
   };
@@ -442,9 +364,7 @@ export const loadPortfolioCockpit = cache(
     // Hashrate/production are FLEET-WIDE readings — scale them down to the
     // investor's own slice (principal ÷ vault capacity, e.g. $2M/$100M = 2%)
     // before handing them to the "allocated power" tile, otherwise a $2M
-    // ticket would show the whole 182 PH/s operation as "yours". Uses the
-    // capacity already loaded by loadPortfolioDashboard → loadPosition
-    // (`d.vaultCapacityUsdc`) — no extra Prisma round-trip.
+    // ticket would show the whole 182 PH/s operation as "yours".
     const mining = await loadMiningMetrics(
       d.vaultCapacityUsdc && d.vaultCapacityUsdc > 0
         ? { principalUsdc: d.depositUsdc, capacityUsdc: d.vaultCapacityUsdc }
@@ -476,18 +396,10 @@ export const loadPortfolioCockpit = cache(
     const b3 = deposit - b1 - b2;
     const pockets: readonly PocketCard[] = [
       { label: "B1 · Mining power", valueUsdc: b1, pct: POCKET_SPLIT.b1MiningPct, role: "Buys the hashrate NFT (RWA-backed) · target allocation", asset: "hearst" },
-      { label: "B2 · wBTC", valueUsdc: b2, pct: POCKET_SPLIT.b2WbtcPct, role: "Yield + collateral · target allocation", asset: "bitcoin" },
-      { label: "B3 · USDC", valueUsdc: b3, pct: POCKET_SPLIT.b3UsdcPct, role: "Funds electricity first · target allocation", asset: "usdc" },
+      { label: "B2 · wBTC", valueUsdc: b2, pct: POCKET_SPLIT.b2WbtcPct, role: "Accumulates BTC over the term · target allocation", asset: "bitcoin" },
+      { label: "B3 · USDC", valueUsdc: b3, pct: POCKET_SPLIT.b3UsdcPct, role: "Reserve · funds electricity first · target allocation", asset: "usdc" },
     ];
     const pocketTotalUsdc = b1 + b2 + b3;
-
-    // Collateral derived from the B2 wBTC pocket (no borrow → debt 0 is REAL).
-    const collateralUsdc = b2;
-    const debtUsdc = 0;
-    // Safety margin is only a live claim while the vault runs. Matured / closed →
-    // no live collateral, so we neither assert a % nor draw the gauge.
-    const healthIsLive = lifecycle === "active" || lifecycle === "recovery";
-    const safetyMarginPct = healthIsLive ? PILOT_SAFETY.value : 0;
 
     // ── NAV series + degenerate-curve guard ────────────────────────────────────
     // The hero title and the "Vault value over time" curve MUST describe the same
@@ -505,13 +417,11 @@ export const loadPortfolioCockpit = cache(
         : rawNav;
     // ── Stat bands ──────────────────────────────────────────────────────────────
     // The hero stat band mirrors the dominant hero figures, so it must render at
-    // the SAME precision as the hero title (formatUsdFull) — a compact "$1.3M"
-    // next to a full "$1,250,302" reads as a ~100k discrepancy that isn't real.
-    // Narrative performance row: what you put in → what it's worth today →
-    // all-in return ($ AND %) → what was actually paid out.
-    // Total return includes both unrealized and realized yield:
-    // (current deployed value + already distributed) − deposit.
-    const totalReturnUsdc = deployed + d.distributedUsdc - deposit;
+    // the SAME precision as the hero title (formatUsdFull). Narrative row: what
+    // you put in → what it's worth today → the +24% accumulation target → all-in
+    // return ($ AND %). v2 is an accumulation note — there is NO periodic
+    // distribution, so no "yield paid" cell.
+    const totalReturnUsdc = deployed - deposit;
     const totalReturnPct =
       deposit > 0 ? (totalReturnUsdc / deposit) * 100 : 0;
     const totalReturnSign = totalReturnPct >= 0 ? "+" : "";
@@ -530,9 +440,9 @@ export const loadPortfolioCockpit = cache(
         valueTone: "neutral",
       },
       {
-        label: "Yield paid",
-        value: formatUsdFull(d.distributedUsdc),
-        provenance: "attested",
+        label: "Take-profit target · +24%",
+        value: formatUsdFull(takeProfitTargetUsdc),
+        provenance: "manual",
         valueTone: "neutral",
       },
       {
@@ -554,27 +464,18 @@ export const loadPortfolioCockpit = cache(
       },
     ];
 
-    // ── Vault health — only assert a live safety reading while the position is
-    // actually running. On a matured / closed vault there is no live collateral
-    // to margin, so "62% · healthy · Debt 0" would be a false statement. Show a
-    // neutral, honest "—" instead and drop the pilot safety claim.
-    const healthStats: readonly StatCell[] = healthIsLive
-      ? [
-          { label: "Safety margin · pilot", value: `${safetyMarginPct}%`, provenance: "estimated" },
-          { label: "Collateral · wBTC (target)", value: usdShort(collateralUsdc), provenance: "estimated", asset: "bitcoin" },
-          { label: "Debt", value: usdShort(debtUsdc), provenance: "attested" },
-        ]
-      : [
-          { label: `Safety margin · ${lifecycle}`, value: "—", provenance: "manual" },
-          { label: "Collateral · wBTC (target)", value: usdShort(collateralUsdc), provenance: "estimated", asset: "bitcoin" },
-          { label: "Debt", value: usdShort(debtUsdc), provenance: "attested" },
-        ];
+    // ── Vault health — the v2 accumulation read: the 24-month term, progress
+    // toward the +24% take-profit, and BTC accumulated so far (estimated). No
+    // Morpho collateral / debt / safety-margin: those mechanics do not exist in
+    // v2, so asserting a "62% healthy · Debt 0" reading would be false.
+    const healthStats: readonly StatCell[] = [
+      { label: "Term", value: `${PRODUCT_TERM_MONTHS} months`, provenance: "manual" },
+      { label: "Take-profit progress", value: `${takeProfitProgressPct}%`, provenance: "estimated" },
+      { label: "BTC accumulated (est.)", value: usdShort(accrued), provenance: "estimated", asset: "bitcoin" },
+    ];
 
     // Take-profit meter axis = PROGRESS toward the +24% expiry (0→100%). The
-    // moving tick must therefore be labelled with the progress figure itself —
-    // NOT the total-value change (totalChangeText), which is a different metric
-    // and put two contradictory numbers on the same point. Progress in %,
-    // value-change stays on its own hero chip.
+    // moving tick is therefore labelled with the progress figure itself.
     const takeProfitTicks: readonly MeterTick[] = [
       { at: 0, label: "0%" },
       { at: takeProfitProgressPct, label: `${takeProfitProgressPct}%` },
@@ -611,11 +512,11 @@ export const loadPortfolioCockpit = cache(
       depositUsdc: deposit,
       deployedValueUsdc: deployed,
       accruedUsdc: accrued,
-      distributedUsdc: d.distributedUsdc,
       totalChangePct: d.totalChangePct,
       totalChangeText,
       lifecycle,
       isActive,
+      termMonths: PRODUCT_TERM_MONTHS,
       takeProfitTargetUsdc,
       takeProfitProgressPct,
       allocatedHashrate: mining?.allocatedHashrate ?? PILOT_ALLOCATED_HASHRATE,
@@ -629,23 +530,15 @@ export const loadPortfolioCockpit = cache(
       healthStats,
       pockets,
       pocketTotalUsdc,
-      collateralUsdc,
-      debtUsdc,
-      safetyMarginPct,
-      safetyIsLive: healthIsLive,
-      lltvLivePct: PILOT_SAFETY.lltvLivePct,
-      safetyTicks: SAFETY_TICKS,
       takeProfitTicks,
       production: mining && mining.production.length > 0 ? mining.production : PILOT_PRODUCTION,
       uptimeSegments: mining ? mining.uptimeSegments : PILOT_UPTIME_SEGMENTS,
       efficiency: mining ? mining.efficiency : PILOT_EFFICIENCY,
       riskDimensions,
-      signals: pilotSignals(deployed, takeProfitTargetUsdc, takeProfitProgressPct, healthIsLive),
+      signals: pilotSignals(deployed, takeProfitTargetUsdc, takeProfitProgressPct),
       orchestration: PILOT_ORCHESTRATION,
       exitPaths: EXIT_PATHS,
       projection: PILOT_PROJECTION,
-      yieldHistory: d.yieldHistory,
-      distributions: d.distributions,
       positionsCount: d.positions.length,
       positionsSummary: d.positions.map((p) => ({
         id: p.id,

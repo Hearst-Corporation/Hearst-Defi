@@ -190,7 +190,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                 impact={ptai.impact}
               />
               <p className="ct-metric-caption italic">
-                Conditional projection — not guaranteed. Methodology v1.0.
+                Conditional projection — not guaranteed. Methodology v3.0.
               </p>
             </div>
           </AdminSectionCard>

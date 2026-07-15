@@ -55,7 +55,9 @@ export function buildDashboardKpiStrip(input: {
 
   return [
     {
-      label: "APY",
+      // v2: mining note — estimated BTC accumulation band, not a paid APY. Range
+      // format kept (non-negotiable #1); relabelled from "APY".
+      label: "Est. yield",
       value: apyValue,
       sublabel: input.yieldPosture,
       provenance: input.apyProvenance,

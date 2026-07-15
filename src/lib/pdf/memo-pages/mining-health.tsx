@@ -110,12 +110,13 @@ export function MiningHealthPage({
       <Text style={styles.h2}>Operator commentary</Text>
       <Commentary>
         Mining margin score is the engine-derived composite of hashprice, energy
-        cost and uptime. It drives the allocation R2 rebalancing rule when it
-        crosses the configured threshold. During the period under review,
-        margin remained within the band that keeps mining as the largest yield
-        contributor, alongside the USDC base sleeve. On-chain attestation will
-        replace the current paper attestation in Phase 2 once the EventLogger
-        contract is live on Base Sepolia.
+        cost and uptime. It drives the R2 rebalancing rule when it crosses the
+        configured threshold. During the period under review, margin stayed
+        within the band that keeps the Mining Power pocket productive as the
+        note's primary BTC-accumulation engine, funded by the Reserve USDC
+        pocket's electricity account. On-chain attestation will replace the
+        current paper attestation in Phase 2 once the EventLogger contract is
+        live on Base Sepolia.
       </Commentary>
 
       <PageFooter pageNumber={pageNumber} totalPages={totalPages} />

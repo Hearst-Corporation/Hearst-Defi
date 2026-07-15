@@ -5,6 +5,14 @@ import "server-only";
 // Prisma-backed loaders in `src/lib/agents/loaders/*`; this fixture exists
 // solely to exercise the PDF rendering layer deterministically. Keep the shape
 // aligned with InvestorMemoInput (src/lib/agents/investor-memo.ts).
+//
+// v2 alignment: allocations are the three PermissionedDynaVault v2.1 pockets
+// mapped onto the existing engine bucket keys (mining -> B1 Mining Power,
+// btc_tactical -> B2 BTC Pouch, usdc_base -> B3 Reserve USDC). The base
+// (balanced) scenario carries the canonical 40 / 27 / 33 target bands; other
+// modes tilt within those bands. `yield_contribution_bps` is 0: the v2 note
+// accumulates BTC over its term with rule-based take-profit and pays no
+// per-pocket periodic yield.
 
 import type { InvestorMemoInput } from "@/lib/agents/investor-memo";
 import type {
@@ -14,20 +22,20 @@ import type {
 } from "@/lib/engine/types";
 
 const btcAssessment: BtcTacticalAssessment = {
-  targetExposurePct: 14,
+  targetExposurePct: 27,
   triggers: [
     {
       id: "acc-t1",
       kind: "accumulate",
       condition: "BTC < $75,344 (−20% from 90d ATH)",
-      action: "convert 5% AUM USDC → BTC (R-BTC-1)",
+      action: "convert 5% of capital (USDC → BTC) into the BTC Pouch (R-BTC-1)",
       armed: true,
     },
     {
       id: "tp-t1",
       kind: "take_profit",
       condition: "BTC > $113,946 (entry × 1.30)",
-      action: "sell 25% of BTC tactical sleeve (R-BTC-3)",
+      action: "sell 25% of the BTC Pouch (R-BTC-3)",
       armed: true,
     },
   ],
@@ -57,10 +65,9 @@ const baseScenario: ScenarioOutput = {
   mode: "balanced",
   confidence: "medium",
   allocations: [
-    { bucket: "mining", pct: 34, yield_contribution_bps: 620 },
-    { bucket: "usdc_base", pct: 38, yield_contribution_bps: 480 },
-    { bucket: "btc_tactical", pct: 14, yield_contribution_bps: 0 },
-    { bucket: "stable_reserve", pct: 14, yield_contribution_bps: 450 },
+    { bucket: "mining", pct: 40, yield_contribution_bps: 0 },
+    { bucket: "btc_tactical", pct: 27, yield_contribution_bps: 0 },
+    { bucket: "usdc_base", pct: 33, yield_contribution_bps: 0 },
   ],
   assumptions: [
     "methodology_version=v1.0",
@@ -80,10 +87,9 @@ const bearScenario: ScenarioOutput = {
   mode: "defensive",
   confidence: "medium",
   allocations: [
-    { bucket: "mining", pct: 24, yield_contribution_bps: 380 },
-    { bucket: "usdc_base", pct: 42, yield_contribution_bps: 510 },
-    { bucket: "btc_tactical", pct: 9, yield_contribution_bps: 0 },
-    { bucket: "stable_reserve", pct: 25, yield_contribution_bps: 470 },
+    { bucket: "mining", pct: 34, yield_contribution_bps: 0 },
+    { bucket: "btc_tactical", pct: 18, yield_contribution_bps: 0 },
+    { bucket: "usdc_base", pct: 48, yield_contribution_bps: 0 },
   ],
   assumptions: [
     "methodology_version=v1.0",
@@ -103,10 +109,9 @@ const miningCompression: ScenarioOutput = {
   mode: "defensive",
   confidence: "medium",
   allocations: [
-    { bucket: "mining", pct: 22, yield_contribution_bps: 300 },
-    { bucket: "usdc_base", pct: 45, yield_contribution_bps: 525 },
-    { bucket: "btc_tactical", pct: 11, yield_contribution_bps: 0 },
-    { bucket: "stable_reserve", pct: 22, yield_contribution_bps: 410 },
+    { bucket: "mining", pct: 30, yield_contribution_bps: 0 },
+    { bucket: "btc_tactical", pct: 20, yield_contribution_bps: 0 },
+    { bucket: "usdc_base", pct: 50, yield_contribution_bps: 0 },
   ],
   assumptions: [
     "methodology_version=v1.0",
@@ -126,10 +131,9 @@ const bullScenario: ScenarioOutput = {
   mode: "opportunistic",
   confidence: "high",
   allocations: [
-    { bucket: "mining", pct: 38, yield_contribution_bps: 740 },
-    { bucket: "usdc_base", pct: 30, yield_contribution_bps: 410 },
-    { bucket: "btc_tactical", pct: 24, yield_contribution_bps: 0 },
-    { bucket: "stable_reserve", pct: 8, yield_contribution_bps: 360 },
+    { bucket: "mining", pct: 44, yield_contribution_bps: 0 },
+    { bucket: "btc_tactical", pct: 34, yield_contribution_bps: 0 },
+    { bucket: "usdc_base", pct: 22, yield_contribution_bps: 0 },
   ],
   assumptions: [
     "methodology_version=v1.0",
@@ -149,10 +153,9 @@ const extremeStress: ScenarioOutput = {
   mode: "defensive",
   confidence: "low",
   allocations: [
-    { bucket: "mining", pct: 18, yield_contribution_bps: 220 },
-    { bucket: "usdc_base", pct: 40, yield_contribution_bps: 460 },
-    { bucket: "btc_tactical", pct: 6, yield_contribution_bps: 0 },
-    { bucket: "stable_reserve", pct: 36, yield_contribution_bps: 540 },
+    { bucket: "mining", pct: 24, yield_contribution_bps: 0 },
+    { bucket: "btc_tactical", pct: 12, yield_contribution_bps: 0 },
+    { bucket: "usdc_base", pct: 64, yield_contribution_bps: 0 },
   ],
   assumptions: [
     "methodology_version=v1.0",
@@ -235,7 +238,7 @@ const miningCrunch: BacktestOutput = {
   assumptions: [
     "Hashprice compression triggered R2 then R4 sequentially.",
     "Stable reserve absorbed mining yield drag.",
-    "BTC tactical sleeve held below 12% AUM throughout.",
+    "BTC Pouch held below 12% of capital throughout.",
   ],
 };
 

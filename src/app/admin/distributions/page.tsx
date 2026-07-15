@@ -26,7 +26,6 @@ import {
 import { formatAdminDate, formatUsdDetailed } from "@/lib/vaults/product-display";
 import { listAllVaults, vaultSlug, vaultLabel } from "@/lib/vaults/resolver";
 import { buildDistributionsKpiStrip } from "@/lib/admin/distributions-kpi-strip";
-import { DistributionForm } from "./distribution-form";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +58,6 @@ export default async function DistributionsPage({
     label: vaultLabel(ref),
   }));
 
-  // For the history table we also need a slug → label map.
   const vaultLabelBySlug = new Map<string, string>(
     vaultOptions.map((o) => [o.value, o.label]),
   );
@@ -75,23 +73,52 @@ export default async function DistributionsPage({
       titleAccent="Distributions"
       contextLabel="Vaults"
     >
-      {/* Compute + confirm form (client) */}
-      <DistributionForm vaultOptions={vaultOptions} initialVault={vaultId} />
+      {/* v2 model — honest state: the mining note has no periodic cash
+          distribution, so the legacy "compute + confirm a monthly distribution"
+          gesture no longer has an object. We do NOT render a payment action. */}
+      <AdminSectionCard
+        title="Mining note — accumulation model"
+        subtitle="How the v2 product returns capital"
+        ariaLabel="v2 distribution model"
+      >
+        <div className="admin-doc-stack p-5">
+          <p className="body-sm ct-text-body">
+            The v2 product is a mining note: it accumulates BTC over a ~24-month
+            term with rule-based take-profit, and delivers the accumulated BTC at
+            maturity. There is <span className="ct-text-strong">no periodic
+            cash distribution</span> and no fixed APY paid out — so there is no
+            monthly distribution to compute or confirm here.
+          </p>
+          <ul className="admin-doc-stack admin-doc-stack--compact body-sm ct-text-muted">
+            <li>
+              • Three pockets: Mining Power, BTC Pouch, and a USDC reserve.
+            </li>
+            <li>
+              • Returns are BTC accumulated over the term with take-profit
+              triggered by rules — not distributed in cash.
+            </li>
+            <li>
+              • Estimated yield is a range, not guaranteed. Projections are
+              conditional on the stated assumptions.
+            </li>
+          </ul>
+        </div>
+      </AdminSectionCard>
 
-      {/* Distribution history — welded card: optional KPI strip → header → table */}
+      {/* Distribution history — historical records only (legacy). */}
       <AdminSectionCard
         kpis={distributionKpis}
         kpiTitle="Distribution summary"
-        kpiSubtitle={`${history.length} confirmed ${history.length === 1 ? "distribution" : "distributions"}`}
+        kpiSubtitle={`${history.length} historical ${history.length === 1 ? "record" : "records"}`}
         title={`History (${activeVaultLabel})`}
-        subtitle="Confirmed distributions for this vault"
+        subtitle="Historical distribution records for this vault (legacy)"
         ariaLabel="Distribution history"
       >
         {history.length === 0 ? (
           <EmptySurface
             variant="widget"
-            message={`No distributions yet for ${activeVaultLabel}.`}
-            detail="Confirmed distributions for this vault will appear here after multisig approval."
+            message={`No distribution records for ${activeVaultLabel}.`}
+            detail="The v2 mining note has no periodic cash distribution; this table only shows legacy historical records, if any exist."
             className="min-h-32"
           />
         ) : (
@@ -205,7 +232,7 @@ export default async function DistributionsPage({
 
       <AdminSectionCard
         title="Historical record"
-        subtitle="Distributions shown above are historical records only. They are not a commitment to any future distribution. Past distributions are not a reliable indicator of future performance or yield."
+        subtitle="Records shown above are historical only. They are not a commitment to any future distribution. The v2 mining note does not distribute cash periodically. Past records are not a reliable indicator of future performance."
         ariaLabel="Historical record disclaimer"
       />
     </AdminPageShell>

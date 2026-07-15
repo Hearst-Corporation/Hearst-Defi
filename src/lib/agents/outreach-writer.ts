@@ -19,8 +19,10 @@ import { ensureCtaInBody } from "@/lib/outreach/cta-url";
  *  - STRICT JSON-only contract in the system prompt (defensive fence-stripping
  *    parse on the way out).
  *  - `assertNoForbiddenWords` on subject + body (CLAUDE.md non-negotiable #5).
- *  - APY is only ever surfaced as a range, never a single point (#1); the
- *    prompt forbids fabricated numbers entirely.
+ *  - The estimated target return is only ever surfaced as a range, never a
+ *    single point (#1); the prompt forbids fabricated numbers entirely and
+ *    never describes a periodic cash distribution or a fixed APY (the product
+ *    is a BTC-accumulation mining note — see BRAND_BLOCK).
  */
 
 /** Logical model id recorded on `LlmRun.model` — mirrors `OPENAI_MODEL` (ADR-011). */
@@ -29,7 +31,7 @@ export const OUTREACH_WRITER_MODEL = LLM_MODEL;
 /** Default timeout for an outreach draft. Short copy; 60s is generous. */
 const DEFAULT_TIMEOUT_MS = 60_000;
 
-/** Brand-anchored APY range, always expressed as a fourchette (#1). */
+/** Brand-anchored estimated-return range, always expressed as a fourchette (#1). */
 const APY_RANGE_LABEL = "8-15%";
 
 /** Validated shape of a drafted email. Exported for callers + tests. */
@@ -44,10 +46,10 @@ export type OutreachLanguage = "fr" | "en";
 
 /**
  * Who the cold email addresses, which flips the whole pitch:
- *  - `subscriber` — a qualified investor who would invest in the vault directly.
+ *  - `subscriber` — a qualified investor who would invest in the note directly.
  *  - `distributor` — a wealth manager / RIA / family office / IFA / platform who
- *    would DISTRIBUTE the vault to THEIR OWN clients. The angle is a distribution
- *    partnership (economics of placing a structured-yield product for their book),
+ *    would DISTRIBUTE the note to THEIR OWN clients. The angle is a distribution
+ *    partnership (economics of placing a structured mining note for their book),
  *    never "invest your own money". Default: `subscriber` (back-compatible).
  */
 export type OutreachAudience = "subscriber" | "distributor";
@@ -102,16 +104,18 @@ function languageRule(language: OutreachLanguage): string {
 }
 
 const BRAND_BLOCK = `About Hearst Connect (use this framing, do not embellish):
-- Hearst Connect is a single-vault institutional DeFi platform: the Hearst Yield Vault.
-- It offers mining-backed structured yield with monthly USDC distributions.
-- Target APY is a RANGE of ${APY_RANGE_LABEL} — always written as a range, never a single point.
-- Structure: Cayman SPV, $250k minimum ticket, 60-day soft lock-up. Audience: institutional / qualified investors.`;
+- Hearst Connect is a single-vault institutional DeFi platform built around a mining note.
+- The product is a BTC-accumulation note backed by real bitcoin mining, structured across three pouches: Mining Power (40%), BTC Pouch (27%), USDC Reserve (33%).
+- It ACCUMULATES BTC over a 24-month term, with rule-based take-profit; BTC is delivered at maturity. There is NO periodic cash distribution and NO fixed/annual APY paid out.
+- Estimated target return is a RANGE of ${APY_RANGE_LABEL} — always written as a range, never a single point — expressed as BTC accumulated over the term, not distributed, and not guaranteed.
+- Structure: Cayman SPV, $250k minimum ticket (contractual), 60-day soft lock-up (contractual, not enforced on-chain). Audience: institutional / qualified investors.`;
 
 const GUARDRAIL_BLOCK = `Hard rules — apply all, without exception:
 - Output STRICT JSON only. No prose, no markdown fences, no commentary outside the JSON object.
 - The JSON object has EXACTLY two string keys: "subject" and "body". No other keys.
-- NEVER use the words (or their inflections / French equivalents): guarantee, promise, certain, will deliver, risk-free, no risk, garanti, promesse, certain, sans risque. Never imply any return is assured.
-- APY is ALWAYS a range (e.g. "${APY_RANGE_LABEL}"). NEVER quote a single-point APY.
+- NEVER use the words (or their inflections / French equivalents): guarantee, promise, certain, will deliver, risk-free, no risk, garanti, promesse, sans risque. Never imply any return is assured.
+- Never describe a periodic cash distribution or a fixed/annual APY paid out. The note accumulates BTC over a 24-month term with rule-based take-profit; returns are delivered in BTC at maturity, not distributed periodically.
+- The estimated target return is ALWAYS a range (e.g. "${APY_RANGE_LABEL}"), expressed as BTC accumulated over the term. NEVER quote a single-point figure.
 - Do NOT fabricate numbers, figures, performance, client names, or statistics. Only use facts given to you. When in doubt, stay qualitative.
 - Tone: warm but concise, institutional, factual. No hype, no superlatives, no emojis.
 - Keep the body tight: a short greeting, 2-3 short paragraphs, then the call to action.`;
@@ -119,7 +123,7 @@ const GUARDRAIL_BLOCK = `Hard rules — apply all, without exception:
 /**
  * Audience-specific objective block. `subscriber` keeps the original "invite the
  * prospect to qualify themselves" framing; `distributor` reframes the entire
- * email as a distribution-partnership opener (the recipient places the vault for
+ * email as a distribution-partnership opener (the recipient places the note for
  * THEIR clients) — no "invest your own money", the form qualifies a partnership.
  */
 function coldEmailObjective(
@@ -127,17 +131,17 @@ function coldEmailObjective(
   typeformUrl: string,
 ): string {
   if (audience === "distributor") {
-    return `Recipient is a DISTRIBUTOR — a wealth manager, RIA, family office, IFA, or platform who could offer the Hearst Yield Vault to THEIR OWN clients. This is a partnership opener, NOT a request for them to invest personally.
+    return `Recipient is a DISTRIBUTOR — a wealth manager, RIA, family office, IFA, or platform who could offer the Hearst mining note to THEIR OWN clients. This is a partnership opener, NOT a request for them to invest personally.
 
-Objective: open a credible first contact about a distribution partnership. Frame the value for THEIR book of business: a structured, mining-backed monthly-USDC-yield product they can offer qualified clients, with institutional structure (Cayman SPV) and a clear minimum. Acknowledge they vet products carefully; position this as worth a look for their mandate, not a hard sell. Do NOT imply they invest their own capital. The email MUST end with a single clear call to action linking to this short partnership-qualification form: ${typeformUrl}
+Objective: open a credible first contact about a distribution partnership. Frame the value for THEIR book of business: a structured, mining-backed BTC-accumulation note (BTC accumulated over a 24-month term with rule-based take-profit, no periodic cash distribution) they can offer qualified clients, with institutional structure (Cayman SPV) and a clear minimum. Acknowledge they vet products carefully; position this as worth a look for their mandate, not a hard sell. Do NOT imply they invest their own capital. The email MUST end with a single clear call to action linking to this short partnership-qualification form: ${typeformUrl}
 - Embed the URL verbatim (do not shorten, wrap, or alter it).
 - The CTA frames the form as a quick way to explore whether a distribution fit exists.`;
   }
-  return `Recipient is a qualified INSTITUTIONAL INVESTOR who could allocate to the vault directly.
+  return `Recipient is a qualified INSTITUTIONAL INVESTOR who could allocate to the mining note directly.
 
 Objective: open a warm, credible first contact and invite the prospect to qualify themselves via a short form. The email MUST end with a single clear call to action linking to this qualification form: ${typeformUrl}
 - Embed the URL verbatim (do not shorten, wrap, or alter it).
-- The CTA should frame the form as a quick way to see whether the vault fits their mandate — not a hard sell.`;
+- The CTA should frame the form as a quick way to see whether the note fits their mandate — not a hard sell.`;
 }
 
 function buildColdEmailSystem(
@@ -196,7 +200,7 @@ function buildColdEmailUserPrompt(input: DraftColdEmailInput): string {
   const audience = input.audience ?? "subscriber";
   const audienceLine =
     audience === "distributor"
-      ? "Audience: DISTRIBUTOR — pitch a distribution partnership (they place the vault for their clients), never a personal investment."
+      ? "Audience: DISTRIBUTOR — pitch a distribution partnership (they place the mining note for their clients), never a personal investment."
       : "Audience: direct institutional investor.";
   return [
     "Draft a cold-outreach email for this prospect:",

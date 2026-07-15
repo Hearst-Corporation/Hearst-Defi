@@ -79,7 +79,7 @@ function makeScenarioRow(id = "sr-1") {
         { bucket: "mining", pct: 40, yield_contribution_bps: 400 },
         { bucket: "usdc_base", pct: 60, yield_contribution_bps: 480 },
       ],
-      assumptions: ["Methodology v1.0 anchor"],
+      assumptions: ["Methodology v3.0 anchor"],
       confidence: "medium",
       btc_tactical: {
         triggers: [],

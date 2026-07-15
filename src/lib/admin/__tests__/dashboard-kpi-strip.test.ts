@@ -86,7 +86,7 @@ describe("buildDashboardKpiStrip", () => {
   it("renders the vault-scoped strip (platform totals moved to the overview band)", () => {
     const kpis = buildKpis({ proofFresh: false, proof: PROOF_EMPTY });
     expect(kpis.map((k) => k.label)).toEqual([
-      "APY",
+      "Est. yield",
       "Risk",
       "Mining",
       "Proof",

@@ -1,5 +1,5 @@
 /**
- * Methodology v1.0 — Central Source of Truth for Anchors, Factors and Baselines.
+ * Methodology v3.0 — Central Source of Truth for Anchors, Factors and Baselines.
  *
  * This module centralises all "magic numbers" defined by the Hearst Connect
  * methodology. Every value here is an anchor used for fallbacks, stress

@@ -33,8 +33,9 @@ export function CoverPage({ data }: { data: MemoPdfData }) {
         Hearst Yield Vault{"\n"}Monthly Investor Memo
       </Text>
       <Text style={styles.coverSubtitle}>
-        Mining-backed structured yield. Monthly USDC distributions. Cayman SPV,
-        $250k minimum, 60-day soft lock-up. Methodology v1.0.
+        Mining-backed note. BTC accumulated over a 24-month term with rule-based
+        take-profit; no periodic cash distribution. Cayman SPV, $250k minimum,
+        60-day soft lock-up (contractual). Methodology v3.0.
       </Text>
 
       <View style={styles.coverKpiGrid}>
@@ -48,14 +49,14 @@ export function CoverPage({ data }: { data: MemoPdfData }) {
           </View>
         </View>
         <View style={styles.coverKpi}>
-          <Text style={styles.coverKpiLabel}>Target APY range</Text>
+          <Text style={styles.coverKpiLabel}>Est. target return</Text>
           <Text style={styles.coverKpiValue}>
             {formatApyRange(input.vault.apyRange)}
           </Text>
           <Text style={styles.coverKpiHint}>
-            Range, not point estimate &middot; vault mode {input.vault.mode}
+            Range in accumulated BTC &middot; not distributed, not guaranteed
           </Text>
-          {/* Engine-published target — forward-looking band. */}
+          {/* Engine-published target — forward-looking band in accumulated BTC. */}
           <View style={{ marginTop: 6 }}>
             <PdfProvenance kind="estimated" />
           </View>

@@ -81,8 +81,8 @@ describe("memory-distill parseFacts (pure fact parser)", () => {
   it("parses a well-formed {facts:[...]} distillation payload", () => {
     const raw = JSON.stringify({
       facts: [
-        { kind: "preference", content: "Prefers monthly USDC distributions." },
-        { kind: "goal", content: "Targets an 8-15% APY range." },
+        { kind: "preference", content: "Prefers BTC accumulated at maturity rather than cash distribution." },
+        { kind: "goal", content: "Targets an 8-15% estimated return range (BTC accumulated)." },
         { kind: "constraint", content: "Can only allocate via a Cayman SPV." },
       ],
     });
@@ -92,7 +92,7 @@ describe("memory-distill parseFacts (pure fact parser)", () => {
     expect(facts).toHaveLength(3);
     expect(facts[0]).toEqual({
       kind: "preference",
-      content: "Prefers monthly USDC distributions.",
+      content: "Prefers BTC accumulated at maturity rather than cash distribution.",
     });
     expect(facts.map((f) => f.kind)).toEqual([
       "preference",

@@ -71,7 +71,7 @@ describe("chatOutputViolation — product education is allowed (compliant phrasi
 
   it("does NOT block an allocation breakdown for a product", () => {
     const answer =
-      "Le Yield Vault répartit son allocation cible : mining 60 %, BTC tactique 25 %, USDC base 10 %, réserve stable 5 %.";
+      "Le Yield Vault répartit son allocation cible sur trois poches : mining 40 %, BTC 27 %, réserve USDC 33 %.";
     expect(chatOutputViolation(answer, true)).toBeNull();
   });
 
@@ -214,9 +214,9 @@ async function readAll(stream: ReadableStream<Uint8Array>): Promise<string> {
 describe("guardChatStream", () => {
   it("passes a compliant answer through unchanged (full text, no sentinel)", async () => {
     const chunks = [
-      "Target 8 à 15 % annualisé, ",
-      "distributions mensuelles en USDC, ",
-      "lock-up souple 60 jours. Ce rendement n'est pas garanti.",
+      "Rendement cible estimé 8 à 15 %, ",
+      "BTC accumulé sur un terme de 24 mois, ",
+      "lock-up souple 60 jours (contractuel). Ce rendement n'est pas garanti.",
     ];
     const out = await readAll(guardChatStream(streamFromChunks(chunks)));
     expect(out).toBe(chunks.join(""));

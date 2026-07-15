@@ -96,7 +96,7 @@ function buildPtai(
       `Hashprice ≥ $0.085/TH/day AND BTC ≥ $60,000 AND mining uptime ≥ 95% sustained over 30 days.`,
 
     action:
-      `Monthly USDC distributions via Distribution.distributedAt on-chain event log. Rebalancing by rule-based triggers (Methodology v1.0).`,
+      `Monthly USDC distributions via Distribution.distributedAt on-chain event log. Rebalancing by rule-based triggers (Methodology v3.0).`,
 
     impact:
       annualYield !== null
@@ -203,7 +203,7 @@ function InvestHelpLinks() {
         href="/docs/methodology/v1.0.md"
         className="font-medium text-[var(--ct-accent)] hover:underline"
       >
-        Methodology v1.0
+        Methodology v3.0
       </Link>
     </div>
   );

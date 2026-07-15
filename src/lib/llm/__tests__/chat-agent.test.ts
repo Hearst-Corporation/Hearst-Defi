@@ -101,12 +101,12 @@ describe("runChatAgent", () => {
 
   it("streams a text-only answer and resolves final with text", async () => {
     const client = fakeClient([
-      textChunk("Target 8 à 15 % annualisé, "),
-      textChunk("distributions mensuelles."),
+      textChunk("Note de mining : rendement cible estimé 8 à 15 %, "),
+      textChunk("BTC accumulé sur 24 mois."),
     ]);
     const { stream, final } = runChatAgent(client, "gpt-4.1", MSGS);
     const text = await readAll(stream);
-    expect(text).toBe("Target 8 à 15 % annualisé, distributions mensuelles.");
+    expect(text).toBe("Note de mining : rendement cible estimé 8 à 15 %, BTC accumulé sur 24 mois.");
     const result = await final;
     expect(result.status).toBe("success");
     expect(result.blocked).toBe(false);

@@ -9,41 +9,55 @@ order: 7
 
 - Explicit triggers, never ML black-box.
 - Simulation mandatory before execution.
-- Multisig approval at MVP (no auto-execution).
+- Human-gated at MVP (no autonomous financial action; see keeper note below).
 - Plain-English log for every action.
 
-## The 3 vault regimes
+## Fixed pockets, not variable regimes
 
-| Regime | Mining | BTC tactical | USDC base | Stable reserve | Trigger |
-|---|---|---|---|---|---|
-| Defensive | 20–30% | 0–10% | 50–60% | 15–25% | BTC −25% / mining margin <50 / DeFi stress |
-| Balanced (default) | 30–40% | 10–20% | 35–45% | 10–15% | Normal conditions |
-| Opportunistic | 30–40% | 20–30% | 25–35% | 5–10% | BTC accumulation zone OR mining margin >75 |
+Under **PermissionedDynaVault v2.1** the 3 pockets are **fixed on-chain** at **40 / 27 / 33**
+(B1 Mining Power / B2 BTC Pouch / B3 Reserve USDC; bps 4000 / 2700 / 3300). The note does
+**not** rotate between allocation regimes. Its dynamic behavior is expressed through three
+on-chain mechanisms:
 
-Bounds are **hard**, enforced on-chain (Phase 3). No exit without timelock + multisig.
+| Mechanism | What it does | Contract surface |
+|---|---|---|
+| **Curtailment** | Freezes the mining pocket B1 when BTC price is below the configured pre/post-halving threshold | `isCurtailed()` · `curtail()` · `liftCurtailment()` · `setCurtailmentThresholds` · `setHalvingMonth` · events `CurtailmentTriggered` / `CurtailmentLifted` |
+| **Vending curve** | Depletes B3 Reserve USDC along a fixed schedule across the 24-month term to fund operations | `vendingCurveBps(month)` · `currentMonth()` · `productDurationMonths()` |
+| **Take-profit** | Realises BTC profit on B2 at configured price tiers | `setTakeProfitTier` · `executeTakeProfit` · event `TakeProfitExecuted` |
 
-## Global rules
+Thresholds, tiers, and the vending schedule are **configured contract parameters**, not
+promised performance.
+
+## Global rules (v2)
 
 | ID | Trigger | Action |
 |---|---|---|
-| R1 | BTC drawdown > 25% on 30d | Switch → Defensive |
-| R2 | Mining Margin Score < 50 | ↓ mining 30%, ↑ stable reserve |
-| R3 | Mining Margin Score > 75 + BTC momentum + | Maintain or ↑ mining +10% |
-| R4 | Hashprice −20% on 30d | Trigger human review |
-| R5 | RWA yield > mining net yield (risk-adjusted) | Partial rotation mining → RWA |
-| R6 | Stablecoin depeg > 50bps sustained 24h | Pause new allocations to that stable |
-| R7 | DeFi protocol risk score > 70 | Exit progressive (3 tranches / 7d) |
-| R8 | Vault concentration > 30% on single protocol | Force diversification |
+| R1 | BTC price below the configured pre/post-halving threshold | Curtail mining pocket B1 (`curtail()`) |
+| R2 | BTC price recovers above the curtailment threshold | Lift curtailment (`liftCurtailment()`) |
+| R3 | BTC price crosses a configured take-profit tier | Execute take-profit on B2 (`executeTakeProfit`) |
+| R4 | Operating month advances | Apply the vending-curve depletion of B3 (`vendingCurveBps`) |
+| R5 | Halving approaching | Pre-position curtailment thresholds (`setHalvingMonth`) |
+| R6 | Electricity account cannot cover the next cycle | Trigger human review; settle via `payElectricity()` |
+| R7 | Mining Margin Score < 50 sustained 30d | Trigger human review (PTAI) |
+| R8 | Hashprice −20% on 30d | Trigger human review |
 
-BTC tactical rules (R-BTC-1 to R-BTC-6) live in `/docs/spec/06-btc-tactical.mdx`.
+BTC-pocket (B2) tactical rules live in `/docs/spec/06-btc-tactical.mdx`.
+
+## Keeper / execution note
+
+The privileged monthly operations (`rebalance()`, `payElectricity()`, `reportMiningMetrics()`)
+are executed by a deterministic **keeper**, kill-switched (`KEEPER_ENABLED`, default **OFF**)
+with a server-only key — **never** exposed to the chat or to any agent/crew (ADR-012 /
+ADR-017 / ADR-018). No financial or custodial action is autonomously executed from the chat.
+The keeper-signing posture is arbitrated in ADR-019.
 
 ## PTAI standard format (every action)
 
 ```
 PROJECTION  <hypotheses summary, 1 line>
 TRIGGER     <rule ID + condition that fired, 1 line>
-ACTION      <allocation moves, numeric, max 3 lines>
-IMPACT      <APY range delta, distribution change, drawdown contained>
+ACTION      <pocket / curtailment / take-profit move, numeric, max 3 lines>
+IMPACT      <BTC-accumulation delta, term impact, drawdown contained>
 ```
 
 This pattern is enforced by the `<Ptai>` component in UI.

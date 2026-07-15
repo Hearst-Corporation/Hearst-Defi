@@ -2,7 +2,9 @@
  * Outreach Writer Extended — WhatsApp and LinkedIn templates.
  *
  * Extension of outreach-writer.ts for short-form channels (WhatsApp, LinkedIn).
- * Same safety constraints: forbidden words, APY as range, no guarantees.
+ * Same safety constraints: forbidden words, estimated target return as a range,
+ * no guarantees, no periodic cash distribution / fixed APY (the product is a
+ * BTC-accumulation mining note — see outreach-writer.ts BRAND_BLOCK).
  *
  * These drafts are SHORT by design (WhatsApp: ≤400 chars, LinkedIn: ≤1200 chars)
  * to respect channel norms and avoid TL;DR.
@@ -23,6 +25,7 @@ export type { OutreachLanguage, OutreachAudience, ColdEmailProspect };
 
 const OUTREACH_WRITER_MODEL = LLM_MODEL;
 const DEFAULT_TIMEOUT_MS = 45_000; // Shorter for short-form
+/** Brand-anchored estimated-return range, always a fourchette (#1). */
 const APY_RANGE_LABEL = "8-15%";
 
 // ============================================================================
@@ -53,15 +56,17 @@ export interface OutreachWriterOptions {
 }
 
 const BRAND_BLOCK_WHATSAPP = `About Hearst Connect:
-- Single-vault institutional DeFi: the Hearst Yield Vault.
-- Mining-backed structured yield, monthly USDC distributions.
-- Target APY is a RANGE of ${APY_RANGE_LABEL} — never a single point.
-- Structure: Cayman SPV, $250k minimum, 60-day soft lock. Audience: institutional/qualified.`;
+- Single-vault institutional DeFi built around a mining note.
+- A BTC-accumulation note backed by real bitcoin mining, three pouches: Mining Power 40% / BTC Pouch 27% / USDC Reserve 33%.
+- It accumulates BTC over a 24-month term with rule-based take-profit; no periodic cash distribution, no fixed APY.
+- Estimated target return is a RANGE of ${APY_RANGE_LABEL} — never a single point — in BTC accumulated, not distributed; an estimate, capital at risk.
+- Structure: Cayman SPV, $250k minimum (contractual), 60-day soft lock (contractual, not on-chain). Audience: institutional/qualified.`;
 
 const GUARDRAIL_BLOCK_WHATSAPP = `Hard rules:
 - Output STRICT JSON only: {"body":"..."}
-- NEVER use: guarantee, promise, certain, will deliver, risk-free, garanti, promesse, certain, sans risque.
-- APY always as range (e.g., "${APY_RANGE_LABEL}"). Never quote single-point APY.
+- NEVER use: guarantee, promise, certain, will deliver, risk-free, garanti, promesse, sans risque.
+- Never describe a periodic cash distribution or a fixed/annual APY. BTC is accumulated over a 24-month term with rule-based take-profit, delivered at maturity.
+- Estimated target return always as a range (e.g., "${APY_RANGE_LABEL}"). Never quote a single-point figure.
 - Tone: warm, concise, institutional. No hype, no superlatives, no emojis.
 - Keep it under 320 characters ideally (hard max 400).
 - The CTA should be a single, short sentence with the link.`;
@@ -79,7 +84,7 @@ function buildWhatsAppSystem(
 
   const objective = isFollowUp
     ? `Objective: brief, polite follow-up to a prior outreach. Acknowledge they may be busy. Re-state the core value in ONE sentence. End with a soft CTA.`
-    : `Objective: brief intro to the Hearst Yield Vault. Open with context-appropriate greeting. One sentence on value. One sentence on structure (range APY). Soft CTA with link.`;
+    : `Objective: brief intro to the Hearst mining note. Open with context-appropriate greeting. One sentence on value. One sentence on structure (estimated target range, BTC accumulated over a 24-month term). Soft CTA with link.`;
 
   const cta = `The message MUST end with a clear CTA linking this short form: ${typeformUrl}`;
 
@@ -191,15 +196,17 @@ export interface DraftLinkedInInput {
 }
 
 const BRAND_BLOCK_LINKEDIN = `About Hearst Connect:
-- Institutional DeFi platform: Hearst Yield Vault.
-- Mining-backed structured yield, monthly USDC distributions.
-- Target APY: ${APY_RANGE_LABEL} (always range, never point).
-- Cayman SPV, $250k min, 60-day lock. Audience: institutional/qualified investors.`;
+- Institutional DeFi platform built around a mining note.
+- A BTC-accumulation note backed by real bitcoin mining, three pouches: Mining Power 40% / BTC Pouch 27% / USDC Reserve 33%.
+- Accumulates BTC over a 24-month term with rule-based take-profit; no periodic cash distribution, no fixed APY.
+- Estimated target return: ${APY_RANGE_LABEL} (always a range, never a point), in BTC accumulated, not distributed; an estimate, capital at risk.
+- Cayman SPV, $250k min (contractual), 60-day soft lock (contractual, not on-chain). Audience: institutional/qualified investors.`;
 
 const GUARDRAIL_BLOCK_LINKEDIN = `Hard rules:
 - Output STRICT JSON only: {"body":"..."}
-- NEVER use: guarantee, promise, certain, will deliver, risk-free, garanti, promesse, certain, sans risque.
-- APY always as range. Never single-point.
+- NEVER use: guarantee, promise, certain, will deliver, risk-free, garanti, promesse, sans risque.
+- Never describe a periodic cash distribution or a fixed/annual APY. BTC is accumulated over a 24-month term with rule-based take-profit, delivered at maturity.
+- Estimated target return always as a range. Never single-point.
 - Tone: professional, institutional, warm but not salesy. No emojis.
 - Keep under 1000 characters ideally (hard max 1200).
 - End with one clear CTA sentence containing the link.`;
@@ -216,8 +223,8 @@ function buildLinkedInSystem(
       : "Write in English. Professional, warm register.";
 
   const objective = isConnectionRequest
-    ? `Objective: short connection request note. 2-3 sentences max. Mention why connecting (shared interest in institutional yield products). Soft CTA with link. Keep under 300 chars.`
-    : `Objective: brief LinkedIn InMail/message. Paragraph 1: context/why reaching out. Paragraph 2: one-line value prop (range APY, structure). Paragraph 3: soft CTA with link.`;
+    ? `Objective: short connection request note. 2-3 sentences max. Mention why connecting (shared interest in institutional BTC-accumulation / mining-backed products). Soft CTA with link. Keep under 300 chars.`
+    : `Objective: brief LinkedIn InMail/message. Paragraph 1: context/why reaching out. Paragraph 2: one-line value prop (estimated target range, mining note structure). Paragraph 3: soft CTA with link.`;
 
   const cta = `The message MUST end with a CTA linking this form: ${typeformUrl}`;
 
@@ -325,8 +332,8 @@ export function buildEmailFollowUpTemplate(
       subject: `RE: ${originalSubject}`,
       body:
         daysSince < 3
-          ? `Bonjour ${prospectName},\n\nJe me permets de relancer suite à mon précédent message concernant le Hearst Yield Vault.\n\nJe sais que votre temps est précieux — pourriez-vous m'indiquer si ce produit structuré (rendement cible ${APY_RANGE_LABEL}, distributions mensuelles USDC) correspond à votre recherche actuelle ?\n\nBien cordialement,\nHearst Connect`
-          : `Bonjour ${prospectName},\n\nJe reviens vers vous concernant le Hearst Yield Vault.\n\nNous travaillons avec des family offices et gestionnaires de patrimoine sur des produits DeFi institutionnels structurés. Notre vault mining-backed offre des distributions mensuelles USDC avec une fourchette de rendement ${APY_RANGE_LABEL}.\n\nSeriez-vous ouvert à un bref échange pour voir si cela pourrait intéresser certains de vos clients ?\n\nCordialement,\nHearst Connect`,
+          ? `Bonjour ${prospectName},\n\nJe me permets de relancer suite à mon précédent message concernant le Hearst Yield Vault.\n\nJe sais que votre temps est précieux — pourriez-vous m'indiquer si cette note de mining (rendement cible estimé ${APY_RANGE_LABEL} en BTC accumulé sur un terme de 24 mois, non distribué ; estimation, capital à risque) correspond à votre recherche actuelle ?\n\nBien cordialement,\nHearst Connect`
+          : `Bonjour ${prospectName},\n\nJe reviens vers vous concernant le Hearst Yield Vault.\n\nNous travaillons avec des family offices et gestionnaires de patrimoine sur des produits DeFi institutionnels structurés. Notre note de mining accumule du BTC sur un terme de 24 mois avec des prises de profit déclenchées par règles, pour une fourchette de rendement cible estimé ${APY_RANGE_LABEL} (en BTC accumulé, non distribué ; estimation, capital à risque).\n\nSeriez-vous ouvert à un bref échange pour voir si cela pourrait intéresser certains de vos clients ?\n\nCordialement,\nHearst Connect`,
     };
   }
 
@@ -334,8 +341,8 @@ export function buildEmailFollowUpTemplate(
     subject: `RE: ${originalSubject}`,
     body:
       daysSince < 3
-        ? `Hi ${prospectName},\n\nQuick follow-up on my previous note about the Hearst Yield Vault.\n\nI know your time is valuable — could you let me know if this structured product (target ${APY_RANGE_LABEL} APY, monthly USDC distributions) aligns with what you're currently looking for?\n\nBest,\nHearst Connect`
-        : `Hi ${prospectName},\n\nFollowing up on the Hearst Yield Vault.\n\nWe work with family offices and wealth managers on institutional DeFi structured products. Our mining-backed vault offers monthly USDC distributions with a target APY range of ${APY_RANGE_LABEL}.\n\nWould you be open to a brief call to explore whether this might fit some of your clients?\n\nBest regards,\nHearst Connect`,
+        ? `Hi ${prospectName},\n\nQuick follow-up on my previous note about the Hearst Yield Vault.\n\nI know your time is valuable — could you let me know if this structured mining note (estimated target ${APY_RANGE_LABEL} in BTC accumulated over a 24-month term, not distributed; an estimate, capital at risk) aligns with what you're currently looking for?\n\nBest,\nHearst Connect`
+        : `Hi ${prospectName},\n\nFollowing up on the Hearst Yield Vault.\n\nWe work with family offices and wealth managers on institutional DeFi structured products. Our mining-backed note accumulates BTC over a 24-month term with rule-based take-profit, with an estimated target return range of ${APY_RANGE_LABEL} (in BTC accumulated, not distributed; an estimate, capital at risk).\n\nWould you be open to a brief call to explore whether this might fit some of your clients?\n\nBest regards,\nHearst Connect`,
   };
 }
 
@@ -349,13 +356,13 @@ export function buildWhatsAppFollowUpTemplate(
 ): string {
   if (language === "fr") {
     return daysSince < 3
-      ? `Bonjour ${prospectName}, petit relance sur le Hearst Yield Vault (rendement ${APY_RANGE_LABEL}). Ça vous parle ? Le formulaire est ici si vous voulez voir les détails.`
-      : `Bonjour ${prospectName}, je reviens vers vous sur le Hearst Yield Vault (rendement cible ${APY_RANGE_LABEL}). Produit structuré DeFi, distributions mensuelles USDC. Intéressé pour en discuter ?`;
+      ? `Bonjour ${prospectName}, petit relance sur le Hearst Yield Vault (rendement cible estimé ${APY_RANGE_LABEL}, BTC accumulé, capital à risque). Ça vous parle ? Le formulaire est ici si vous voulez voir les détails.`
+      : `Bonjour ${prospectName}, je reviens vers vous sur le Hearst Yield Vault (rendement cible estimé ${APY_RANGE_LABEL}). Note de mining : accumulation de BTC sur 24 mois, prises de profit par règles. Intéressé pour en discuter ?`;
   }
 
   return daysSince < 3
-    ? `Hi ${prospectName}, quick follow-up on Hearst Yield Vault (target ${APY_RANGE_LABEL}). Does this resonate? Link here if you want details.`
-    : `Hi ${prospectName}, following up on Hearst Yield Vault (target ${APY_RANGE_LABEL} APY). Structured DeFi, monthly USDC distributions. Interested to discuss?`;
+    ? `Hi ${prospectName}, quick follow-up on Hearst Yield Vault (estimated target ${APY_RANGE_LABEL}, BTC accumulated over 24 months, capital at risk). Does this resonate? Link here if you want details.`
+    : `Hi ${prospectName}, following up on Hearst Yield Vault (estimated target ${APY_RANGE_LABEL}, in BTC accumulated). Mining note: BTC accumulation over a 24-month term, rule-based take-profit. Interested to discuss?`;
 }
 
 /**
@@ -371,8 +378,8 @@ export function buildCampaignBriefTemplate(
     channel === "email" ? "Email campaign" : channel === "whatsapp" ? "WhatsApp outreach" : "LinkedIn outreach";
 
   if (language === "fr") {
-    return `${channelLabel}: "${campaignName}"\nCible: ${recipientCount} prospects institutionnels\nRendement cible: ${APY_RANGE_LABEL}\nDistributions: Mensuelles USDC\nStructure: SPV Cayman, ticket min $250k\n\nÉtapes:\n1. Review destinataires\n2. Validation des drafts\n3. Envoi en HITL (pas d'envoi auto)`;
+    return `${channelLabel}: "${campaignName}"\nCible: ${recipientCount} prospects institutionnels\nRendement cible estimé: ${APY_RANGE_LABEL} (BTC accumulé, non distribué)\nStructure: note de mining, terme 24 mois, prises de profit par règles\nPoches: Mining 40% / BTC 27% / Réserve USDC 33%\nTicket min: $250k (contractuel)\n\nÉtapes:\n1. Review destinataires\n2. Validation des drafts\n3. Envoi en HITL (pas d'envoi auto)`;
   }
 
-  return `${channelLabel}: "${campaignName}"\nTarget: ${recipientCount} institutional prospects\nTarget APY: ${APY_RANGE_LABEL}\nDistributions: Monthly USDC\nStructure: Cayman SPV, min $250k\n\nSteps:\n1. Review recipients\n2. Draft validation\n3. HITL send (no auto-send)`;
+  return `${channelLabel}: "${campaignName}"\nTarget: ${recipientCount} institutional prospects\nEstimated target return: ${APY_RANGE_LABEL} (BTC accumulated, not distributed)\nStructure: mining note, 24-month term, rule-based take-profit\nPouches: Mining 40% / BTC 27% / USDC Reserve 33%\nMin ticket: $250k (contractual)\n\nSteps:\n1. Review recipients\n2. Draft validation\n3. HITL send (no auto-send)`;
 }
