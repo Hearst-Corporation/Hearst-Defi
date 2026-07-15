@@ -59,9 +59,10 @@ const LP_PRESETS: readonly Preset[] = [
     prompt: "What are the primary risks associated with this vault?",
   },
   {
-    id: "distributions",
-    label: "Recent distributions",
-    prompt: "Show me the recent distributions for my active positions.",
+    id: "accumulation",
+    label: "BTC accumulated",
+    prompt:
+      "Show me the BTC accumulated and take-profit progress for my active positions.",
   },
   {
     id: "show-portfolio",
