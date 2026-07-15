@@ -35,8 +35,10 @@ export type WiredChipState = "wired" | "pending" | "unavailable";
  */
 export const WIRED_UNAVAILABLE_LABELS = {
   not_deployed: "Contrat non déployé",
-  not_supported_by_legacy: "Non supporté par le contrat actuel",
-  rpc_error: "Lecture chaîne indisponible",
+  // Kept short so the chip never clips in a narrow row — the full sentence lives
+  // in WIRED_UNAVAILABLE_DESCRIPTIONS (tooltip) and in the row's detail line.
+  not_supported_by_legacy: "Non supporté",
+  rpc_error: "Lecture indisponible",
   revert: "Rejeté par le contrat",
 } as const;
 

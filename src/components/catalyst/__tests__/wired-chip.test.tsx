@@ -72,7 +72,7 @@ describe("WiredChip — unavailable n'est JAMAIS bleu", () => {
     );
     expect(html).toContain("Motif inconnu");
     expect(html).not.toContain("Contrat non déployé");
-    expect(html).not.toContain("Lecture chaîne indisponible");
+    expect(html).not.toContain("Lecture indisponible");
     expectNoBlue(html);
   });
 });
@@ -86,11 +86,11 @@ describe("WiredChip — une panne RPC est DISCERNABLE d'une absence de donnée",
       <WiredChip state="unavailable" reason="not_deployed" />,
     );
 
-    expect(rpc).toContain("Lecture chaîne indisponible");
+    expect(rpc).toContain("Lecture indisponible");
     expect(rpc).not.toContain("Contrat non déployé");
 
     expect(notDeployed).toContain("Contrat non déployé");
-    expect(notDeployed).not.toContain("Lecture chaîne indisponible");
+    expect(notDeployed).not.toContain("Lecture indisponible");
 
     expect(rpc).not.toEqual(notDeployed);
   });
@@ -103,7 +103,7 @@ describe("WiredChip — une panne RPC est DISCERNABLE d'une absence de donnée",
       <WiredChip state="unavailable" reason="not_supported_by_legacy" />,
     );
     expect(revert).toContain("Rejeté par le contrat");
-    expect(unsupported).toContain("Non supporté par le contrat actuel");
+    expect(unsupported).toContain("Non supporté");
     expect(revert).not.toEqual(unsupported);
   });
 });
@@ -132,7 +132,7 @@ describe("WiredValue", () => {
       />,
     );
     expect(html).toContain("—");
-    expect(html).toContain("Lecture chaîne indisponible");
+    expect(html).toContain("Lecture indisponible");
     expect(html).not.toContain("USDC");
     expect(html).not.toContain("N/A");
     expectNoBlue(html);

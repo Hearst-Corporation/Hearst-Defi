@@ -48,7 +48,7 @@ import { abbreviateAddress } from "@/lib/onchain";
 const ROW_BASE = "flex items-start justify-between gap-4 px-5 py-4";
 const DIVIDER = "border-b border-[var(--ct-border-soft)]";
 const DT = "text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]";
-const DD = "flex min-w-0 items-center gap-3 text-right";
+const DD = "flex min-w-0 flex-wrap items-center justify-end gap-3 text-right";
 const VALUE = "text-[length:var(--ct-text-sm)] font-medium tabular-nums";
 const SECTION_TITLE =
   "px-5 pt-5 pb-2 text-[length:var(--ct-text-xs)] uppercase tracking-wider text-[var(--ct-text-faint)]";

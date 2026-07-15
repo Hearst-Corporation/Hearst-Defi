@@ -54,7 +54,7 @@ interface DynavaultChainPanelProps {
 const ROW_BASE = "flex items-start justify-between gap-4 px-5 py-4";
 const DIVIDER = "border-b border-[var(--ct-border-soft)]";
 const DT = "text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]";
-const DD = "flex min-w-0 items-center gap-3 text-right";
+const DD = "flex min-w-0 flex-wrap items-center justify-end gap-3 text-right";
 const VALUE = "text-[length:var(--ct-text-sm)] font-medium tabular-nums";
 
 const MODE_LABEL: Record<VaultMode, string> = {
@@ -238,7 +238,7 @@ export async function DynavaultChainPanel({
       <p className="ct-metric-caption border-t border-[var(--ct-border-soft)] px-5 py-4 leading-relaxed">
         Blue marks a value read through the v2 adapter. A read that did not
         succeed shows its reason and no value — an RPC outage
-        (&ldquo;Lecture chaîne indisponible&rdquo;) and an absent contract
+        (&ldquo;Lecture indisponible&rdquo;) and an absent contract
         function (&ldquo;Rejeté par le contrat&rdquo;) are deliberately distinct.
         {readAtLabel ? ` Last successful read at ${readAtLabel}.` : ""}
       </p>

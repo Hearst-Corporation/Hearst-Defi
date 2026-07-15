@@ -49,7 +49,7 @@ export function toWiredLike<T>(read: Wired<T>): WiredLike<T> {
  * The envelope is carried through verbatim: a wired core yields a wired field
  * with the same source/address/chainId/readAt; an unavailable core yields the
  * SAME reason and detail on every field it fed. That last part matters — six
- * rows sharing one read must all say "Lecture chaîne indisponible" when the RPC
+ * rows sharing one read must all say "Lecture indisponible" when the RPC
  * is down, and none of them may quietly become "no data".
  */
 export function selectWired<T, U>(
