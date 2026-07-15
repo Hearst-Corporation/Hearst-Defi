@@ -205,9 +205,18 @@ describe("getTaxPreview — overrides", () => {
     expect(preview.crs.residenceCountry).toBe("GB");
   });
 
-  it("default residenceCountry is 'US' when no override", () => {
+  it("residenceCountry is null (never a fabricated jurisdiction) when no override", () => {
     const preview = getTaxPreview(FIXED_USER_ID, FIXED_YEAR);
-    expect(preview.crs.residenceCountry).toBe("US");
+    expect(preview.crs.residenceCountry).toBeNull();
+  });
+
+  it("ytdCutDate defaults to the tax-year reporting boundary and honours a real-date override", () => {
+    const def = getTaxPreview(FIXED_USER_ID, FIXED_YEAR);
+    expect(def.form1099Int.ytdCutDate).toBe(`${FIXED_YEAR}-12-31`);
+    const over = getTaxPreview(FIXED_USER_ID, FIXED_YEAR, {
+      ytdCutDate: "2026-07-16",
+    });
+    expect(over.form1099Int.ytdCutDate).toBe("2026-07-16");
   });
 
   it("actualPrincipalUsd override changes costBasisUsd in 1099-B", () => {
@@ -349,10 +358,16 @@ describe("Forbidden words — tax preview strings", () => {
     }
   });
 
-  it("residenceCountry contains no forbidden words", () => {
+  it("residenceCountry is null by default and forbidden-word-free when provided", () => {
     const preview = getTaxPreview(FIXED_USER_ID, FIXED_YEAR);
+    expect(preview.crs.residenceCountry).toBeNull();
+    const withResidence = getTaxPreview(FIXED_USER_ID, FIXED_YEAR, {
+      residenceCountry: "GB",
+    });
     for (const word of FORBIDDEN) {
-      expect(preview.crs.residenceCountry.toLowerCase()).not.toContain(word);
+      expect(withResidence.crs.residenceCountry?.toLowerCase()).not.toContain(
+        word,
+      );
     }
   });
 });

@@ -55,8 +55,13 @@ export interface CrsPreview {
   grossDividendsUsd: number;
   /** Other income attributed (mining distribution labelled as 'other'), in USD. */
   otherIncomeUsd: number;
-  /** ISO 3166-1 alpha-2 residence country code. */
-  residenceCountry: string;
+  /**
+   * ISO 3166-1 alpha-2 residence country code, or `null` when the investor's
+   * residence is not on record. NEVER defaulted to a jurisdiction — a fabricated
+   * residence (e.g. an implicit "US") would misstate a CRS reporting obligation.
+   * A caller-facing surface must hide the residence attribution when this is null.
+   */
+  residenceCountry: string | null;
   /** Reporting year. */
   reportingYear: number;
 }
@@ -147,7 +152,7 @@ export function compute1099B(
 export function computeCrs(
   accountBalanceUsd: number,
   grossInterestUsd: number,
-  residenceCountry: string,
+  residenceCountry: string | null,
   reportingYear: number,
 ): CrsPreview {
   return {
@@ -189,8 +194,18 @@ export interface TaxPreviewOverrides {
   actualAccruedYieldUsd?: number;
   /** Days position has been held (for ST/LT determination). */
   actualDaysHeld?: number;
-  /** LP residence country (ISO 3166-1 alpha-2). Defaults to "US". */
+  /**
+   * LP residence country (ISO 3166-1 alpha-2). Omitted → residence unknown
+   * (`null` in the output), NEVER defaulted to a jurisdiction.
+   */
   residenceCountry?: string;
+  /**
+   * Real data-currency date for the "as of" caption (ISO `yyyy-mm-dd`). The
+   * caller (which knows the wall clock — this module must not) passes the true
+   * render date. Omitted → the tax-year reporting-period end, a fixed boundary,
+   * never a fabricated snapshot date.
+   */
+  ytdCutDate?: string;
 }
 
 export function getTaxPreview(
@@ -219,12 +234,17 @@ export function getTaxPreview(
     overrides.actualAccruedYieldUsd ??
     round2(interestIncomeUsd * 0.85);
 
+  // Internal calc default only — the ST/LT split is a computed figure, never
+  // surfaced as a "held for N days" fact. A caller-facing surface passes the
+  // real holding period; when it doesn't, the accrued gain it splits is 0.
   const daysHeld = overrides.actualDaysHeld ?? 180;
 
-  const residenceCountry = overrides.residenceCountry ?? "US";
+  // Residence is null unless the caller actually knows it. No implicit "US".
+  const residenceCountry = overrides.residenceCountry ?? null;
 
-  // YTD cut date: last day of May for year (predictable in tests).
-  const ytdCutDate = `${year}-05-26`;
+  // "As of" date: the caller passes the real render date; the internal fallback
+  // is the tax-year reporting-period end (a boundary), not a fabricated day.
+  const ytdCutDate = overrides.ytdCutDate ?? `${year}-12-31`;
 
   const form1099Int = compute1099Int(interestIncomeUsd, year, ytdCutDate);
 

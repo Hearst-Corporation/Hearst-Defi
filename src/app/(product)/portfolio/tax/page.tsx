@@ -4,8 +4,10 @@
 import { notFound } from "next/navigation";
 
 import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { getInvestor } from "@/lib/auth/session";
 import { loadPortfolio } from "@/lib/data/portfolio";
+import { daysHeldSince } from "@/lib/engine/lp-pnl";
 import { getTaxPreview } from "@/lib/portfolio/tax";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
@@ -27,15 +29,40 @@ export default async function PortfolioTaxPage() {
   const investor = await getInvestor();
   if (!investor) notFound();
 
-  const { deployedUsdc, accruedYieldUsdc, totalYieldYtdUsdc } =
+  const { positions, deployedUsdc, accruedYieldUsdc, totalYieldYtdUsdc } =
     await loadPortfolio();
+
+  // Real holding period, from the oldest active subscription — drives the
+  // 1099-B short-term/long-term split instead of a hardcoded 180 days.
+  const now = new Date();
+  const oldestSubscribedAt = positions.reduce<Date | null>(
+    (oldest, p) =>
+      oldest && oldest.getTime() <= p.subscribedAt.getTime()
+        ? oldest
+        : p.subscribedAt,
+    null,
+  );
 
   const preview = getTaxPreview(investor.userId, TAX_YEAR, {
     actualInterestIncomeUsd: totalYieldYtdUsdc,
     actualPrincipalUsd: deployedUsdc,
     actualAccruedYieldUsd: accruedYieldUsdc,
+    // Real days held when the investor holds a position; omitted otherwise so
+    // no fabricated holding period is presented (the split is 0 with no gain).
+    ...(oldestSubscribedAt
+      ? { actualDaysHeld: daysHeldSince(oldestSubscribedAt, now) }
+      : {}),
+    // True data-currency date for the "as of" caption — not a hardcoded day.
+    ytdCutDate: now.toISOString().slice(0, 10),
+    // residenceCountry intentionally omitted: the Investor record carries no
+    // residence field, so we never fabricate a jurisdiction (CRS block below
+    // hides the residence attribution when it is unknown).
   });
   const { form1099Int, form1099B, crs } = preview;
+
+  // These YTD/CRS figures are always a preview — "estimated" when computed from
+  // the real ledger, "simulated" when the deterministic sandbox stub was used.
+  const provenanceKind = preview.dataSource === "live" ? "estimated" : "simulated";
 
   return (
     <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
@@ -48,11 +75,14 @@ export default async function PortfolioTaxPage() {
 
         {/* 1099-INT */}
         <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
-          <div className="p-5 border-b border-[var(--ct-border-soft)]">
-            <h2 className="ct-section-title">Form 1099-INT</h2>
-            <p className="ct-metric-caption">
-              Interest income · as of {form1099Int.ytdCutDate}
-            </p>
+          <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h2 className="ct-section-title">Form 1099-INT</h2>
+              <p className="ct-metric-caption">
+                Interest income · as of {form1099Int.ytdCutDate}
+              </p>
+            </div>
+            <ProvenanceBadge kind={provenanceKind} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
             <div className={KPI_TILE}>
@@ -72,11 +102,14 @@ export default async function PortfolioTaxPage() {
 
         {/* 1099-B */}
         <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
-          <div className="p-5 border-b border-[var(--ct-border-soft)]">
-            <h2 className="ct-section-title">Form 1099-B</h2>
-            <p className="ct-metric-caption">
-              Proceeds &amp; cost basis · capital gains on redemption only
-            </p>
+          <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h2 className="ct-section-title">Form 1099-B</h2>
+              <p className="ct-metric-caption">
+                Proceeds &amp; cost basis · capital gains on redemption only
+              </p>
+            </div>
+            <ProvenanceBadge kind={provenanceKind} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
             <div className={KPI_TILE}>
@@ -108,11 +141,17 @@ export default async function PortfolioTaxPage() {
 
         {/* CRS */}
         <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
-          <div className="p-5 border-b border-[var(--ct-border-soft)]">
-            <h2 className="ct-section-title">CRS preview</h2>
-            <p className="ct-metric-caption">
-              Common Reporting Standard · residence {crs.residenceCountry}
-            </p>
+          <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h2 className="ct-section-title">CRS preview</h2>
+              <p className="ct-metric-caption">
+                Common Reporting Standard
+                {crs.residenceCountry
+                  ? ` · residence ${crs.residenceCountry}`
+                  : null}
+              </p>
+            </div>
+            <ProvenanceBadge kind={provenanceKind} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
             <div className={KPI_TILE}>
