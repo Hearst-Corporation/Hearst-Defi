@@ -29,9 +29,10 @@ export interface StatCell {
   /** Genuinely Live → accent value + heartbeat dot (reserved, honest). */
   live?: boolean;
   /**
-   * Optional asset identity. When set on a non-Live cell, the provenance strip
-   * dot is replaced by a small asset-coloured identity dot (Hearst green /
-   * Bitcoin orange / USDC blue). Ignored on the Live cell (keeps its pulse).
+   * Optional asset identity. When set on a non-Live cell, a small asset-coloured
+   * identity dot (Hearst green / Bitcoin orange / USDC blue) is shown ALONGSIDE
+   * the provenance strip badge — it is additive, never a replacement (non-negotiable
+   * #2: every metric keeps its provenance badge). Ignored on the Live cell (pulse).
    */
   asset?: AssetKind;
 }
@@ -88,14 +89,21 @@ export function StatBand({
                 className="hyv-pulse inline-block h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
               />
-            ) : it.asset ? (
-              <span
-                aria-hidden="true"
-                className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
-                style={{ background: ASSET_COLOR[it.asset] }}
-              />
             ) : (
-              <ProvenanceBadge kind={it.provenance} variant="strip" />
+              <>
+                {/* Asset identity dot (green/orange/blue) is ADDITIVE — it never
+                    replaces the provenance badge. Non-negotiable #2: every metric
+                    keeps a readable provenance badge, so an asset-tagged cell shows
+                    BOTH the asset dot and the provenance strip badge. */}
+                {it.asset ? (
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ background: ASSET_COLOR[it.asset] }}
+                  />
+                ) : null}
+                <ProvenanceBadge kind={it.provenance} variant="strip" />
+              </>
             )}
             <span className="ct-bento-label min-w-0 truncate">{it.label}</span>
           </div>

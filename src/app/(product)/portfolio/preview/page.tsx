@@ -299,16 +299,7 @@ export default function PortfolioPreviewPage() {
           <div className={`${SUPPORT} flex flex-col`}>
             <CardHeader
               title="Agent orchestration"
-              trailing={
-                <span className="inline-flex items-center gap-1.5 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-muted">
-                  <span
-                    aria-hidden="true"
-                    className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full"
-                    style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }}
-                  />
-                  Live · Chainlink
-                </span>
-              }
+              trailing={<ProvenanceBadge kind="simulated" variant="compact" />}
             />
             <AgentCanvas
               nodes={ORCHESTRATION.nodes}
@@ -319,12 +310,7 @@ export default function PortfolioPreviewPage() {
         </section>
 
         {/* ── Act: Advisory & exit ──────────────────────────────────────────── */}
-        <TitledDivider title="Agent advisory · deterministic rebalancing" trailing={
-          <span className="inline-flex items-center gap-1.5 text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-muted">
-            <span aria-hidden="true" className="hyv-pulse inline-block h-1.5 w-1.5 rounded-full" style={{ background: "var(--ct-accent)", color: "var(--ct-accent)" }} />
-            Live · Chainlink
-          </span>
-        } />
+        <TitledDivider title="Agent advisory · deterministic rebalancing" trailing={<ProvenanceBadge kind="simulated" variant="compact" />} />
         <div className={SUPPORT}>
           <div className="grid grid-cols-1 gap-px bg-[var(--ct-border-soft)] lg:grid-cols-[minmax(220px,0.7fr)_1.3fr]">
             <div className="flex flex-col gap-3 bg-surface-card p-5">

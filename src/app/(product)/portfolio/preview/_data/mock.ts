@@ -12,7 +12,6 @@
  *   · safety margin 62% healthy (>55 recharge line) vs LLTV live 86% · monthly bridge nets to collateral.
  * NOTHING is live except hashprice (mempool.space + CoinGecko in prod); everything else Estimated/Mock.
  */
-import type { BentoKpiItem } from "@/components/catalyst/bento";
 import type { HcValuePoint, HcLabeledValue } from "@/components/dataviz/his";
 import type { Provenance } from "@/components/ui/provenance-badge";
 
@@ -85,14 +84,6 @@ export const POCKETS: readonly HcLabeledValue[] = [
   { label: "B3 · USDC", value: 115_000 }, // 23% — productive, funds electricity first
 ];
 
-/** Vault-health strip. Only hashprice is Live; the rest Estimated. */
-export const HEALTH_STRIP: readonly BentoKpiItem[] = [
-  { label: "Safety margin · vs LLTV 86%", value: "62%", provenance: "estimated", accent: false },
-  { label: "Collateral (cbBTC + wBTC)", value: "$216k", provenance: "estimated" },
-  { label: "Debt", value: "$0", provenance: "estimated" },
-  { label: "Hashprice · $/PH·day", value: "$46.20", provenance: "live", accent: true },
-];
-
 // ── L3 — Mining engine: allocated power → cbBTC production (this vault) ─────────
 /** BTC produced by the client's allocated hashrate, last 6 months. Latest = estimated (not closed). */
 export const PRODUCTION: readonly HcProductionDatum[] = [
@@ -102,11 +93,6 @@ export const PRODUCTION: readonly HcProductionDatum[] = [
   { label: "Apr", btc: 0.3 },
   { label: "May", btc: 0.32 },
   { label: "Jun", btc: 0.3, estimated: true },
-];
-
-/** Allocated hashrate trend (PH/s) — the client's NFT-power share. */
-export const HASHRATE_TREND: readonly number[] = [
-  12.6, 12.8, 13.1, 12.9, 13.2, 13.0, 13.3, 13.0, 12.9, 13.1, 13.2, 13.0,
 ];
 
 /** Machine uptime by cause (the client's allocated machines). */
@@ -264,7 +250,7 @@ export const HERO_STATS: readonly StatCell[] = [
 export const HEALTH_STATS: readonly StatCell[] = [
   { label: "Safety margin", value: `${SAFETY.value}%`, provenance: "estimated" },
   { label: "Collateral · cbBTC + wBTC", value: "$216k", provenance: "estimated", asset: "bitcoin" },
-  { label: "Hashprice · $/PH·day", value: "$46.20", provenance: "live", live: true },
+  { label: "Hashprice · $/PH·day", value: "$46.20", provenance: "simulated" },
 ];
 
 /** 3 pockets as metric cards — each carries its asset identity (green/orange/blue + logo). */
