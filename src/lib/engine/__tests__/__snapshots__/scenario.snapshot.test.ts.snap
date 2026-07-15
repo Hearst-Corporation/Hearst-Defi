@@ -29,7 +29,7 @@ exports[`runScenario snapshots > matches snapshot for preset=base 1`] = `
     "low": 9.22,
   },
   "assumptions": [
-    "methodology_version=v1.0",
+    "methodology_version=v3.0",
     "vault=yield (Hearst Yield Vault); apy_target=8-15%",
     "preset=base; vault_mode=balanced; generated_at=2026-01-01T00:00:00.000Z",
     "hashprice=0.085 USD/TH/day, energy=0.045 USD/kWh, uptime=98% (paper phase)",
@@ -137,7 +137,7 @@ exports[`runScenario snapshots > matches snapshot for preset=btc_bear 1`] = `
     "low": 6.5,
   },
   "assumptions": [
-    "methodology_version=v1.0",
+    "methodology_version=v3.0",
     "vault=yield (Hearst Yield Vault); apy_target=8-15%",
     "preset=btc_bear; vault_mode=defensive; generated_at=2026-01-01T00:00:00.000Z",
     "hashprice=0.06 USD/TH/day, energy=0.047 USD/kWh, uptime=98% (paper phase)",
@@ -245,7 +245,7 @@ exports[`runScenario snapshots > matches snapshot for preset=btc_bull 1`] = `
     "low": 12.56,
   },
   "assumptions": [
-    "methodology_version=v1.0",
+    "methodology_version=v3.0",
     "vault=yield (Hearst Yield Vault); apy_target=8-15%",
     "preset=btc_bull; vault_mode=balanced; generated_at=2026-01-01T00:00:00.000Z",
     "hashprice=0.102 USD/TH/day, energy=0.045 USD/kWh, uptime=98% (paper phase)",
@@ -353,7 +353,7 @@ exports[`runScenario snapshots > matches snapshot for preset=extreme_stress 1`] 
     "low": 5.64,
   },
   "assumptions": [
-    "methodology_version=v1.0",
+    "methodology_version=v3.0",
     "vault=yield (Hearst Yield Vault); apy_target=8-15%",
     "preset=extreme_stress; vault_mode=defensive; generated_at=2026-01-01T00:00:00.000Z",
     "hashprice=0.051 USD/TH/day, energy=0.05 USD/kWh, uptime=98% (paper phase)",
@@ -461,7 +461,7 @@ exports[`runScenario snapshots > matches snapshot for preset=mining_compression 
     "low": 7.41,
   },
   "assumptions": [
-    "methodology_version=v1.0",
+    "methodology_version=v3.0",
     "vault=yield (Hearst Yield Vault); apy_target=8-15%",
     "preset=mining_compression; vault_mode=balanced; generated_at=2026-01-01T00:00:00.000Z",
     "hashprice=0.064 USD/TH/day, energy=0.052 USD/kWh, uptime=98% (paper phase)",

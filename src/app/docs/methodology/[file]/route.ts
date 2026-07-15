@@ -8,8 +8,12 @@ import { NextResponse } from "next/server";
  *
  * Serves the published methodology documents that live on disk under
  * `docs/methodology/` (outside `public/`, so Next does not serve them as static
- * assets). The Proof Center links to `/docs/methodology/v1.0.md`; without this
- * handler that link 404s.
+ * assets). The Proof Center links to `/docs/methodology/v3.0.md` (the active
+ * methodology, ADR-019); without this handler that link 404s.
+ *
+ * Every published version stays servable, not just the active one: v1.0 and v2.0
+ * are immutable on-file records (ADR-019 §7) and a memo generated under one of
+ * them keeps citing it, so those links must keep resolving.
  *
  * Security: the `file` segment is strictly whitelisted to a flat `<name>.md`
  * pattern with no path separators or `..`, and the resolved path is asserted to

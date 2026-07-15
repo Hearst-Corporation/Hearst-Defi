@@ -100,8 +100,8 @@ function buildPtai(
 
     impact:
       annualYield !== null
-        ? `Estimated ${formatUsdAmount(annualYield)} annual yield — range ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Indicative testnet estimate, not a return projection — subject to assumptions, see methodology v1.0.`
-        : `Target APY ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Indicative testnet estimate, not a return projection — subject to assumptions, see methodology v1.0.`,
+        ? `Estimated ${formatUsdAmount(annualYield)} annual yield — range ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Indicative testnet estimate, not a return projection — subject to assumptions, see methodology v3.0.`
+        : `Target APY ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}%. Indicative testnet estimate, not a return projection — subject to assumptions, see methodology v3.0.`,
   };
 }
 
@@ -200,7 +200,7 @@ function InvestHelpLinks() {
         ·
       </span>
       <Link
-        href="/docs/methodology/v1.0.md"
+        href="/docs/methodology/v3.0.md"
         className="font-medium text-[var(--ct-accent)] hover:underline"
       >
         Methodology v3.0
@@ -840,7 +840,7 @@ function InvestFormLive({
                   Irreversible once submitted. Subject to{" "}
                   {vault.softLockupDays}-day soft lock-up. Target APY shown as a
                   range — indicative estimate, not a return projection. See
-                  methodology v1.0.
+                  methodology v3.0.
                 </p>
                 {demoMode ? (
                   // Demo accounts subscribe off-chain — the simulate action IS the

@@ -5,10 +5,10 @@
  * methodology. Every value here is an anchor used for fallbacks, stress
  * testing, or risk baselining.
  *
- * @see /docs/methodology/v1.0.md
+ * @see /docs/methodology/v3.0.md
  */
 
-export const METHODOLOGY_VERSION = "v1.0";
+export const METHODOLOGY_VERSION = "v3.0";
 
 /**
  * Methodology anchors used as fallbacks when the DB is empty (Zero-State).

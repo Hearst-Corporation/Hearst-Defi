@@ -166,7 +166,7 @@ describe("investorMemoMonthly Inngest function", () => {
     // Matches OPENAI_MODEL default — avoid importing investor-memo here (breaks vi.mock hoisting).
     expect(data.generatedBy).toBe("gpt-4.1");
     expect(data.clientName).toBe("Hearst Connect");
-    expect(data.methodologyVersion).toBe("v1.0");
+    expect(data.methodologyVersion).toBe("v3.0");
     expect(data.scenariosIncluded).toBe("[]");
     expect(data.backtestsIncluded).toBe("[]");
     expect(typeof data.content).toBe("string");

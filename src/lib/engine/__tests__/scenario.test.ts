@@ -68,7 +68,7 @@ describe("runScenario (v2 contract)", () => {
   it("assumptions list includes key assumption tokens", () => {
     const result = runScenario(BASE_PARAMS);
     const joined = result.assumptions.join(" ");
-    expect(joined).toContain("methodology_version=v1.0");
+    expect(joined).toContain("methodology_version=v3.0");
     expect(joined).toContain("Not Monte Carlo");
     expect(joined).toContain("no compounding within month");
   });

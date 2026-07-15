@@ -156,7 +156,7 @@ Substitutes: "target", "conditional projection", "target range", "subject to", "
 - Primary auth: email/password (cookie \`hc_session\`). Privy: wallet connect only at the moment of the USDC deposit.
 - Engine \`src/lib/engine/*\`: pure-function, forbidden prisma/fetch/Date.now/Math.random ungoverned. PRNG seed injection required for Monte Carlo.
 - 4 structured MVP agents (Zod-validated, forbidden-words linter): Scenario Narrative, Mining Health, Risk Explanation, Investor Memo.
-- Sources of truth: \`/docs/spec/*.mdx\` (read before feature), \`/docs/methodology/v1.0.md\` (immutable), \`/docs/roadmap.json\` + \`/admin/roadmap\` UI, append-only ADRs in \`/docs/decisions/\`.
+- Sources of truth: \`/docs/spec/*.mdx\` (read before feature), \`/docs/methodology/v3.0.md\` (active, ADR-019; v1.0/v2.0 immutable on file), \`/docs/roadmap.json\` + \`/admin/roadmap\` UI, append-only ADRs in \`/docs/decisions/\`.
 
 # Positioning (credible comparables)
 Closest comparables: Maple Finance (institutional lending), Ondo Finance (RWA tokenized T-bills), Ethena (basis trade). **Hearst difference**: real operational cashflow from partner BTC mining, not borrower credit risk nor purely protocol-native yield.
