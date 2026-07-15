@@ -38,7 +38,7 @@ export const dynamic = "force-dynamic";
  * readable (`strategies(index).allocationBps`). Current is not: current =
  * strategyAssets / totalAssets, and the v2.1 ABI transcribed in dynavault.ts
  * exposes NO per-strategy assets read. `getStrategyCount()` and
- * `strategies(index) -> (adapter, allocationBps, enabled, liquid)` are the whole
+ * `strategies(index) -> (adapter, allocationBps, enabled, isIdle)` are the whole
  * surface. So current allocation, and therefore drift, are UNCOMPUTABLE from the
  * contract as specified.
  *

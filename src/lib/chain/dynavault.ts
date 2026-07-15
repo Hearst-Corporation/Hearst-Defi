@@ -336,6 +336,110 @@ export const DYNAVAULT_ABI = [
       { name: "assets", type: "uint256", indexed: false },
     ],
   },
+  // The operational events (VAULT_SPEC_V2.1.md §4). Declared so ONE ABI covers
+  // every log an indexer of trades / history / proof needs to decode. Like the
+  // views, these are transcribed from the spec, not from deployed bytecode.
+  {
+    type: "event",
+    name: "StrategyAdded",
+    inputs: [
+      { name: "strategy", type: "address", indexed: true },
+      { name: "allocation", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "StrategyRemoved",
+    inputs: [{ name: "strategy", type: "address", indexed: true }],
+  },
+  {
+    type: "event",
+    name: "Rebalance",
+    inputs: [{ name: "allocations", type: "uint256[]", indexed: false }],
+  },
+  {
+    type: "event",
+    name: "VaultSwapped",
+    inputs: [
+      { name: "caller", type: "address", indexed: true },
+      { name: "tokenIn", type: "address", indexed: false },
+      { name: "tokenOut", type: "address", indexed: false },
+      { name: "amountIn", type: "uint256", indexed: false },
+      { name: "amountOut", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "ElectricityPaid",
+    inputs: [
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "payee", type: "address", indexed: true },
+      { name: "timestamp", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "ElecPayeeUpdated",
+    inputs: [
+      { name: "oldPayee", type: "address", indexed: true },
+      { name: "newPayee", type: "address", indexed: true },
+    ],
+  },
+  {
+    type: "event",
+    name: "MonthlyElecCostUpdated",
+    inputs: [
+      { name: "oldCost", type: "uint256", indexed: false },
+      { name: "newCost", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "MiningMetricsReported",
+    inputs: [
+      { name: "hashrateTh", type: "uint256", indexed: false },
+      { name: "btcEarnedSats", type: "uint256", indexed: false },
+      { name: "totalBtcEarnedSats", type: "uint256", indexed: false },
+      { name: "timestamp", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "CurtailmentTriggered",
+    inputs: [
+      { name: "month", type: "uint256", indexed: false },
+      { name: "btcPrice", type: "uint256", indexed: false },
+      { name: "threshold", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "CurtailmentLifted",
+    inputs: [
+      { name: "month", type: "uint256", indexed: false },
+      { name: "btcPrice", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "TakeProfitExecuted",
+    inputs: [
+      { name: "tier", type: "uint256", indexed: true },
+      { name: "btcPrice", type: "uint256", indexed: false },
+      { name: "btcSold", type: "uint256", indexed: false },
+      { name: "usdcReceived", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "MonthlyEngineRun",
+    inputs: [
+      { name: "month", type: "uint256", indexed: false },
+      { name: "fleetActive", type: "bool", indexed: false },
+      { name: "btcPrice", type: "uint256", indexed: false },
+      { name: "elecPaid", type: "uint256", indexed: false },
+    ],
+  },
 
   // ── User writes ───────────────────────────────────────────────────────────
   {
@@ -405,10 +509,11 @@ export const DYNAVAULT_ABI = [
     stateMutability: "view",
   },
   {
-    // (address, uint256, bool, bool) per spec. Component names below are
-    // UNCONFIRMED inferences: `allocationBps` is implied by
-    // setStrategyAllocation(index, bps); the two booleans are a guess
-    // (`enabled` / `liquid`). Order is what the spec fixes — names are not.
+    // (address, uint256, bool, bool) → adapter, allocation, active, isIdle
+    // (VAULT_SPEC_V2.1.md §3). `enabled` mirrors the spec's `active`;
+    // `allocationBps` is implied by setStrategyAllocation(index, bps). Order is
+    // what the spec fixes; viem returns a positional array and decodeStrategy
+    // validates the runtime shape rather than trusting these names.
     type: "function",
     name: "strategies",
     inputs: [{ name: "index", type: "uint256" }],
@@ -416,15 +521,18 @@ export const DYNAVAULT_ABI = [
       { name: "adapter", type: "address" },
       { name: "allocationBps", type: "uint256" },
       { name: "enabled", type: "bool" },
-      { name: "liquid", type: "bool" },
+      { name: "isIdle", type: "bool" },
     ],
     stateMutability: "view",
   },
   {
-    // (uint256, address, uint256, uint256, bool) per spec. The names map
-    // 1:1 onto the standalone getters monthlyElecCost / elecPayee /
-    // totalElecPaid / lastElecPaymentTime — a strong but UNCONFIRMED
-    // inference. The trailing bool is a guess (`isPaidThisMonth`).
+    // (uint256, address, uint256, uint256, bool) → cost, payee, totalPaid,
+    // lastPaymentTime, canPay (VAULT_SPEC_V2.1.md §3). The first four map 1:1
+    // onto the standalone getters monthlyElecCost / elecPayee / totalElecPaid /
+    // lastElecPaymentTime. The trailing bool is `canPay` — the 30-day cooldown
+    // has elapsed AND idle ≥ monthlyElecCost, i.e. payElectricity() would go
+    // through right now. This is roughly the INVERSE of "already paid this
+    // month", not a rename of it.
     type: "function",
     name: "elecStatus",
     inputs: [],
@@ -433,7 +541,7 @@ export const DYNAVAULT_ABI = [
       { name: "elecPayee", type: "address" },
       { name: "totalElecPaid", type: "uint256" },
       { name: "lastElecPaymentTime", type: "uint256" },
-      { name: "isPaidThisMonth", type: "bool" },
+      { name: "canPay", type: "bool" },
     ],
     stateMutability: "view",
   },
@@ -705,6 +813,93 @@ export const DYNAVAULT_ABI = [
     outputs: [],
     stateMutability: "nonpayable",
   },
+
+  // ── Owner config / strategy management (VAULT_SPEC_V2.1.md §2) ─────────────
+  // Same rule as the writes above: DECLARATIONS ONLY, no write helper shipped.
+  // Each is a privileged, value- or policy-moving call that belongs at an
+  // explicitly-audited keeper/owner call site, never a generic adapter (and
+  // never the chat — ADR-012/ADR-017).
+  {
+    type: "function",
+    name: "addStrategy",
+    inputs: [
+      { name: "adapter", type: "address" },
+      { name: "allocation", type: "uint256" },
+      { name: "isIdle", type: "bool" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "removeStrategy",
+    inputs: [{ name: "adapter", type: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "setElecPayee",
+    inputs: [{ name: "_payee", type: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "setMonthlyElecCost",
+    inputs: [{ name: "_cost", type: "uint256" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "setCurtailmentThresholds",
+    inputs: [
+      { name: "pre", type: "uint256" },
+      { name: "post", type: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "setHalvingMonth",
+    inputs: [{ name: "month", type: "uint256" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "setTakeProfitTier",
+    inputs: [
+      { name: "index", type: "uint256" },
+      { name: "btcPrice", type: "uint256" },
+      { name: "sellBps", type: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "resetTakeProfitTier",
+    inputs: [{ name: "index", type: "uint256" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "setProductDurationMonths",
+    inputs: [{ name: "months", type: "uint256" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "setMiningNoteMode",
+    inputs: [{ name: "enabled", type: "bool" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
 ] as const;
 
 /**
@@ -956,8 +1151,12 @@ export interface StrategyInfo {
   adapter: Address;
   allocationBps: bigint;
   enabled: boolean;
-  /** UNCONFIRMED semantics — 4th tuple component of `strategies(uint256)`. */
-  liquid: boolean;
+  /**
+   * 4th component of `strategies(uint256)` — `isIdle` (VAULT_SPEC_V2.1.md §3).
+   * true → the allocation is satisfied by the vault's own idle balance
+   * (`adapter = address(0)`); the B3 Reserve pocket is the idle strategy.
+   */
+  isIdle: boolean;
 }
 
 export interface MiningMetrics {
@@ -973,8 +1172,13 @@ export interface ElecStatus {
   elecPayee: Address;
   totalElecPaid: bigint;
   lastElecPaymentTime: bigint;
-  /** UNCONFIRMED semantics — trailing bool of `elecStatus()`. */
-  isPaidThisMonth: boolean;
+  /**
+   * Trailing bool of `elecStatus()` — `canPay` (VAULT_SPEC_V2.1.md §3): the
+   * 30-day cooldown has elapsed AND idle ≥ `monthlyElecCost`, i.e. a
+   * `payElectricity()` call would succeed right now. NOT "already paid this
+   * month" — it is roughly the inverse.
+   */
+  canPay: boolean;
 }
 
 export interface WhitelistStatus {
@@ -1277,16 +1481,16 @@ function decodeStrategy(index: number, raw: unknown): StrategyInfo | null {
   const adapter = asAddress(tuple[0]);
   const allocationBps = asBigint(tuple[1]);
   const enabled = asBoolean(tuple[2]);
-  const liquid = asBoolean(tuple[3]);
+  const isIdle = asBoolean(tuple[3]);
   if (
     adapter === null ||
     allocationBps === null ||
     enabled === null ||
-    liquid === null
+    isIdle === null
   ) {
     return null;
   }
-  return { index, adapter, allocationBps, enabled, liquid };
+  return { index, adapter, allocationBps, enabled, isIdle };
 }
 
 /** A single strategy by index. v2 only. */
@@ -1401,13 +1605,13 @@ export async function readElecStatus(opts?: ReadOpts): Promise<Wired<ElecStatus>
     const elecPayee = asAddress(tuple[1]);
     const totalElecPaid = asBigint(tuple[2]);
     const lastElecPaymentTime = asBigint(tuple[3]);
-    const isPaidThisMonth = asBoolean(tuple[4]);
+    const canPay = asBoolean(tuple[4]);
     if (
       monthlyElecCost === null ||
       elecPayee === null ||
       totalElecPaid === null ||
       lastElecPaymentTime === null ||
-      isPaidThisMonth === null
+      canPay === null
     ) {
       return unavailable<ElecStatus>(
         UNAVAILABLE_REASONS.DECODE_ERROR,
@@ -1420,7 +1624,7 @@ export async function readElecStatus(opts?: ReadOpts): Promise<Wired<ElecStatus>
         elecPayee,
         totalElecPaid,
         lastElecPaymentTime,
-        isPaidThisMonth,
+        canPay,
       },
       target,
     );

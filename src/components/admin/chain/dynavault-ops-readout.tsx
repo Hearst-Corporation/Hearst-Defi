@@ -152,7 +152,7 @@ export async function DynavaultOpsReadout() {
                 render={(bps) => (
                   <span className={VALUE}>
                     {formatBps(bps)}
-                    {strategy.liquid ? " · idle" : ""}
+                    {strategy.isIdle ? " · idle" : ""}
                   </span>
                 )}
                 last={i === strategies.data.length - 1}
@@ -220,9 +220,10 @@ export async function DynavaultOpsReadout() {
       />
 
       <OpsRow
-        label="Paid this month"
-        read={selectWired<ElecStatus, boolean>(elec, (e) => e.isPaidThisMonth)}
-        render={(paid) => <span className={VALUE}>{paid ? "Yes" : "No"}</span>}
+        label="Ready to pay"
+        note="canPay — 30-day cooldown elapsed and idle ≥ monthly cost."
+        read={selectWired<ElecStatus, boolean>(elec, (e) => e.canPay)}
+        render={(ready) => <span className={VALUE}>{ready ? "Yes" : "No"}</span>}
         last
       />
 

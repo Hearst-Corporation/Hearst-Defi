@@ -3,7 +3,8 @@
  *
  * The SPV's electricity position as the contract sees it — `elecStatus()` on
  * PermissionedDynaVault v2.1: monthly cost, payee, total paid to date, last
- * payment timestamp, and the contract's own `isPaidThisMonth` flag.
+ * payment timestamp, and the contract's own `canPay` flag (VAULT_SPEC_V2.1.md
+ * §3: cooldown elapsed AND idle ≥ monthly cost).
  *
  * ── Two blocks, two provenances, never merged ────────────────────────────────
  * The response deliberately keeps them apart:

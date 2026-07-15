@@ -29,8 +29,9 @@ export interface ElecCooldown {
   /**
    * Derived HINT, not an authorization: it says the 30-day window has elapsed,
    * nothing more. The contract remains the only authority on whether
-   * `payElectricity()` would actually succeed (it has its own guards — see
-   * `isPaidThisMonth`, keeper role, pause state). Never gate a write on this.
+   * `payElectricity()` would actually succeed — its own `elecStatus().canPay`
+   * additionally requires idle ≥ `monthlyElecCost`, plus keeper role and pause
+   * state. Never gate a write on this derived flag.
    */
   canPay: boolean;
   /** No payment has ever been recorded (`lastElecPaymentTime == 0`). */

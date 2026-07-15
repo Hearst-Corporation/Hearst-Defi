@@ -52,9 +52,9 @@ const CHAIN_ID = 84532;
 
 /** Three strategies -> valid indices are 0..2; 3 must be a 404. */
 const STRATEGIES: StrategyInfo[] = [
-  { index: 0, adapter: ADAPTER_0, allocationBps: 4_500n, enabled: true, liquid: true },
-  { index: 1, adapter: ADAPTER_1, allocationBps: 3_500n, enabled: true, liquid: false },
-  { index: 2, adapter: ADAPTER_2, allocationBps: 2_000n, enabled: false, liquid: false },
+  { index: 0, adapter: ADAPTER_0, allocationBps: 4_500n, enabled: true, isIdle: true },
+  { index: 1, adapter: ADAPTER_1, allocationBps: 3_500n, enabled: true, isIdle: false },
+  { index: 2, adapter: ADAPTER_2, allocationBps: 2_000n, enabled: false, isIdle: false },
 ];
 
 function ok<T>(data: T): WiredOk<T> {
@@ -163,7 +163,7 @@ describe("GET /api/strategies/[index] -- payload", () => {
         adapter: ADAPTER_0,
         allocationBps: "4500",
         enabled: true,
-        liquid: true,
+        isIdle: true,
       },
       source: "v2",
       address: ADDRESS,
@@ -186,7 +186,7 @@ describe("GET /api/strategies/[index] -- payload", () => {
       adapter: ADAPTER_1,
       allocationBps: "3500",
       enabled: true,
-      liquid: false,
+      isIdle: false,
     });
   });
 

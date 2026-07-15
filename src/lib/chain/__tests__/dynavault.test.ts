@@ -439,7 +439,7 @@ describe("v2 mode — wired reads", () => {
     expect(result.data.elecPayee).toBe(USER_ADDR);
     expect(result.data.totalElecPaid).toBe(9_000_000n);
     expect(result.data.lastElecPaymentTime).toBe(1_752_000_000n);
-    expect(result.data.isPaidThisMonth).toBe(true);
+    expect(result.data.canPay).toBe(true);
   });
 });
 
@@ -595,6 +595,63 @@ describe("DYNAVAULT_ABI — the v2.1 divergences from ERC-4626", () => {
       "executeTakeProfit",
     ]) {
       expect(abiItem(name), `${name} missing from DYNAVAULT_ABI`).toBeDefined();
+    }
+  });
+
+  it("declares the 12 operational events from spec §4 (beyond Deposit/Redeem)", () => {
+    for (const name of [
+      "StrategyAdded",
+      "StrategyRemoved",
+      "Rebalance",
+      "VaultSwapped",
+      "ElectricityPaid",
+      "ElecPayeeUpdated",
+      "MonthlyElecCostUpdated",
+      "MiningMetricsReported",
+      "CurtailmentTriggered",
+      "CurtailmentLifted",
+      "TakeProfitExecuted",
+      "MonthlyEngineRun",
+    ]) {
+      const event = abiItem(name);
+      expect(event, `${name} missing from DYNAVAULT_ABI`).toBeDefined();
+      expect(event?.type).toBe("event");
+    }
+  });
+
+  it("declares the 10 owner/keeper config functions from spec §2", () => {
+    for (const name of [
+      "addStrategy",
+      "removeStrategy",
+      "setElecPayee",
+      "setMonthlyElecCost",
+      "setCurtailmentThresholds",
+      "setHalvingMonth",
+      "setTakeProfitTier",
+      "resetTakeProfitTier",
+      "setProductDurationMonths",
+      "setMiningNoteMode",
+    ]) {
+      const fn = abiItem(name);
+      expect(fn, `${name} missing from DYNAVAULT_ABI`).toBeDefined();
+      expect(fn?.type).toBe("function");
+      // Declaration only: nonpayable, no outputs (no write helper is shipped).
+      if (fn?.type === "function") {
+        expect(fn.stateMutability).toBe("nonpayable");
+        expect(fn.outputs).toHaveLength(0);
+      }
+    }
+  });
+
+  it("addStrategy carries the spec's (address, uint256, bool isIdle) signature", () => {
+    const fn = abiItem("addStrategy");
+    expect(fn?.type).toBe("function");
+    if (fn?.type === "function") {
+      expect(fn.inputs.map((input) => input.type)).toEqual([
+        "address",
+        "uint256",
+        "bool",
+      ]);
     }
   });
 

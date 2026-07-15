@@ -45,7 +45,7 @@ const READ_AT = "2026-07-15T10:00:00.000Z";
 const CHAIN_ID = 84532;
 
 const STRATEGIES: StrategyInfo[] = [
-  { index: 0, adapter: ADAPTER, allocationBps: 4_500n, enabled: true, liquid: true },
+  { index: 0, adapter: ADAPTER, allocationBps: 4_500n, enabled: true, isIdle: true },
 ];
 
 function ok<T>(data: T): WiredOk<T> {
@@ -98,7 +98,7 @@ describe("GET /api/vault/strategies", () => {
         adapter: ADAPTER,
         allocationBps: "4500",
         enabled: true,
-        liquid: true,
+        isIdle: true,
       },
     ]);
   });
