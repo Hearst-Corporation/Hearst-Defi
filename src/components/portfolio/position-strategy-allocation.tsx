@@ -1,11 +1,16 @@
 // PositionStrategyAllocation — server component, pure render.
 //
 // HONEST STATE: per-investor allocation does NOT exist in PositionDetail. This
-// surface therefore presents the *structural* strategy of the Hearst Yield Vault
-// (operation level, identical across every client of the vault), NOT a fabricated
-// personal allocation. The three pockets below are product facts (structural
-// targets), not live per-position data — hence hard-coded constants + an
+// surface therefore presents the *structural* strategy of the vault (operation
+// level, identical across every client of the vault), NOT a fabricated personal
+// allocation. The three pockets below are product facts — the allocation is
+// FIXED on-chain (Methodology v3.0 §2), not live per-position data — hence an
 // "estimated" provenance and a clear "targets, not guaranteed" disclaimer.
+import {
+  B1_MINING_ALLOCATION_BPS,
+  B2_BTC_ALLOCATION_BPS,
+  B3_USDC_ALLOCATION_BPS,
+} from "@/lib/products/dynavault-factsheet";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 
 interface StrategyPocket {
@@ -16,14 +21,35 @@ interface StrategyPocket {
   color: string;
 }
 
-// Structural allocation targets for the Hearst Yield Vault — product facts,
-// the same for every client of this vault. Not per-investor data. Colours use the
-// categorical data-viz palette (Archive 4) so the three classes read as clearly
-// distinct — mining green, wBTC amber, USDC blue — never near-identical greens.
+// Bps → percent. The canonical allocation lives on the factsheet (and, once
+// deployed, on-chain); dividing keeps a single source of truth.
+const BPS_PER_PERCENT = 100;
+
+// Structural allocation of the mining note — product facts, fixed on-chain and
+// identical for every client of this vault. Weights are DERIVED from the
+// canonical bps constants (dynavault-factsheet / Methodology v3.0 §2) so this
+// surface can never drift from the invest form or the on-chain layout. Colours
+// use the categorical data-viz palette so the three classes read as clearly
+// distinct — mining green, BTC amber, USDC blue — never near-identical greens.
 const POCKETS: readonly StrategyPocket[] = [
-  { id: "mining", label: "Mining power", targetPct: 55, color: "var(--ct-cat-mining)" },
-  { id: "wbtc", label: "wBTC collateral", targetPct: 25, color: "var(--ct-cat-btc)" },
-  { id: "usdc", label: "USDC buffer", targetPct: 20, color: "var(--ct-cat-usdc)" },
+  {
+    id: "mining",
+    label: "Mining Power",
+    targetPct: B1_MINING_ALLOCATION_BPS / BPS_PER_PERCENT,
+    color: "var(--ct-cat-mining)",
+  },
+  {
+    id: "btc",
+    label: "BTC Pouch",
+    targetPct: B2_BTC_ALLOCATION_BPS / BPS_PER_PERCENT,
+    color: "var(--ct-cat-btc)",
+  },
+  {
+    id: "usdc",
+    label: "Reserve USDC",
+    targetPct: B3_USDC_ALLOCATION_BPS / BPS_PER_PERCENT,
+    color: "var(--ct-cat-usdc)",
+  },
 ];
 
 interface PositionStrategyAllocationProps {
@@ -37,8 +63,8 @@ export function PositionStrategyAllocation({
     <div className="flex flex-col gap-5 p-5" aria-label={ariaLabel}>
       <div className="flex items-start justify-between gap-4">
         <p className="ct-metric-caption max-w-sm">
-          Structural allocation of the Hearst Yield Vault — the same across every
-          client of this vault, not a per-investor breakdown.
+          Fixed structural allocation of the vault — the same across every client
+          of this vault, not a per-investor breakdown.
         </p>
         <div className="shrink-0">
           <ProvenanceBadge kind="estimated" variant="compact" />
@@ -82,19 +108,20 @@ export function PositionStrategyAllocation({
         ))}
       </ul>
 
-      {/* Dynamic rebalancing note — qualitative, no fabricated figures. */}
+      {/* Fixed allocation, shaped on-chain — qualitative, no fabricated figures. */}
       <div className="flex flex-col gap-1.5 rounded-lg border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] p-3.5">
-        <span className="ct-bento-label">Dynamic rebalancing</span>
+        <span className="ct-bento-label">Fixed allocation, shaped on-chain</span>
         <p className="ct-metric-caption">
-          Pockets are rebalanced deterministically against the house 45 / 55 / 80
-          rule. Chainlink feeds are advisory only — they recommend a rebalance,
-          they never execute one. Weights drift with mining output and collateral
-          value between rebalances.
+          Allocation is fixed on-chain. Outcomes are shaped by three configured
+          on-chain mechanisms, not by sleeve reallocation: take-profit realises
+          BTC from the BTC Pouch at configured price tiers, the Reserve USDC
+          pocket depletes along a fixed vending curve, and the Mining Power pocket
+          is curtailed below the configured BTC threshold (Methodology v3.0).
         </p>
       </div>
 
       <p className="ct-metric-caption">
-        Structural vault strategy, identical across clients of this vault.
+        Fixed on-chain allocation, identical across clients of this vault.
         Allocation targets, not guaranteed.
       </p>
     </div>
