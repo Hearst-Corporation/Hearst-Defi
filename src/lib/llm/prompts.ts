@@ -1,12 +1,70 @@
 import "server-only";
 
+import {
+  VAULT_BTC_PLUS,
+  VAULT_DEFENSIVE,
+  type VaultDefinition,
+} from "@/lib/engine/vaults";
+import {
+  ALLOCATION_TOTAL_BPS,
+  B1_MINING_ALLOCATION_BPS,
+  B2_BTC_ALLOCATION_BPS,
+  B3_USDC_ALLOCATION_BPS,
+} from "@/lib/products/dynavault-factsheet";
+
 /**
  * Shared LLM base prompt constants.
  *
  * Extracted here so that prompt-hash.ts can compute stable hashes at module
  * load time without importing from route files. Routes that previously defined
  * these constants inline should import from this module instead.
+ *
+ * ── Why the allocations are DERIVED, not typed out ───────────────────────────
+ * The admin prompt used to assert HYV's allocation as a hand-typed literal. It
+ * kept asserting the pre-v3.0 four-sleeve mix long after the product became the
+ * three-pocket mining note — the model was handed a retired allocation as a
+ * "canonical" fact. Deriving the figures from the same constants the product
+ * reads (`dynavault-factsheet` bps for the note, the `engine/vaults` presets for
+ * the secondary vaults) makes that drift structurally impossible: change the
+ * allocation and the prompt changes with it.
+ *
+ * Both sources are pure, side-effect-free data modules (no I/O, no prisma, no
+ * fetch) and neither imports from `@/lib/llm/*`, so this adds no cycle and no
+ * server-only violation — `server-only` constrains who may import THIS module,
+ * not what a server module may import.
  */
+
+/**
+ * Basis points → whole-percent label, so a prompt figure can never disagree with
+ * the constant it describes. Source of the bps themselves:
+ * `docs/VAULT_SPEC_V2.1.md` §6 + `docs/methodology/v3.0.md` §2.
+ */
+function bpsToPercentLabel(bps: number): string {
+  const pct = (bps / ALLOCATION_TOTAL_BPS) * 100;
+  return `${Number(pct.toFixed(2))} %`;
+}
+
+/**
+ * HYV — the flagship mining note. THREE fixed on-chain pockets (B1/B2/B3), not
+ * sleeves. Source: `docs/VAULT_SPEC_V2.1.md` §6 "Mining Note Mode (3 poches)"
+ * (allocation, adapter/idle, asset) + `docs/methodology/v3.0.md` §2 (fixed
+ * on-chain allocation, 24-month term, BTC accumulation).
+ */
+const HYV_POCKET_LINE = [
+  `B1 Mining Power ${bpsToPercentLabel(B1_MINING_ALLOCATION_BPS)} (${B1_MINING_ALLOCATION_BPS} bps, non-idle, USDC → RWA mining)`,
+  `B2 BTC Pouch ${bpsToPercentLabel(B2_BTC_ALLOCATION_BPS)} (${B2_BTC_ALLOCATION_BPS} bps, non-idle, LBTC → BTC exposure)`,
+  `B3 Reserve ${bpsToPercentLabel(B3_USDC_ALLOCATION_BPS)} (${B3_USDC_ALLOCATION_BPS} bps, idle, USDC → electricity, DCA, exit liquidity)`,
+].join(" ; ");
+
+/**
+ * The secondary vaults (Defensive, BTC Plus — ADR-006) are NOT the mining note:
+ * they stay engine presets carrying the legacy four-sleeve shape. Rendered from
+ * `engine/vaults` so their figures track the presets.
+ */
+function sleeveLine(vault: VaultDefinition): string {
+  const t = vault.allocationTargets;
+  return `${vault.ticker} = mining ${t.mining} %, tactical BTC ${t.btc_tactical} %, USDC base ${t.usdc_base} %, stable reserve ${t.stable_reserve} %`;
+}
 
 /**
  * Role directive injected into the chat system prompt so the assistant adapts
@@ -37,8 +95,11 @@ export const COCKPIT_ADMIN_SYSTEM_PROMPT = `You are the Admin mode of the Hearst
 
 # Mission
 - Answer as a senior internal copilot: architecture, product, vaults, allocations, risks, proofs, custody, governance, deployments and runbooks.
-- Know the canonical allocations: HYV = mining 60 %, tactical BTC 25 %, USDC base 10 %, stable reserve 5 % ; HDV = mining 20 %, tactical BTC 10 %, USDC base 35 %, stable reserve 35 % ; HBP = mining 40 %, tactical BTC 45 %, USDC base 10 %, stable reserve 5 %.
-- Explain deployment operations as preparation/review: Base Sepolia contracts, Event Logger, PoR Registry, ERC-4626, Spearbit audit, multisig approvals, public variables and preflight.
+- Know the canonical allocations. **HYV (flagship) is the mining note on PermissionedDynaVault v2.1 — three pockets whose allocation is FIXED on-chain, NOT sleeves and not an ERC-4626**: ${HYV_POCKET_LINE}. The four-sleeve HYV model (a mining/tactical/USDC/stable-reserve mix) belongs to the pre-v3.0 product model that v3.0 SUPERSEDED — never describe HYV that way and never cite a four-sleeve HYV allocation (methodology v3.0 §2, ADR-019).
+- HYV mechanics: BTC **accumulates over a 24-month term and is delivered at maturity** — no periodic cash distribution, no fixed APY. The estimated return is always a **range in accumulated BTC**, never a single-point figure, and v3.0 publishes **no per-pocket rate**.
+- Allocation stays fixed at 40/27/33: outcomes are shaped by three configured on-chain mechanisms, never by reallocating pockets — take-profit on B2 (realisation event, not an LP distribution), the vending curve on B3 (fixed depletion schedule funding operations), curtailment on B1 (below the configured pre/post-halving threshold). All are configured contract values, disclosed as such.
+- The secondary vaults (ADR-006) are NOT the mining note: they remain engine presets on the legacy four-sleeve shape — ${sleeveLine(VAULT_DEFENSIVE)} ; ${sleeveLine(VAULT_BTC_PLUS)}.
+- Explain deployment operations as preparation/review: Base Sepolia contracts, PermissionedDynaVault v2.1, Event Logger, PoR Registry, Spearbit audit, multisig approvals, public variables and preflight.
 - Use injected data when it exists: user profile, memory, portfolio, routes/specs, app metrics. Qualify any data by provenance and freshness.
 
 # Current tool limits
