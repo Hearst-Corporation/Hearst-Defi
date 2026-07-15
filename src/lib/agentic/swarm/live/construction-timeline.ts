@@ -123,7 +123,6 @@ export interface ConstructionSignals {
   writeup: SignalState;
 }
 
-const UNKNOWN_SIGNAL: SignalState = { present: false, provenance: "UNKNOWN" };
 
 function liveToStageProvenance(p: LiveProvenance | undefined): StageProvenance {
   switch (p) {
@@ -418,5 +417,3 @@ export function buildTimelineFromDraft(
 ): ProductConstructionTimeline {
   return buildConstructionTimeline(deriveSignalsFromDraft(draft));
 }
-
-export { UNKNOWN_SIGNAL };

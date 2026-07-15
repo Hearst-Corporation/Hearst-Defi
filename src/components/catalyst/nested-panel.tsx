@@ -1,6 +1,5 @@
 /**
  * Catalyst NestedPanel — canonical Hearst nested panel + data rows. Token-only.
- * `src/components/ui/nested-panel` re-exports this.
  */
 
 import { cn } from "@/lib/cn";
@@ -51,10 +50,6 @@ function Row({
 }
 
 export function DataRow(props: RowProps) {
-  return <Row {...props} />;
-}
-
-export function LegalMetadataRow(props: RowProps) {
   return <Row {...props} />;
 }
 

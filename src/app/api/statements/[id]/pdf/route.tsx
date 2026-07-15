@@ -12,6 +12,7 @@ import {
   type PdfProvenanceKind,
 } from "@/lib/pdf/components/pdf-provenance";
 import { assertRateLimit } from "@/lib/rate-limit";
+import { formatApyRange } from "@/lib/format/apy";
 import {
   aggregateLpPnl,
   daysHeldSince,
@@ -53,15 +54,6 @@ function pct(n: number): string {
 
 function fmtDate(d: Date): string {
   return d.toISOString().slice(0, 10);
-}
-
-/**
- * Formats an APY range from basis-point integers.
- * e.g. formatApyRange(940, 1280) → "9.4–12.8%"
- * Uses an en-dash (U+2013) separator, consistent with the Methodology v1.0 convention.
- */
-export function formatApyRange(lowBps: number, highBps: number): string {
-  return `${(lowBps / 100).toFixed(1)}–${(highBps / 100).toFixed(1)}%`;
 }
 
 function ytdStart(): Date {
@@ -393,16 +385,12 @@ function StatementDocument({ data }: { data: StatementData }) {
     })),
   );
 
-  // APY range derived from vault deployment bps (default: 940 / 1280 = 9.4–12.8%).
-  // Uses the first position's data; all positions in a single-vault statement share
-  // the same target range.
-  const _apyLowBps = data.positions[0] !== undefined
-    ? Math.round(data.positions[0].apyLow * 100)
-    : 940;
-  const _apyHighBps = data.positions[0] !== undefined
-    ? Math.round(data.positions[0].apyHigh * 100)
-    : 1280;
-  const apyRangeLabel = formatApyRange(_apyLowBps, _apyHighBps);
+  // APY range in percent (default: 9.4–12.8%). Uses the first position's data; all
+  // positions in a single-vault statement share the same target range.
+  const apyRangeLabel = formatApyRange({
+    low: data.positions[0]?.apyLow ?? 9.4,
+    high: data.positions[0]?.apyHigh ?? 12.8,
+  });
 
   return (
     <Document

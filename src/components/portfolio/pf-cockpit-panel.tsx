@@ -120,25 +120,3 @@ export function PfCockpitPanelHeader({
     </header>
   );
 }
-
-/** Subsection label inside a cockpit panel (stat-label scale, not h3). */
-export function PfCockpitSubhead({
-  title,
-  meta,
-  className,
-}: {
-  title: ReactNode;
-  meta?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn("pf-cockpit-panel__subhead", className)}>
-      <span className="stat-label">{title}</span>
-      {meta ? (
-        <span className="pf-cockpit-panel__subhead-meta tabular body-xs ct-text-tertiary font-normal">
-          {meta}
-        </span>
-      ) : null}
-    </div>
-  );
-}

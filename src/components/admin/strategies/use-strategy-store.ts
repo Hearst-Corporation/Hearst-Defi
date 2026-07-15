@@ -4,8 +4,7 @@
  * useStrategyStore — client-side local CRUD store for the Strategy Hub.
  *
  * LOCAL / IN-MEMORY ONLY. No DB, no fetch, no server action. State lives
- * in React useState and is lost on page reload. The `persistencePending`
- * constant signals to the UI that this draft has not been persisted yet.
+ * in React useState and is lost on page reload.
  *
  * This module intentionally:
  *  - Accepts timestamps as args (no Date.now() / new Date() calls inside)
@@ -25,13 +24,6 @@ import type {
   ScenarioAllocation,
   StrategyStatus,
 } from "@/lib/product-strategies";
-
-// ---------------------------------------------------------------------------
-// Surface signal — the UI should display "Local draft — persistence pending"
-// wherever it shows unsaved drafts.
-// ---------------------------------------------------------------------------
-
-export const persistencePending = true as const;
 
 // ---------------------------------------------------------------------------
 // Counter — purely module-level, deterministic across the session.
@@ -348,8 +340,7 @@ export interface StrategyStore {
 /**
  * useStrategyStore — pure useState-based local CRUD for the Strategy Hub.
  *
- * LOCAL / IN-MEMORY — state is NOT persisted to the DB. `persistencePending`
- * is exported as `true` so the UI can surface a "Local draft" badge.
+ * LOCAL / IN-MEMORY — state is NOT persisted to the DB.
  *
  * @param initial Seed strategies (typically PRODUCT_STRATEGIES from the config).
  */

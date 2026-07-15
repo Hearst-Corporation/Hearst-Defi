@@ -50,11 +50,6 @@ const TX_MAX_WAIT_MS = 15_000;
 
 export type FinalStatus = "active" | "matured";
 
-export interface AdvanceOptions {
-  months: number;
-  matured: boolean;
-}
-
 export interface AdvanceResult {
   ok: true;
   /** Every position that was aged (all of the investor's active/matured positions). */

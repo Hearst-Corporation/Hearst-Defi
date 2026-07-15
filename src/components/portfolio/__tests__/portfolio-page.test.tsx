@@ -222,7 +222,7 @@ describe("LockMeter props — loadLockMeterProps shape", () => {
 
 // ── Widget props: DistribCalendar ─────────────────────────────────────────────
 
-describe("DistribCalendar props — loadDistribCalendarProps shape", () => {
+describe("DistribCalendar props — DistribCalendarProps shape", () => {
   const PAID_AT = new Date("2026-04-05T12:00:00Z");
   const ENTRIES: DistribEntry[] = [
     { period: "2025-05", amountUsdc: 305_000, paidAt: new Date("2025-05-05T12:00:00Z") },

@@ -66,8 +66,6 @@ export const LIVE_READ_FORBIDDEN_ACTIONS = [
   "custodial_transfer",
   "promote_vault_draft",
 ] as const;
-export type LiveReadForbiddenAction =
-  (typeof LIVE_READ_FORBIDDEN_ACTIONS)[number];
 
 /** A declarative stage definition (pure metadata; the runner holds the logic). */
 export interface LiveSwarmStageDef {

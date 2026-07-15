@@ -281,10 +281,10 @@ dans `cockpit.css` (zéro `style={{}}` statique). Utilitaires composés récents
 **Sous-surfaces imbriquées (box-in-box)** — langage canonique P0 :
 `Metric variant="nested"` + `NestedKpiGrid` (KPI calmes dans une Card/dash-cell,
 provenance sur le bloc parent) · `NestedPanel` + `ProofRow` (preuves / evidence
-tabulaires denses uniquement) · `DataRow` / `LegalMetadataRow` (faits profil,
+tabulaires denses uniquement) · `DataRow` (faits profil,
 metadata compliance — ex. `/profile`) · `DashboardPanelHeader` (titres card
-investisseur avec provenance optionnelle) · `PanelStatus` / `PanelStatusSection`
-(`src/components/ui/panel-status.tsx`, réexport `pf-cockpit-panel`) — message
+investisseur avec provenance optionnelle) · `PanelStatus`
+(`src/components/catalyst/panel-status.tsx`, réexport `pf-cockpit-panel`) — message
 inline **sans** boîte dans un parent déjà encadré (cockpit panel, card, chamber) ·
 `PanelStatusAccent` — rail `border-l` accentué (action recommandée, risk warning)
 · `EmptySurface` / `AwaitingMetricState` — module vide seul ou `variant="inline"`

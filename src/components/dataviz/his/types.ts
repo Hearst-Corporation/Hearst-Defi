@@ -33,12 +33,6 @@ export interface HcPoint {
   y: number;
 }
 
-export interface HcSeries {
-  id: string;
-  label: string;
-  points: readonly HcPoint[];
-}
-
 export interface HcLabeledValue {
   label: string;
   value: number;
@@ -60,14 +54,3 @@ export interface HcAssumption {
   /** Optional display rule, e.g. "shown as range, never single point". */
   displayRule?: string;
 }
-
-/** Statuses that are allowed to read as "verified" (accent tone). */
-export const HC_VERIFIED: ReadonlySet<HcSourceStatus> = new Set<HcSourceStatus>([
-  "live",
-  "oracle",
-  "attested",
-]);
-
-/** Statuses that must read as non-production (warning tone), never as live. */
-export const HC_NON_PRODUCTION: ReadonlySet<HcSourceStatus> =
-  new Set<HcSourceStatus>(["mock", "demo", "unaudited"]);

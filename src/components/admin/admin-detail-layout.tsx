@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-import { BentoPanel } from "@/components/catalyst/bento";
 import { cn } from "@/lib/cn";
 
 interface AdminDetailSectionProps {
@@ -39,32 +38,6 @@ export function AdminDetailSection({
       )}
       {children}
     </section>
-  );
-}
-
-interface AdminDetailGridProps {
-  children: ReactNode;
-  className?: string;
-  cols?: 1 | 2;
-}
-
-export function AdminDetailGrid({
-  children,
-  className,
-  cols = 2,
-}: AdminDetailGridProps) {
-  return (
-    <BentoPanel className="p-6">
-      <dl
-        className={cn(
-          "grid grid-cols-1 gap-x-8 gap-y-5",
-          cols === 2 && "md:grid-cols-2",
-          className,
-        )}
-      >
-        {children}
-      </dl>
-    </BentoPanel>
   );
 }
 

@@ -22,15 +22,6 @@ export type CompositeLabel =
   | "Elevated"
   | "High";
 
-export interface RiskPulseProps {
-  scores: RiskScore[];
-  composite: number;
-  compositeLabel: CompositeLabel | undefined;
-  composite30dTrend: "rising" | "stable" | "falling";
-  source?: "live" | "stale";
-  updatedAt?: Date;
-}
-
 /** Map composite label → CSS token colour class for the composite value. */
 export function compositeLabelColor(label: CompositeLabel): string {
   switch (label) {

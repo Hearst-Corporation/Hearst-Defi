@@ -30,16 +30,6 @@ export { useChat } from "./chat/useChat";
 export type { UseChatOptions, UseChatReturn, DisplayMessage } from "./chat/useChat";
 export type { ChatPersistence, ChatMessage, ChatConfig } from "./chat/types";
 
-// Primitives
-export {
-  Eyebrow,
-  Title,
-  Sub,
-  KpiGrid,
-  KpiCard,
-  Card,
-} from "./primitives";
-
 // Stores (pour les apps qui veulent piloter l'état du shell depuis l'extérieur)
 export {
   subscribe as subscribeActiveProduct,

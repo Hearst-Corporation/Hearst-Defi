@@ -153,5 +153,3 @@ export const QUANT_PRESETS: Record<
     yield: { miningWeight: 0.75 },
   },
 };
-
-export type QuantPresetId = keyof typeof QUANT_PRESETS;

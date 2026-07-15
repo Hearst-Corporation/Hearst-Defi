@@ -10,16 +10,6 @@ export interface YieldSource {
   isVolatile?: boolean;
 }
 
-export interface YieldStackProps {
-  sources: YieldSource[];
-  blendedLow: number;
-  blendedHigh: number;
-  stressedBearRange: { low: number; high: number };
-  methodologyVersion?: string;
-  source?: "live" | "estimated" | "stale";
-  updatedAt?: Date;
-}
-
 /** CSS custom property for each bucket's bar colour (monochrome green scale). */
 export const BUCKET_COLOR: Record<YieldSource["bucket"], string> = {
   mining: "var(--ct-bucket-mining)",

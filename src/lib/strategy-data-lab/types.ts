@@ -14,13 +14,6 @@ import type {
   ScenarioReport,
 } from "@/lib/scenario-runner";
 
-export type DataLabMode =
-  | "BACKTEST"
-  | "FORWARD_SIMULATION"
-  | "STRESS_MATRIX"
-  | "SENSITIVITY"
-  | "REGIME_COMPARISON";
-
 /** A named, seeded market regime — a deterministic monthly BTC path shape. */
 export interface MarketRegimeConfig {
   id: string;
@@ -48,13 +41,6 @@ export interface MonteCarloConfig {
   includeJumpRisk: boolean;
   includeElectricityShock: boolean;
   includeBorrowAprShock: boolean;
-}
-
-export interface StressGridConfig {
-  btcShockBps: number[];
-  borrowAprShockBps: number[];
-  electricityShockBps: number[];
-  yieldShockBps: number[];
 }
 
 export type SensitivityVariable =

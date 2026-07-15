@@ -1,6 +1,6 @@
 /**
- * Catalyst PanelStatus — canonical Hearst panel status / accent / section.
- * Token-only. `src/components/ui/panel-status` re-exports this.
+ * Catalyst PanelStatus — canonical Hearst panel status / accent.
+ * Token-only.
  */
 
 import type { ReactNode } from "react";
@@ -55,28 +55,6 @@ export function PanelStatusAccent({
 }) {
   return (
     <div className={cn("ct-panel-status-accent", className)} role={role}>
-      {children}
-    </div>
-  );
-}
-
-export function PanelStatusSection({
-  label,
-  "aria-label": ariaLabel,
-  children,
-  className,
-}: {
-  label: string;
-  "aria-label"?: string;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn("ct-panel-status-section", className)}
-      aria-label={ariaLabel}
-    >
-      <p className="stat-label m-0">{label}</p>
       {children}
     </div>
   );

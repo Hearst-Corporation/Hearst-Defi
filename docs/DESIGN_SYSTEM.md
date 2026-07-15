@@ -213,7 +213,7 @@ de nouveaux charts (les usages existants migrent en Lot B / reconstruction Portf
   page-specific à auditer séparément).
 - **ApyRange** : jamais un APY point unique — toujours `low–high %` (#1).
 - **Ptai** : Projection → Trigger → Action → Impact pour simulations/rebalancing (#3).
-- Skeleton : importer `SkeletonCard` — ne pas redéfinir par page.
+- Skeleton : importer `Skeleton` — ne pas redéfinir par page.
 
 ## 7. Layout produit
 
@@ -296,15 +296,14 @@ Trois niveaux — hiérarchie cockpit, pas de verrou empty-vs-active :
 
 ### 9.2 Nested evidence surface
 
-`NestedPanel` · `DataRow` · `LegalMetadataRow` · `ProofRow` · `.ct-nested-callout`
+`NestedPanel` · `DataRow` · `ProofRow` · `.ct-nested-callout`
 — détails **dans** une card déjà active.
 
 Row taxonomy (zéro différence visuelle) :
 
 - `DataRow` — faits génériques label/value : deposit summary, profile facts,
-  metadata simple.
-- `LegalMetadataRow` — faits legal/compliance : SPV structure, regulatory
-  exemption, KYC/accreditation, custody, audit, multisig.
+  metadata simple, **et** faits legal/compliance (SPV structure, regulatory
+  exemption, KYC/accreditation, custody, audit, multisig).
 - `ProofRow` — faits proof/provenance : attestor, evidence hash, block, tx hash,
   signature, proof-center events.
 

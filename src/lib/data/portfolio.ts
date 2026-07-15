@@ -27,7 +27,6 @@ import {
   reconstructInvestorNavSeries,
 } from "@/lib/portfolio/investor-nav-snapshot";
 import type { LockMeterProps } from "@/components/portfolio/lock-meter";
-import type { DistribCalendarProps, DistribEntry } from "@/components/portfolio/distrib-calendar";
 import type { TimeToCashProps } from "@/lib/data/time-to-cash";
 
 export { resolveProvenance };
@@ -521,72 +520,7 @@ const loadLockMeterProps = cache(async (): Promise<LockMeterProps & { source: "l
 });
 
 /**
- * Build DistribCalendarProps from Distribution table.
- */
-export const loadDistribCalendarProps = cache(async (): Promise<DistribCalendarProps & { source: "live" | "stale"; updatedAt?: Date }> => {
-  const investor = await getInvestor();
-
-  if (!investor) {
-    return {
-      entries: [],
-      shareClass: null,
-      cadence: null,
-      source: "stale",
-    };
-  }
-
-  const firstActive = await prisma.position.findFirst({
-    where: { investorId: investor.id, status: "active" },
-    orderBy: { subscribedAt: "asc" },
-    include: { vaultDeployment: true },
-  });
-  const terms = firstActive
-    ? explicitShareClassTermsFromVaultKey(firstActive.vaultKey)
-    : null;
-
-  const rawDistribs = await prisma.investorTransaction.findMany({
-    where: {
-      investorId: investor.id,
-      type: "distribution",
-      occurredAt: {
-        gte: new Date(Date.UTC(new Date().getUTCFullYear() - 1, new Date().getUTCMonth(), 1)),
-      },
-    },
-    orderBy: { occurredAt: "asc" },
-    take: 12,
-  });
-
-  if (rawDistribs.length === 0) {
-    return {
-      entries: [],
-      shareClass: terms?.shareClass ?? null,
-      cadence: terms ? cadenceFromTerms(terms) : null,
-      source: "stale",
-    };
-  }
-
-  const entries: DistribEntry[] = rawDistribs.map((tx) => {
-    const d = tx.occurredAt;
-    const period = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-    return {
-      period,
-      amountUsdc: toNumber(tx.amountUsdc),
-      paidAt: tx.occurredAt,
-      txHash: tx.txHash ?? undefined,
-    };
-  });
-
-  return {
-    entries,
-    shareClass: terms?.shareClass ?? null,
-    cadence: terms ? cadenceFromTerms(terms) : null,
-    source: "live",
-    updatedAt: rawDistribs[rawDistribs.length - 1]?.occurredAt,
-  };
-});
-
-/**
- * Build YieldStackProps from vault allocation data.
+ * Build the yield stack data from vault allocation data.
  * Short-cached cross-request: allocation snapshots change at most hourly (custody
  * cron), but a 1h TTL meant a freshly-landed snapshot — or a just-cleared one —
  * left the Capital & Yield donut stale/empty for up to an hour. A 60s window
