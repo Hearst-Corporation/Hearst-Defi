@@ -305,6 +305,8 @@ describe("legacy mode — unsupported reads return not_supported_by_legacy", () 
     // tvlCap does not exist on the legacy contract → null, never 0.
     expect(result.data.tvlCap).toBeNull();
     expect(result.data.paused).toBe(false);
+    // Legacy shares stay 18-dec — verified on-chain, must NOT change.
+    expect(result.data.shareDecimals).toBe(18);
   });
 
   it("maps balanceOf() → shares for a user position in legacy mode", async () => {
@@ -374,6 +376,8 @@ describe("v2 mode — wired reads", () => {
     // The v2.1 spec lists no paused() view → null ("not exposed"), not false.
     expect(result.data.paused).toBeNull();
     expect(result.data.assetDecimals).toBe(6);
+    // v2 shares are 6-dec (spec "1:1" with USDC) — NOT the legacy 18.
+    expect(result.data.shareDecimals).toBe(6);
     expect(Date.parse(result.readAt)).not.toBeNaN();
   });
 
@@ -440,6 +444,108 @@ describe("v2 mode — wired reads", () => {
     expect(result.data.totalElecPaid).toBe(9_000_000n);
     expect(result.data.lastElecPaymentTime).toBe(1_752_000_000n);
     expect(result.data.canPay).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Share decimals are MODE-DEPENDENT — the silent ×1e12 NAV trap
+//
+// v2 shares are 6-dec (spec "1:1" with USDC); legacy shares are 18-dec (verified
+// on-chain). `convertToAssets` for NAV must be probed with ONE whole share in the
+// RIGHT unit — 1e6 in v2, 1e18 in legacy. Probing legacy's 1e18 against a 6-dec
+// v2 vault is exactly the 1e12 error this split guards against.
+// ---------------------------------------------------------------------------
+
+/** A fake client that records the args each call was made with. */
+function capturingClient(handlers: Record<string, unknown>): {
+  client: ReadContractClient;
+  calls: { functionName: string; args: readonly unknown[] }[];
+} {
+  const calls: { functionName: string; args: readonly unknown[] }[] = [];
+  return {
+    calls,
+    client: {
+      readContract: async ({ functionName, args }) => {
+        calls.push({ functionName, args });
+        if (!(functionName in handlers)) {
+          throw new Error(
+            `The contract function "${functionName}" returned no data ("0x").`,
+          );
+        }
+        return handlers[functionName];
+      },
+    },
+  };
+}
+
+describe("share decimals track the mode", () => {
+  it("v2: readNavPerShare probes ONE 6-dec share and stamps shareDecimals=6", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const { client, calls } = capturingClient({ convertToAssets: 1_000_000n });
+
+    const result = await mod.readNavPerShare({ client });
+    expect(result.status).toBe("wired");
+    if (result.status !== "wired") return;
+    expect(result.data.shareDecimals).toBe(6);
+    const nav = calls.find((call) => call.functionName === "convertToAssets");
+    expect(nav?.args).toEqual([10n ** 6n]);
+  });
+
+  it("legacy: readNavPerShare probes ONE 18-dec share and stamps shareDecimals=18", async () => {
+    const mod = await importWithEnv({
+      NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS: LEGACY_ADDR,
+    });
+    const { client, calls } = capturingClient({ convertToAssets: 1_000_000n });
+
+    const result = await mod.readNavPerShare({ client });
+    expect(result.status).toBe("wired");
+    if (result.status !== "wired") return;
+    expect(result.data.shareDecimals).toBe(18);
+    const nav = calls.find((call) => call.functionName === "convertToAssets");
+    expect(nav?.args).toEqual([10n ** 18n]);
+  });
+
+  it("v2: readVaultCore probes convertToAssets with 1e6, not 1e18", async () => {
+    const mod = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const { client, calls } = capturingClient({
+      totalAssets: 250_000_000n,
+      totalShares: 250_000_000n,
+      convertToAssets: 1_000_000n,
+      asset: USDC_ADDR,
+      tvlCap: 10_000_000_000_000n,
+    });
+
+    const result = await mod.readVaultCore({ client });
+    expect(result.status).toBe("wired");
+    if (result.status !== "wired") return;
+    expect(result.data.shareDecimals).toBe(6);
+    const nav = calls.find((call) => call.functionName === "convertToAssets");
+    expect(nav?.args).toEqual([10n ** 6n]);
+  });
+
+  it("v2: readUserShares stamps shareDecimals=6; legacy stamps 18", async () => {
+    const v2 = await importWithEnv({ NEXT_PUBLIC_DYNAVAULT_ADDRESS: V2_ADDR });
+    const v2Result = await v2.readUserShares(USER_ADDR, {
+      client: fakeClient({ shares: 5_000_000n, convertToAssets: 5_000_000n }),
+    });
+    expect(v2Result.status).toBe("wired");
+    if (v2Result.status === "wired") {
+      expect(v2Result.data.shareDecimals).toBe(6);
+    }
+
+    const legacy = await importWithEnv({
+      NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS: LEGACY_ADDR,
+    });
+    const legacyResult = await legacy.readUserShares(USER_ADDR, {
+      client: fakeClient({
+        balanceOf: 11_000_000_000_000_000_000n,
+        convertToAssets: 11_000_000n,
+      }),
+    });
+    expect(legacyResult.status).toBe("wired");
+    if (legacyResult.status === "wired") {
+      expect(legacyResult.data.shareDecimals).toBe(18);
+    }
   });
 });
 

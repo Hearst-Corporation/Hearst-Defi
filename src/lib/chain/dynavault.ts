@@ -78,23 +78,38 @@ const RPC_RETRY_COUNT = 2;
 export const USDC_DECIMALS = 6;
 
 /**
- * Share decimals — CONFIGURABLE ON PURPOSE, and NOT yet confirmed for v2.
+ * Share decimals — MODE-DEPENDENT, because the two vaults do NOT agree.
  *
  * Legacy HearstYieldVault: `_decimalsOffset() = 12` → shares 18 dec / asset 6
- * dec. VERIFIED on-chain (totalSupply()=12e18 for totalAssets()=12 USDC).
- *
- * PermissionedDynaVault v2.1: the spec only says "1:1 initially" without saying
- * 1:1 in what unit. If v2 ships shares 1:1 with USDC (6 decimals), THIS CONSTANT
- * MUST BECOME 6 — otherwise `navPerShare` is wrong by a factor of 1e12 and the
- * error is silent. That is why every read that depends on it also returns
- * `shareDecimals`, so a consumer can see which assumption produced the number.
- *
- * @todo Confirm with the contract engineer before v2 is deployed.
+ * dec. VERIFIED on-chain (totalSupply()=12e18 for totalAssets()=12 USDC). This
+ * is the mode running in production today — nothing about it may change.
  */
-export const SHARE_DECIMALS = 18;
+export const LEGACY_SHARE_DECIMALS = 18;
+
+/**
+ * PermissionedDynaVault v2.1: the spec says shares are minted "1:1" with the
+ * asset (VAULT_SPEC_V2.1.md §1 `deposit` → "shares mintées (1:1 initialement)";
+ * §3 lists `convertToShares`/`convertToAssets` with no decimals offset — it is
+ * NOT an ERC-4626, so there is no OZ `_decimalsOffset`). The asset is USDC at 6
+ * decimals, so 1:1 means shares carry 6 decimals as well. At the legacy 18 the
+ * `navPerShare` would be wrong by a factor of 1e12, SILENTLY — that whole class
+ * of error is why every read that depends on this also returns `shareDecimals`,
+ * so a disagreement at deploy time is visible in the wire rather than hidden.
+ *
+ * @todo Reconfirm against the DEPLOYED bytecode before v2 goes live — the
+ * contract does not exist yet, so 6 is the spec's intent, not a verified fact.
+ */
+export const V2_SHARE_DECIMALS = 6;
 
 /** One whole share, in share units. Argument of `convertToAssets` for NAV. */
-const ONE_SHARE = 10n ** BigInt(SHARE_DECIMALS);
+function oneShare(decimals: number): bigint {
+  return 10n ** BigInt(decimals);
+}
+
+/** Share decimals for the mode whose read produced the value. */
+function shareDecimalsForMode(mode: WiredSource): number {
+  return mode === "v2" ? V2_SHARE_DECIMALS : LEGACY_SHARE_DECIMALS;
+}
 
 /**
  * Hard ceiling on strategy enumeration. The spec describes 3 adapters. A count
@@ -1125,7 +1140,7 @@ export interface VaultCore {
   totalAssets: bigint;
   /** v2: `totalShares()`. legacy: `totalSupply()` — the same quantity. */
   totalShares: bigint;
-  /** `convertToAssets(ONE_SHARE)` — asset units per whole share. */
+  /** `convertToAssets(oneShare(shareDecimals))` — asset units per whole share. */
   navPerShare: bigint;
   /** The underlying token, READ FROM THE CHAIN (expected: USDC Base Sepolia). */
   asset: Address;
@@ -1135,7 +1150,9 @@ export interface VaultCore {
    * expected USDC address before trusting any formatted amount.
    */
   assetDecimals: number;
-  /** Decimals assumed for shares — see SHARE_DECIMALS (unconfirmed for v2). */
+  /** Decimals assumed for shares — mode-dependent: v2 = V2_SHARE_DECIMALS (6,
+   *  spec's "1:1" with USDC, unconfirmed vs bytecode); legacy =
+   *  LEGACY_SHARE_DECIMALS (18, verified on-chain). */
   shareDecimals: number;
   /** v2: `tvlCap()`. legacy: null — the old contract has no cap (it has
    *  `minDeposit`, which v2 drops). null means "not exposed", never "zero". */
@@ -1209,7 +1226,7 @@ export interface VendingCurvePoint {
 }
 
 export interface NavPerShare {
-  /** Raw `convertToAssets(ONE_SHARE)` in asset units. */
+  /** Raw `convertToAssets(oneShare(shareDecimals))` in asset units. */
   raw: bigint;
   assetDecimals: number;
   shareDecimals: number;
@@ -1254,7 +1271,7 @@ export async function readVaultCore(opts?: ReadOpts): Promise<Wired<VaultCore>> 
           address,
           abi: DYNAVAULT_ABI,
           functionName: "convertToAssets",
-          args: [ONE_SHARE],
+          args: [oneShare(V2_SHARE_DECIMALS)],
         }),
         client.readContract({
           address,
@@ -1296,7 +1313,7 @@ export async function readVaultCore(opts?: ReadOpts): Promise<Wired<VaultCore>> 
           navPerShare,
           asset,
           assetDecimals: USDC_DECIMALS,
-          shareDecimals: SHARE_DECIMALS,
+          shareDecimals: V2_SHARE_DECIMALS,
           tvlCap,
           paused: null,
         },
@@ -1321,7 +1338,7 @@ export async function readVaultCore(opts?: ReadOpts): Promise<Wired<VaultCore>> 
         address,
         abi: LEGACY_VAULT_READ_ABI,
         functionName: "convertToAssets",
-        args: [ONE_SHARE],
+        args: [oneShare(LEGACY_SHARE_DECIMALS)],
       }),
       client.readContract({
         address,
@@ -1363,7 +1380,7 @@ export async function readVaultCore(opts?: ReadOpts): Promise<Wired<VaultCore>> 
         navPerShare,
         asset,
         assetDecimals: USDC_DECIMALS,
-        shareDecimals: SHARE_DECIMALS,
+        shareDecimals: LEGACY_SHARE_DECIMALS,
         tvlCap: null,
         paused,
       },
@@ -1375,7 +1392,8 @@ export async function readVaultCore(opts?: ReadOpts): Promise<Wired<VaultCore>> 
   }
 }
 
-/** `convertToAssets(ONE_SHARE)` — available in BOTH modes. */
+/** `convertToAssets(oneShare(shareDecimals))` — available in BOTH modes, with
+ *  the share unit chosen by mode (v2 = 6, legacy = 18). */
 export async function readNavPerShare(
   opts?: ReadOpts,
 ): Promise<Wired<NavPerShare>> {
@@ -1384,13 +1402,14 @@ export async function readNavPerShare(
 
   const client = opts?.client ?? getReadClient();
   const abi = target.mode === "v2" ? DYNAVAULT_ABI : LEGACY_VAULT_READ_ABI;
+  const shareDecimals = shareDecimalsForMode(target.mode);
 
   try {
     const raw = await client.readContract({
       address: target.address,
       abi,
       functionName: "convertToAssets",
-      args: [ONE_SHARE],
+      args: [oneShare(shareDecimals)],
     });
     const value = asBigint(raw);
     if (value === null) {
@@ -1403,7 +1422,7 @@ export async function readNavPerShare(
       {
         raw: value,
         assetDecimals: USDC_DECIMALS,
-        shareDecimals: SHARE_DECIMALS,
+        shareDecimals,
       },
       target,
     );
@@ -1719,6 +1738,7 @@ export async function readUserShares(
   const client = opts?.client ?? getReadClient();
   const abi = target.mode === "v2" ? DYNAVAULT_ABI : LEGACY_VAULT_READ_ABI;
   const sharesFn = target.mode === "v2" ? "shares" : "balanceOf";
+  const shareDecimals = shareDecimalsForMode(target.mode);
 
   try {
     const rawShares = await client.readContract({
@@ -1755,7 +1775,7 @@ export async function readUserShares(
         shares,
         assets,
         assetDecimals: USDC_DECIMALS,
-        shareDecimals: SHARE_DECIMALS,
+        shareDecimals,
       },
       target,
     );

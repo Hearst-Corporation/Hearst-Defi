@@ -60,10 +60,11 @@ vi.mock("@/lib/chain/dynavault", async (importActual) => {
   return {
     ...actual,
     getVaultTarget: vi.fn(() => ({ mode: "not_configured" as const })),
-    // 1_000_000 raw asset units at 6 decimals = 1.0000 USDC / share.
+    // 1_000_000 raw asset units at 6 asset-decimals = 1.0000 USDC / share.
+    // shareDecimals: 6 is v2's truth (shares "1:1" with USDC), not the legacy 18.
     readNavPerShare: vi.fn().mockResolvedValue({
       status: "wired",
-      data: { raw: 1_000_000n, assetDecimals: 6, shareDecimals: 18 },
+      data: { raw: 1_000_000n, assetDecimals: 6, shareDecimals: 6 },
       source: "v2",
       address: "0x2bd14d52518a04f4c12949c51df03a161a9e329e",
       chainId: 84532,

@@ -69,10 +69,12 @@ function ok<T>(
 }
 
 /**
- * A COMPLETE VaultCore -- all 8 fields. Mirrors the real on-chain state
- * (totalAssets()=12 USDC, totalSupply()=12e18, convertToAssets(1e18)=1.000000)
- * with a 100 USDC cap. `paused: null` is v2's truth: the v2.1 spec lists no
- * `paused()` view, and null means "not exposed", never "not paused".
+ * A COMPLETE VaultCore -- all 8 fields. `totalShares` is kept at 12e18 (above
+ * 2^53) on purpose: it exercises the lossless bigint serialization below, not
+ * economic realism. `shareDecimals: 6` is v2's truth — the spec mints shares
+ * "1:1" with USDC (6 dec), NOT the legacy 18. `paused: null` is also v2's truth:
+ * the v2.1 spec lists no `paused()` view, and null means "not exposed", never
+ * "not paused".
  */
 const V2_CORE: VaultCore = {
   totalAssets: 12_000_000n,
@@ -80,13 +82,19 @@ const V2_CORE: VaultCore = {
   navPerShare: 1_000_000n,
   asset: USDC,
   assetDecimals: 6,
-  shareDecimals: 18,
+  shareDecimals: 6,
   tvlCap: 100_000_000n,
   paused: null,
 };
 
-/** Legacy: no cap at all (tvlCap null, NOT 0n), but `paused()` is real. */
-const LEGACY_CORE: VaultCore = { ...V2_CORE, tvlCap: null, paused: false };
+/** Legacy: no cap at all (tvlCap null, NOT 0n), `paused()` is real, and shares
+ *  stay 18-dec (verified on-chain — the legacy assumption must not change). */
+const LEGACY_CORE: VaultCore = {
+  ...V2_CORE,
+  shareDecimals: 18,
+  tvlCap: null,
+  paused: false,
+};
 
 const V2_CORE_JSON = {
   totalAssets: "12000000",
@@ -94,7 +102,7 @@ const V2_CORE_JSON = {
   navPerShare: "1000000",
   asset: USDC,
   assetDecimals: 6,
-  shareDecimals: 18,
+  shareDecimals: 6,
   tvlCap: "100000000",
   paused: null,
 };

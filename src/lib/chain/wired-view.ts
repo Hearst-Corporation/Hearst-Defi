@@ -159,7 +159,8 @@ export function formatNavPerShare(raw: bigint): string {
 
 /**
  * Raw share units → human count. `decimals` is passed in (not assumed) because
- * the v2 share unit is unconfirmed — see `SHARE_DECIMALS` in the adapter.
+ * the share unit is mode-dependent (v2 = `V2_SHARE_DECIMALS`, legacy =
+ * `LEGACY_SHARE_DECIMALS`) and v2 is unconfirmed vs bytecode — see the adapter.
  */
 export function formatShareAmount(raw: bigint, decimals: number): string {
   return formatScaled(raw, decimals, 2);

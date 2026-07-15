@@ -27,7 +27,8 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import {
   CHAIN_ID,
-  SHARE_DECIMALS,
+  LEGACY_SHARE_DECIMALS,
+  V2_SHARE_DECIMALS,
   getVaultTarget,
   readVaultCore,
   type VaultCore,
@@ -118,6 +119,16 @@ export async function DynavaultChainPanel({
   const tvlCap = selectExposed<VaultCore, bigint>(core, (data) => data.tvlCap);
   const paused = selectExposed<VaultCore, boolean>(core, (data) => data.paused);
 
+  // Share unit is MODE-DEPENDENT (v2 = 6, legacy = 18). Read it straight off the
+  // envelope the adapter already returned; if the read failed there is no value
+  // to format anyway, so fall back to the resolved mode only for the caption.
+  const shareDecimals =
+    core.status === "wired"
+      ? core.data.shareDecimals
+      : target.mode === "legacy"
+        ? LEGACY_SHARE_DECIMALS
+        : V2_SHARE_DECIMALS;
+
   // Stamp the panel with a real read instant — if the read failed there is no
   // instant to show, and we show none rather than `new Date()`.
   const readAtLabel =
@@ -173,10 +184,14 @@ export async function DynavaultChainPanel({
 
       <ChainRow
         label="Total shares"
-        note={`Share unit assumed at ${SHARE_DECIMALS} decimals — unconfirmed for v2.`}
+        note={
+          target.mode === "v2"
+            ? `Share unit assumed at ${shareDecimals} decimals (spec "1:1" with USDC) — unconfirmed vs bytecode.`
+            : `Share unit ${shareDecimals} decimals — verified on-chain (legacy).`
+        }
         read={totalShares}
         render={(raw) => (
-          <span className={VALUE}>{formatShareAmount(raw, SHARE_DECIMALS)}</span>
+          <span className={VALUE}>{formatShareAmount(raw, shareDecimals)}</span>
         )}
       />
 
