@@ -7,13 +7,20 @@ import {
   PageFooter,
   PageHeader,
 } from "../memo-components";
-import { type MemoPdfData, formatPct, formatUsd } from "../memo-data";
+import {
+  type MemoPdfData,
+  formatApyRange,
+  formatPct,
+  formatUsd,
+} from "../memo-data";
 import { COLORS, styles } from "../memo-styles";
 
 interface PerfRow {
   month: string;
   returnBand: string;
   navUsdc: number;
+  /** True when the underlying month is a fabricated pad, not a real snapshot. */
+  isSynthetic: boolean;
 }
 
 function buildRows(data: MemoPdfData): PerfRow[] {
@@ -21,20 +28,15 @@ function buildRows(data: MemoPdfData): PerfRow[] {
   // (VaultSnapshot ⊕ the loader's deterministic padding). We surface the
   // estimated return band (a range, non-negotiable #1) and NAV — the marked
   // value of the three pockets — and no longer a periodic cash distribution.
-  const history = data.monthlyHistory;
-  if (history.length === 0) {
-    return [
-      {
-        month: data.period,
-        returnBand: "9.4-12.8%",
-        navUsdc: data.input.vault.aumUsdc,
-      },
-    ];
-  }
-  return history.map((row) => ({
+  //
+  // No history → NO fabricated row. We return an empty list and render an
+  // honest empty state below, instead of inventing a "9.4-12.8%" month that
+  // an opposable document would present as real.
+  return data.monthlyHistory.map((row) => ({
     month: row.period,
-    returnBand: `${row.apy_low.toFixed(1)}-${row.apy_high.toFixed(1)}%`,
+    returnBand: formatApyRange({ low: row.apy_low, high: row.apy_high }),
     navUsdc: row.nav_usdc,
+    isSynthetic: row.is_synthetic,
   }));
 }
 
@@ -74,34 +76,47 @@ export function PerformanceOverviewPage({
             Source
           </Text>
         </View>
-        {rows.map((r, idx) => (
-          <View
-            key={r.month}
-            style={[
-              styles.tableRow,
-              idx % 2 === 1 ? styles.tableRowAlt : {},
-              idx === rows.length - 1 ? styles.tableRowLast : {},
-            ]}
-          >
-            <Text style={[styles.tableCell, { flex: 1.6 }]}>{r.month}</Text>
-            <Text style={[styles.tableCell, { flex: 2 }]}>{r.returnBand}</Text>
-            <Text
-              style={[styles.tableCell, { flex: 1.8, textAlign: "right" }]}
-            >
-              {formatUsd(r.navUsdc)}
+        {rows.length === 0 ? (
+          <View style={[styles.tableRow, styles.tableRowLast]}>
+            <Text style={[styles.tableCellMuted, { flex: 1 }]}>
+              No monthly history yet — the trailing table populates once vault
+              snapshots land for the period.
             </Text>
-            {/* Row blends an estimated return band + a live NAV snapshot -> partial. */}
-            <View
-              style={{
-                flex: 1.1,
-                flexDirection: "row",
-                justifyContent: "flex-end",
-              }}
-            >
-              <PdfProvenance kind="partial" />
-            </View>
           </View>
-        ))}
+        ) : (
+          rows.map((r, idx) => (
+            <View
+              key={r.month}
+              style={[
+                styles.tableRow,
+                idx % 2 === 1 ? styles.tableRowAlt : {},
+                idx === rows.length - 1 ? styles.tableRowLast : {},
+              ]}
+            >
+              <Text style={[styles.tableCell, { flex: 1.6 }]}>{r.month}</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{r.returnBand}</Text>
+              <Text
+                style={[styles.tableCell, { flex: 1.8, textAlign: "right" }]}
+              >
+                {formatUsd(r.navUsdc)}
+              </Text>
+              {/*
+                Synthetic pad rows are fabricated fill -> `estimated`. Real rows
+                blend an estimated return band with a NAV snapshot -> `partial`.
+                A fabricated month must NEVER read like a real measurement.
+              */}
+              <View
+                style={{
+                  flex: 1.1,
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <PdfProvenance kind={r.isSynthetic ? "estimated" : "partial"} />
+              </View>
+            </View>
+          ))
+        )}
       </View>
 
       <Text style={[styles.bodySmall, { marginTop: 8, color: COLORS.textDim }]}>

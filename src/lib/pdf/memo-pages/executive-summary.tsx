@@ -13,6 +13,7 @@ import {
   extractBullets,
   formatApyRange,
   formatUsd,
+  provenanceTagToPdfKind,
   stripMarkdown,
 } from "../memo-data";
 import { styles } from "../memo-styles";
@@ -54,25 +55,25 @@ export function ExecutiveSummaryPage({
       </View>
 
       <View style={[styles.twoColGrid, { marginTop: 18 }]}>
-        <KpiCell
-          label="Est. return — period"
-          value={formatApyRange(input.vault.apyRange)}
-          hint="Accumulated-BTC band, not distributed"
-          // Engine-published projection for the period (range only).
-          provenance="estimated"
-        />
+        {/*
+          Single headline band only. The old "Est. return — period" cell
+          reused the same 24-month mandate band but labelled it a per-period
+          return — an ×12 over-declaration. It is removed; the mandate band is
+          shown once, over the full term, sourced from the vault's own preset
+          (`def.apyTarget`, a human-curated constant) and badged `manual`,
+          never `estimated`. Canonical en-dash via formatApyRange.
+        */}
         <KpiCell
           label="Est. target return (term)"
-          value="8.0-15.0%"
+          value={formatApyRange(input.vault.apyRange)}
           hint="Mining-note mandate, not guaranteed"
-          // Mandate band fixed in methodology v3.0 — human-curated boundary.
           provenance="manual"
         />
         <KpiCell
           label="Term"
           value="24 months"
           hint="BTC delivered at maturity"
-          // Product term — a v2.1 product constant, human-curated.
+          // Product term — a v3.0 product constant, human-curated.
           provenance="manual"
         />
       </View>
@@ -82,8 +83,9 @@ export function ExecutiveSummaryPage({
           label="AUM"
           value={formatUsd(input.vault.aumUsdc)}
           hint="End of period snapshot"
-          // Custody snapshot at end of period — live.
-          provenance="live"
+          // AUM provenance from the loader (snapshot freshness + authenticity):
+          // attested / estimated / stale — never live (seed/preset != custody).
+          provenance={provenanceTagToPdfKind(input.provenance?.vault ?? "estimated")}
         />
         <KpiCell
           label="Vault mode"

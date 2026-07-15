@@ -491,9 +491,13 @@ function parseBacktestOutput(row: BacktestRunRow): BacktestOutput {
 // ---------------------------------------------------------------------------
 
 /**
- * Monthly row consumed by the Performance Overview PDF page. Each row is the
- * fusion of a `VaultSnapshot` (NAV + APY range for the month) and the
- * `Distribution` paid for that period.
+ * Monthly row consumed by the Performance Overview PDF page. Each row carries
+ * the `VaultSnapshot` NAV + APY range for the month.
+ *
+ * v3.0 note: the note accumulates BTC over its term with rule-based
+ * take-profit and pays NO periodic cash distribution, so no distribution
+ * figure is carried here. The previous `apy_achieved` (NAV-delta + dist
+ * midpoint) and `distribution_usdc` fields had no consumer and are removed.
  */
 export interface VaultMonthlyRow {
   /** Calendar month, "YYYY-MM". */
@@ -502,23 +506,21 @@ export interface VaultMonthlyRow {
   apy_low: number;
   /** APY range ceiling for the month. */
   apy_high: number;
-  /**
-   * Realised annualised return for the month, computed from the change in
-   * NAV plus the distribution paid:
-   *   ((nav_curr − nav_prev + dist_curr) / nav_prev) × 12 × 100.
-   * The first row uses the within-row APY midpoint as a proxy because there
-   * is no preceding NAV to anchor on.
-   */
-  apy_achieved: number;
   /** End-of-month NAV in USDC. */
   nav_usdc: number;
-  /** Distribution wired during the month in USDC. */
-  distribution_usdc: number;
+  /**
+   * True when this row is a fabricated pad (deterministic synthetic fill used
+   * only when fewer than `months` real snapshots exist), false when it is a
+   * real `VaultSnapshot`. The PDF must badge synthetic rows `estimated` — never
+   * as a real measurement — so an opposable document never presents an invented
+   * month as attested.
+   */
+  is_synthetic: boolean;
 }
 
 /**
  * Loads up to `months` monthly snapshots from the latest `VaultSnapshot`
- * rows, joined opportunistically with the `Distribution` table.
+ * rows (NAV + APY range only).
  *
  * Decision: we group `VaultSnapshot` rows by calendar month and pick the
  * most recent row in each month as the "end-of-month" anchor. This keeps the
@@ -527,8 +529,10 @@ export interface VaultMonthlyRow {
  *
  * Fallback: if there are not enough snapshots in the DB to build the
  * requested window, the response is padded with a deterministic synthetic
- * series (NAV growing ~0.8% / month, APY range 9.0–13.0%, distribution at
- * ~0.8% NAV) so the PDF table is always fully populated.
+ * series (NAV growing ~0.8% / month, APY range 9.0–13.0%) so the PDF table is
+ * always fully populated. Padded rows are flagged `is_synthetic: true` so the
+ * renderer can badge them `estimated` and never present a fabricated month as
+ * a real measurement. Real rows are `is_synthetic: false`.
  */
 export async function loadVaultMonthlyHistory(
   months: number,
@@ -578,41 +582,16 @@ export async function loadVaultMonthlyHistory(
     .sort((a, b) => a.takenAt.getTime() - b.takenAt.getTime())
     .slice(-safeMonths);
 
-  // Pull all Distribution rows for the anchored periods in one round-trip.
-  const periods = anchors.map((a) => a.period);
-  const dists =
-    periods.length > 0
-      ? await prisma.distribution.findMany({
-          where: { period: { in: periods } },
-          select: { period: true, amountUsdc: true },
-        })
-      : [];
-  const distByPeriod = new Map<string, number>();
-  for (const d of dists) {
-    // Decimal → number at the read boundary.
-    distByPeriod.set(d.period, d.amountUsdc.toNumber());
-  }
-
   const real: VaultMonthlyRow[] = [];
   for (let i = 0; i < anchors.length; i += 1) {
     const cur = anchors[i];
     if (!cur) continue;
-    const prev = i === 0 ? undefined : anchors[i - 1];
-    const navCurr = cur.aumUsdc;
-    const navPrev = prev?.aumUsdc;
-    const distCurr =
-      distByPeriod.get(cur.period) ?? Math.round(navCurr * 0.008);
-    const apyAchieved =
-      navPrev !== undefined && navPrev > 0
-        ? ((navCurr - navPrev + distCurr) / navPrev) * 12 * 100
-        : (cur.currentApyLow + cur.currentApyHigh) / 2;
     real.push({
       period: cur.period,
       apy_low: cur.currentApyLow,
       apy_high: cur.currentApyHigh,
-      apy_achieved: round1(apyAchieved),
-      nav_usdc: navCurr,
-      distribution_usdc: distCurr,
+      nav_usdc: cur.aumUsdc,
+      is_synthetic: false,
     });
   }
 
@@ -621,7 +600,9 @@ export async function loadVaultMonthlyHistory(
   }
 
   // Pad the head with synthetic months going backwards from the oldest real
-  // anchor (or from "now" if no real data exists at all).
+  // anchor (or from "now" if no real data exists at all). These rows are
+  // fabricated fill — flagged `is_synthetic: true` so the PDF badges them
+  // `estimated`, never as a real month.
   const missing = safeMonths - real.length;
   // Mode vérité live: never anchor synthetic history on a fabricated $25M.
   // With no real NAV/snapshot the anchor is 0 (honest "no history").
@@ -636,9 +617,8 @@ export async function loadVaultMonthlyHistory(
       period: periodOf(date),
       apy_low: 9.0,
       apy_high: 13.0,
-      apy_achieved: round1(10.0 + (missing - i) * 0.4),
       nav_usdc: nav,
-      distribution_usdc: Math.round(nav * 0.008),
+      is_synthetic: true,
     });
   }
 
@@ -673,10 +653,6 @@ function monthsAgo(reference: Date, n: number): Date {
   const d = new Date(reference.getTime());
   d.setUTCMonth(d.getUTCMonth() - n);
   return d;
-}
-
-function round1(n: number): number {
-  return Math.round(n * 10) / 10;
 }
 
 // ---------------------------------------------------------------------------

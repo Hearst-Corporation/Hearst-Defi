@@ -11,7 +11,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const findFirstVaultSnapshot = vi.fn();
 const findManyScenarioRun = vi.fn();
 const findManyBacktestRun = vi.fn();
-const findManyDistribution = vi.fn();
 const loadCoverageForVault = vi.fn();
 
 vi.mock("@/lib/db", () => ({
@@ -22,7 +21,6 @@ vi.mock("@/lib/db", () => ({
     },
     scenarioRun: { findMany: (...a: unknown[]) => findManyScenarioRun(...a) },
     backtestRun: { findMany: (...a: unknown[]) => findManyBacktestRun(...a) },
-    distribution: { findMany: (...a: unknown[]) => findManyDistribution(...a) },
   },
 }));
 
@@ -271,14 +269,13 @@ describe("loadVaultMonthlyHistory", () => {
 
   it("queries only source=\"backfill\" snapshots (never mixes daily-seed/computed NAV scale)", async () => {
     findManyVaultSnapshot.mockResolvedValue([]);
-    findManyDistribution.mockResolvedValue([]);
     await loadVaultMonthlyHistory(2);
     expect(findManyVaultSnapshot).toHaveBeenCalledWith(
       expect.objectContaining({ where: { source: "backfill" } }),
     );
   });
 
-  it("computes apy_achieved from NAV delta + distribution, keyed by month", async () => {
+  it("maps real snapshots to NAV + APY range, keyed by month, is_synthetic=false", async () => {
     findManyVaultSnapshot.mockResolvedValue([
       {
         takenAt: new Date("2026-02-15T00:00:00Z"),
@@ -293,26 +290,26 @@ describe("loadVaultMonthlyHistory", () => {
         currentApyHigh: decimal(12.7),
       },
     ]);
-    findManyDistribution.mockResolvedValue([
-      { period: "2026-02", amountUsdc: decimal(197_600) },
-      { period: "2026-01", amountUsdc: decimal(196_400) },
-    ]);
 
     const rows = await loadVaultMonthlyHistory(2);
     expect(rows).toHaveLength(2);
+    // Ordered ascending by month; the loader no longer queries Distribution and
+    // carries no distribution/apy_achieved fields (v3.0: no periodic payout).
     expect(rows[0]?.period).toBe("2026-01");
+    expect(rows[0]?.nav_usdc).toBe(24_500_000);
+    expect(rows[0]?.apy_low).toBe(9.3);
+    expect(rows[0]?.apy_high).toBe(12.7);
+    expect(rows[0]?.is_synthetic).toBe(false);
     expect(rows[1]?.period).toBe("2026-02");
-    // First anchored row has no predecessor -> falls back to the APY midpoint.
-    expect(rows[0]?.apy_achieved).toBe(11.0);
-    // Second row: ((24.7M - 24.5M + 197_600) / 24.5M) * 12 * 100, rounded to 1dp.
-    const expected =
-      Math.round((((24_700_000 - 24_500_000 + 197_600) / 24_500_000) * 12 * 100) * 10) / 10;
-    expect(rows[1]?.apy_achieved).toBe(expected);
+    expect(rows[1]?.nav_usdc).toBe(24_700_000);
+    expect(rows[1]?.is_synthetic).toBe(false);
+    // Real rows never carry the retired fields.
+    expect(rows[0]).not.toHaveProperty("apy_achieved");
+    expect(rows[0]).not.toHaveProperty("distribution_usdc");
   });
 
-  it("pads with a zero-anchored synthetic series when there is no real history", async () => {
+  it("pads with a zero-anchored synthetic series (is_synthetic=true) when there is no real history", async () => {
     findManyVaultSnapshot.mockResolvedValue([]);
-    findManyDistribution.mockResolvedValue([]);
     const rows = await loadVaultMonthlyHistory(3);
     expect(rows).toHaveLength(3);
     for (const row of rows) {
@@ -320,6 +317,8 @@ describe("loadVaultMonthlyHistory", () => {
       expect(row.apy_high).toBe(13.0);
       // "Mode vérité live": never fabricate a NAV anchor out of thin air.
       expect(row.nav_usdc).toBe(0);
+      // Padded rows are flagged so the PDF badges them `estimated`.
+      expect(row.is_synthetic).toBe(true);
     }
   });
 });

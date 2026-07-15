@@ -20,6 +20,7 @@ import type {
   BtcTacticalAssessment,
   ScenarioOutput,
 } from "@/lib/engine/types";
+import { VAULT_YIELD } from "@/lib/engine/vaults";
 
 const btcAssessment: BtcTacticalAssessment = {
   targetExposurePct: 27,
@@ -246,7 +247,13 @@ export function getMockMemoInput(): InvestorMemoInput {
   return {
     vault: {
       aumUsdc: 24_600_000,
-      apyRange: { low: 9.4, high: 12.8 },
+      // Headline band = the vault's own engine preset (8-15% mandate), same
+      // constant prod threads via loaders/vault.ts `def.apyTarget`. Hardcoding
+      // a tighter 9.4-12.8 masked non-negotiables #1/#2 in the PDF snapshot.
+      apyRange: {
+        low: VAULT_YIELD.apyTarget.low,
+        high: VAULT_YIELD.apyTarget.high,
+      },
       mode: "balanced",
       riskScore: 42,
     },

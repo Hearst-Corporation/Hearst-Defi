@@ -49,11 +49,13 @@ export async function generateMemoPdfAction(
   const generatedAt = new Date().toISOString();
   const period = periodFromIso(generatedAt);
 
-  // PDF-only extras (mining ops, latest distribution, monthly history) are
-  // sourced from Prisma. These loaders return canned fallbacks when the DB is
-  // empty, but loadMemoInput() above requires a seeded database and throws
-  // when vault data (VaultSnapshot, Allocation) is missing.
-  const { miningOps, distribution, monthlyHistory } = await loadMemoPdfExtras();
+  // PDF-only extras (mining ops, monthly history) are sourced from Prisma.
+  // These loaders return canned fallbacks when the DB is empty, but
+  // loadMemoInput() above requires a seeded database and throws when vault
+  // data (VaultSnapshot, Allocation) is missing. v3.0 note: BTC accumulates
+  // over the term with no periodic cash distribution, so no distribution
+  // figure is loaded or rendered.
+  const { miningOps, monthlyHistory } = await loadMemoPdfExtras();
 
   const buffer = await renderToBuffer(
     <MemoDocument
@@ -63,7 +65,6 @@ export async function generateMemoPdfAction(
         generatedAt,
         period,
         miningOps,
-        distribution,
         monthlyHistory,
       }}
     />,

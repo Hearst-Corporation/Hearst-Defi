@@ -100,7 +100,14 @@ export function MiningHealthPage({
 
       <Text style={styles.h2}>Assumptions in force</Text>
       <View style={{ gap: 4 }}>
-        {(baseScenario?.assumptions ?? []).slice(0, 4).map((a, idx) => (
+        {/*
+          Render EVERY engine assumption — no slice. The engine emits the full
+          set (incl. the closing "Outputs are projections, not guaranteed. Past
+          performance does not predict future results." line, methodology v3.0
+          §9); truncating to 4 silently dropped that not-guaranteed disclaimer
+          from an opposable document.
+        */}
+        {(baseScenario?.assumptions ?? []).map((a, idx) => (
           <Text key={idx} style={styles.bodySmall}>
             &middot; {a}
           </Text>

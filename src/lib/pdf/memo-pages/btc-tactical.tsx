@@ -9,7 +9,7 @@ import {
   StatusPill,
   type PillTone,
 } from "../memo-components";
-import { type MemoPdfData } from "../memo-data";
+import { type MemoPdfData, provenanceTagToPdfKind } from "../memo-data";
 import { COLORS, styles } from "../memo-styles";
 
 function triggerTone(kind: string, armed: boolean): PillTone {
@@ -45,6 +45,14 @@ export function BtcTacticalPage({
   const triggers = tactical?.triggers ?? [];
   const guardrails = tactical?.guardrails ?? [];
 
+  // Target exposure, armed-trigger count and guardrail count all come from the
+  // SAME object — `baseScenario.btc_tactical`, a rehydrated engine artifact the
+  // loader classes as `scenarios` (attested, deterministic). None of them is a
+  // live feed; badge all three from `input.provenance.scenarios`, never `live`.
+  const tacticalKind = provenanceTagToPdfKind(
+    data.input.provenance?.scenarios ?? "attested",
+  );
+
   return (
     <Page size="A4" style={styles.page}>
       <PageHeader period={data.period} />
@@ -59,22 +67,23 @@ export function BtcTacticalPage({
           label="Target exposure"
           value={`${targetPct}%`}
           hint="of capital, rule-bound"
-          // Engine-derived target tied to active scenario.
-          provenance="estimated"
+          // Engine-derived target tied to the active scenario artifact.
+          provenance={tacticalKind}
         />
         <KpiCell
           label="Triggers armed"
           value={`${triggers.filter((t) => t.armed).length} / ${triggers.length}`}
           hint="PTAI framework only"
-          // Live count of PTAI triggers currently armed by the engine.
-          provenance="live"
+          // Armed-trigger count read off the rehydrated scenario artifact,
+          // not a live feed — same provenance as the rest of the block.
+          provenance={tacticalKind}
         />
         <KpiCell
           label="Guardrails"
           value={`${guardrails.length} active`}
           hint="Volatility, margin, concentration"
-          // Active guardrails from current vault state.
-          provenance="live"
+          // Guardrail set from the same scenario artifact — not a live feed.
+          provenance={tacticalKind}
         />
       </View>
 
@@ -229,9 +238,16 @@ export function BtcTacticalPage({
         a published trigger (Projection - Trigger - Action - Impact). There is
         no discretionary trading. Take-profit and accumulation triggers are the
         note's rule-based path to BTC accumulation over the term. Triggers and
-        guardrails listed above are the live rule set for the current vault
-        state.
+        guardrails listed above are the rule set for the current vault state.
       </Commentary>
+
+      <Text style={[styles.bodySmall, { marginTop: 8, color: COLORS.textDim }]}>
+        Target exposure, triggers and guardrails are forward-looking and
+        conditional on the stated assumptions. They describe the rule set, not a
+        realised outcome: actual execution depends on live market conditions and
+        is not guaranteed. Past performance does not indicate future results.
+        Full disclaimers appear on page {totalPages}.
+      </Text>
 
       <PageFooter pageNumber={pageNumber} totalPages={totalPages} />
     </Page>

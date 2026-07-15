@@ -2,10 +2,6 @@ import "server-only";
 
 import type { InvestorMemoInput } from "@/lib/agents/investor-memo";
 import {
-  loadLatestDistribution,
-  type DistributionSnapshot,
-} from "@/lib/agents/loaders/distribution";
-import {
   loadMiningOpsSnapshot,
   type MiningOpsSnapshot,
 } from "@/lib/agents/loaders/mining";
@@ -13,7 +9,8 @@ import {
   loadVaultMonthlyHistory,
   type VaultMonthlyRow,
 } from "@/lib/agents/loaders/vault";
-import type { InvestorMemoOutput } from "@/lib/agents/schemas";
+import type { InvestorMemoOutput, ProvenanceTag } from "@/lib/agents/schemas";
+import type { PdfProvenanceKind } from "@/lib/pdf/components/pdf-provenance";
 
 /**
  * Combined payload passed to the PDF template. The PDF needs both:
@@ -41,18 +38,43 @@ export interface MemoPdfData {
    */
   miningOps: MiningOpsSnapshot;
   /**
-   * The latest distribution (paid or scheduled) for the period. Drives the
-   * "Distribution paid" KPI on the executive summary. Sourced from
-   * `Distribution`; falls back to a synthesised 0.8% × AUM scheduled entry
-   * when the table is empty.
-   */
-  distribution: DistributionSnapshot | null;
-  /**
    * Trailing monthly performance rows. Drives the performance overview
-   * table. Sourced from `VaultSnapshot` joined with `Distribution`; falls
-   * back to a deterministic synthetic series when not enough months exist.
+   * table (Est. return band + NAV). Sourced from `VaultSnapshot`; padded with
+   * a deterministic synthetic series (flagged `is_synthetic`) only when not
+   * enough real months exist. v3.0 note: BTC accumulates over the term with
+   * rule-based take-profit — there is NO periodic cash distribution, so no
+   * distribution figure is threaded into or rendered by the PDF.
    */
   monthlyHistory: VaultMonthlyRow[];
+}
+
+/**
+ * Maps the agent-side `ProvenanceTag` vocabulary onto the PDF badge's
+ * `PdfProvenanceKind`. The two enums overlap on
+ * `live | oracle | attested | estimated | manual | stale`; the tags with no
+ * PDF badge (`fallback` → derived default, `pending` → number not yet
+ * computable) both collapse to `estimated` so a not-attested value is NEVER
+ * printed as attested/live. Used to badge memo KPIs from `input.provenance`
+ * (CLAUDE.md non-negotiable #2) instead of hardcoded literals.
+ */
+export function provenanceTagToPdfKind(tag: ProvenanceTag): PdfProvenanceKind {
+  switch (tag) {
+    case "live":
+      return "live";
+    case "oracle":
+      return "oracle";
+    case "attested":
+      return "attested";
+    case "estimated":
+      return "estimated";
+    case "manual":
+      return "manual";
+    case "stale":
+      return "stale";
+    case "fallback":
+    case "pending":
+      return "estimated";
+  }
 }
 
 /**
@@ -62,9 +84,9 @@ export interface MemoPdfData {
 const MEMO_MONTHLY_HISTORY_WINDOW = 4;
 
 /**
- * Server-side helper that batches the three PDF-only loaders behind a single
- * `Promise.all`. The PDF action and any other server caller should pass the
- * results to `MemoDocument` via `MemoPdfData`.
+ * Server-side helper that batches the PDF-only loaders (mining ops + monthly
+ * history) behind a single `Promise.all`. The PDF action and any other server
+ * caller should pass the results to `MemoDocument` via `MemoPdfData`.
  *
  * This function does NOT load the structured `InvestorMemoInput` because
  * different callers source it differently (Phase 1 dev: mock; production:
@@ -72,18 +94,16 @@ const MEMO_MONTHLY_HISTORY_WINDOW = 4;
  */
 export async function loadMemoPdfExtras(): Promise<{
   miningOps: MiningOpsSnapshot;
-  distribution: DistributionSnapshot | null;
   monthlyHistory: VaultMonthlyRow[];
 }> {
-  const [miningOps, distribution, monthlyHistory] = await Promise.all([
+  const [miningOps, monthlyHistory] = await Promise.all([
     loadMiningOpsSnapshot(),
-    loadLatestDistribution(),
     loadVaultMonthlyHistory(MEMO_MONTHLY_HISTORY_WINDOW),
   ]);
-  return { miningOps, distribution, monthlyHistory };
+  return { miningOps, monthlyHistory };
 }
 
-export type { DistributionSnapshot, MiningOpsSnapshot, VaultMonthlyRow };
+export type { MiningOpsSnapshot, VaultMonthlyRow };
 
 export { formatApyRange } from "@/lib/format/apy";
 

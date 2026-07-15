@@ -5,6 +5,7 @@ import {
   type MemoPdfData,
   formatApyRange,
   formatUsd,
+  provenanceTagToPdfKind,
 } from "../memo-data";
 import { COLORS, styles } from "../memo-styles";
 
@@ -56,9 +57,13 @@ export function CoverPage({ data }: { data: MemoPdfData }) {
           <Text style={styles.coverKpiHint}>
             Range in accumulated BTC &middot; not distributed, not guaranteed
           </Text>
-          {/* Engine-published target — forward-looking band in accumulated BTC. */}
+          {/*
+            Headline band is the vault's own engine preset (`def.apyTarget` in
+            loaders/vault.ts) — a human-curated mandate constant, not a per-run
+            model estimate. Badge it `manual`, never `estimated`.
+          */}
           <View style={{ marginTop: 6 }}>
-            <PdfProvenance kind="estimated" />
+            <PdfProvenance kind="manual" />
           </View>
         </View>
         <View style={styles.coverKpi}>
@@ -67,9 +72,16 @@ export function CoverPage({ data }: { data: MemoPdfData }) {
             {formatUsd(input.vault.aumUsdc)}
           </Text>
           <Text style={styles.coverKpiHint}>USDC, end-of-period snapshot</Text>
-          {/* End-of-period custody snapshot. */}
+          {/*
+            AUM provenance is threaded from the loader (VaultSnapshot freshness
+            + source authenticity): attested / estimated / stale — NEVER live,
+            since a seeded/computed snapshot is not a real custody measurement.
+          */}
           <View style={{ marginTop: 6 }}>
-            <PdfProvenance kind="live" hint="custody snapshot" />
+            <PdfProvenance
+              kind={provenanceTagToPdfKind(input.provenance?.vault ?? "estimated")}
+              hint="custody snapshot"
+            />
           </View>
         </View>
         <View style={styles.coverKpi}>
