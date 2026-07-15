@@ -348,9 +348,14 @@ BASESCAN_API_KEY=...
 ## 9. Décalages connus avec le code (2026-07-15)
 
 > Diff entre CETTE spec et l'état réel du repo (adaptateur `src/lib/chain/dynavault.ts` +
-> routes + config), au commit `ebfacb3`. L'adaptateur a été écrit contre une **version
-> antérieure** de la spec ; cette section liste ce qui doit être réconcilié. Rien n'est corrigé
-> ici — c'est un constat.
+> routes + config). L'adaptateur avait été écrit contre une **version antérieure** de la spec.
+>
+> **✅ ALIGNEMENT FAIT (2026-07-16, orchestrateur) :**
+> §9.0 asset USDC (tranché) · §9.0 décimales shares → v2=6 mode-aware, legacy 18 inchangé (`ce8a1487`) ·
+> §9.1 renames `isIdle`/`canPay` (`1d806147`) · §9.2/§9.3 10 fonctions owner/keeper + 12 events ajoutés
+> à l'ABI (`1d806147`) · §9.4 3 routes gatées honnêtes 501 not_supported (`1a9d4e21`). Runtime prod
+> inchangé (v2 dormant). **Restent :** §9.5 swapAndReport (cosmétique), méthodo v3.0/v1.0 (hors vault,
+> déférée), et les « à vérifier » §9.6 (localisation 40/27/33 côté UI, modélisation LBTC).
 
 ### 9.0 — À TRANCHER (bloquants)
 
