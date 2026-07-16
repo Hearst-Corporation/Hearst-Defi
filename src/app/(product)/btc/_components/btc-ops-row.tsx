@@ -143,7 +143,7 @@ export function BtcOpsRow({
               }`
             : "No movements indexed yet"
         }
-        footerHref="/proof-center"
+        footerHref="/btc/ledger"
         footerLabel="View full ledger →"
       />
 
@@ -174,7 +174,7 @@ export function BtcOpsRow({
             <HairlineProgress pct={termPct} tone="btc" />
           ) : undefined
         }
-        footerHref="/proof-center"
+        footerHref="/btc/ledger"
         footerLabel="View delivery terms →"
       />
 
