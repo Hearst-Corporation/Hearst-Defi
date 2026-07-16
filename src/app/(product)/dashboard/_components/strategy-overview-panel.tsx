@@ -74,8 +74,14 @@ export function StrategyOverviewPanel({ signals, verdict, verdictDetail }: Strat
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center gap-[var(--ct-space-3)] min-w-0">
-        {/* Concentric ring + shield */}
-        <div className="dash-ring shrink-0" style={{ ["--ring-size" as string]: "150px" }} aria-hidden>
+        {/* Concentric ring + shield. --ring-circ feeds the first-paint draw
+            (P2.2, dash-ring-draw keyframes): the arc animates from the full
+            circumference to its mounted stroke-dashoffset once, at entry. */}
+        <div
+          className="dash-ring shrink-0"
+          style={{ ["--ring-size" as string]: "150px", ["--ring-circ" as string]: `${C}` }}
+          aria-hidden
+        >
           <svg viewBox="0 0 200 200" role="presentation">
             {/* outer thin guide */}
             <circle className="dash-ring-track" cx="100" cy="100" r="92" strokeWidth="1" opacity="0.5" />

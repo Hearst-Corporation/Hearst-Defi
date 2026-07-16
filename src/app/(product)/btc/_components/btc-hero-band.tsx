@@ -105,8 +105,17 @@ export function BtcHeroBand({
 
   return (
     <Card className="w-full overflow-hidden p-0" contentClassName="relative">
-      {/* Page-level provenance badge — top-right of the band. */}
-      <span className="absolute right-[var(--ct-space-3)] top-[var(--ct-space-2)] z-10">
+      {/* Instrument identity — numbered-document microline (P2.3), band
+          corner OPPOSITE the provenance badge (same instrument as
+          /dashboard — one note, one identity). */}
+      <span className="dash-instrument-id absolute left-[var(--ct-space-3)] top-[var(--ct-space-2)] z-10">
+        Hearst Mining Note · Series 24-A · Cayman SPV
+      </span>
+
+      {/* Page-level provenance badge — top-right of the band, on an opaque
+          --ct-bg-deep chip so it reads OVER the orb rings instead of
+          colliding with them (P2.3). */}
+      <span className="absolute right-[var(--ct-space-3)] top-[var(--ct-space-2)] z-10 inline-flex items-center rounded-full bg-[var(--ct-bg-deep)] px-[var(--ct-space-1_5)] py-[var(--ct-space-1)]">
         <ProvenanceBadge kind={pageProvenance} variant="compact" />
       </span>
 

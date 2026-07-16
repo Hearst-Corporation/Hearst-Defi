@@ -156,11 +156,15 @@
   transform-origin: center;
   transform-box: fill-box;
 }
-.dash-orb-ring--outer { animation: dash-orb-spin 26s linear infinite; }
-.dash-orb-ring--mid   { animation: dash-orb-spin 18s linear infinite reverse; }
-.dash-orb-ring--inner { animation: dash-orb-spin 12s linear infinite; }
+/* P2.5 « orbe horlogère » — rings slowed and desynchronised (26/40/60s, was
+   12/18/26s; negative delays de-phase the start positions): a slow mechanism,
+   not a spinning gadget — the only permanently-alive thing on screen. */
+.dash-orb-ring--outer { animation: dash-orb-spin 60s linear infinite; }
+.dash-orb-ring--mid   { animation: dash-orb-spin 40s linear -13s infinite reverse; }
+.dash-orb-ring--inner { animation: dash-orb-spin 26s linear -7s infinite; }
+/* Satellites softened (P2.5) — 70% ink instead of full tone. */
 .dash-orb-sat {
-  fill: var(--orb-color);
+  fill: color-mix(in srgb, var(--orb-color) 70%, transparent);
 }
 .dash-orb-core {
   fill: color-mix(in srgb, var(--orb-color) 14%, var(--ct-bg-deep));
@@ -200,6 +204,101 @@
   stroke: color-mix(in srgb, var(--ring-color) 45%, transparent);
 }
 
+/* ─── Braun glass — P2.1 « lumière directionnelle + arête + grain » ───
+   Zone 1/2 Cards ONLY (single-level surfaces — NEVER the dense Zone 3 ops
+   cards, anti cage-in-cage: they sit after .dash-row-main and are excluded
+   by these selectors). ONE overlay pseudo-element ABOVE the card content
+   (the hero band's cells are opaque --ct-bg-deep tiles that would swallow a
+   surface-level gradient), pointer-events none. THREE insets, ZERO
+   drop-shadow — the FLAT decision on elements holds:
+     1. radial-gradient top-left (white 2.5% → transparent 60%), coherent
+        with the lit scene of P0.1 (key light enters top-left);
+     2. lit top edge — inset 0 1px 0 rgba(255,255,255,.04);
+     3. ~2% grain (inline feTurbulence data-URI) that kills the banding of
+        the dark gradient and gives the paper. At these intensities the
+        overlay is imperceptible on text — sheen, never a status signal. */
+.dash-signature > .ct-card::after,
+.dash-signature > .dash-row-main .ct-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Above the opaque cell tiles (.ct-z-base = 1) so the light reads on the
+     whole band, not only in the hairline gaps. */
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image:
+    radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.025), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ─── Entry cascade — P2.2 « la page se pose » ───
+   KPI cells then ops cards fade + settle (translateY 6px → 0), 220ms
+   ease-out, 50ms stagger via animation-delay: calc(var(--i) * 50ms), played
+   ONCE per mount (fill backwards keeps the pre-entry state during the
+   delay). Zone 2 cards are NOT staggered (the chart owns its own reveal);
+   the ring and the donut get their first-paint draw below. */
+@keyframes dash-cascade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.dash-signature dl > .ct-kpi-cell,
+.dash-signature > .dash-row-main + div > .ct-card {
+  animation: dash-cascade-in 220ms ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+/* Stagger index — cells 0-4, then the four ops cards 5-8. */
+.dash-signature dl > .ct-kpi-cell:nth-child(1) { --i: 0; }
+.dash-signature dl > .ct-kpi-cell:nth-child(2) { --i: 1; }
+.dash-signature dl > .ct-kpi-cell:nth-child(3) { --i: 2; }
+.dash-signature dl > .ct-kpi-cell:nth-child(4) { --i: 3; }
+.dash-signature dl > .ct-kpi-cell:nth-child(5) { --i: 4; }
+.dash-signature > .dash-row-main + div > .ct-card:nth-child(1) { --i: 5; }
+.dash-signature > .dash-row-main + div > .ct-card:nth-child(2) { --i: 6; }
+.dash-signature > .dash-row-main + div > .ct-card:nth-child(3) { --i: 7; }
+.dash-signature > .dash-row-main + div > .ct-card:nth-child(4) { --i: 8; }
+
+/* Strategy ring — first-paint draw (P2.2). These are SERVER components: the
+   900ms stroke-dashoffset transition above never plays (the arc mounts at
+   its final value), so the draw is a one-shot @keyframes from the full
+   circumference (--ring-circ, set inline by the panel) to the mounted value. */
+.dash-ring-arc {
+  animation: dash-ring-draw 900ms cubic-bezier(0.22, 1, 0.36, 1) 250ms backwards;
+}
+@keyframes dash-ring-draw {
+  from {
+    stroke-dashoffset: var(--ring-circ, 490.1);
+  }
+}
+
+/* Composition donut — first-paint settle (P2.2). Each segment slides from
+   its own start angle (--seg-start = final offset + arc length, set inline)
+   into its mounted offset while fading in: the donut assembles clockwise. */
+.dash-donut-seg {
+  animation: dash-donut-draw 900ms cubic-bezier(0.22, 1, 0.36, 1) 250ms backwards;
+}
+@keyframes dash-donut-draw {
+  from {
+    stroke-dashoffset: var(--seg-start, 0);
+    opacity: 0;
+  }
+}
+
+/* ─── Instrument identity — P2.3 « document numéroté » ───
+   Microline « HEARST MINING NOTE · SERIES 24-A · CAYMAN SPV », band corner
+   OPPOSITE the provenance badge (badge top-right → identity top-left). */
+.dash-instrument-id {
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ct-text-muted);
+  white-space: nowrap;
+}
+
 /* ─── Card border interaction — P1.6 « bordure porteuse » ───
    Scoped to the two cockpit surfaces only: the carrying card border rests on
    --ink-hairline and etches to --ink-etch on hover, 200ms. Border-colour
@@ -221,6 +320,14 @@
     animation: none !important;
   }
   .dash-ring-arc { transition: none; }
+  /* P2.2 — the whole entry cascade + first-paint draws are cancelled:
+     everything mounts directly at its final state. */
+  .dash-signature dl > .ct-kpi-cell,
+  .dash-signature > .dash-row-main + div > .ct-card,
+  .dash-ring-arc,
+  .dash-donut-seg {
+    animation: none !important;
+  }
   [data-testid="dashboard-page"] .dash-signature .ct-card,
   [data-testid="btc-page"] .dash-signature .ct-card {
     transition: none;

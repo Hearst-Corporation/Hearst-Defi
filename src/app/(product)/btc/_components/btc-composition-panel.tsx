@@ -123,9 +123,14 @@ export function BtcCompositionPanel({ pockets, totalBtc, provenance }: BtcCompos
               strokeWidth={STROKE}
             />
             {/* pocket arcs */}
+            {/* --seg-start feeds the first-paint settle (P2.2,
+                dash-donut-draw keyframes): each segment slides from its own
+                start angle into its mounted offset once, at entry — the
+                transition path never plays on a server component. */}
             {segments.map((s) => (
               <circle
                 key={s.pocket}
+                className="dash-donut-seg"
                 cx="100"
                 cy="100"
                 r={R}
@@ -135,6 +140,7 @@ export function BtcCompositionPanel({ pockets, totalBtc, provenance }: BtcCompos
                 strokeDasharray={`${s.length} ${C - s.length}`}
                 strokeDashoffset={s.offset}
                 transform="rotate(-90 100 100)"
+                style={{ ["--seg-start" as string]: `${s.offset + s.length}` }}
               />
             ))}
           </svg>
