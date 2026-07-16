@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { BentoLabel } from "@/components/catalyst/bento";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { Select } from "@/components/catalyst/select";
 import { saveQualification } from "@/app/admin/customers/[id]/actions";
 import type { QualificationProfile } from "@prisma/client";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
@@ -62,7 +63,7 @@ export function QualificationForm({
           return (
             <label key={f.name} className="flex flex-col gap-2" htmlFor={`qual-${f.name}`}>
               <BentoLabel>{f.label}</BentoLabel>
-              <select
+              <Select
                 id={`qual-${f.name}`}
                 name={f.name}
                 defaultValue={current ?? ""}
@@ -74,7 +75,7 @@ export function QualificationForm({
                     {l}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
           );
         })}
