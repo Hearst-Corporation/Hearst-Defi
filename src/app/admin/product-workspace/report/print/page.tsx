@@ -20,6 +20,17 @@ function pct(n: number, d = 1): string {
   return `${(n * 100).toFixed(d)}%`;
 }
 
+/**
+ * `StoredConstructionReport` coerces missing/corrupt numeric fields to `0`
+ * defensively at the store layer (so a partial blob still loads) — that `0`
+ * is indistinguishable from a real zero business value. Render "—" instead
+ * of a fabricated zero for any field that is exactly 0, matching the
+ * "—" no-data convention used across /admin (customers, vaults, outreach).
+ */
+function numOrDash(n: number, format: (n: number) => string): string {
+  return n === 0 ? "—" : format(n);
+}
+
 export default async function ConstructionReportPrintPage() {
   const admin = await requireAdmin();
   const report = await loadConstructionReport(admin.userId);
@@ -47,7 +58,9 @@ export default async function ConstructionReportPrintPage() {
       </div>
 
       <header className="mb-(--ct-space-6)">
-        <h1 className="text-[length:var(--ct-text-2xl)] font-bold">{report.vaultLabel}</h1>
+        <h1 className="text-[length:var(--ct-text-2xl)] font-bold">
+          {report.vaultLabel || "—"}
+        </h1>
         <p className="text-[length:var(--ct-text-sm)] text-[#3a3f36]">{report.objective}</p>
       </header>
 
@@ -59,22 +72,28 @@ export default async function ConstructionReportPrintPage() {
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Headline APY</dt>
             <dd className="mono font-bold">
-              {pct(report.headlineLow)}–{pct(report.headlineHigh)}
+              {report.headlineLow === 0 && report.headlineHigh === 0
+                ? "—"
+                : `${pct(report.headlineLow)}–${pct(report.headlineHigh)}`}
             </dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Vault</dt>
-            <dd className="mono font-bold">{report.vaultTicker}</dd>
+            <dd className="mono font-bold">{report.vaultTicker || "—"}</dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">
               P(below floor)
             </dt>
-            <dd className="mono font-bold">{report.probBelowFloorPct}%</dd>
+            <dd className="mono font-bold">
+              {numOrDash(report.probBelowFloorPct, (n) => `${n}%`)}
+            </dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Machines</dt>
-            <dd className="mono font-bold">{report.machineCount}</dd>
+            <dd className="mono font-bold">
+              {numOrDash(report.machineCount, (n) => `${n}`)}
+            </dd>
           </div>
         </dl>
       </section>
@@ -87,18 +106,21 @@ export default async function ConstructionReportPrintPage() {
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">BTC spot</dt>
             <dd className="mono font-bold">
-              ${Math.round(report.btcUsd).toLocaleString("en-US")}
+              {numOrDash(
+                report.btcUsd,
+                (n) => `$${Math.round(n).toLocaleString("en-US")}`,
+              )}
             </dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Hashprice</dt>
             <dd className="mono font-bold">
-              ${report.hashpriceUsdPerThDay.toFixed(3)}/TH
+              {numOrDash(report.hashpriceUsdPerThDay, (n) => `$${n.toFixed(3)}/TH`)}
             </dd>
           </div>
           <div>
             <dt className="text-[length:var(--ct-text-deci)] uppercase text-[#6b7363]">Seed</dt>
-            <dd className="mono font-bold">{report.seed}</dd>
+            <dd className="mono font-bold">{numOrDash(report.seed, (n) => `${n}`)}</dd>
           </div>
         </dl>
       </section>
