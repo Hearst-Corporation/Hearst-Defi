@@ -59,7 +59,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
       lead={
         <Link
           href={INVEST_SELECT_PATH}
-          className="body-sm ct-link-accent"
+          className="body-sm ct-link-accent -m-2 inline-flex min-h-11 items-center p-2"
           aria-label="Back to product list"
         >
           ← Products
