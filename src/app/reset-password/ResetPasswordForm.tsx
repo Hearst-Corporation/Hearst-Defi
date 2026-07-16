@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Input } from "@/components/catalyst/input";
 import { resetPassword } from "./actions";
 
 interface Props {
@@ -36,7 +37,7 @@ export function ResetPasswordForm({ token }: Props) {
     <form action={onSubmit} className="auth-form" aria-label="Set new password">
       <label className="auth-field" htmlFor="rp-password">
         <span className="ct-form-label">New password</span>
-        <input
+        <Input
           id="rp-password"
           name="password"
           type="password"
@@ -46,7 +47,6 @@ export function ResetPasswordForm({ token }: Props) {
           minLength={8}
           disabled={isPending}
           placeholder="Min. 8 characters"
-          className="ct-input ct-input-bare"
         />
       </label>
 
