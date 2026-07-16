@@ -120,11 +120,19 @@ export default async function VaultDetailPage({ params }: PageProps) {
   });
   const allocationFacts = toVaultAllocationFacts(vault);
 
+  // A parse failure here means the stored column is corrupt, not that the
+  // whitelist is legitimately empty (`parseStringArray` already treats
+  // null/undefined as "[]" without throwing). Falling back to `[]` silently
+  // would show every signer as "not whitelisted" — a fabricated verdict from
+  // bad data. Surface the corruption instead of hiding it.
   let whitelist: string[];
+  let whitelistParseError: string | null = null;
   try {
     whitelist = parseStringArray(vault.signersWhitelist, "signer whitelist");
-  } catch {
+  } catch (err) {
     whitelist = [];
+    whitelistParseError =
+      err instanceof Error ? err.message : "Invalid signer whitelist format";
   }
   const actorWallet = admin.walletAddress ?? admin.userId;
   const alreadySigned = vault.approvals.some((a) => a.signerWallet === actorWallet);
@@ -381,6 +389,20 @@ export default async function VaultDetailPage({ params }: PageProps) {
             </span>
           }
         >
+          {whitelistParseError ? (
+            <div className="flex flex-col gap-1 rounded-2xl border border-[var(--ct-status-danger)] bg-surface-inset p-5">
+              <span className="ct-metric-caption font-semibold text-[var(--ct-status-danger)]">
+                Signer whitelist unreadable
+              </span>
+              <span className="ct-metric-caption text-[var(--ct-text-faint)]">
+                {whitelistParseError} — the stored column is corrupt, not
+                empty. Treating it as zero signers would misreport who can
+                sign; fix the `signersWhitelist` column before relying on the
+                approval buttons below.
+              </span>
+            </div>
+          ) : null}
+
           {vault.status === "review" && (
             <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <span className="ct-metric-caption">
