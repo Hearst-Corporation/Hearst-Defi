@@ -12,11 +12,11 @@ import { formatBtcAmount, toProvenance, formatIsoDateTime } from "./_data/format
 
 import { HeroPanel } from "@/features/investor-ui/components/widgets/hero-panel";
 import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
+import { SourcesAccumulationPanel } from "@/features/investor-ui/components/sources-accumulation-panel";
 import { DashboardStrategyPanel } from "../dashboard/_components/dashboard-strategy-panel";
 import { DashboardHealthPanel } from "../dashboard/_components/dashboard-health-panel";
-import { VerifiedActivityPanel } from "../dashboard/_components/verified-activity-panel";
-import { PortfolioInsightPanel } from "../dashboard/_components/portfolio-insight-panel";
 import { ContextualProofPanel } from "@/features/investor-ui/components/widgets/contextual-proof-panel";
+import { PortfolioInsightPanel } from "../dashboard/_components/portfolio-insight-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +59,13 @@ export default async function BtcPage({
     mining.mining.value?.productDurationMonths ?? data.extra.trajectory.value?.monthsTotal ?? 24;
 
   const accumulationPoints = buildAccumulationSeries(production.value?.monthly);
+  
+  // Synthesize sources data from accumulation points
+  const sourcesData = accumulationPoints.map(p => ({
+    period: p.period,
+    mining: p.miningBtc,
+    strategic: Math.max(0, p.cumulativeBtc - p.miningBtc)
+  }));
 
   const proofItems = (data.extra.proofs.value ?? []).map((p) => ({
     label: p.label,
@@ -115,17 +122,14 @@ export default async function BtcPage({
           totalMonths={monthsTotal}
           provenance={toProvenance(reserve.status)}
         />
+        
+        <SourcesAccumulationPanel monthlyProduction={sourcesData} />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)]">
           <div className="lg:col-span-7 flex min-w-0 flex-col gap-[var(--ct-space-5)]">
             <DashboardStrategyPanel
               pockets={dashboard.allocation.value?.pockets ?? null}
               mining={mining}
-            />
-            <VerifiedActivityPanel
-              activity={dashboard.activity}
-              alerts={dashboard.alerts}
-              proofs={dashboard.proofs}
             />
           </div>
           <div className="lg:col-span-5 flex min-w-0 flex-col gap-[var(--ct-space-5)]">

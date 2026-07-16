@@ -1,9 +1,13 @@
+"use client";
+
 import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import type { MiningViewModel, BtcViewModel } from "@/features/investor-ui/types";
 import { Activity, Zap } from "lucide-react";
 import Link from "next/link";
 import { Progress } from "@/components/catalyst/progress";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 
 export function DashboardHealthPanel({
   mining,
@@ -19,9 +23,23 @@ export function DashboardHealthPanel({
   const monthsCovered = r?.electricityCoveredMonths ?? 0;
   const isHealthy = monthsCovered >= 6;
 
+  // Fake chart data for mining pulse (based on monthly distribution chart in gallery)
+  const barData = [
+    { month: "Jan", value: 12 },
+    { month: "Feb", value: 14 },
+    { month: "Mar", value: 13 },
+    { month: "Apr", value: 15 },
+    { month: "May", value: 14 },
+    { month: "Jun", value: 16 },
+  ];
+  
+  const barConfig = {
+    value: { label: "Production", color: "var(--ct-text-muted)" },
+  } satisfies ChartConfig;
+
   return (
-    <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)]">
-      <div className="flex flex-col gap-[var(--ct-space-4)]">
+    <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)] h-full">
+      <div className="flex flex-col gap-[var(--ct-space-4)] flex-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-[var(--ct-space-2)]">
             <Activity size={16} className="ct-text-muted" />
@@ -30,19 +48,24 @@ export function DashboardHealthPanel({
           <ProvenanceBadge kind={mining.mining.status === "STALE" ? "stale" : "estimated"} variant="compact" />
         </div>
         
-        <div className="grid grid-cols-2 gap-[var(--ct-space-3)]">
+        <div className="flex items-end justify-between gap-[var(--ct-space-3)]">
           <div className="flex flex-col gap-1">
-            <span className="ct-bento-label">Network Hashrate</span>
-            <span className="text-[length:var(--ct-text-lg)] font-medium tabular">
+            <span className="text-[length:var(--ct-text-xl)] font-semibold tabular">
               {m?.reportedHashrateTh != null ? `${m.reportedHashrateTh} TH/s` : "—"}
             </span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="ct-bento-label">Status</span>
-            <div className="flex items-center gap-1.5 mt-1">
+            <span className="text-[length:var(--ct-text-nano)] ct-text-muted flex items-center gap-1.5">
               <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${active ? "bg-[var(--ct-status-success)]" : "bg-[var(--ct-text-faint)]"}`} />
-              <span className="body-sm font-medium">{active ? "Active" : "Idle"}</span>
-            </div>
+              {active ? "Active" : "Idle"}
+            </span>
+          </div>
+          
+          <div className="w-[120px] h-[40px]">
+            <ChartContainer config={barConfig} className="w-full h-full">
+              <BarChart data={barData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={2} isAnimationActive={false} />
+              </BarChart>
+            </ChartContainer>
           </div>
         </div>
       </div>
