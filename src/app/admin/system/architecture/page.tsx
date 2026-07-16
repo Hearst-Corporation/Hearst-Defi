@@ -90,12 +90,12 @@ export default function ArchitecturePage() {
                     key={node.id}
                     className="flex flex-col gap-2 p-4 transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)] sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="flex flex-col gap-1">
-                      <div className="font-medium text-[var(--ct-text-primary)]">
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <div className="font-medium text-[var(--ct-text-primary)] break-words">
                         {node.name}
                       </div>
                       {node.description && (
-                        <div className="text-sm text-[var(--ct-text-secondary)]">
+                        <div className="text-sm text-[var(--ct-text-secondary)] break-words">
                           {node.description}
                         </div>
                       )}
