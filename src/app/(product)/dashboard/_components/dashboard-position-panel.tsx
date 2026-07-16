@@ -60,7 +60,7 @@ export function DashboardPositionPanel({
     return (
       <Card className="w-full flex items-center justify-center p-[var(--ct-space-8)]">
         <div className="flex flex-col items-center gap-[var(--ct-space-3)] text-center">
-          <span className="stat-label ct-text-strong">No active position yet</span>
+          <span className="ct-bento-label ct-text-strong">No active position yet</span>
           <span className="body-sm ct-text-muted">Subscribe to the Hearst Mining Note to start accumulating Bitcoin.</span>
           <CockpitButton href={investDepositPath(VAULT_ID)} variant="secondary" shape="rect" size="lg" className="mt-[var(--ct-space-2)]">
             Allocate capital
@@ -81,15 +81,17 @@ export function DashboardPositionPanel({
       title="Current position"
       mainValue={formatUsdc(value.value) ?? "—"}
       provenance={provenance}
+      asset="usdc"
       metrics={[
         { label: "Capital allocated", value: formatUsdc(value.principal) ?? "—" },
-        { label: "BTC accumulated", value: btcAccumulated != null ? `${btcAccumulated} BTC` : "—", accent: true },
+        { label: "BTC accumulated", value: btcAccumulated != null ? `${btcAccumulated} BTC` : "—", accent: "btc" },
         { label: "Current BTC value", value: formatUsdc(value.accrued) ?? "—" },
       ]}
       progress={currentMonth != null ? {
         current: currentMonth,
         total: totalMonths,
-        label: "Product term progress"
+        label: "Product term progress",
+        fillClassName: "bg-[var(--ct-asset-btc)]",
       } : undefined}
       action={
         <Link href="/btc" className="body-xs ct-link-accent whitespace-nowrap">

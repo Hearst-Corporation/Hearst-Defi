@@ -3,6 +3,7 @@ import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-bad
 import { Progress } from "@/components/catalyst/progress";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { BentoBadge } from "@/components/catalyst/bento-badge";
+import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
 import { investDepositPath } from "@/lib/vaults/invest-routes";
 import { DataNotConfigured, DataUnavailable } from "@/features/investor-ui/components/states/data-states";
 import type {
@@ -81,15 +82,19 @@ export function DashboardCapacityPanel({
   const provenance: Provenance = capacity.status === "STALE" ? "stale" : "estimated";
 
   return (
-    <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)]">
+    <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)] border-l-[3px] border-l-[var(--ct-asset-usdc-border)]">
       <div className="flex flex-col gap-[var(--ct-space-1)]">
         <div className="flex items-center justify-between gap-[var(--ct-space-2)]">
-          <span className="stat-label ct-text-muted">Available capacity</span>
+          <div className="flex items-center gap-[var(--ct-space-2)]">
+            <AssetIcon variant="usdc" size="sm" />
+            <span className="ct-bento-label">Available capacity</span>
+          </div>
           <ProvenanceBadge kind={provenance} variant="compact" />
         </div>
-        <span className="text-[length:var(--ct-text-3xl)] font-medium tabular tracking-tight leading-none">
+        <span className="text-[length:var(--ct-text-3xl)] font-medium tabular tracking-tight leading-none text-[var(--ct-asset-usdc)]">
           {formatUsdc(cap?.availableCapacity) ?? "—"}
         </span>
+        <span className="ct-metric-caption">Subscribed in USDC · vault TVL cap</span>
       </div>
 
       <div className="flex flex-col gap-1.5 pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
@@ -97,17 +102,29 @@ export function DashboardCapacityPanel({
           <span className="ct-text-muted">Vault utilization</span>
           <span className="ct-text-strong font-medium tabular">of {formatUsdc(cap?.tvlCap) ?? "—"}</span>
         </div>
-        <Progress value={utilizationPct ?? 0} max={100} label="Vault utilization" />
-        <div className="flex justify-between mt-1 body-xs ct-text-faint">
-          <span>Total allocated: <span className="ct-text-strong">{formatUsdc(cap?.totalAssets) ?? "—"}</span></span>
-          <span>Your allocation: <span className="ct-text-strong">{formatUsdc(pos?.principal) ?? "—"}</span></span>
+        <Progress
+          value={utilizationPct ?? 0}
+          max={100}
+          label="Vault utilization"
+          fillClassName="bg-[var(--ct-asset-usdc)]"
+        />
+        <div className="flex justify-between mt-1 ct-metric-caption">
+          <span>
+            Allocated: <span className="ct-text-strong">{formatUsdc(cap?.totalAssets) ?? "—"}</span>
+          </span>
+          <span>
+            Available: <span className="text-[var(--ct-asset-usdc)]">{formatUsdc(cap?.availableCapacity) ?? "—"}</span>
+          </span>
+        </div>
+        <div className="ct-metric-caption">
+          Your allocation: <span className="ct-text-strong">{formatUsdc(pos?.principal) ?? "—"}</span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-[var(--ct-space-3)] pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)] mt-auto">
+      <div className="flex flex-col gap-[var(--ct-space-3)] pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[var(--ct-space-2)]">
           <div className="flex flex-col">
-            <span className="body-xs ct-text-muted">Minimum additional</span>
+            <span className="ct-bento-label">Minimum additional</span>
             <span className="body-sm ct-text-strong tabular font-medium">{formatUsdc(sub?.minimumDeposit) ?? "—"}</span>
           </div>
           {ctaState === "eligible" ? (
@@ -123,6 +140,7 @@ export function DashboardCapacityPanel({
             </div>
           )}
         </div>
+        <p className="ct-metric-caption m-0">{cta.helper}</p>
       </div>
     </Card>
   );

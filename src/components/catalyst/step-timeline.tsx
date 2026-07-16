@@ -57,7 +57,7 @@ export function StepTimeline({ steps, className, ...rest }: StepTimelineProps) {
             <span
               aria-hidden="true"
               className={cn(
-                "relative z-10 flex h-(--ct-space-8) w-(--ct-space-8) shrink-0 items-center justify-center rounded-(--ct-radius-full) border bg-surface-card text-[length:var(--ct-text-xs)] font-semibold",
+                "relative z-10 flex h-(--ct-space-8) w-(--ct-space-8) shrink-0 items-center justify-center rounded-(--ct-radius-full) border bg-[var(--ct-surface-card)] text-[length:var(--ct-text-xs)] font-semibold",
                 TONE_NODE[tone],
               )}
               style={{ fontVariantNumeric: "tabular-nums" }}

@@ -147,6 +147,24 @@
   --ct-cat-hedge: var(--ct-chart-neutral);    /* graphite — BTC hedged / neutre     */
   --ct-cat-negative: var(--ct-status-danger); /* rouge    — deltas négatifs (réservé) */
 
+  /* ── Asset semantic palette (investor analytics · chart gallery) ─────────────
+     BTC orange + USDC blue + mining copper. Values trace to lab-colors.ts
+     (#F7931A, #60A5FA) and industrial amber for mining — distinct from the
+     brand accent green (live/healthy only). Components use var(--ct-asset-*). */
+  --ct-asset-btc: #F7931A;
+  --ct-asset-btc-soft: color-mix(in srgb, var(--ct-asset-btc) 18%, transparent);
+  --ct-asset-btc-border: color-mix(in srgb, var(--ct-asset-btc) 35%, transparent);
+  --ct-asset-usdc: var(--ct-status-info);
+  --ct-asset-usdc-soft: var(--ct-status-info-soft);
+  --ct-asset-usdc-border: var(--ct-status-info-border);
+  --ct-asset-mining: #D97706;
+  --ct-asset-mining-soft: color-mix(in srgb, var(--ct-asset-mining) 18%, transparent);
+  --ct-asset-mining-border: color-mix(in srgb, var(--ct-asset-mining) 35%, transparent);
+  --ct-asset-reserve: var(--ct-asset-usdc);
+  --ct-asset-reserve-soft: var(--ct-asset-usdc-soft);
+  --ct-chart-grid: var(--ct-chart-grid-stroke);
+  --ct-chart-axis: var(--ct-text-faint);
+
   /* Bordures de modules graphite (les surfaces graphite-* ont été supprimées :
      toute surface passe désormais par les 3 niveaux canoniques ci-dessus). */
   --ct-graphite-border: var(--ct-figma-border-20);
@@ -430,6 +448,8 @@
   --ct-step-dot-size: 1.75rem;     /* wizard step circle diameter */
   --ct-chart-empty-h: 8.75rem;     /* empty-state chart placeholder height */
   --ct-chart-h: 13.75rem;          /* full chart container height */
+  --ct-chart-investor-main: 20rem;    /* 320px — BTC accumulation hero chart */
+  --ct-chart-investor-compact: 17.5rem; /* 280px — donut, stacked bars, mining pulse */
 
   /* Icon size scale — use these for w/h on <svg> and icon primitives. */
   --ct-icon-xs:  0.75rem;  /* 12px — inline status dot */

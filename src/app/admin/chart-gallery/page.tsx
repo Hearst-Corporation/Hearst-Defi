@@ -1,4 +1,5 @@
 import { ChartGallery } from "@/components/admin/product-workspace/chart-gallery";
+import { AssetAnalyticsGallery } from "@/components/admin/product-workspace/asset-analytics-gallery";
 import { MonteCarloChart } from "@/components/admin/product-workspace/monte-carlo-chart";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,8 @@ export default function ChartGalleryPage() {
 
         {/* Recharts cards — each is its own Card, no outer box. */}
         <ChartGallery />
+
+        <AssetAnalyticsGallery />
 
         {/* Monte-Carlo — already wrapped in its own Card inside the component. */}
         <MonteCarloChart
