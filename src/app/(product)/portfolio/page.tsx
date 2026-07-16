@@ -323,7 +323,7 @@ export default async function PortfolioPage() {
           <div className="grid grid-cols-1 items-center gap-6 p-5 @[48rem]:grid-cols-[auto_1fr]">
             {/* Donut + labelled legend — the at-a-glance allocation view.
                 Stacks on mobile so the fixed-width ring never forces a body scroll. */}
-            <div className="flex flex-col items-center gap-5 sm:flex-row">
+            <div className="flex flex-col items-center gap-5 @[26rem]:flex-row">
               <div className="shrink-0">
                 <AssetRing
                   segments={pocketRing}
