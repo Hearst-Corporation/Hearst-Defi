@@ -19,6 +19,7 @@ import {
 } from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { cockpitButtonVariants } from "@/components/catalyst/cockpit-button";
+import { ProvenanceBadge } from "@/components/catalyst/provenance-badge";
 import { loadPortfolio } from "@/lib/data/portfolio";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { cn } from "@/lib/cn";
@@ -95,27 +96,34 @@ export default async function MyVaultsPage() {
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="ct-metric-value text-right">
-                        {formatUsdFull(p.principalUsdc)}
+                      <TableCell className="text-right">
+                        <span className="inline-flex items-baseline justify-end gap-2">
+                          <span className="ct-metric-value">{formatUsdFull(p.principalUsdc)}</span>
+                          <ProvenanceBadge kind="estimated" variant="strip" />
+                        </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        <span className="inline-flex items-baseline gap-2">
+                        <span className="inline-flex items-baseline justify-end gap-2">
                           <span className="ct-metric-value">{formatUsdFull(p.valueUsdc)}</span>
                           <span
                             className="ct-metric-caption tabular-nums"
                             style={{
                               color: up
                                 ? "var(--ct-status-success)"
-                                : "var(--ct-status-danger)",
+                                : "var(--ct-text-muted)",
                             }}
                           >
                             {up ? "+" : ""}
                             {perfPct.toFixed(1)}%
                           </span>
+                          <ProvenanceBadge kind="estimated" variant="strip" />
                         </span>
                       </TableCell>
-                      <TableCell className="ct-metric-value text-right">
-                        {formatUsdFull(p.accruedYieldUsdc)}
+                      <TableCell className="text-right">
+                        <span className="inline-flex items-baseline justify-end gap-2">
+                          <span className="ct-metric-value">{formatUsdFull(p.accruedYieldUsdc)}</span>
+                          <ProvenanceBadge kind="estimated" variant="strip" />
+                        </span>
                       </TableCell>
                       <TableCell className="pr-5 text-right">
                         <span aria-hidden="true" className="ct-text-muted">→</span>

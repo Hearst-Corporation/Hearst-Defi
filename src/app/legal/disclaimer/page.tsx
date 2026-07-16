@@ -7,7 +7,7 @@ export const dynamic = "force-static";
 export const metadata = {
   title: "Risk Disclaimer",
   description:
-    "Risk factors specific to Hearst Connect — Bitcoin mining revenue, distribution coverage, the USDC principal reserve, custody, and smart contracts.",
+    "Risk factors specific to the Hearst Mining Note — Bitcoin mining economics, take-profit execution, the USDC reserve pocket, custody, and smart contracts.",
 };
 
 export default function DisclaimerPage() {
@@ -19,37 +19,45 @@ export default function DisclaimerPage() {
         <strong>Current review draft</strong>
         <p>
           The risk factors below reflect the actual architecture of the product
-          (mining-backed yield, USDC distributions, Cayman SPV, custody
-          provider, smart contracts on Base). The legal language must be
-          be finalized by qualified counsel before formal issuance.
+          (a Bitcoin-mining-backed accumulation note structured in three
+          on-chain pockets, a Cayman SPV, a custody provider, smart contracts
+          on Base). The legal language must be finalized by qualified counsel
+          before formal issuance.
         </p>
       </div>
 
       <p>
-        Hearst Yield Vault is an institutional RWA yield vault backed by Bitcoin
-        mining cash flows. Principal is held in a USDC reserve (Model B) and is
-        not deployed on-chain; the monthly USDC distribution is funded by a
-        mining-revenue-share. Bitcoin price is an economic factor (it drives
-        mining hashprice) and a small capped tactical sleeve — it is not the
-        primary exposure. Investment involves substantial risk, including loss
-        of principal. APY ranges are target projections based on disclosed
-        assumptions; they are not guarantees, commitments, or predictions of
-        future returns. Past performance does not predict future results.
+        Hearst Mining Note is an institutional instrument backed by real
+        Bitcoin mining. Capital is structured in three on-chain pockets
+        (Mining Power, BTC Pouch, Reserve USDC) and accumulates Bitcoin over a
+        24-month term, delivered at maturity — there is no periodic cash
+        distribution and no fixed APY. Bitcoin price is an economic factor: it
+        drives mining hashprice, and it is also the asset ultimately
+        delivered. Investment involves substantial risk, including loss of
+        principal. Estimated outcomes are disclosed as a range of accumulated
+        BTC, based on disclosed assumptions; they are not guarantees,
+        commitments, or predictions of future returns. Past performance does
+        not predict future results.
       </p>
 
-      <h2 className="h2">1. Mining revenue risk (primary)</h2>
+      <h2 className="h2">1. Mining economics risk (primary)</h2>
       <p>
-        The vault's distribution is funded by Bitcoin mining cash flows. Mining
-        revenue — and therefore distribution coverage — is sensitive to network
-        hashprice, energy costs, network difficulty, fleet uptime, halving
-        events, hardware availability, and regulatory action in mining
-        jurisdictions. Adverse moves in any of these factors can reduce, defer,
-        or eliminate distributions, independent of Bitcoin's spot price.
+        The note's BTC accumulation is funded by real Bitcoin mining
+        economics. Mining output — and therefore the pace of accumulation —
+        is sensitive to network hashprice, energy costs, network difficulty,
+        fleet uptime, curtailment events, halving events, hardware
+        availability, and regulatory action in mining jurisdictions. Adverse
+        moves in any of these factors can slow, reduce, or in stressed
+        scenarios halt accumulation toward the take-profit target, independent
+        of Bitcoin's spot price. The rule-based take-profit program executes
+        against disclosed triggers, not a fixed schedule: market conditions,
+        on-chain conditions, or operational delays could affect the timing or
+        completeness of an execution.
       </p>
 
       <h2 className="h2">2. Smart contract risk</h2>
       <p>
-        On-chain components (ERC-4626 vault, event logger, proof-of-reserves
+        On-chain components (the vault contract, event logger, proof-of-reserves
         registry) are deployed on Base. Smart contracts may contain
         undiscovered vulnerabilities. Mainnet deployment of the vault is gated
         on completion of a third-party security audit (Spearbit) and
@@ -66,32 +74,37 @@ export default function DisclaimerPage() {
 
       <h2 className="h2">4. Liquidity &amp; lock-up risk</h2>
       <p>
-        Subscriptions carry a 60-day soft lock-up. Withdrawals are processed at
-        scheduled valuation points and may be deferred or gated in exceptional
-        liquidity events. You should not subscribe with funds you may need on
-        short notice.
+        Subscriptions carry a 60-day soft lock-up. Because the note accumulates
+        BTC over a 24-month term and delivers at maturity, early withdrawal
+        requests outside the lock-up are processed at scheduled valuation
+        points and may be deferred or gated in exceptional liquidity events.
+        You should not subscribe with funds you may need on short notice.
       </p>
 
       <h2 className="h2">5. Regulatory &amp; jurisdiction risk</h2>
       <p>
         The SPV is incorporated in the Cayman Islands. Regulatory frameworks
-        applicable to digital assets, Bitcoin mining, and RWA / mining-backed
-        structured products continue to evolve. Changes in law or enforcement could materially
-        affect the product or your ability to participate.
+        applicable to digital assets, Bitcoin mining, and Bitcoin-accumulation
+        / mining-backed structured products continue to evolve. Changes in law
+        or enforcement could materially affect the product or your ability to
+        participate.
       </p>
 
       <h2 className="h2">6. Stablecoin &amp; redemption risk</h2>
       <p>
-        Distributions and redemptions are settled in USDC. USDC is a
-        third-party issued stablecoin; its peg, redemption rights, and
-        compliance posture are outside Hearst's control.
+        A portion of capital — the Reserve USDC pocket — is held in USDC, a
+        third-party issued stablecoin whose peg, redemption rights, and
+        compliance posture are outside Hearst's control. This risk applies to
+        that reserve pocket only: the BTC accumulated and delivered at
+        maturity instead carries Bitcoin market risk (see Section 1).
       </p>
 
       <h2 className="h2">7. Operational &amp; counterparty risk</h2>
       <p>
         The product depends on third-party infrastructure (custody, hosting,
         oracles, KYC processors). Operational failure at any counterparty could
-        affect product availability, distributions, or attestations.
+        affect product availability, BTC accumulation, delivery at maturity, or
+        attestations.
       </p>
 
       <h2 className="h2">8. Tax</h2>
@@ -103,8 +116,9 @@ export default function DisclaimerPage() {
       <h2 className="h2">9. No guarantee</h2>
       <p>
         Nothing in the product communicates a guarantee, promise, or
-        risk-free return. The APY range is an estimate. Distributions are not
-        guaranteed. Capital is at risk.
+        risk-free return. The estimated accumulated-BTC range is an estimate,
+        not a periodic distribution and not a fixed APY. Delivery of the
+        accumulated BTC at maturity is not guaranteed. Capital is at risk.
       </p>
     </>
   );

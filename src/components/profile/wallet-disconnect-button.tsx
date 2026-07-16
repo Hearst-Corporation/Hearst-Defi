@@ -10,11 +10,12 @@ import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import { unbindWallet } from "@/lib/onboarding/actions";
 
 /**
- * Profile control to disconnect / change the bound distribution wallet.
+ * Profile control to disconnect / change the bound wallet.
  *
- * Guarded by a confirmation dialog: this wallet receives the monthly USDC
- * distributions, so an accidental unbind would interrupt delivery until it is
- * reconnected. Only after the user confirms do we run the two-step disconnect:
+ * Guarded by a confirmation dialog: this wallet is the delivery address for
+ * the BTC accumulated by the note at maturity, so an accidental unbind would
+ * require reconnecting a wallet before delivery can be routed there. Only
+ * after the user confirms do we run the two-step disconnect:
  *   1. Privy `logout()` — drops the wallet session in the browser (so the
  *      connected / Privy-embedded wallet does not silently re-bind).
  *   2. `unbindWallet()` — clears Investor.walletAddress in the DB.
@@ -55,9 +56,10 @@ export function WalletDisconnectButton() {
         title="Disconnect wallet?"
         description={
           <>
-            This wallet receives your monthly USDC distributions. Disconnecting
-            it clears the link to your account — you will need to reconnect a
-            wallet before the next distribution can be delivered.
+            This wallet is the delivery address for the BTC accumulated by
+            the note at maturity. Disconnecting it clears the link to your
+            account — you will need to reconnect a wallet before delivery
+            can be routed there.
           </>
         }
         confirmLabel="Disconnect wallet"

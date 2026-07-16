@@ -29,9 +29,9 @@ export interface ConfirmDialogProps {
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 const CONFIRM_DIALOG_STRINGS = {
-  typeToConfirmPrefix: "Tapez",
-  typeToConfirmSuffix: "pour confirmer",
-  cancel: "Annuler",
+  typeToConfirmPrefix: "Type",
+  typeToConfirmSuffix: "to confirm",
+  cancel: "Cancel",
 } as const;
 
 export function ConfirmDialog(props: ConfirmDialogProps) {
@@ -130,7 +130,7 @@ function ConfirmDialogBody({
         await onConfirm();
         onOpenChange(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Une erreur est survenue.");
+        setError(err instanceof Error ? err.message : "An error occurred.");
       }
     });
   }

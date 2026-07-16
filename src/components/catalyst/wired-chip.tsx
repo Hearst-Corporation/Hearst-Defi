@@ -34,33 +34,33 @@ export type WiredChipState = "wired" | "pending" | "unavailable";
  * se déguiser en « pas de données ».
  */
 export const WIRED_UNAVAILABLE_LABELS = {
-  not_deployed: "Contrat non déployé",
+  not_deployed: "Contract not deployed",
   // Kept short so the chip never clips in a narrow row — the full sentence lives
   // in WIRED_UNAVAILABLE_DESCRIPTIONS (tooltip) and in the row's detail line.
-  not_supported_by_legacy: "Non supporté",
-  rpc_error: "Lecture indisponible",
-  revert: "Rejeté par le contrat",
+  not_supported_by_legacy: "Not supported",
+  rpc_error: "Read unavailable",
+  revert: "Rejected by contract",
 } as const;
 
 export type WiredUnavailableReason = keyof typeof WIRED_UNAVAILABLE_LABELS;
 
 const WIRED_UNAVAILABLE_DESCRIPTIONS: Record<WiredUnavailableReason, string> = {
   not_deployed:
-    "Aucune adresse de contrat pour ce réseau : la donnée n'existe pas encore.",
+    "No contract address for this network yet: the data does not exist.",
   not_supported_by_legacy:
-    "Le contrat actuellement déployé n'expose pas cette lecture.",
+    "The contract currently deployed does not expose this read.",
   rpc_error:
-    "Le nœud RPC n'a pas répondu : la donnée n'a pas pu être lue — ce n'est pas une absence de donnée.",
-  revert: "L'appel a été rejeté (revert) par le contrat.",
+    "The RPC node did not respond: the data could not be read — this is not an absence of data.",
+  revert: "The call was rejected (reverted) by the contract.",
 };
 
-/** Libellé neutre de repli — distinct des motifs connus, et jamais silencieux. */
-const UNKNOWN_REASON_LABEL = "Motif inconnu";
+/** Neutral fallback label — distinct from the known reasons, and never silent. */
+const UNKNOWN_REASON_LABEL = "Unknown reason";
 const UNKNOWN_REASON_DESCRIPTION =
-  "La lecture est indisponible et le motif n'est pas reconnu.";
-const NO_REASON_LABEL = "Donnée indisponible";
+  "The read is unavailable and the reason is not recognized.";
+const NO_REASON_LABEL = "Data unavailable";
 const NO_REASON_DESCRIPTION =
-  "La lecture est indisponible et aucun motif n'a été renvoyé.";
+  "The read is unavailable and no reason was returned.";
 
 function isKnownReason(reason: string): reason is WiredUnavailableReason {
   return Object.hasOwn(WIRED_UNAVAILABLE_LABELS, reason);
@@ -81,7 +81,7 @@ function resolveUnavailable(reason: string | undefined): {
   }
   return {
     label: UNKNOWN_REASON_LABEL,
-    description: `${UNKNOWN_REASON_DESCRIPTION} Motif brut : ${reason}`,
+    description: `${UNKNOWN_REASON_DESCRIPTION} Raw reason: ${reason}`,
   };
 }
 
@@ -96,8 +96,8 @@ export interface WiredChipProps {
 
 /**
  * Rendu :
- * - `wired`       → bleu plein, point plein, « Branché v2 » / « Branché (legacy) »
- * - `pending`     → bleu atténué, point creux, « En attente de déploiement »
+ * - `wired`       → bleu plein, point plein, « Wired v2 » / « Wired (legacy) »
+ * - `pending`     → bleu atténué, point creux, « Pending deployment »
  * - `unavailable` → NEUTRE (jamais bleu), pas de point, libellé dérivé du motif
  */
 export function WiredChip({ state, source, reason, className }: WiredChipProps) {
@@ -106,19 +106,19 @@ export function WiredChip({ state, source, reason, className }: WiredChipProps) 
   const label =
     state === "wired"
       ? source === "legacy"
-        ? "Branché (legacy)"
-        : "Branché v2"
+        ? "Wired (legacy)"
+        : "Wired v2"
       : state === "pending"
-        ? "En attente de déploiement"
+        ? "Pending deployment"
         : resolved.label;
 
   const description =
     state === "wired"
       ? source === "legacy"
-        ? "Valeur lue sur le contrat actuellement déployé (pas encore la v2)."
-        : "Valeur lue via les routes v2, sur le nouveau contrat."
+        ? "Value read from the currently deployed contract (not yet v2)."
+        : "Value read via v2 routes, from the new contract."
       : state === "pending"
-        ? "Le contrat cible n'est pas encore déployé : aucune valeur réelle à afficher."
+        ? "The target contract is not yet deployed: no real value to display."
         : resolved.description;
 
   const tone =
@@ -136,7 +136,7 @@ export function WiredChip({ state, source, reason, className }: WiredChipProps) 
       <BentoBadge
         variant="default"
         role="status"
-        aria-label={`Source de données : ${label}`}
+        aria-label={`Data source: ${label}`}
         title={description}
         className={cn("shrink-0 whitespace-nowrap", tone, className)}
       >

@@ -21,8 +21,9 @@ export default function TermsPage() {
         <p>
           The structure below reflects the product mechanics actually
           implemented (Cayman SPV vault, $250k minimum ticket, 60-day soft
-          lock-up, monthly USDC distributions). The legal language must be
-          finalized by qualified counsel before becoming the binding execution version.
+          lock-up, BTC accumulated over a 24-month term and delivered at
+          maturity). The legal language must be finalized by qualified
+          counsel before becoming the binding execution version.
         </p>
       </div>
 
@@ -47,13 +48,15 @@ export default function TermsPage() {
         <li>Shares are non-transferable except as expressly permitted.</li>
       </ul>
 
-      <h2 className="h2">4. Yield, distributions, and APY range</h2>
+      <h2 className="h2">4. BTC accumulation, take-profit, and estimated range</h2>
       <p>
-        Target net APY range and distribution schedule are described in the
-        product documentation. The APY is displayed as a range, never as a
-        single point estimate, and is conditional on the assumptions disclosed
-        in the methodology document. Past performance does not predict future
-        results.
+        The note accumulates Bitcoin over a 24-month term, governed by a
+        rule-based take-profit program described in the product
+        documentation. There is no periodic cash distribution and no fixed
+        APY. Estimated outcomes are displayed as a range of accumulated BTC,
+        never as a single point estimate, and are conditional on the
+        assumptions disclosed in the methodology document. Past performance
+        does not predict future results.
       </p>
 
       <h2 className="h2">5. Lock-up and withdrawals</h2>
@@ -67,7 +70,8 @@ export default function TermsPage() {
       <h2 className="h2">6. Fees</h2>
       <p>
         Management and performance fees are disclosed in the per-vault
-        documentation and reflected in the published net APY range.
+        documentation and reflected in the disclosed estimated accumulation
+        range.
       </p>
 
       <h2 className="h2">7. Risks</h2>
@@ -75,8 +79,8 @@ export default function TermsPage() {
         Investment involves substantial risk, including loss of principal. See
         the{" "}
         <Link href="/legal/disclaimer">risk disclaimer</Link> for a detailed list of
-        risk factors specific to Bitcoin mining revenue, distribution coverage,
-        the USDC principal reserve, custody, and smart contracts.
+        risk factors specific to Bitcoin mining economics, take-profit
+        execution, the USDC reserve pocket, custody, and smart contracts.
       </p>
 
       <h2 className="h2">8. Governing law &amp; jurisdiction</h2>

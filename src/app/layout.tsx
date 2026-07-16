@@ -14,20 +14,20 @@ import { FEATURE_FLAGS } from "@/lib/feature-flags";
 export const metadata: Metadata = {
   title: { default: "Hearst Connect", template: "%s | Hearst Connect" },
   description:
-    "Institutional RWA yield vault backed by Bitcoin mining cash flows — monthly USDC distributions, capital held in reserve.",
+    "Hearst Mining Note — an institutional Bitcoin accumulation instrument backed by real Bitcoin mining. BTC accumulates over a 24-month term and is delivered at maturity; estimated outcomes are disclosed as a range, not guaranteed.",
   metadataBase: new URL("https://connect.hearst.app"),
   openGraph: {
     type: "website",
     siteName: "Hearst Connect",
-    title: "Hearst Connect — Institutional RWA Yield Vault",
+    title: "Hearst Connect — Institutional Bitcoin Accumulation Note",
     description:
-      "RWA yield backed by Bitcoin mining cash flows. Monthly USDC distributions, principal held in a USDC reserve. Target net range 8–15%.",
+      "Backed by real Bitcoin mining. BTC accumulates over a 24-month term and is delivered at maturity — no periodic cash distribution, no fixed APY. Estimated outcomes are disclosed as a range, not guaranteed.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Hearst Connect — RWA Yield Vault",
+    title: "Hearst Connect — Bitcoin Accumulation Note",
     description:
-      "Institutional RWA yield vault backed by Bitcoin mining cash flows.",
+      "Institutional Bitcoin accumulation instrument backed by real Bitcoin mining.",
   },
   robots: {
     index: true,

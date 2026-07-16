@@ -17,9 +17,9 @@ import { resolvePostLoginRedirect } from "@/lib/onboarding/post-login-redirect";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Hearst Connect — Institutional Yield Backed by Bitcoin Mining",
+  title: "Hearst Connect — Institutional Bitcoin Accumulation, Backed by Mining",
   description:
-    "Hearst Yield Vault: mining-backed structured yield, monthly USDC distributions, target APY 8–15%. Accredited investors only.",
+    "Hearst Mining Note: real Bitcoin mining accumulates BTC over a 24-month term, delivered at maturity. No periodic distribution, no fixed APY — estimated outcomes are disclosed as a range, not guaranteed. Accredited investors only.",
 };
 
 export default async function LandingPage() {

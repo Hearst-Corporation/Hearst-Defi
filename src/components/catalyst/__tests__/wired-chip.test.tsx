@@ -16,24 +16,24 @@ function expectNoBlue(html: string): void {
 }
 
 describe("WiredChip — libellés des 3 états", () => {
-  it("wired (défaut v2) → « Branché v2 » + point bleu", () => {
+  it("wired (défaut v2) → « Wired v2 » + point bleu", () => {
     const html = renderToStaticMarkup(<WiredChip state="wired" />);
-    expect(html).toContain("Branché v2");
+    expect(html).toContain("Wired v2");
     expect(html).toContain("text-info");
-    expect(html).toContain('aria-label="Source de données : Branché v2"');
+    expect(html).toContain('aria-label="Data source: Wired v2"');
   });
 
-  it("wired + source=legacy → « Branché (legacy) », pas « Branché v2 »", () => {
+  it("wired + source=legacy → « Wired (legacy) », pas « Wired v2 »", () => {
     const html = renderToStaticMarkup(
       <WiredChip state="wired" source="legacy" />,
     );
-    expect(html).toContain("Branché (legacy)");
-    expect(html).not.toContain("Branché v2");
+    expect(html).toContain("Wired (legacy)");
+    expect(html).not.toContain("Wired v2");
   });
 
-  it("pending → « En attente de déploiement », bleu atténué", () => {
+  it("pending → « Pending deployment », bleu atténué", () => {
     const html = renderToStaticMarkup(<WiredChip state="pending" />);
-    expect(html).toContain("En attente de déploiement");
+    expect(html).toContain("Pending deployment");
     expect(html).toContain("text-info");
     expect(html).toContain("opacity-[var(--ct-opacity-60)]");
   });
@@ -42,7 +42,7 @@ describe("WiredChip — libellés des 3 états", () => {
     const html = renderToStaticMarkup(
       <WiredChip state="unavailable" reason="not_deployed" />,
     );
-    expect(html).toContain("Contrat non déployé");
+    expect(html).toContain("Contract not deployed");
   });
 });
 
@@ -63,17 +63,25 @@ describe("WiredChip — unavailable n'est JAMAIS bleu", () => {
   it("un motif absent reste honnête (pas de bleu, pas de faux libellé)", () => {
     const html = renderToStaticMarkup(<WiredChip state="unavailable" />);
     expectNoBlue(html);
-    expect(html).toContain("Donnée indisponible");
+    expect(html).toContain("Data unavailable");
   });
 
   it("un motif inconnu ne se déguise pas en motif connu", () => {
     const html = renderToStaticMarkup(
       <WiredChip state="unavailable" reason="totally_unknown" />,
     );
-    expect(html).toContain("Motif inconnu");
-    expect(html).not.toContain("Contrat non déployé");
-    expect(html).not.toContain("Lecture indisponible");
+    expect(html).toContain("Unknown reason");
+    expect(html).not.toContain("Contract not deployed");
+    expect(html).not.toContain("Read unavailable");
     expectNoBlue(html);
+  });
+
+  it("un motif inconnu reste en anglais institutionnel, y compris dans le motif brut (title/tooltip)", () => {
+    const html = renderToStaticMarkup(
+      <WiredChip state="unavailable" reason="totally_unknown" />,
+    );
+    expect(html).toContain("Raw reason: totally_unknown");
+    expect(html).not.toContain("Motif brut");
   });
 });
 
@@ -86,11 +94,11 @@ describe("WiredChip — une panne RPC est DISCERNABLE d'une absence de donnée",
       <WiredChip state="unavailable" reason="not_deployed" />,
     );
 
-    expect(rpc).toContain("Lecture indisponible");
-    expect(rpc).not.toContain("Contrat non déployé");
+    expect(rpc).toContain("Read unavailable");
+    expect(rpc).not.toContain("Contract not deployed");
 
-    expect(notDeployed).toContain("Contrat non déployé");
-    expect(notDeployed).not.toContain("Lecture indisponible");
+    expect(notDeployed).toContain("Contract not deployed");
+    expect(notDeployed).not.toContain("Read unavailable");
 
     expect(rpc).not.toEqual(notDeployed);
   });
@@ -102,14 +110,14 @@ describe("WiredChip — une panne RPC est DISCERNABLE d'une absence de donnée",
     const unsupported = renderToStaticMarkup(
       <WiredChip state="unavailable" reason="not_supported_by_legacy" />,
     );
-    expect(revert).toContain("Rejeté par le contrat");
-    expect(unsupported).toContain("Non supporté");
+    expect(revert).toContain("Rejected by contract");
+    expect(unsupported).toContain("Not supported");
     expect(revert).not.toEqual(unsupported);
   });
 });
 
 describe("WiredValue", () => {
-  it("status=wired → valeur en bleu + chip « Branché v2 »", () => {
+  it("status=wired → valeur en bleu + chip « Wired v2 »", () => {
     const html = renderToStaticMarkup(
       <WiredValue
         wired={{ status: "wired", value: 12, source: "v2" }}
@@ -119,7 +127,7 @@ describe("WiredValue", () => {
     );
     expect(html).toContain("12 USDC");
     expect(html).toContain("text-info");
-    expect(html).toContain("Branché v2");
+    expect(html).toContain("Wired v2");
     expect(html).toContain("Total assets");
   });
 
@@ -132,7 +140,7 @@ describe("WiredValue", () => {
       />,
     );
     expect(html).toContain("—");
-    expect(html).toContain("Lecture indisponible");
+    expect(html).toContain("Read unavailable");
     expect(html).not.toContain("USDC");
     expect(html).not.toContain("N/A");
     expectNoBlue(html);

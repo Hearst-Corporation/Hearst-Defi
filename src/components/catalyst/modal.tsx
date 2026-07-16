@@ -23,7 +23,7 @@ export interface ModalProps {
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-const MODAL_CLOSE_LABEL = "Fermer";
+const MODAL_CLOSE_LABEL = "Close";
 
 export function Modal(props: ModalProps) {
   if (!props.isOpen) return null;

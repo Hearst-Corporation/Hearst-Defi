@@ -90,9 +90,9 @@ describe("DirectSendForm — direct send confirmation gate", () => {
     expect(html).toContain("lp@fund.io");
     expect(html).toContain("Quick intro");
     // Explicit confirm + cancel affordances (cancel label is the shared
-    // dialog's "Annuler").
+    // dialog's "Cancel").
     expect(html).toContain("Confirm send");
-    expect(html).toContain("Annuler");
+    expect(html).toContain("Cancel");
   });
 
   it("closed dialog renders nothing (cancel/closed state cannot send)", () => {

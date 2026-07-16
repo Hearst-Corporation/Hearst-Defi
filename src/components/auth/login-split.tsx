@@ -10,7 +10,7 @@ export async function LoginSplit() {
   const vaults = await listVaults();
   const vault = vaults.find((v) => v.ticker === "HYV-A") ?? vaults[0];
   const apyRange =
-    vault != null ? `${vault.apyLow}-${vault.apyHigh}%` : null;
+    vault != null ? `${vault.apyLow}-${vault.apyHigh}% of principal` : null;
 
   return (
     <div className="login-split relative p-0!">
@@ -32,20 +32,20 @@ export async function LoginSplit() {
           <div className="login-split__brand-inner">
             <div className="login-split__tagline">
               <span className="eyebrow login-split__eyebrow-accent">
-                Real-World Asset Yield
+                Bitcoin Accumulation Note
               </span>
 
               <h1 className="h1 login-split__title-wrap m-0">
-                Institutional yield, backed by{" "}
+                Institutional Bitcoin accumulation, backed by{" "}
                 <span className="login-split__title-accent">
-                  Bitcoin mining
+                  real Bitcoin mining
                 </span>
               </h1>
 
               {apyRange != null && (
                 <div className="login-split__apy-chip">
                   <span aria-hidden className="login-split__apy-dot" />
-                  <span className="eyebrow ct-text-muted">Target APY</span>
+                  <span className="eyebrow ct-text-muted">Est. accumulated BTC</span>
                   <span className="body-sm font-semibold ct-text-primary tabular">
                     {apyRange}
                   </span>
