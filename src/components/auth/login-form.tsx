@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Input } from "@/components/catalyst/input";
 import { login } from "@/lib/auth/actions";
 import { safeFrom } from "@/lib/safe-redirect";
 
@@ -42,7 +43,7 @@ export function LoginForm() {
     <form action={onSubmit} className="auth-form" aria-label="Sign in">
       <label className="auth-field" htmlFor="login-email">
         <span className="ct-form-label">Email</span>
-        <input
+        <Input
           id="login-email"
           name="email"
           type="email"
@@ -59,7 +60,7 @@ export function LoginForm() {
 
       <label className="auth-field" htmlFor="login-password">
         <span className="ct-form-label">Password</span>
-        <input
+        <Input
           id="login-password"
           name="password"
           type="password"
