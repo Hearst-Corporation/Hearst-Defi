@@ -63,7 +63,7 @@ export default function ArchitecturePage() {
             </span>
           </div>
           <div className="mt-2 text-xs text-[var(--ct-text-muted)]">
-            {totalNodes} nodes · 59 edges · {totalZones} zones
+            {totalNodes} nodes · {totalZones} zones
           </div>
         </div>
 
