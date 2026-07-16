@@ -264,7 +264,10 @@ export default async function AuditLogPage({
                       <DiffBlock label="Before" value={entry.before} muted />
                       <DiffBlock label="After" value={entry.after} />
                       {entry.userAgent ? (
-                        <p className="ct-metric-caption truncate">
+                        <p
+                          className="ct-metric-caption truncate"
+                          title={entry.userAgent}
+                        >
                           UA: {entry.userAgent}
                         </p>
                       ) : null}
