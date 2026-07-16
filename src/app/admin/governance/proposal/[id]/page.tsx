@@ -241,6 +241,14 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                     className="flex items-center gap-3 rounded-lg border border-[var(--ct-border)] bg-surface-inset p-3"
                   >
                     <div
+                      role="img"
+                      aria-label={
+                        sig.decision === "approve"
+                          ? "Approved"
+                          : sig.decision === "reject"
+                            ? "Rejected"
+                            : "Cancelled"
+                      }
                       className={cn(
                         "flex size-7 shrink-0 items-center justify-center rounded-full border text-[length:var(--ct-text-2xs)] font-bold",
                         sig.decision === "approve"
@@ -250,7 +258,9 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                             : "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-muted)]",
                       )}
                     >
-                      {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
+                      <span aria-hidden="true">
+                        {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
+                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <span className="mono break-all text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
