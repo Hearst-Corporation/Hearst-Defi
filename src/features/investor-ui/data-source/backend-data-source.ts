@@ -98,31 +98,35 @@ function mapPerformance(dto: BtcDTO): ResolvedViewModel<PerformanceViewModel> {
   });
 }
 
+// MiningDTO's contract-owned fields (hashrate/btcEarned/curtailment/engine)
+// are separate Resolved<T> blocks — the frontend's MiningSummaryViewModel
+// merges hashrate+btcEarned (on-chain "metrics") with engine (term/fleet
+// state) into one presentation block. All contract-owned, so composing them
+// worst-first is correct: if any is NOT_CONFIGURED, the composite is too.
 function mapMiningSummary(dto: MiningDTO): ResolvedViewModel<MiningSummaryViewModel> {
-  const m = dto.metrics;
-  const e = dto.engine;
-  // Two Resolved<T> blocks (metrics + engine) compose one UI block — status
-  // is the worse of the two (worst-first, same precedence as the backend
-  // envelope), value is null unless BOTH resolved.
-  const status = precedenceWorst(m.status, e.status);
+  const hashrate = dto.hashrate;
+  const btcEarned = dto.btcEarned;
+  const engine = dto.engine;
+  const status = precedenceWorst(precedenceWorst(hashrate.status, btcEarned.status), engine.status);
   const value: MiningSummaryViewModel | null =
-    m.value != null && e.value != null
+    hashrate.value != null && btcEarned.value != null && engine.value != null
       ? {
-          reportedHashrateTh: m.value.reportedHashrateTh,
-          totalBtcEarnedSats: m.value.totalBtcEarnedSats,
-          lastReportTime: m.value.lastReportTime,
-          currentMonth: e.value.currentMonth,
-          productDurationMonths: e.value.productDurationMonths,
-          fleetActive: e.value.fleetActive,
-          curtailed: e.value.curtailed,
-          halvingMonth: e.value.halvingMonth,
-          vendingCurveBps: e.value.vendingCurveBps,
+          reportedHashrateTh: hashrate.value.reportedHashrateTh,
+          totalBtcEarnedSats: btcEarned.value.totalBtcEarnedSats,
+          lastReportTime: hashrate.value.lastReportTime,
+          currentMonth: engine.value.currentMonth,
+          productDurationMonths: engine.value.productDurationMonths,
+          fleetActive: engine.value.fleetActive,
+          curtailed: engine.value.curtailed,
+          halvingMonth: engine.value.halvingMonth,
+          vendingCurveBps: engine.value.vendingCurveBps,
         }
       : null;
+  const reason = hashrate.reason ?? btcEarned.reason ?? engine.reason;
   return resolved<MiningSummaryViewModel>(toUiStatus(status), value, {
-    provenance: `backend:${m.provenance}`,
-    freshness: toFreshness(m.freshness),
-    error: m.reason ?? e.reason ? { code: m.reason ?? e.reason ?? "unknown", message: m.reason ?? e.reason ?? "unknown" } : null,
+    provenance: `backend:${hashrate.provenance}`,
+    freshness: toFreshness(hashrate.freshness),
+    error: reason ? { code: reason, message: reason } : null,
   });
 }
 

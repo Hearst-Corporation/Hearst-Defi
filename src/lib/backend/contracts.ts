@@ -360,13 +360,37 @@ export interface BtcDTO {
   readonly proofs: Resolved<readonly BtcProofRef[]>;
 }
 
-// ── Mining view DTO ───────────────────────────────────────────────────────
+// ── Mining view DTO (mirrors hearst-connect-backend/src/application/mining.ts) ─
+
+/** Real DB-backed fleet/market telemetry (MiningMetric table) — LIVE when a
+ *  row exists, NOT_CONFIGURED when the table is empty. Distinct from the
+ *  contract-owned on-chain facts below (hashrate/btcEarned/etc). */
+export interface MiningTelemetryRow {
+  readonly takenAt: string;
+  readonly deployedHashrateTh: string;
+  readonly uptimePct: string;
+  readonly hashprice: string;
+  readonly difficulty: string;
+  readonly btcPrice: string;
+  readonly energyCost: string;
+  readonly miningMarginScore: number;
+  readonly hashpriceTrendPct: string;
+  readonly operationalConfidence: number;
+  readonly alertLevel: string | null;
+  readonly summary: string | null;
+  readonly recommendation: string | null;
+}
 
 export interface MiningDTO {
-  readonly metrics: Resolved<MiningMetrics>;
-  readonly engine: Resolved<MiningEngineStatus>;
+  readonly runtime: ContractRuntimeStatus;
+  // On-chain / attested surfaces — contract-owned, NOT_CONFIGURED until v2.
+  readonly hashrate: Resolved<MiningMetrics>;
+  readonly btcEarned: Resolved<MiningMetrics>;
   readonly electricity: Resolved<ElectricityStatus>;
-  readonly vault: Resolved<VaultSnapshot>;
+  readonly curtailment: Resolved<MiningEngineStatus>;
+  readonly engine: Resolved<MiningEngineStatus>;
+  // Real DB telemetry.
+  readonly operationalTelemetry: Resolved<MiningTelemetryRow>;
 }
 
 // ── Runtime report (GET /api/v1/runtime — not envelope-wrapped) ─────────────
