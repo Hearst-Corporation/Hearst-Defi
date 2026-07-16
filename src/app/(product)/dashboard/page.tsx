@@ -74,12 +74,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       />
 
       <div className="flex min-w-0 flex-col gap-[var(--ct-space-5)]">
-        {/* Ligne 1 — Position (8) + Capacity (4) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)] items-start">
-          <div className="lg:col-span-8 min-w-0">
+        {/* Top row — Position (7) + Capacity (5) aligned to the same height */}
+        <div className="flex flex-col lg:flex-row gap-[var(--ct-space-5)] lg:items-stretch">
+          <div className="flex-[7] min-w-0">
             <DashboardPositionPanel position={dashboard.position} mining={mining} />
           </div>
-          <div className="lg:col-span-4 min-w-0">
+          <div className="flex-[5] min-w-0">
             <DashboardCapacityPanel
               capacity={dashboard.capacity}
               subscription={dashboard.subscription}
@@ -88,7 +88,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </div>
         </div>
 
-        {/* Ligne 2 — Accumulation Chart (12) */}
         <AccumulationChartPanel
           points={accumulationPoints}
           currentMonth={miningVal?.currentMonth ?? null}
@@ -96,33 +95,25 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           provenance={btc.reserve.status === "STALE" ? "stale" : "estimated"}
         />
 
-        {/* Ligne 3 — Strategy Flow (8) + Mining/Reserve Health (4) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)] items-start">
-          <div className="lg:col-span-8 min-w-0">
+        {/* Bottom area — two independent columns so each flows naturally */}
+        <div className="flex flex-col lg:flex-row gap-[var(--ct-space-5)] lg:items-start">
+          <div className="flex-[7] min-w-0 flex flex-col gap-[var(--ct-space-5)]">
             <DashboardStrategyPanel
               pockets={dashboard.allocation.value?.pockets ?? null}
               mining={mining}
             />
-          </div>
-          <div className="lg:col-span-4 min-w-0">
-            <DashboardHealthPanel
-              mining={mining}
-              btc={btc}
-              monthlyProduction={accumulationPoints.map((p) => ({ period: p.period, miningBtc: p.miningBtc }))}
-            />
-          </div>
-        </div>
-
-        {/* Ligne 4 — Verified Activity (8) + Portfolio Insight (4) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)] items-start">
-          <div className="lg:col-span-8 min-w-0">
             <VerifiedActivityPanel
               activity={dashboard.activity}
               alerts={dashboard.alerts}
               proofs={dashboard.proofs}
             />
           </div>
-          <div className="lg:col-span-4 min-w-0">
+          <div className="flex-[5] min-w-0 flex flex-col gap-[var(--ct-space-5)]">
+            <DashboardHealthPanel
+              mining={mining}
+              btc={btc}
+              monthlyProduction={accumulationPoints.map((p) => ({ period: p.period, miningBtc: p.miningBtc }))}
+            />
             <PortfolioInsightPanel aiExperts={aiExperts} />
           </div>
         </div>

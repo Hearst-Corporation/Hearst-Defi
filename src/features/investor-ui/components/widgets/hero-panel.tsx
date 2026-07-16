@@ -51,6 +51,7 @@ export function HeroPanel({
   progress,
   action,
   asset = "btc",
+  className,
 }: {
   title: string;
   mainValue: string;
@@ -64,11 +65,12 @@ export function HeroPanel({
   };
   action?: React.ReactNode;
   asset?: AssetIconVariant;
+  className?: string;
 }) {
   const assetClasses = HERO_ASSET_CLASSES[asset];
 
   return (
-    <Card className={`w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)] border-l-[3px] ${assetClasses.leftBorder}`}>
+    <Card className={`w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)] border-l-[3px] ${assetClasses.leftBorder} ${className ?? ""}`}>
       <div className="flex items-start justify-between gap-[var(--ct-space-4)]">
         <div className="flex flex-col gap-[var(--ct-space-1)]">
           <div className="flex items-center gap-[var(--ct-space-2)]">

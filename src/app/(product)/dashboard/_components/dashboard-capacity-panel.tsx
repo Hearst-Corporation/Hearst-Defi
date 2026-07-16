@@ -57,7 +57,7 @@ export function DashboardCapacityPanel({
 }) {
   if (capacity.status === "NOT_CONFIGURED" && subscription.status === "NOT_CONFIGURED") {
     return (
-      <Card className="w-full p-[var(--ct-space-5)]">
+      <Card className="w-full h-full p-[var(--ct-space-5)]">
         <DataNotConfigured label="Available capacity" detail="Vault capacity is not configured on this network." />
       </Card>
     );
@@ -65,7 +65,7 @@ export function DashboardCapacityPanel({
 
   if (capacity.status === "UNAVAILABLE" || subscription.status === "UNAVAILABLE") {
     return (
-      <Card className="w-full p-[var(--ct-space-5)]">
+      <Card className="w-full h-full p-[var(--ct-space-5)]">
         <DataUnavailable label="Available capacity" />
       </Card>
     );
@@ -82,7 +82,7 @@ export function DashboardCapacityPanel({
   const provenance: Provenance = capacity.status === "STALE" ? "stale" : "estimated";
 
   return (
-    <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)] border-l-[3px] border-l-[var(--ct-asset-usdc-border)]">
+    <Card className="w-full h-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)] border-l-[3px] border-l-[var(--ct-asset-usdc-border)]">
       <div className="flex flex-col gap-[var(--ct-space-1)]">
         <div className="flex items-center justify-between gap-[var(--ct-space-2)]">
           <div className="flex items-center gap-[var(--ct-space-2)]">

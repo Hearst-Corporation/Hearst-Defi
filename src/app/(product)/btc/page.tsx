@@ -123,20 +123,20 @@ export default async function BtcPage({
         
         <SourcesAccumulationPanel monthlyProduction={sourcesData} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)] items-start">
-          <div className="lg:col-span-8 min-w-0 flex flex-col gap-[var(--ct-space-5)]">
+        <div className="flex flex-col lg:flex-row gap-[var(--ct-space-5)] lg:items-start">
+          <div className="flex-[7] min-w-0 flex flex-col gap-[var(--ct-space-5)]">
             <DashboardStrategyPanel
               pockets={dashboard.allocation.value?.pockets ?? null}
               mining={mining}
             />
+            {proofItems.length > 0 && <ContextualProofPanel items={proofItems} />}
           </div>
-          <div className="lg:col-span-4 min-w-0 flex flex-col gap-[var(--ct-space-5)]">
+          <div className="flex-[5] min-w-0 flex flex-col gap-[var(--ct-space-5)]">
             <DashboardHealthPanel
               mining={mining}
               btc={data}
               monthlyProduction={accumulationPoints.map((p) => ({ period: p.period, miningBtc: p.miningBtc }))}
             />
-            {proofItems.length > 0 && <ContextualProofPanel items={proofItems} />}
             <PortfolioInsightPanel aiExperts={aiExperts} variant="bitcoin" />
           </div>
         </div>

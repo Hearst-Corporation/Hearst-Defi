@@ -39,7 +39,7 @@ export function DashboardPositionPanel({
 }) {
   if (position.status === "NOT_CONFIGURED") {
     return (
-      <Card className="w-full p-[var(--ct-space-5)]">
+      <Card className="w-full h-full p-[var(--ct-space-5)]">
         <DataNotConfigured label="Position" detail="PermissionedDynaVault v2.1 is not deployed on this network yet." />
       </Card>
     );
@@ -47,7 +47,7 @@ export function DashboardPositionPanel({
 
   if (position.status === "UNAVAILABLE" || position.status === "ERROR") {
     return (
-      <Card className="w-full p-[var(--ct-space-5)]">
+      <Card className="w-full h-full p-[var(--ct-space-5)]">
         <DataUnavailable label="Position" />
       </Card>
     );
@@ -57,7 +57,7 @@ export function DashboardPositionPanel({
 
   if (value == null || value.positionsCount === 0) {
     return (
-      <Card className="w-full flex items-center justify-center p-[var(--ct-space-8)]">
+      <Card className="w-full h-full flex items-center justify-center p-[var(--ct-space-8)]">
         <div className="flex flex-col items-center gap-[var(--ct-space-3)] text-center">
           <span className="ct-bento-label ct-text-strong">No active position yet</span>
           <span className="body-sm ct-text-muted">Subscribe to the Hearst Mining Note to start accumulating Bitcoin.</span>
@@ -81,6 +81,7 @@ export function DashboardPositionPanel({
       mainValue={formatUsdc(value.value) ?? "—"}
       provenance={provenance}
       asset="usdc"
+      className="h-full"
       metrics={[
         { label: "Capital allocated", value: formatUsdc(value.principal) ?? "—" },
         { label: "BTC accumulated", value: btcAccumulated != null ? `${btcAccumulated} BTC` : "—", accent: "btc" },
