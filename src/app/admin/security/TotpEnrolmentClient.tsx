@@ -17,6 +17,7 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
+import { Input } from "@/components/catalyst/input";
 import { startEnrolment, confirmEnrolment } from "./actions";
 import type { TotpEnrolmentPayload } from "@/lib/auth/totp";
 
@@ -110,7 +111,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
             <span className="security-totp-field-label block stat-label">
               Verification code
             </span>
-            <input
+            <Input
               id="totp-code"
               name="code"
               type="text"
@@ -122,7 +123,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               required
               disabled={isPending}
               placeholder="123456"
-              className="ct-input ct-input-bare ct-input-otp"
+              className="[&_input]:tracking-[0.25em] [&_input]:text-center"
             />
           </label>
 
