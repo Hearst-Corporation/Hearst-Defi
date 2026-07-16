@@ -14,6 +14,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Badge } from "@/components/catalyst/badge";
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { StepTimeline } from "@/components/catalyst/step-timeline";
 import { StatBand, type StatCell } from "@/app/(product)/portfolio/preview/_charts/stat-band";
 import {
@@ -298,15 +299,30 @@ export default async function VaultDetailPage({ params }: PageProps) {
               )}
             </div>
 
-            <ValueTrajectory
-              projection={projection}
-              apyLowPct={apyLowPct}
-              apyHighPct={apyHighPct}
-              nowValueLabel={formatUsdFull(value)}
-              startLabel={formatAdminDate(position.subscribedAt)}
-              endLabel={horizonLabel}
-              aria-label="Position value trajectory: realized to date and projected range"
-            />
+            {hasApy ? (
+              <ValueTrajectory
+                projection={projection}
+                apyLowPct={apyLowPct}
+                apyHighPct={apyHighPct}
+                nowValueLabel={formatUsdFull(value)}
+                startLabel={formatAdminDate(position.subscribedAt)}
+                endLabel={horizonLabel}
+                aria-label="Position value trajectory: realized to date and projected range"
+              />
+            ) : (
+              // Honest guard: without a known vault yield range, the engine's
+              // forward cone collapses to a fabricated 0-0% band (lo === hi ===
+              // currentValue) — rendering it would present "no data" as a real
+              // zero-width projection. Show the realized value only, no cone.
+              <div className="p-5">
+                <EmptySurface
+                  variant="chart"
+                  message="No projection available for this position."
+                  detail="This vault's estimated yield range is not set — the realized value is shown without a forward projection."
+                  ariaLabel="Position value trajectory: no yield range available for projection"
+                />
+              </div>
+            )}
 
             <div className="border-t border-[var(--ct-border-soft)]">
               <StatBand items={heroStats} />
