@@ -74,7 +74,7 @@ export default async function EditVaultPage({ params }: PageProps) {
       headerActions={
         <Link
           href={`/admin/vaults/${id}`}
-          className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
+          className="ct-metric-caption ct-focus-ring rounded-sm transition-colors hover:text-[var(--ct-text-strong)]"
         >
           ← {vault.ticker}
         </Link>
