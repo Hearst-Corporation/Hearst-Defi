@@ -47,6 +47,7 @@ export default async function SpecPage({
                 <Link
                   key={entry.slug}
                   href={`/admin/spec/${entry.slug}`}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "ct-metric-value flex min-w-0 items-center gap-2.5 rounded-lg px-3 py-2 font-normal transition-colors",
                     active
