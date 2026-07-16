@@ -12,6 +12,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/catalyst/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/catalyst/table";
 import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
 import { SourcesAccumulationPanel } from "@/features/investor-ui/components/sources-accumulation-panel";
 import { StrategyCompositionPanel } from "@/features/investor-ui/components/strategy-composition-panel";
@@ -93,24 +101,24 @@ export function AssetAnalyticsGallery() {
             <CardDescription>Single source in cockpit.css — import ASSET_TOKEN in components</CardDescription>
           </CardHeader>
           <CardContent>
-            <table className="w-full body-xs">
-              <thead>
-                <tr className="ct-text-muted text-left border-b border-[var(--ct-border-soft)]">
-                  <th className="pb-2 pr-4 font-medium">Domain</th>
-                  <th className="pb-2 pr-4 font-medium">Token</th>
-                  <th className="pb-2 font-medium">Usage</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table className="w-full body-xs">
+              <TableHead>
+                <TableRow className="ct-text-muted text-left">
+                  <TableHeader>Domain</TableHeader>
+                  <TableHeader>Token</TableHeader>
+                  <TableHeader>Usage</TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {TOKEN_ROWS.map((row) => (
-                  <tr key={row.token} className="border-b border-[var(--ct-border-soft)]">
-                    <td className="py-2 pr-4 ct-text-strong">{row.domain}</td>
-                    <td className="py-2 pr-4 mono text-[var(--ct-asset-usdc)]">{row.token}</td>
-                    <td className="py-2 ct-text-muted">{row.usage}</td>
-                  </tr>
+                  <TableRow key={row.token}>
+                    <TableCell className="ct-text-strong">{row.domain}</TableCell>
+                    <TableCell className="mono text-[var(--ct-asset-usdc)]">{row.token}</TableCell>
+                    <TableCell className="ct-text-muted">{row.usage}</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
             <p className="body-xs ct-text-faint mt-(--ct-space-4) m-0">
               Runtime refs: btc={ASSET_TOKEN.btc}, usdc={ASSET_TOKEN.usdc}, mining={ASSET_TOKEN.mining}
             </p>
