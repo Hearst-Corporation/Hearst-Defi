@@ -5,15 +5,79 @@
  * import-path reasons — do NOT rename/move it (both pages import this path).
  *
  * Pure presentation: the animated Bitcoin orb, the concentric strategy ring,
- * and the cockpit no-scroll fit chain for the two pages. Flat direction —
- * NO glow, NO halo, NO drop-shadow (user call, 2026-07-16). All motion
- * respects prefers-reduced-motion. Accent = --ct-accent (green) on
- * /dashboard, --ct-asset-btc (orange) tone on /btc. Scoped under
- * .dash-signature + the two page testids so nothing leaks to other routes.
+ * the ambient scene light, and the cockpit no-scroll fit chain for the two
+ * pages. Flat direction on ELEMENTS — NO glow, NO halo, NO drop-shadow on
+ * cards (user call, 2026-07-16). The SCENE light (P0.1, 2026-07-17) is the
+ * validated "lumière + verre sombre" direction: two static blurred orbs
+ * painted BEHIND the opaque card surfaces (z-index -1, pointer-events none),
+ * scenography at 2-4% opacity — never a status signal. All motion respects
+ * prefers-reduced-motion (the scene light is static, nothing to reduce).
+ * Accent = --ct-accent (green) on /dashboard, --ct-asset-btc (orange) tone
+ * on /btc. Scoped under .dash-signature + the two page testids so nothing
+ * leaks to other routes (the global .ct-ambient-glow kill in cockpit.css
+ * stays untouched — the rest of the product remains neutral).
  */
 
 .dash-signature {
   position: relative;
+  /* Own stacking context so the z-index:-1 scene orbs stay INSIDE this
+     scene — behind the cards, never behind the page background, and no
+     interference with shell/chat layering. */
+  isolation: isolate;
+}
+
+/* ─── Ambient scene light — P0.1 « rallumer la lumière » ───
+   Same recipe as the (unused) .dash-ambient-orb--primary/secondary written
+   in cockpit.css:5722-5746 — blur 150px (--ct-blur-glow-lg), opacity 3-4% —
+   mounted here as pseudo-elements of the scene so no page markup changes.
+   Static, absolute, behind the content; card surfaces stay opaque and FLAT
+   (the "glass darkens" by contrast with the lit scene, not via shadows).
+   Orb boxes stay inside the container (only the blur ink-overflows, which
+   never creates scroll), preserving the no-scroll chain. */
+.dash-signature::before,
+.dash-signature::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: var(--ct-radius-full);
+  pointer-events: none;
+  filter: var(--ct-blur-glow-lg);
+}
+
+/* /dashboard — green scene, 3-4% (scenography, not a Live signal). */
+[data-testid="dashboard-page"] .dash-signature::before {
+  width: 52%;
+  aspect-ratio: 1;
+  top: -18%;
+  left: -8%;
+  background: var(--ct-accent);
+  opacity: var(--ct-opacity-4);
+}
+[data-testid="dashboard-page"] .dash-signature::after {
+  width: 42%;
+  aspect-ratio: 1;
+  bottom: 2%;
+  right: 3%;
+  background: var(--ct-accent);
+  opacity: var(--ct-opacity-3);
+}
+
+/* /btc — BTC-orange scene, one notch lower (2-3%). */
+[data-testid="btc-page"] .dash-signature::before {
+  width: 52%;
+  aspect-ratio: 1;
+  top: -18%;
+  left: -8%;
+  background: var(--ct-asset-btc);
+  opacity: var(--ct-opacity-3);
+}
+[data-testid="btc-page"] .dash-signature::after {
+  width: 42%;
+  aspect-ratio: 1;
+  bottom: 2%;
+  right: 3%;
+  background: var(--ct-asset-btc);
+  opacity: var(--ct-opacity-2);
 }
 
 /* ─── Cockpit no-scroll layout — dashboard only (design pass 2026-07-16).
