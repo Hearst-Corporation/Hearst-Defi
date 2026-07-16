@@ -171,7 +171,7 @@ export default async function DistributionsPage({
                       {vaultHref && label ? (
                         <Link
                           href={vaultHref}
-                          className="block max-w-full truncate text-[var(--ct-accent)] hover:underline"
+                          className="block max-w-full truncate rounded-sm text-[var(--ct-accent)] hover:underline focus-visible:outline-none ct-focus-ring"
                         >
                           {label}
                         </Link>
