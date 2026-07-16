@@ -59,7 +59,8 @@ function CryptoIcon({ id, size = 16 }: { id: string; size?: number }) {
   return (
     <Image
       src={src}
-      alt={id}
+      alt=""
+      aria-hidden="true"
       width={size}
       height={size}
       className="shrink-0 rounded-full"
