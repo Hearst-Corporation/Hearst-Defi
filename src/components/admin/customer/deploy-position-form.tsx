@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import { BentoLabel } from "@/components/catalyst/bento";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { Input } from "@/components/catalyst/input";
+import { Select } from "@/components/catalyst/select";
 import { cn } from "@/lib/cn";
 import { deployPosition, type DeployPositionResult } from "@/app/admin/customers/actions";
 
@@ -58,7 +60,7 @@ export function DeployPositionForm({
           <BentoLabel htmlFor={`deploy-amount-${investorId}`}>
             Amount (USDC)
           </BentoLabel>
-          <input
+          <Input
             id={`deploy-amount-${investorId}`}
             name="amountUsdc"
             type="number"
@@ -75,7 +77,7 @@ export function DeployPositionForm({
           <BentoLabel htmlFor={`deploy-class-${investorId}`}>
             Share class
           </BentoLabel>
-          <select
+          <Select
             id={`deploy-class-${investorId}`}
             name="classCode"
             defaultValue="A"
@@ -84,7 +86,7 @@ export function DeployPositionForm({
           >
             <option value="A">Class A — $250k min · 60d</option>
             <option value="B">Class B — $1M min · 90d</option>
-          </select>
+          </Select>
         </div>
 
         <CockpitButton
