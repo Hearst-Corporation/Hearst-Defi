@@ -59,8 +59,14 @@ export default async function ProposalDetailPage({ params }: PageProps) {
   let proposal;
   try {
     proposal = await loadProposalDetail(id);
-  } catch {
-    notFound();
+  } catch (err) {
+    // Only a genuinely missing proposal renders 404 — any other failure
+    // (DB outage, auth check throwing, etc.) must surface as a real error
+    // so it hits governance/error.tsx instead of being disguised as "not found".
+    if (err instanceof Error && err.message === "Proposal not found") {
+      notFound();
+    }
+    throw err;
   }
 
   const isTerminal = ["EXECUTED", "CANCELLED", "REJECTED", "EXPIRED"].includes(proposal.state);
