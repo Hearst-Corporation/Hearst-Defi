@@ -3,7 +3,7 @@
 // ManualSignalTrigger — dev/demo-only widget to seed a `pending` RebalanceEvent
 // without the Inngest Dev Server running. Calls requestManualSignal (server
 // action, itself guarded to NODE_ENV==="development") then refreshes the page.
-// Bento canon: native bento buttons + <Modal> overlay + native <select>.
+// Bento canon: native bento buttons + <Modal> overlay + Catalyst <Select>.
 
 import { useId, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { BentoLabel } from "@/components/catalyst/bento";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { Modal } from "@/components/catalyst/modal";
+import { Select } from "@/components/catalyst/select";
 
 const RULE_IDS = [
   "R1",
@@ -88,7 +89,7 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
 
         <div className="flex flex-col gap-2">
           <BentoLabel htmlFor={`${labelId}-rule`}>Rule</BentoLabel>
-          <select
+          <Select
             id={`${labelId}-rule`}
             aria-labelledby={labelId}
             disabled={isPending}
@@ -101,7 +102,7 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
                 {r}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {error && (
