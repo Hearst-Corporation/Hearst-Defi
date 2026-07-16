@@ -14,16 +14,16 @@ export default async function ProductLayout({
 }) {
   // Resolve the real destination path from the x-pathname header injected by
   // the edge proxy (src/proxy.ts). This enables a precise /login?from=<path>
-  // redirect rather than falling back to a static "/portfolio".
+  // redirect rather than falling back to a static "/dashboard".
   const h = await headers();
   const rawPathname = h.get("x-pathname") ?? "";
   // Sanitize: must be a non-empty relative path starting with "/". Any other
   // value (empty string, external URL leaking through somehow) falls back to
-  // the safe default "/portfolio".
+  // the safe default "/dashboard" (UI V2 investor entry point).
   const destination =
     rawPathname.startsWith("/") && rawPathname.length > 1
       ? rawPathname
-      : "/portfolio";
+      : "/dashboard";
 
   // Investor gate: no session → /login?from=<destination>. Admins are allowed
   // through (admin ⊇ investor) so they can review the product surfaces A→Z.

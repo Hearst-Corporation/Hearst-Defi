@@ -24,9 +24,10 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
  */
 
 const PLATFORM_LINKS = [
-  { href: "/portfolio" as const, label: "Portfolio" },
-  { href: "/vaults" as const, label: "Vaults" },
-  { href: "/proof-center" as const, label: "Proof Center" },
+  { href: "/dashboard" as const, label: "Dashboard" },
+  { href: "/btc" as const, label: "BTC" },
+  { href: "/mining" as const, label: "Mining" },
+  { href: "/proof-center" as const, label: "Proof" },
 ] as const;
 
 const LEGAL_LINKS = [

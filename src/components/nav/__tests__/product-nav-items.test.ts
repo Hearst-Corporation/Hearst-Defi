@@ -75,7 +75,7 @@ describe("cross-zone rail entries", () => {
     expect(INVESTOR_VIEW_NAV).toEqual({
       id: "back-to-app",
       label: "Investor view",
-      href: "/portfolio",
+      href: "/dashboard",
       icon: "ArrowLeft",
     });
   });

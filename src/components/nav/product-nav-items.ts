@@ -26,47 +26,50 @@ export type NavItem = {
 };
 
 /**
- * Investor-facing navigation (Visual Direction 2026 — Archive 4).
+ * Investor-facing navigation (UI V2 — investor information architecture).
  *
- * Three cockpit routes: Portfolio (held positions) · Invest (subscribe to
- * admin-created vaults) · Profile. "Proofs" is removed as a standalone entry
- * — its transparency content now lives inside each Vault Details page (the
- * "Infrastructure & Proofs" section). The `/proof-center` route stays
- * reachable (deep link + admin), just off the investor rail.
+ * Five rail entries: Dashboard · BTC · Mining · Proof · Profile. There is no
+ * standalone "Vault" / "Invest" / "Allocation" menu — subscribing to the
+ * mining note is a CTA that starts from the Dashboard, not a dedicated nav
+ * destination. The deep subscription flow (`/vaults/[id]/invest`) still
+ * exists as a route (reachable via the Dashboard CTA / direct link); it is
+ * simply not a rail entry.
  *
- * Routing note: "Portfolio" → `/portfolio` (the investor's REAL financial
- * dashboard — zero state until a subscription exists, populated from the
- * signed-in account after). "Invest" → `/vaults` (the shipped 4-step
- * catalog/flow, kept to avoid breaking invest-routes + the LLM nav whitelist).
- * The mock V4 vault-health console lives at `/portfolio/preview`
- * (see `src/app/(product)/portfolio/preview/_data/mock.ts`) — a sandbox,
- * deliberately off the rail, reachable only by direct URL.
- *
- * "Holdings" → `/my-vaults` (the per-position index — each row drills into
- * `/portfolio/[positionId]`, the 6-section Vault Details page). Restored to
- * the rail: the /portfolio cockpit (dashboard/aggregate view) has no
- * drill-down of its own into individual positions, so without this entry
- * `/my-vaults` — and by extension every Vault Details page — was orphaned
- * (unreachable from in-app navigation after Portfolio moved to `/portfolio`).
+ * Routing notes:
+ *   - "Dashboard" → `/dashboard` (new V2 entry point; the legacy real
+ *     financial cockpit still lives at `/portfolio`, reachable by direct URL
+ *     for compat, but is off the visible rail).
+ *   - "BTC" → `/btc` (BTC-accumulation view, populated by a follow-up pass).
+ *   - "Mining" → `/mining` (mining operations view, populated by a follow-up
+ *     pass).
+ *   - "Proof" → `/proof-center` (route unchanged — only the rail label is
+ *     shortened to "Proof"; renaming the physical route was unnecessary).
+ *   - "Profile" → `/profile` (unchanged).
  */
 export const PRODUCT_NAV: NavItem[] = [
   {
-    id: "portfolio",
-    label: "Portfolio",
-    href: "/portfolio",
-    icon: "PieChart",
+    id: "dashboard",
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: "LayoutDashboard",
   },
   {
-    id: "holdings",
-    label: "Vault",
-    href: "/my-vaults",
-    icon: "Vault",
+    id: "btc",
+    label: "BTC",
+    href: "/btc",
+    icon: "Bitcoin",
   },
   {
-    id: "invest",
-    label: "Invest",
-    href: "/vaults",
-    icon: "TrendingUp",
+    id: "mining",
+    label: "Mining",
+    href: "/mining",
+    icon: "Pickaxe",
+  },
+  {
+    id: "proof",
+    label: "Proof",
+    href: "/proof-center",
+    icon: "FileCheck",
   },
   {
     id: "profile",
@@ -217,7 +220,7 @@ export const ADMIN_JUMP_NAV = dashboardSection
 export const INVESTOR_VIEW_NAV: NavItem = {
   id: "back-to-app",
   label: "Investor view",
-  href: "/portfolio",
+  href: "/dashboard",
   icon: "ArrowLeft",
 };
 

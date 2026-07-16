@@ -9,6 +9,7 @@ import {
   Wallet,
   Vault,
   ArrowLeft,
+  Bitcoin,
   Bot,
   ClipboardCheck,
   FileCheck,
@@ -18,6 +19,7 @@ import {
   LucideIcon,
   MessageSquare,
   PieChart,
+  Pickaxe,
   Scale,
   Send,
   Settings,
@@ -107,6 +109,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   TrendingUp,
   Workflow,
   ArrowLeft,
+  Bitcoin,
+  Pickaxe,
 };
 
 // Thin horizontal rule between nav sections.
@@ -202,7 +206,7 @@ function RailIntraShell({
 }
 
 /**
- * Full investor rail — Portfolio / Vaults / Profile.
+ * Full investor rail — Dashboard / BTC / Mining / Proof / Profile.
  * When `isAdmin` is true, a separator + "Admin" entry are appended so an admin
  * reviewing the product surfaces can jump back to their zone.
  * Portals to document.body to escape ct-panels-row stacking context.
