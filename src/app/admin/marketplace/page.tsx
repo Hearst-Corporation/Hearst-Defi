@@ -214,20 +214,27 @@ export default async function MarketplacePage() {
         ariaLabel="Spot prices"
       >
         <KpiGrid cols={2}>
-          {binance.tickers.map((t, i, arr) => (
-            <KpiCell key={t.symbol} last={i === arr.length - 1} cols={2}>
-              <MarketKpiTile
-                label={<SpotLabel symbol={t.symbol} />}
-                value={formatUsd(t.lastPrice)}
-                sub={
-                  <span className="flex items-center gap-2">
-                    <Trend {...trendProps(t.priceChangePct)} />
-                    <ProvenanceBadge kind={t.provenance} compact />
-                  </span>
-                }
-              />
-            </KpiCell>
-          ))}
+          {binance.tickers.map((t, i, arr) => {
+            const noReading = t.provenance === "stale" && t.lastPrice <= 0;
+            return (
+              <KpiCell key={t.symbol} last={i === arr.length - 1} cols={2}>
+                <MarketKpiTile
+                  label={<SpotLabel symbol={t.symbol} />}
+                  value={noReading ? "—" : formatUsd(t.lastPrice)}
+                  sub={
+                    <span className="flex items-center gap-2">
+                      {noReading ? (
+                        <span className="ct-metric-caption">No reading</span>
+                      ) : (
+                        <Trend {...trendProps(t.priceChangePct)} />
+                      )}
+                      <ProvenanceBadge kind={t.provenance} compact />
+                    </span>
+                  }
+                />
+              </KpiCell>
+            );
+          })}
         </KpiGrid>
       </AdminSectionCard>
 
@@ -370,7 +377,7 @@ export default async function MarketplacePage() {
             <KpiCell key={p.protocol} last={i === arr.length - 1} cols={3}>
               <MarketKpiTile
                 label={<ProtocolWordmark id={p.protocol} />}
-                value={formatUsdCompact(p.tvlUsd)}
+                value={p.provenance === "stale" ? "—" : formatUsdCompact(p.tvlUsd)}
                 sub={
                   <span className="flex items-center justify-center gap-2">
                     <span className="mono ct-text-muted">{p.slug}</span>
