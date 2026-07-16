@@ -1,7 +1,11 @@
 // Builds accumulation chart series from BTC page production fixture shape.
 // Dashboard uses the same fixture seam until GPU1 DTO is wired.
 
-import type { AccumulationPoint } from "@/components/investor-widgets";
+export interface AccumulationPoint {
+  readonly period: string;
+  readonly cumulativeBtc: number;
+  readonly miningBtc: number;
+}
 
 interface ProductionMonth {
   readonly period: string;

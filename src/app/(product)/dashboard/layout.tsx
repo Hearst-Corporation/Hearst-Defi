@@ -1,5 +1,4 @@
 import "../../doc-flow.css";
-import "@/components/investor-widgets/investor-widgets.css";
 
 /**
  * Dashboard layout — loads the doc-flow typography sheet and applies the

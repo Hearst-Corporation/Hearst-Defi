@@ -1,5 +1,4 @@
 import "../../doc-flow.css";
-import "@/components/investor-widgets/investor-widgets.css";
 
 /**
  * BTC layout — loads doc-flow typography + `.product-doc` scope so the bento/

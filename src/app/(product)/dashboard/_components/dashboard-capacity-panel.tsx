@@ -1,29 +1,20 @@
-// CapacityWidget — vault capacity ring + allocation CTA ("Allocate more capital").
-
+import { Card } from "@/components/catalyst/card";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { Progress } from "@/components/catalyst/progress";
 import { Button } from "@/components/catalyst/button";
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { BentoBadge } from "@/components/catalyst/bento-badge";
 import { investDepositPath } from "@/lib/vaults/invest-routes";
-import { cn } from "@/lib/cn";
-
+import { DataNotConfigured, DataUnavailable } from "@/features/investor-ui/components/states/data-states";
 import type {
   ResolvedViewModel,
   VaultCapacityViewModel,
   SubscriptionViewModel,
   InvestorPositionViewModel,
 } from "@/features/investor-ui/types";
-import { DataUnavailable, DataNotConfigured } from "@/features/investor-ui/components/states/data-states";
 
 const VAULT_ID = "hearst-yield-vault";
 
-type CtaState =
-  | "eligible"
-  | "not_eligible"
-  | "whitelist_required"
-  | "cap_reached"
-  | "closed"
-  | "not_configured";
+type CtaState = "eligible" | "not_eligible" | "whitelist_required" | "cap_reached" | "closed" | "not_configured";
 
 function parseUsdc(s: string | null | undefined): number | null {
   if (s == null) return null;
@@ -54,27 +45,28 @@ const CTA_COPY: Record<CtaState, { label: string; helper: string }> = {
   not_configured: { label: "Not configured", helper: "Capacity data is not available on this network yet." },
 };
 
-interface CapacityWidgetProps {
+export function DashboardCapacityPanel({
+  capacity,
+  subscription,
+  position,
+}: {
   capacity: ResolvedViewModel<VaultCapacityViewModel>;
   subscription: ResolvedViewModel<SubscriptionViewModel>;
   position: ResolvedViewModel<InvestorPositionViewModel>;
-  className?: string;
-}
-
-export function CapacityWidget({ capacity, subscription, position, className }: CapacityWidgetProps) {
+}) {
   if (capacity.status === "NOT_CONFIGURED" && subscription.status === "NOT_CONFIGURED") {
     return (
-      <div className={cn("iw-surface-primary p-[var(--ct-space-5)]", className)}>
+      <Card className="w-full p-[var(--ct-space-5)]">
         <DataNotConfigured label="Available capacity" detail="Vault capacity is not configured on this network." />
-      </div>
+      </Card>
     );
   }
 
   if (capacity.status === "UNAVAILABLE" || subscription.status === "UNAVAILABLE") {
     return (
-      <div className={cn("iw-surface-primary p-[var(--ct-space-5)]", className)}>
+      <Card className="w-full p-[var(--ct-space-5)]">
         <DataUnavailable label="Available capacity" />
-      </div>
+      </Card>
     );
   }
 
@@ -89,51 +81,49 @@ export function CapacityWidget({ capacity, subscription, position, className }: 
   const provenance: Provenance = capacity.status === "STALE" ? "stale" : "estimated";
 
   return (
-    <div className={cn("iw-surface-primary flex flex-col gap-[var(--ct-space-5)] p-[var(--ct-space-5)]", className)}>
-      <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-2)]">
-        <span className="stat-label ct-text-muted">Available capacity</span>
-        <ProvenanceBadge kind={provenance} variant="compact" />
+    <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)]">
+      <div className="flex flex-col gap-[var(--ct-space-1)]">
+        <div className="flex items-center justify-between gap-[var(--ct-space-2)]">
+          <span className="stat-label ct-text-muted">Available capacity</span>
+          <ProvenanceBadge kind={provenance} variant="compact" />
+        </div>
+        <span className="text-[length:var(--ct-text-3xl)] font-medium tabular tracking-tight leading-none">
+          {formatUsdc(cap?.availableCapacity) ?? "—"}
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-[var(--ct-space-5)] md:grid-cols-[1fr_auto] md:items-center">
-        <div className="flex flex-col gap-[var(--ct-space-3)]">
-          <div>
-            <span className="text-[length:var(--ct-text-2xl)] font-bold ct-text-strong tabular">
-              {formatUsdc(cap?.availableCapacity) ?? "—"}
-            </span>
-            <span className="body-xs ct-text-muted ml-[var(--ct-space-2)]">
-              of {formatUsdc(cap?.tvlCap) ?? "—"} cap
-            </span>
-          </div>
-          <Progress
-            value={utilizationPct ?? 0}
-            max={100}
-            label="Vault utilization"
-            fillClassName={capacityFull ? "bg-[var(--ct-text-muted)]" : "bg-[var(--ct-accent)]"}
-          />
-          <div className="flex flex-wrap gap-[var(--ct-space-4)] body-xs ct-text-muted">
-            <span>Deployed {formatUsdc(cap?.totalAssets) ?? "—"}</span>
-            <span>Your allocation {formatUsdc(pos?.principal) ?? "—"}</span>
-            <span>Minimum additional {formatUsdc(sub?.minimumDeposit) ?? "—"}</span>
-          </div>
+      <div className="flex flex-col gap-1.5 pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
+        <div className="flex justify-between items-center body-xs">
+          <span className="ct-text-muted">Vault utilization</span>
+          <span className="ct-text-strong font-medium tabular">of {formatUsdc(cap?.tvlCap) ?? "—"}</span>
         </div>
+        <Progress value={utilizationPct ?? 0} max={100} label="Vault utilization" />
+        <div className="flex justify-between mt-1 body-xs ct-text-faint">
+          <span>Total allocated: <span className="ct-text-strong">{formatUsdc(cap?.totalAssets) ?? "—"}</span></span>
+          <span>Your allocation: <span className="ct-text-strong">{formatUsdc(pos?.principal) ?? "—"}</span></span>
+        </div>
+      </div>
 
-        <div className="flex flex-col gap-[var(--ct-space-2)] md:items-end">
+      <div className="flex flex-col gap-[var(--ct-space-3)] pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)] mt-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[var(--ct-space-2)]">
+          <div className="flex flex-col">
+            <span className="body-xs ct-text-muted">Minimum additional</span>
+            <span className="body-sm ct-text-strong tabular font-medium">{formatUsdc(sub?.minimumDeposit) ?? "—"}</span>
+          </div>
           {ctaState === "eligible" ? (
             <Button href={investDepositPath(VAULT_ID)} color="dark/white">
               {cta.label}
             </Button>
           ) : (
-            <Button disabled color="zinc" className="pointer-events-none">
-              {cta.label}
-            </Button>
+            <div className="flex items-center gap-[var(--ct-space-2)]">
+              <BentoBadge variant="flat">{ctaState.replace(/_/g, " ")}</BentoBadge>
+              <Button disabled color="zinc" className="pointer-events-none">
+                {cta.label}
+              </Button>
+            </div>
           )}
-          {ctaState !== "eligible" ? (
-            <BentoBadge variant="flat">{ctaState.replace(/_/g, " ")}</BentoBadge>
-          ) : null}
-          <p className="body-xs ct-text-faint m-0 max-w-xs md:text-right">{cta.helper}</p>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
