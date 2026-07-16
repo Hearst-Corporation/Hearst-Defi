@@ -95,6 +95,7 @@ export function DashboardHero({
       value: formatUsdCompactAmount(value.value) ?? "—",
       sub: "Principal + BTC value",
       tone: "accent",
+      lead: true,
       badge: toProvenance(position.status),
     },
     {
@@ -181,6 +182,8 @@ interface KpiCell {
   value: string;
   sub: string;
   tone?: "accent" | "btc" | "default";
+  /** Optical primacy — ONE master figure per band (32px semibold), P0.2. */
+  lead?: boolean;
   icon?: "btc";
   badge?: ReturnType<typeof toProvenance>;
 }
@@ -192,6 +195,10 @@ function KpiBandCell({ cell }: { cell: KpiCell }) {
       : cell.tone === "btc"
         ? "text-[var(--ct-asset-btc)]"
         : "ct-text-strong";
+  // Lead cell = the band's master figure (32px semibold); others stay 22px medium.
+  const sizeClass = cell.lead
+    ? "text-[length:var(--ct-text-display-fixed)] font-semibold"
+    : "text-[length:var(--ct-text-2xl)] font-medium";
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)] min-w-0">
       <dt className="flex items-center gap-[var(--ct-space-1_5)] body-xs font-medium ct-text-muted min-w-0">
@@ -199,9 +206,9 @@ function KpiBandCell({ cell }: { cell: KpiCell }) {
         <span className="truncate">{cell.label}</span>
         {cell.badge ? <ProvenanceBadge kind={cell.badge} variant="strip" /> : null}
       </dt>
-      <dd
-        className={`${valueClass} w-full flex-none text-[length:var(--ct-text-2xl)] font-medium tabular tracking-tight leading-none`}
-      >
+      {/* Qualifier — baseline-right, symmetric to the "% complete" of Reporting period. */}
+      <dd className="text-xs font-medium ct-text-muted">{cell.sub}</dd>
+      <dd className={`${valueClass} ${sizeClass} w-full flex-none tabular tracking-tight leading-none`}>
         {cell.value}
       </dd>
     </div>
