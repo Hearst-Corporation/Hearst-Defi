@@ -63,7 +63,7 @@ export function AllocationCapacityPanel({
 
   if (bothNotConfigured) {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <span className="stat-label ct-text-muted">Available allocation</span>
         <DataNotConfigured
           label="Vault capacity"
@@ -76,7 +76,7 @@ export function AllocationCapacityPanel({
 
   if (eitherUnavailable) {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <span className="stat-label ct-text-muted">Available allocation</span>
         <DataUnavailable label="Vault capacity" className="mt-[var(--ct-space-3)]" />
       </Card>
@@ -102,7 +102,7 @@ export function AllocationCapacityPanel({
   const capacityProvenance: Provenance = capacity.status === "STALE" ? "stale" : "estimated";
 
   return (
-    <Card hoverOverlay={false} className="flex flex-col gap-[var(--ct-space-5)] p-[var(--ct-space-6)]">
+    <Card hoverOverlay={false} className="flex flex-col gap-[var(--ct-space-5)] p-[var(--ct-space-5)]">
       <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-2)]">
         <span className="stat-label ct-text-muted">Available allocation</span>
         <ProvenanceBadge kind={capacityProvenance} />

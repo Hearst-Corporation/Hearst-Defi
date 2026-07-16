@@ -38,7 +38,7 @@ export function PocketsComposition({
 }) {
   if (allocation.status === "NOT_CONFIGURED") {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <span className="stat-label ct-text-muted">Pocket composition</span>
         <DataNotConfigured
           label="Pocket allocation"
@@ -51,7 +51,7 @@ export function PocketsComposition({
 
   if (allocation.status === "UNAVAILABLE" || allocation.status === "ERROR") {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <span className="stat-label ct-text-muted">Pocket composition</span>
         <DataUnavailable label="Pocket allocation" className="mt-[var(--ct-space-3)]" />
       </Card>
@@ -62,7 +62,7 @@ export function PocketsComposition({
 
   if (pockets == null) {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <span className="stat-label ct-text-muted">Pocket composition</span>
         <DataUnavailable
           label="Pocket allocation"
@@ -159,7 +159,7 @@ export function PocketsComposition({
 
   if (isPartial) {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <span className="stat-label ct-text-muted">Pocket composition</span>
         <div className="mt-[var(--ct-space-4)]">
           <DataPartial label="Pocket allocation" detail="On-chain actuals not yet indexed for all pockets.">

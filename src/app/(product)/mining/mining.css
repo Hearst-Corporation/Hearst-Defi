@@ -8,6 +8,12 @@
 .mining-flow-canvas {
   position: relative;
   width: 100%;
+  /* Cap the diagram width so it does not stretch edge-to-edge into a tall, empty
+     band on wide screens (viewBox is 680×130 ≈ 5.2:1 — at full width it grew to a
+     ~230px+ near-empty canvas). Capped + centred, it renders ~672×130px: compact,
+     control-room dense, the slack becomes horizontal margin. (PROMPT 225 §10.) */
+  max-width: 42rem;
+  margin-inline: auto;
 }
 
 .mining-flow-canvas__svg {

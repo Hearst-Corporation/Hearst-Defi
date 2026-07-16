@@ -2,6 +2,8 @@
 // return (non-negotiable #1: never a single point). Uses the canonical
 // ApyRange component, never hand-rolled percentages.
 
+import Link from "next/link";
+
 import { Card } from "@/components/catalyst/card";
 import { Progress } from "@/components/catalyst/progress";
 import { ApyRange } from "@/components/catalyst/apy-range";
@@ -15,7 +17,7 @@ export function PerformancePanel({ btc }: { btc: BtcViewModel }) {
 
   if (performance.status === "NOT_CONFIGURED") {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <span className="stat-label ct-text-muted">Performance</span>
         <DataNotConfigured
           label="Performance"
@@ -28,7 +30,7 @@ export function PerformancePanel({ btc }: { btc: BtcViewModel }) {
 
   if (performance.status === "UNAVAILABLE" || performance.status === "ERROR" || performance.value == null) {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <span className="stat-label ct-text-muted">Performance</span>
         <DataUnavailable label="Performance" className="mt-[var(--ct-space-3)]" />
       </Card>
@@ -39,10 +41,17 @@ export function PerformancePanel({ btc }: { btc: BtcViewModel }) {
   const takeProfitPct = p.takeProfitProgressBps != null ? p.takeProfitProgressBps / 100 : null;
 
   return (
-    <Card hoverOverlay={false} className="flex flex-col gap-[var(--ct-space-4)] p-[var(--ct-space-6)]">
+    <Card hoverOverlay={false} className="flex flex-col gap-[var(--ct-space-4)] p-[var(--ct-space-5)]">
       <div className="flex items-center justify-between gap-[var(--ct-space-2)]">
         <span className="stat-label ct-text-muted">Performance</span>
-        <ProvenanceBadge kind={performance.status === "STALE" ? "stale" : "estimated"} />
+        <span className="flex items-center gap-[var(--ct-space-3)]">
+          {/* Drill-down: /btc left the primary rail (PROMPT 225) — this is its
+              Dashboard entry point, mirroring MiningPulse's "Full mining report →". */}
+          <Link href="/btc" className="body-xs ct-link-accent whitespace-nowrap">
+            BTC accumulation detail →
+          </Link>
+          <ProvenanceBadge kind={performance.status === "STALE" ? "stale" : "estimated"} />
+        </span>
       </div>
 
       <div className="flex flex-col gap-[var(--ct-space-2)]">

@@ -2561,27 +2561,25 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .ct-bento-page {
+  /* FRAMELESS — pure layout wrapper (PROMPT 225). Was a bordered, radius-xl,
+     surface-page card wrapping the WHOLE page, so every module inside read as a
+     second frame (and the module cards #000 were darker than this #18181b ground
+     → inverted elevation, "black boxes cut into grey"). Dropping border + radius
+     + background lets the module cards be the ONLY framed surface: one frame
+     level, not two, and modules sit directly on the deep shell ground. */
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--ct-space-8);
-  border-radius: var(--ct-radius-xl);
-  border: 1px solid var(--ct-graphite-border-nested);
-  /* Fond gris de page (token officiel = gris zinc-900 de Portfolio), au lieu du
-     noir profond --ct-graphite-subtle-bg. Source unique : --ct-surface-page. */
-  background: var(--ct-surface-page);
+  margin-bottom: var(--ct-space-6);
 }
 
 .ct-bento-page__body {
   display: flex;
   flex-direction: column;
-  gap: var(--ct-space-5);
-  padding: var(--ct-space-5);
-}
-
-@media (min-width: 64rem) {
-  .ct-bento-page__body {
-    padding: var(--ct-space-6);
-  }
+  /* Padding removed: the shell's .ct-page-area already insets the page, so the
+     old body padding (20/24px) was a redundant second layer (~52px/side stacked).
+     Body now only owns the inter-module rhythm. (PROMPT 225.) */
+  gap: var(--ct-space-4);
+  padding: 0;
 }
 
 .ct-bento-panel-header {
@@ -2589,7 +2587,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--ct-space-4);
-  padding: var(--ct-space-5);
+  padding: var(--ct-space-4) var(--ct-space-5);
   border-bottom: 1px solid var(--ct-border-subtle);
 }
 

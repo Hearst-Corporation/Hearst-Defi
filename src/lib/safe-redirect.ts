@@ -7,13 +7,13 @@
  *  - not `/\` (browsers normalize `\` → `/`, becoming `//`)
  *  - no backslash or control character anywhere (CWE-601 defense-in-depth)
  *
- * Otherwise returns the fallback (default `/portfolio` — the investor's real
- * financial dashboard, i.e. where a signed-in user should land by default. The
- * `/portfolio/preview` V4 console is a sandbox, kept off the rail).
+ * Otherwise returns the fallback (default `/dashboard` — the investor V2 entry
+ * point, the first rail item a signed-in user sees. `/portfolio` is the legacy
+ * cockpit, still reachable by direct URL but off the visible rail).
  */
 const UNSAFE_CHARS = /[\x00-\x1f\\]/;
 
-export function safeFrom(from: string | null | undefined, fallback = "/portfolio"): string {
+export function safeFrom(from: string | null | undefined, fallback = "/dashboard"): string {
   if (!from) return fallback;
   if (!from.startsWith("/")) return fallback;
   if (from.startsWith("//")) return fallback;

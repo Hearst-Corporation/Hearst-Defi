@@ -35,7 +35,7 @@ export function DashboardHero({
 }) {
   if (position.status === "NOT_CONFIGURED") {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <DataNotConfigured label="Position" detail="PermissionedDynaVault v2.1 is not deployed on this network yet." />
       </Card>
     );
@@ -43,7 +43,7 @@ export function DashboardHero({
 
   if (position.status === "UNAVAILABLE" || position.status === "ERROR") {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <DataUnavailable label="Position" />
       </Card>
     );
@@ -54,7 +54,7 @@ export function DashboardHero({
   // Honest zero-position state: signed-in, no active position yet.
   if (value == null || value.positionsCount === 0) {
     return (
-      <Card className="p-[var(--ct-space-6)]">
+      <Card className="p-[var(--ct-space-5)]">
         <div className="flex flex-col gap-[var(--ct-space-1)]">
           <span className="stat-label ct-text-muted">Your position</span>
         </div>
@@ -79,7 +79,7 @@ export function DashboardHero({
   const provenance = statusToProvenance(position.status);
 
   return (
-    <Card hoverOverlay={false} className="p-[var(--ct-space-6)]">
+    <Card hoverOverlay={false} className="p-[var(--ct-space-5)]">
       <div className="flex flex-wrap items-start justify-between gap-[var(--ct-space-4)]">
         <div className="flex min-w-0 flex-col gap-[var(--ct-space-2)]">
           <div className="flex items-center gap-[var(--ct-space-2)]">
