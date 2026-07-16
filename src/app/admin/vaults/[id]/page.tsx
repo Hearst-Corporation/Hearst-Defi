@@ -390,7 +390,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
           }
         >
           {whitelistParseError ? (
-            <div className="flex flex-col gap-1 rounded-2xl border border-[var(--ct-status-danger)] bg-surface-inset p-5">
+            <div
+              role="alert"
+              className="flex flex-col gap-1 rounded-2xl border border-[var(--ct-status-danger)] bg-surface-inset p-5"
+            >
               <span className="ct-metric-caption font-semibold text-[var(--ct-status-danger)]">
                 Signer whitelist unreadable
               </span>
