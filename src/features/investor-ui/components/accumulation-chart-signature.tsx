@@ -3,10 +3,10 @@
 // AccumulationChartSignature — the institutional hero chart for /dashboard.
 // A dual-axis composition matching the design target:
 //   • BTC accumulated       — filled accent area (left axis, "BTC")
-//   • Planned accumulation  — dashed accent line (left axis)
+//   • Illustrative pace     — dashed accent line (left axis)
 //   • Market price (USD)     — muted grey area behind (right axis, "USD")
 //
-// The accumulation series is real (buildAccumulationSeries). The planned line
+// The accumulation series is real (buildAccumulationSeries). The pace line
 // and market-price backdrop are illustrative fixture derivations, covered by
 // the page-level simulated provenance badge — never presented as a target, a
 // promise, or a live quote. Left axis is BTC, right axis is USD.
@@ -24,10 +24,11 @@ import { ChartTimeSelector, type TimeRange } from "@/components/catalyst/chart-t
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
 import { useState } from "react";
 import { formatPeriodMonth } from "@/features/investor-ui/format-btc";
+import { withIllustrativePace } from "@/features/investor-ui/charts/accumulation-series";
 import type { AccumulationPoint } from "@/features/investor-ui/charts/accumulation-series";
 
 /** Tone switch: "accent" = product green (/dashboard), "btc" = asset orange
- *  (/btc). Drives every stroke/fill of the actual + planned series. */
+ *  (/btc). Drives every stroke/fill of the actual + pace series. */
 export type SignatureTone = "accent" | "btc";
 
 const TONE_COLOR: Record<SignatureTone, string> = {
@@ -39,12 +40,12 @@ const TONE_COLOR: Record<SignatureTone, string> = {
 const SIGNATURE_CONFIGS: Record<SignatureTone, ChartConfig> = {
   accent: {
     actual: { label: "BTC accumulated", color: TONE_COLOR.accent },
-    planned: { label: "Planned accumulation", color: TONE_COLOR.accent },
+    pace: { label: "Illustrative pace", color: TONE_COLOR.accent },
     price: { label: "Market price (USD)", color: "var(--ct-chart-neutral)" },
   },
   btc: {
     actual: { label: "BTC accumulated", color: TONE_COLOR.btc },
-    planned: { label: "Planned accumulation", color: TONE_COLOR.btc },
+    pace: { label: "Illustrative pace", color: TONE_COLOR.btc },
     price: { label: "Market price (USD)", color: "var(--ct-chart-neutral)" },
   },
 };
@@ -81,7 +82,7 @@ export function AccumulationChartSignature({
   currentMonth,
   totalMonths,
   provenance,
-  marketPriceUsd = 60_000,
+  marketPriceUsd = 100_000,
   tone = "accent",
 }: AccumulationChartSignatureProps) {
   // Presentation-only range toggle. The data layer serves a single
@@ -110,34 +111,44 @@ export function AccumulationChartSignature({
   // Illustrative range slice — tail N months of the real series. "ALL" keeps
   // the full since-inception series (design target default).
   const RANGE_MONTHS: Record<TimeRange, number | null> = {
-    "1M": 2,
+    "1M": 1,
     "3M": 3,
     "6M": 6,
     "1Y": 12,
     ALL: null,
   };
   const window = RANGE_MONTHS[range];
-  const visiblePoints = window != null && window < points.length ? points.slice(-window) : points;
-
-  const prices = marketPriceSeries(visiblePoints.length, marketPriceUsd);
+  // Pace + market-price backdrop are derived ONCE from the FULL series, then
+  // sliced alongside the visible window — neither the pace shape nor the USD
+  // level may change form when the user switches time ranges.
+  const pacedPoints = withIllustrativePace(points);
+  const fullPrices = marketPriceSeries(points.length, marketPriceUsd);
+  const visiblePoints =
+    window != null && window < pacedPoints.length ? pacedPoints.slice(-window) : pacedPoints;
+  const prices =
+    window != null && window < fullPrices.length ? fullPrices.slice(-window) : fullPrices;
   const data = visiblePoints.map((p, i) => ({
     period: p.period,
     month: formatPeriodMonth(p.period),
     actual: p.cumulativeBtc,
-    // Planned line trends clearly ABOVE actual toward term end — the target
-    // trajectory the note is pacing against. Illustrative (fixture).
-    planned: p.cumulativeBtc * (1.12 + 0.42 * (i / Math.max(1, visiblePoints.length - 1))),
+    // Pace line trends clearly ABOVE actual toward term end. Illustrative
+    // (fixture), computed on the full series in withIllustrativePace.
+    pace: p.pace,
     price: prices[i],
     // Current dot = last point of the VISIBLE window (tail slice keeps the
     // latest month, so this is also the latest point of the full series).
     isCurrent: i === visiblePoints.length - 1,
   }));
 
-  const maxBtc = Math.max(...data.map((d) => Math.max(d.actual, d.planned)), 0.001);
+  const maxBtc = Math.max(...data.map((d) => Math.max(d.actual, d.pace)), 0.001);
   const btcMax = maxBtc * 1.04;
+  // Adaptive tick precision — sub-2 BTC programs need decimals or every tick
+  // collapses to "0 BTC / 0 BTC / 1 BTC".
+  const btcTickDecimals = maxBtc < 2 ? 2 : maxBtc < 10 ? 1 : 0;
   // Stretch the USD domain so the grey price backdrop stays in the LOWER
   // 40% of the frame — depth, never competition with the accent curve.
-  const priceMax = Math.max(...prices, 1) * 2.2;
+  // Anchored on the FULL series so the level reads stable between windows.
+  const priceMax = Math.max(...fullPrices, 1) * 2.2;
 
   return (
     <Card
@@ -169,7 +180,7 @@ export function AccumulationChartSignature({
             />
           }
         >
-          Planned accumulation
+          Illustrative pace
         </LegendItem>
         <LegendItem swatch={<span className="h-2.5 w-2.5 rounded-[2px]" style={{ background: "color-mix(in srgb, var(--ct-chart-neutral) 45%, transparent)" }} />}>
           Market price (USD)
@@ -211,7 +222,7 @@ export function AccumulationChartSignature({
               width={48}
               domain={[0, btcMax]}
               tickCount={5}
-              tickFormatter={(v) => `${Number(v).toFixed(0)} BTC`}
+              tickFormatter={(v) => `${Number(v).toFixed(btcTickDecimals)} BTC`}
               tick={{ fill: "var(--ct-chart-axis)", fontSize: 10 }}
             />
             {/* Right axis — USD */}
@@ -240,10 +251,10 @@ export function AccumulationChartSignature({
               isAnimationActive={false}
               dot={false}
             />
-            {/* Planned dashed line */}
+            {/* Illustrative pace dashed line */}
             <Line
               yAxisId="btc"
-              dataKey="planned"
+              dataKey="pace"
               stroke={toneColor}
               strokeWidth={1.5}
               strokeDasharray="5 5"
@@ -275,7 +286,7 @@ export function AccumulationChartSignature({
       </div>
 
       <p className="ct-metric-caption m-0">
-        Historical accumulation, planned trajectory, and market-price backdrop are illustrative — delivered in BTC at maturity, not guaranteed.
+        Historical accumulation, illustrative pace, and market-price backdrop are illustrative — delivered in BTC at maturity, not guaranteed.
       </p>
     </Card>
   );

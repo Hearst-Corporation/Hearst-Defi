@@ -57,6 +57,30 @@ export function buildAccumulationSeries(
   });
 }
 
+/** An accumulation point enriched with the illustrative pace overlay. */
+export interface PacedAccumulationPoint extends AccumulationPoint {
+  /** Illustrative pace line — a fixture-derived overlay, never a target. */
+  readonly pace: number;
+}
+
+/**
+ * Fixture-only presentation derivation: enriches each point with an
+ * illustrative pace value that trends clearly ABOVE the actual accumulation
+ * toward term end. Pure view-model math — the ramp parameter `t` is computed
+ * over the FULL series (t = i / (n - 1)), so window slices of the result keep
+ * a stable pace shape (the line must not change form between time ranges).
+ * Covered by the page-level simulated provenance badge.
+ */
+export function withIllustrativePace(
+  points: readonly AccumulationPoint[],
+): PacedAccumulationPoint[] {
+  const n = points.length;
+  return points.map((p, i) => ({
+    ...p,
+    pace: p.cumulativeBtc * (1.12 + 0.42 * (n > 1 ? i / (n - 1) : 0)),
+  }));
+}
+
 /**
  * Converts cumulative accumulation points into real monthly production
  * deltas. First month's delta is its cumulative value (the series starts at
