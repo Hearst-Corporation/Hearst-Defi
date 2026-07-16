@@ -4,6 +4,7 @@
 
 import {
   DataNotConfigured,
+  DataPartial,
   DataStale,
   DataUnavailable,
 } from "@/features/investor-ui/components/states/data-states";
@@ -54,10 +55,15 @@ export function MiningPageContent({ viewModel }: MiningPageContentProps) {
             label="Mining summary"
             detail="Fleet hashrate, BTC production and term progress read from PermissionedDynaVault v2.1, not deployed yet."
           />
-        ) : mining.status === "UNAVAILABLE" ? (
-          <DataUnavailable label="Mining summary" />
+        ) : mining.status === "UNAVAILABLE" || mining.status === "ERROR" ? (
+          <DataUnavailable
+            label="Mining summary"
+            detail={mining.error?.message}
+          />
         ) : mining.status === "STALE" ? (
           <DataStale label="Mining summary" freshness={mining.freshness} />
+        ) : mining.status === "PARTIAL" ? (
+          <DataPartial label="Mining summary" detail={mining.freshness} />
         ) : null}
 
         {electricity.status === "NOT_CONFIGURED" ? (
@@ -65,10 +71,15 @@ export function MiningPageContent({ viewModel }: MiningPageContentProps) {
             label="Electricity"
             detail="Electricity cost and payment status read from PermissionedDynaVault v2.1, not deployed yet."
           />
-        ) : electricity.status === "UNAVAILABLE" ? (
-          <DataUnavailable label="Electricity" />
+        ) : electricity.status === "UNAVAILABLE" || electricity.status === "ERROR" ? (
+          <DataUnavailable
+            label="Electricity"
+            detail={electricity.error?.message}
+          />
         ) : electricity.status === "STALE" ? (
           <DataStale label="Electricity" freshness={electricity.freshness} />
+        ) : electricity.status === "PARTIAL" ? (
+          <DataPartial label="Electricity" detail={electricity.freshness} />
         ) : null}
 
         <MiningKpiStrip mining={mining} electricity={electricity} />
