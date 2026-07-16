@@ -173,26 +173,6 @@ Scope:
 STOP: never touches src/lib/engine/**, stable funding / exit recovery logic, Prisma,
 router/nav/chat guards, package.json scripts, cockpit.css, or DS tokens.
 
-### fix/dashboard-btc-alignment
-Owner: Cursor Agent — Fix dashboard/btc layout holes and alignment
-Branch: fix/dashboard-btc-alignment
-Worktree: principal (Hearst-Defi)
-Started: 2026-07-16
-Status: active
-
-Goal: eliminate the visual holes and alignment issues on /dashboard and /btc by
-restructuring the layout from rigid grid rows to independent flex columns so each
-column flows naturally without forcing adjacent cards to share row heights.
-
-Scope:
-- src/app/(product)/dashboard/page.tsx
-- src/app/(product)/btc/page.tsx
-- src/features/investor-ui/__tests__/asset-visual-analytics.test.ts (if tests need updating)
-- docs/agent-file-locks.md (this entry)
-
-STOP: no engine, no data layer, no auth/wallet/session, no next.config.ts,
-no package.json, no Prisma/schema/migrations, no CSP, no cross-project imports.
-
 ### feat/projection-safe-input-preset
 Owner: Claude Opus — MISSION HC-4873 Projection safe input preset
 Branch: feat/projection-safe-input-preset
@@ -235,6 +215,27 @@ chat-nav/cockpit.css/#146. Pure visual.
 ---
 
 ## RELEASED LOCKS
+
+### fix/dashboard-btc-alignment
+Owner: Cursor Agent — Fix dashboard/btc layout holes and alignment
+Branch: fix/dashboard-btc-alignment
+Merged PR: #397
+Released: 2026-07-16
+Status: merged
+
+Scope:
+- src/app/(product)/dashboard/page.tsx
+- src/app/(product)/btc/page.tsx
+- src/app/(product)/dashboard/_components/dashboard-capacity-panel.tsx
+- src/app/(product)/dashboard/_components/dashboard-position-panel.tsx
+- src/features/investor-ui/__tests__/asset-visual-analytics.test.ts
+- src/features/investor-ui/components/widgets/hero-panel.tsx
+- docs/agent-file-locks.md (this entry)
+
+Result: restructured /dashboard and /btc from grid rows to independent 7/5 flex
+columns. Top-row position/capacity cards on dashboard now align to the same height
+(h-full). BTC bottom columns rebalanced by moving ContextualProofPanel to the left
+side. asset-visual-analytics test updated to verify the new flex-column layout.
 
 ### fix/dashboard-btc-followup-lint
 Owner: Cursor Agent — Follow-up lint fixes for dashboard/btc pixel-perfect merge
