@@ -4,7 +4,10 @@ import { useRef, useState, useTransition } from "react";
 
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
+import { Checkbox } from "@/components/catalyst/choice-checkbox";
 import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
+import { Input } from "@/components/catalyst/input";
+import { Select } from "@/components/catalyst/select";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
 import {
   simulateTypeformSubmission,
@@ -26,6 +29,8 @@ export function OnboardingForm() {
   // operator confirms in the dialog (this creates a real investor record).
   const pendingFormRef = useRef<FormData | null>(null);
   const [pendingEmail, setPendingEmail] = useState<string>("");
+  const [syncHubspot, setSyncHubspot] = useState(false);
+  const [sendEmail, setSendEmail] = useState(false);
 
   function onSubmit(formData: FormData) {
     setResult(null);
@@ -54,23 +59,23 @@ export function OnboardingForm() {
         <div className="admin-doc-form-grid-2">
           <label className="block body-xs" htmlFor="ob-email">
             <span className="ct-form-label">Email (required)</span>
-            <input id="ob-email" name="email" type="email" required placeholder="lp@fund.io" className="ct-input" />
+            <Input id="ob-email" name="email" type="email" required placeholder="lp@fund.io" className="ct-input" />
           </label>
           <label className="block body-xs" htmlFor="ob-phone">
             <span className="ct-form-label">Phone (optional)</span>
-            <input id="ob-phone" name="phone" type="text" placeholder="+33 6 00 00 00 00" className="ct-input" />
+            <Input id="ob-phone" name="phone" type="text" placeholder="+33 6 00 00 00 00" className="ct-input" />
           </label>
           <label className="block body-xs" htmlFor="ob-firstName">
             <span className="ct-form-label">First name</span>
-            <input id="ob-firstName" name="firstName" type="text" placeholder="Alice" className="ct-input" />
+            <Input id="ob-firstName" name="firstName" type="text" placeholder="Alice" className="ct-input" />
           </label>
           <label className="block body-xs" htmlFor="ob-lastName">
             <span className="ct-form-label">Last name</span>
-            <input id="ob-lastName" name="lastName" type="text" placeholder="Dupont" className="ct-input" />
+            <Input id="ob-lastName" name="lastName" type="text" placeholder="Dupont" className="ct-input" />
           </label>
           <label className="block body-xs" htmlFor="ob-website">
             <span className="ct-form-label">Website (optional)</span>
-            <input id="ob-website" name="website" type="text" placeholder="https://fund.io" className="ct-input" />
+            <Input id="ob-website" name="website" type="text" placeholder="https://fund.io" className="ct-input" />
           </label>
         </div>
 
@@ -79,28 +84,36 @@ export function OnboardingForm() {
           {QUESTIONS.map((q) => (
             <label key={q.name} className="block body-xs" htmlFor={`ob-${q.name}`}>
               <span className="ct-form-label">{q.label}</span>
-              <select id={`ob-${q.name}`} name={q.name} defaultValue="" className="ct-input">
+              <Select id={`ob-${q.name}`} name={q.name} defaultValue="" className="ct-input">
                 <option value="">Skip question</option>
                 {q.options.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
           ))}
         </div>
 
         {/* Side-effects toggles */}
         <div className="admin-doc-toggle-row">
-          <label className="admin-doc-toggle body-xs">
-            <input type="checkbox" name="syncHubspot" />
-            <span>Create HubSpot contact</span>
-          </label>
-          <label className="admin-doc-toggle body-xs">
-            <input type="checkbox" name="sendEmail" />
-            <span>Send welcome email</span>
-          </label>
+          <Checkbox
+            name="syncHubspot"
+            checked={syncHubspot}
+            onChange={setSyncHubspot}
+            className="admin-doc-toggle body-xs"
+          >
+            Create HubSpot contact
+          </Checkbox>
+          <Checkbox
+            name="sendEmail"
+            checked={sendEmail}
+            onChange={setSendEmail}
+            className="admin-doc-toggle body-xs"
+          >
+            Send welcome email
+          </Checkbox>
         </div>
 
         <div className="admin-doc-inline-row">
