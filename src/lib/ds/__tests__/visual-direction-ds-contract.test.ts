@@ -142,13 +142,18 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
     expect(cockpit).not.toMatch(/--ct-cat-[a-z]+:\s*#/);
   });
 
-  it("the investor rail dropped the standalone Proofs entry", () => {
+  it("the investor rail has no standalone Vault/Invest entry", () => {
     const nav = readFileSync(
       join(ROOT, "src/components/nav/product-nav-items.ts"),
       "utf8",
     );
-    // PRODUCT_NAV = Portfolio (→ /portfolio) · Invest · Profile.
-    expect(nav).toMatch(/id:\s*"invest"/);
+    // PRODUCT_NAV (UI V2) = Dashboard · BTC · Mining · Proof · Profile.
+    // Subscribing to the mining note starts from a Dashboard CTA, not a
+    // dedicated "Vault" / "Invest" rail entry.
+    expect(nav).not.toMatch(/id:\s*"invest"/);
+    expect(nav).not.toMatch(/id:\s*"holdings"/);
     expect(nav).not.toMatch(/id:\s*"proof-center"/);
+    expect(nav).toMatch(/id:\s*"proof"/);
+    expect(nav).toMatch(/id:\s*"dashboard"/);
   });
 });

@@ -10,8 +10,8 @@ export default function ProductError(props: {
     <SegmentError
       {...props}
       scope="Product · Error"
-      homeHref="/portfolio"
-      homeLabel="Aller au portfolio"
+      homeHref="/dashboard"
+      homeLabel="Aller au dashboard"
     />
   );
 }

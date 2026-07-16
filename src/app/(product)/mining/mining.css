@@ -1,0 +1,91 @@
+/* mining.css — Mining control-room screen (page-scoped) */
+
+/* ── Flow canvas: Mining Power → Pool → BTC Production → Reserve → Electricity.
+   CSS-only motion (no canvas 2d, no external animation lib beyond the
+   framer-motion already in the repo, which this page does not need). Discrete,
+   institutional — no glow/neon/particles. ── */
+
+.mining-flow-canvas {
+  position: relative;
+  width: 100%;
+}
+
+.mining-flow-canvas__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Node dot pulse — a slow, quiet breathing cue that the stage is live-shaped
+   data flowing, not a static diagram. Loops only while unattended; reduced to
+   a static dot under prefers-reduced-motion. */
+.mining-flow-node__pulse {
+  animation: mining-flow-node-pulse var(--ct-dur-pulse) var(--ct-ease-in-out) infinite;
+  transform-origin: center;
+}
+
+/* Flow dash — a soft traveling dash along each connector, one direction,
+   never a spinner/loader. Duration kept well over 1.2s so it reads as
+   "ambient flow", not a busy-indicator. */
+.mining-flow-edge__dash {
+  stroke-dasharray: 6 10;
+  animation: mining-flow-edge-travel 2800ms linear infinite;
+}
+
+.mining-flow-edge__dash--reverse {
+  animation-direction: reverse;
+}
+
+@keyframes mining-flow-node-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: var(--ct-opacity-60);
+  }
+}
+
+@keyframes mining-flow-edge-travel {
+  from {
+    stroke-dashoffset: 32;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Curtailed state: the Mining Power node stops pulsing and the outbound edge
+   pauses — communicated by data-state, not a new color. */
+.mining-flow-canvas[data-fleet-active="false"] .mining-flow-node__pulse,
+.mining-flow-canvas[data-fleet-active="false"] .mining-flow-edge__dash {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mining-flow-node__pulse,
+  .mining-flow-edge__dash {
+    animation: none !important;
+  }
+}
+
+/* ── Responsive: on narrow viewports the 5-stage horizontal flow becomes
+   unreadable if forced to keep full labels — the SVG viewBox itself scales
+   fluidly (width:100%), so only label verbosity needs to react. ── */
+@container mining-flow (max-width: 30rem) {
+  .mining-flow-canvas__label--full {
+    display: none;
+  }
+  .mining-flow-canvas__label--short {
+    display: block;
+  }
+}
+
+.mining-flow-canvas__label--short {
+  display: none;
+}
+
+.mining-flow-container {
+  container-type: inline-size;
+  container-name: mining-flow;
+}
