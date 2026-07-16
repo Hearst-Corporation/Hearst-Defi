@@ -7,6 +7,7 @@ import {
   BentoLabel,
 } from "@/components/catalyst/bento";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { Select } from "@/components/catalyst/select";
 import { assignTemplate, recalibrateAgent } from "@/app/admin/customers/[id]/actions";
 import type { AgentTemplate } from "@prisma/client";
 
@@ -85,7 +86,7 @@ export function AgentAssignForm({
         <input type="hidden" name="userId" value={userId} />
         <label className="flex grow flex-col gap-2" htmlFor="assign-template">
           <BentoLabel>Inherited template</BentoLabel>
-          <select
+          <Select
             id="assign-template"
             name="templateId"
             defaultValue={currentTemplateId ?? ""}
@@ -102,7 +103,7 @@ export function AgentAssignForm({
                 {t.label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <CockpitButton
           type="submit"
