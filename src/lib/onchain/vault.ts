@@ -37,7 +37,10 @@ import {
   type Address,
 } from "viem";
 import { getDeployment } from "@/lib/chain/deployments";
-import { getVaultMode } from "@/lib/chain/dynavault";
+// Client-safe mode read (this module is pulled into "use client" invest-form):
+// import from ./vault-mode, NOT ./dynavault (server-only), so the browser bundle
+// never drags the server-only chain adapter in — that was the prod build break.
+import { getVaultMode } from "@/lib/chain/vault-mode";
 // Privy's EIP1193Provider uses `on(eventName: string, ...)` which is structurally
 // narrower than viem's generic-overloaded signature. Bridging via `unknown` is the
 // only safe cast — we never use the `on`/`removeListener` methods ourselves, and
