@@ -80,13 +80,20 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   // bogus id must not surface another investor's details). When owned, the DB
   // row is also the source of truth for the displayed amount: the `amount`
   // query param is user-editable and only ever a fallback.
+  //
+  // A DB read can fail transiently (pool exhaustion, connection drop) — this
+  // must degrade to the SAME honest "position not resolved" fallback the page
+  // already renders for a missing/foreign positionId, not an unhandled
+  // rejection that blows the whole confirmation page to a generic 500.
   const investor = await getInvestor();
   const position =
     sp.positionId && investor
-      ? await prisma.position.findFirst({
-          where: { id: sp.positionId, investorId: investor.id },
-          select: { subscribedAt: true, principalUsdc: true },
-        })
+      ? await prisma.position
+          .findFirst({
+            where: { id: sp.positionId, investorId: investor.id },
+            select: { subscribedAt: true, principalUsdc: true },
+          })
+          .catch(() => null)
       : null;
   const positionId = position ? (sp.positionId ?? null) : null;
   const amount = position
