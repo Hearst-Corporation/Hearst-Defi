@@ -30,7 +30,7 @@ export function ContextualProofPanel({ items }: { items: ContextualProofItem[] }
     <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-4)]">
       <div className="flex items-center gap-[var(--ct-space-2)]">
         <Activity size={16} className="ct-text-muted" aria-hidden />
-        <span className="stat-label ct-text-muted">Contextual proofs</span>
+        <span className="ct-bento-label">Contextual proofs</span>
       </div>
 
       <div className="flex flex-col">
@@ -44,7 +44,7 @@ export function ContextualProofPanel({ items }: { items: ContextualProofItem[] }
               <div className="flex flex-col gap-1 min-w-0">
                 <span className="body-sm ct-text-strong font-medium truncate">{item.label}</span>
                 {item.lastVerified ? (
-                  <span className="text-[length:var(--ct-text-nano)] ct-text-muted">
+                  <span className="ct-metric-caption">
                     Verified {item.lastVerified}
                   </span>
                 ) : null}

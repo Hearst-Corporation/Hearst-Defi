@@ -173,6 +173,31 @@ Scope:
 STOP: never touches src/lib/engine/**, stable funding / exit recovery logic, Prisma,
 router/nav/chat guards, package.json scripts, cockpit.css, or DS tokens.
 
+### feat/dashboard-btc-pixel-perfect
+Owner: Cursor Agent — Dashboard / BTC UI pixel-perfect polish
+Branch: feat/asset-visual-analytics
+Worktree: principal (Hearst-Defi)
+Started: 2026-07-16
+Status: active
+
+Goal: apply pixel-perfect improvements to the investor dashboard and Bitcoin
+accumulation surfaces (asset-aware HeroPanel, canonical typography, token-based
+colors, chart padding, removal of magic numbers) and merge to main.
+
+Scope:
+- src/app/(product)/dashboard/page.tsx
+- src/app/(product)/dashboard/_components/*.tsx
+- src/app/(product)/btc/page.tsx
+- src/features/investor-ui/components/widgets/hero-panel.tsx
+- src/features/investor-ui/components/accumulation-chart-panel.tsx
+- src/features/investor-ui/components/sources-accumulation-panel.tsx
+- src/features/investor-ui/components/widgets/contextual-proof-panel.tsx
+- src/components/catalyst/step-timeline.tsx
+- docs/agent-file-locks.md (this entry)
+
+STOP: no engine, no data layer, no auth/wallet/session, no next.config.ts,
+no package.json, no Prisma/schema/migrations, no CSP, no cross-project imports.
+
 ### feat/projection-safe-input-preset
 Owner: Claude Opus — MISSION HC-4873 Projection safe input preset
 Branch: feat/projection-safe-input-preset

@@ -30,14 +30,14 @@ export function SourcesAccumulationPanel({ monthlyProduction }: SourcesAccumulat
       <div className="flex flex-col gap-[var(--ct-space-1)]">
         <div className="flex items-center gap-[var(--ct-space-2)]">
           <AssetIcon variant="btc" size="sm" />
-          <span className="stat-label ct-text-muted">Sources of accumulation</span>
+          <span className="ct-bento-label">Sources of accumulation</span>
         </div>
-        <span className="body-xs ct-text-faint">Monthly breakdown of BTC acquired</span>
+        <span className="ct-metric-caption">Monthly breakdown of BTC acquired</span>
       </div>
 
       <ChartContainer
         config={SOURCES_STACKED_CONFIG}
-        className="aspect-auto h-[var(--ct-chart-investor-compact)] w-full min-w-0 rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-inset)] p-[var(--ct-space-2)]"
+        className="aspect-auto h-[var(--ct-chart-investor-compact)] w-full min-w-0 rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-inset)] p-[var(--ct-space-4)]"
       >
         <BarChart data={data} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
           <CartesianGrid vertical={false} stroke="var(--ct-chart-grid)" strokeDasharray="3 3" />

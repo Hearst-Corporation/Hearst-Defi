@@ -26,28 +26,30 @@ export function PortfolioInsightPanel({
   const title = variant === "bitcoin" ? "Bitcoin Reserve Analyst" : "Portfolio insight";
   const isBtc = variant === "bitcoin";
 
+  const quoteBorder = isBtc ? "border-[var(--ct-asset-btc-border)]" : "border-[var(--ct-accent)]";
+
   return (
     <Card
-      className={`w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-4)] bg-[var(--ct-surface-raised)] ${
+      className={`w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-4)] ${
         isBtc ? "border-l-[3px] border-l-[var(--ct-asset-btc-border)]" : ""
       }`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-[var(--ct-space-2)]">
           {isBtc ? <AssetIcon variant="btc" size="sm" /> : null}
-          <span className="stat-label ct-text-muted">{title}</span>
+          <span className="ct-bento-label">{title}</span>
         </div>
         <ProvenanceBadge kind="estimated" variant="compact" description="Advisory only — no autonomous action." />
       </div>
 
-      <blockquote className="body-sm ct-text-body m-0 italic border-l-2 border-[var(--ct-asset-btc-border)] pl-[var(--ct-space-3)]">
+      <blockquote className={`body-sm m-0 italic border-l-2 ${quoteBorder} pl-[var(--ct-space-3)]`}>
         &ldquo;{insight}&rdquo;
       </blockquote>
 
       <div className="flex flex-col gap-[var(--ct-space-3)] pt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)]">
         <div className="flex justify-between items-center body-xs">
-          <span className="ct-text-muted">{primary?.role ?? "AI Strategist"}</span>
-          <span className="ct-text-faint">Just now</span>
+          <span className="body-xs">{primary?.role ?? "AI Strategist"}</span>
+          <span className="ct-metric-caption">Just now</span>
         </div>
         <CockpitButton href="?chat=open" variant="secondary" shape="rect" size="lg" className="w-full justify-center">
           Ask the strategist

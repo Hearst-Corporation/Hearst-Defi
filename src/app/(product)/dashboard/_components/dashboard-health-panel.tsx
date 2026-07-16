@@ -64,20 +64,20 @@ export function DashboardHealthPanel({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-[var(--ct-space-2)]">
             <AssetIcon variant="mining" size="sm" />
-            <span className="stat-label ct-text-muted">Mining pulse</span>
+            <span className="ct-bento-label">Mining pulse</span>
           </div>
           <ProvenanceBadge kind={mining.mining.status === "STALE" ? "stale" : "estimated"} variant="compact" />
         </div>
 
-        <div className="grid grid-cols-2 gap-[var(--ct-space-3)] body-xs">
+        <div className="grid grid-cols-2 gap-[var(--ct-space-3)]">
           <div className="flex flex-col gap-0.5">
-            <span className="ct-text-faint">Reported hashrate</span>
+            <span className="body-xs">Reported hashrate</span>
             <span className="text-[length:var(--ct-text-lg)] font-semibold tabular ct-text-strong">
               {m?.reportedHashrateTh != null ? `${m.reportedHashrateTh} TH/s` : "—"}
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="ct-text-faint flex items-center gap-1">
+            <span className="body-xs flex items-center gap-1">
               <AssetIcon variant="btc" size="sm" label="" />
               BTC produced
             </span>
@@ -96,13 +96,13 @@ export function DashboardHealthPanel({
             Fleet {active ? "active" : "idle"}
           </span>
           {m?.lastReportTime ? (
-            <span className="ct-text-faint">· Last report {new Date(m.lastReportTime).toLocaleDateString()}</span>
+            <span className="ct-metric-caption">· Last report {new Date(m.lastReportTime).toLocaleDateString()}</span>
           ) : null}
         </div>
 
         <ChartContainer
           config={MINING_PULSE_CONFIG}
-          className="aspect-auto h-[140px] w-full rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-inset)] p-[var(--ct-space-2)]"
+          className="aspect-auto h-[140px] w-full rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-inset)] p-[var(--ct-space-4)]"
         >
           <BarChart data={barData} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
@@ -123,7 +123,7 @@ export function DashboardHealthPanel({
           </BarChart>
         </ChartContainer>
         {lastBar ? (
-          <span className="body-xs ct-text-faint">
+          <span className="ct-metric-caption">
             Latest month · {typeof lastBar.value === "number" ? lastBar.value.toFixed(6) : lastBar.value} BTC
           </span>
         ) : null}
@@ -133,20 +133,20 @@ export function DashboardHealthPanel({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-[var(--ct-space-2)]">
             <AssetIcon variant="reserve" size="sm" />
-            <span className="stat-label ct-text-muted">Reserve health</span>
+            <span className="ct-bento-label">Reserve health</span>
           </div>
           <ProvenanceBadge kind={btc.reserve.status === "STALE" ? "stale" : "estimated"} variant="compact" />
         </div>
 
         <div className="grid grid-cols-2 gap-[var(--ct-space-3)] body-xs">
           <div className="flex flex-col gap-0.5">
-            <span className="ct-text-faint">Operating reserve</span>
+            <span className="body-xs">Operating reserve</span>
             <span className="text-[length:var(--ct-text-lg)] font-semibold tabular text-[var(--ct-asset-usdc)]">
               {formatUsdc(r?.reserveUsdc) ?? "—"}
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="ct-text-faint">Health</span>
+            <span className="body-xs">Health</span>
             <span
               className={`text-[length:var(--ct-text-sm)] font-medium ${isHealthy ? "text-[var(--ct-status-success)]" : "text-[var(--ct-status-warning)]"}`}
             >
@@ -157,7 +157,7 @@ export function DashboardHealthPanel({
 
         <div className="flex flex-col gap-[var(--ct-space-2)]">
           <div className="flex justify-between items-center body-xs">
-            <span className="ct-text-muted">Electricity runway</span>
+            <span className="body-xs">Electricity runway</span>
             <span className="ct-text-strong font-medium">{monthsCovered} months covered</span>
           </div>
           <Progress

@@ -87,14 +87,14 @@ export function DashboardCapacityPanel({
         <div className="flex items-center justify-between gap-[var(--ct-space-2)]">
           <div className="flex items-center gap-[var(--ct-space-2)]">
             <AssetIcon variant="usdc" size="sm" />
-            <span className="stat-label ct-text-muted">Available capacity</span>
+            <span className="ct-bento-label">Available capacity</span>
           </div>
           <ProvenanceBadge kind={provenance} variant="compact" />
         </div>
         <span className="text-[length:var(--ct-text-3xl)] font-medium tabular tracking-tight leading-none text-[var(--ct-asset-usdc)]">
           {formatUsdc(cap?.availableCapacity) ?? "—"}
         </span>
-        <span className="body-xs ct-text-faint">Subscribed in USDC · vault TVL cap</span>
+        <span className="ct-metric-caption">Subscribed in USDC · vault TVL cap</span>
       </div>
 
       <div className="flex flex-col gap-1.5 pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
@@ -106,9 +106,9 @@ export function DashboardCapacityPanel({
           value={utilizationPct ?? 0}
           max={100}
           label="Vault utilization"
-          fillClassName="bg-[var(--ct-chart-neutral)]"
+          fillClassName="bg-[var(--ct-asset-usdc)]"
         />
-        <div className="flex justify-between mt-1 body-xs ct-text-faint">
+        <div className="flex justify-between mt-1 ct-metric-caption">
           <span>
             Allocated: <span className="ct-text-strong">{formatUsdc(cap?.totalAssets) ?? "—"}</span>
           </span>
@@ -116,7 +116,7 @@ export function DashboardCapacityPanel({
             Available: <span className="text-[var(--ct-asset-usdc)]">{formatUsdc(cap?.availableCapacity) ?? "—"}</span>
           </span>
         </div>
-        <div className="body-xs ct-text-faint">
+        <div className="ct-metric-caption">
           Your allocation: <span className="ct-text-strong">{formatUsdc(pos?.principal) ?? "—"}</span>
         </div>
       </div>
@@ -124,7 +124,7 @@ export function DashboardCapacityPanel({
       <div className="flex flex-col gap-[var(--ct-space-3)] pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[var(--ct-space-2)]">
           <div className="flex flex-col">
-            <span className="body-xs ct-text-muted">Minimum additional</span>
+            <span className="ct-bento-label">Minimum additional</span>
             <span className="body-sm ct-text-strong tabular font-medium">{formatUsdc(sub?.minimumDeposit) ?? "—"}</span>
           </div>
           {ctaState === "eligible" ? (
@@ -140,7 +140,7 @@ export function DashboardCapacityPanel({
             </div>
           )}
         </div>
-        <p className="body-xs ct-text-faint m-0">{cta.helper}</p>
+        <p className="ct-metric-caption m-0">{cta.helper}</p>
       </div>
     </Card>
   );

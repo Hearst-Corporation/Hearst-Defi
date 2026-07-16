@@ -52,9 +52,9 @@ export function DashboardStrategyPanel({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-[var(--ct-space-2)]">
           <AssetIcon variant="btc" size="sm" />
-          <span className="stat-label ct-text-muted">Strategy composition</span>
+          <span className="ct-bento-label">Strategy composition</span>
         </div>
-        <span className="body-xs ct-text-faint">Capital → BTC accumulation</span>
+        <span className="ct-metric-caption">Capital → BTC accumulation</span>
       </div>
 
       <div className="flex flex-col md:flex-row items-start gap-[var(--ct-space-6)]">
@@ -124,11 +124,11 @@ export function DashboardStrategyPanel({
                   {item.value}%
                 </span>
               </div>
-              <span className="body-xs ct-text-faint pl-[calc(16px+var(--ct-space-2))]">{item.role}</span>
+              <span className="ct-metric-caption pl-[calc(16px+var(--ct-space-2))]">{item.role}</span>
             </div>
           ))}
           <div className="pt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)] flex justify-between items-center">
-            <span className="text-[length:var(--ct-text-sm)] ct-text-muted">Destination</span>
+            <span className="body-sm ct-text-muted">Destination</span>
             <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-asset-btc)] tabular-nums">
               Bitcoin accumulation
             </span>

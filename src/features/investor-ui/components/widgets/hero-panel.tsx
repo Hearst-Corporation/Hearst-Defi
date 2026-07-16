@@ -16,6 +16,33 @@ const ACCENT_CLASS: Record<NonNullable<HeroMetric["accent"]>, string> = {
   mining: "text-[var(--ct-asset-mining)]",
 };
 
+const HERO_ASSET_CLASSES: Record<AssetIconVariant, { main: string; soft: string; leftBorder: string; ringBorder: string }> = {
+  btc: {
+    main: "text-[var(--ct-asset-btc)]",
+    soft: "bg-[var(--ct-asset-btc-soft)]",
+    leftBorder: "border-l-[var(--ct-asset-btc-border)]",
+    ringBorder: "border-[var(--ct-asset-btc-border)]",
+  },
+  usdc: {
+    main: "text-[var(--ct-asset-usdc)]",
+    soft: "bg-[var(--ct-asset-usdc-soft)]",
+    leftBorder: "border-l-[var(--ct-asset-usdc-border)]",
+    ringBorder: "border-[var(--ct-asset-usdc-border)]",
+  },
+  mining: {
+    main: "text-[var(--ct-asset-mining)]",
+    soft: "bg-[var(--ct-asset-mining-soft)]",
+    leftBorder: "border-l-[var(--ct-asset-mining-border)]",
+    ringBorder: "border-[var(--ct-asset-mining-border)]",
+  },
+  reserve: {
+    main: "text-[var(--ct-asset-reserve)]",
+    soft: "bg-[var(--ct-asset-reserve-soft)]",
+    leftBorder: "border-l-[var(--ct-asset-reserve-border)]",
+    ringBorder: "border-[var(--ct-asset-reserve-border)]",
+  },
+};
+
 export function HeroPanel({
   title,
   mainValue,
@@ -33,23 +60,26 @@ export function HeroPanel({
     current: number;
     total: number;
     label: string;
+    fillClassName?: string;
   };
   action?: React.ReactNode;
   asset?: AssetIconVariant;
 }) {
+  const assetClasses = HERO_ASSET_CLASSES[asset];
+
   return (
-    <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)] border-l-[3px] border-l-[var(--ct-asset-btc-border)]">
+    <Card className={`w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)] border-l-[3px] ${assetClasses.leftBorder}`}>
       <div className="flex items-start justify-between gap-[var(--ct-space-4)]">
         <div className="flex flex-col gap-[var(--ct-space-1)]">
           <div className="flex items-center gap-[var(--ct-space-2)]">
-            <span className="stat-label ct-text-muted">{title}</span>
+            <span className="ct-bento-label">{title}</span>
             <ProvenanceBadge kind={provenance} variant="compact" />
           </div>
-          <span className="text-[length:var(--ct-text-3xl)] font-medium tabular tracking-tight leading-none text-[var(--ct-asset-btc)]">
+          <span className={`text-[length:var(--ct-text-3xl)] font-medium tabular tracking-tight leading-none ${assetClasses.main}`}>
             {mainValue}
           </span>
         </div>
-        <div className="flex shrink-0 items-center justify-center w-12 h-12 rounded-full border border-[var(--ct-asset-btc-border)] bg-[var(--ct-asset-btc-soft)]">
+        <div className={`flex shrink-0 items-center justify-center w-12 h-12 rounded-full border ${assetClasses.ringBorder} ${assetClasses.soft}`}>
           <AssetIcon variant={asset} size="lg" />
         </div>
       </div>
@@ -79,7 +109,12 @@ export function HeroPanel({
                   {progress.current} / {progress.total}
                 </span>
               </div>
-              <Progress value={(progress.current / progress.total) * 100} max={100} label={progress.label} />
+              <Progress
+                value={(progress.current / progress.total) * 100}
+                max={100}
+                label={progress.label}
+                fillClassName={progress.fillClassName}
+              />
             </div>
           )}
           {action && <div className="shrink-0 ml-auto">{action}</div>}

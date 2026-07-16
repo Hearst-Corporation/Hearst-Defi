@@ -38,7 +38,7 @@ export function AccumulationChartPanel({
       <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-4)]">
         <div className="flex items-center gap-[var(--ct-space-2)]">
           <AssetIcon variant="btc" size="sm" />
-          <span className="stat-label ct-text-muted">BTC accumulation</span>
+          <span className="ct-bento-label">BTC accumulation</span>
         </div>
         <p className="body-sm ct-text-muted m-0">Accumulation history will appear once mining credits are indexed.</p>
       </Card>
@@ -68,9 +68,9 @@ export function AccumulationChartPanel({
         <div className="flex flex-col gap-[var(--ct-space-1)]">
           <div className="flex items-center gap-[var(--ct-space-2)]">
             <AssetIcon variant="btc" size="sm" />
-            <span className="stat-label ct-text-muted">BTC accumulation</span>
+            <span className="ct-bento-label">BTC accumulation</span>
           </div>
-          {termLabel ? <span className="body-xs ct-text-faint">{termLabel}</span> : null}
+          {termLabel ? <span className="ct-metric-caption">{termLabel}</span> : null}
         </div>
         <span className="flex items-center gap-[var(--ct-space-3)]">
           <Link href="/btc" className="body-xs ct-link-accent whitespace-nowrap">
@@ -82,7 +82,7 @@ export function AccumulationChartPanel({
 
       <ChartContainer
         config={ACCUMULATION_CHART_CONFIG}
-        className="aspect-auto h-[var(--ct-chart-investor-main)] w-full min-w-0 rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-inset)] p-[var(--ct-space-2)]"
+        className="aspect-auto h-[var(--ct-chart-investor-main)] w-full min-w-0 rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-inset)] p-[var(--ct-space-4)]"
       >
         <AreaChart data={data} margin={{ left: 4, right: 8, top: 12, bottom: 0 }}>
           <defs>
@@ -162,7 +162,7 @@ export function AccumulationChartPanel({
         </AreaChart>
       </ChartContainer>
 
-      <p className="body-xs ct-text-faint m-0">
+      <p className="ct-metric-caption m-0">
         Historical accumulation only — maturity target is product-defined, not guaranteed.
       </p>
     </Card>
