@@ -14,7 +14,7 @@ const BADGE: Record<CoverageView["provenance"], "live" | "estimated" | "manual" 
 
 const HEADER = {
   eyebrow: "Mining cash-flow evidence",
-  title: "Yield source — Bitcoin mining revenue",
+  title: "Accumulation source — Bitcoin mining revenue",
 } as const;
 
 const PANEL_CLASS =
@@ -131,7 +131,7 @@ export function MiningCashFlowEvidence({
       {!bare && (
         <BentoHeader
           sectionLed={sectionLed}
-          eyebrow={sectionLed ? HEADER.eyebrow : "Yield Evidence"}
+          eyebrow={sectionLed ? HEADER.eyebrow : "Accumulation Evidence"}
           title={sectionLed ? HEADER.title : "Mining Revenue"}
           provenance={BADGE[provenance]}
         />
@@ -143,9 +143,9 @@ export function MiningCashFlowEvidence({
 
       <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 bg-surface-inset">
         <KpiCell
-          label="Distribution coverage"
+          label="Operating coverage"
           value={ratioLabel}
-          sublabel="net mining cash ÷ target"
+          sublabel="net mining cash ÷ electricity"
           accent
           className="border-b border-[var(--ct-border-soft)] sm:border-r lg:border-r"
         />

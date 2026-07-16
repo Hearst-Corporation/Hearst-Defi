@@ -3,7 +3,8 @@
  *
  * buildPortfolioContextBlock(userId) must:
  *   - resolve the Investor strictly from the PASSED userId (never the session),
- *   - aggregate value / YTD yield / next distribution / allocation,
+ *   - aggregate value / accumulated-value YTD / pocket allocation (v3.0: no
+ *     periodic distribution is ever asserted),
  *   - qualify each figure with a provenance label (live / estimated / stale),
  *   - return null when there is no investor OR no positions,
  *   - never surface another investor's figures (per-user scoping).
@@ -156,7 +157,7 @@ describe("buildPortfolioContextBlock — provenance qualifier per figure", () =>
     const block = await buildPortfolioContextBlock(USER_A, NOW);
     expect(block).not.toBeNull();
     expect(block).toContain("(live)"); // total value
-    expect(block).toContain("(estimated)"); // YTD yield + next distribution
+    expect(block).toContain("(estimated)"); // accumulated-value YTD figure
   });
 
   it("labels figures 'stale' when the latest snapshot is older than the SLO", async () => {
@@ -186,21 +187,25 @@ describe("buildPortfolioContextBlock — provenance qualifier per figure", () =>
 });
 
 // ---------------------------------------------------------------------------
-// Allocation + cadence content
+// Allocation content (no distribution cadence under v3.0)
 // ---------------------------------------------------------------------------
 
 describe("buildPortfolioContextBlock — structured content", () => {
   it("includes a compact allocation breakdown from the snapshot", async () => {
     const block = await buildPortfolioContextBlock(USER_A, NOW);
-    expect(block).toContain("mining 35%");
-    expect(block).toContain("USDC base 45%");
-    expect(block).toContain("BTC tactique 20%");
+    // v3.0 pocket labels — legacy snapshot bucket keys map onto the 3 pockets.
+    expect(block).toContain("Mining Power 35%");
+    expect(block).toContain("Reserve USDC 45%");
+    expect(block).toContain("BTC Pouch 20%");
   });
 
-  it("includes the next-distribution end-of-month date", async () => {
+  it("never asserts a periodic distribution (v3.0 accumulation note)", async () => {
     const block = await buildPortfolioContextBlock(USER_A, NOW);
-    // June 2026 EOM = 2026-06-30.
-    expect(block).toContain("2026-06-30");
+    expect(block).not.toBeNull();
+    expect(block).not.toContain("distribution");
+    expect(block).not.toContain("Prochaine");
+    // No fabricated end-of-month cadence date.
+    expect(block).not.toContain("2026-06-30");
   });
 
   it("stays within the block length cap", async () => {

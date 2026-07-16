@@ -22,7 +22,7 @@ export default async function ActivityPage() {
         <PortfolioLeafHeader
           titleLead="Recent"
           titleAccent="Activity"
-          kicker="DEPOSITS · PAYOUTS · WITHDRAWALS"
+          kicker="DEPOSITS · PROCEEDS · WITHDRAWALS"
         />
         <RecentActivity
           transactions={recentTransactions}

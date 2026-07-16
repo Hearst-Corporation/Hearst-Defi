@@ -55,7 +55,7 @@ const DEPLOYED_CONTRACTS: ReadonlyArray<DeployedContract> = [
     deployTxHash: EVENT_LOGGER_DEPLOYMENT.deployTx as `0x${string}`,
     deployBlock: EVENT_LOGGER_DEPLOYMENT.deployBlock.toLocaleString(),
     description:
-      "Permanent on-chain record of rebalancing, distribution, and state-change events. Published by the Hearst manager today, moving to a multisig at production deployment.",
+      "Permanent on-chain record of rebalancing, take-profit, settlement, and state-change events. Published by the Hearst manager today, moving to a multisig at production deployment.",
     sourceVerified: EVENT_LOGGER_DEPLOYMENT.meta.provenanceVerified,
   },
   {

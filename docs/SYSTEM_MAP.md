@@ -29,6 +29,12 @@ avant de toucher la logique. UI/CSS → `docs/UI_CONTEXT.md`.
 L'engine ne remonte jamais ; les loaders n'appellent jamais l'UI ; l'UI ne touche
 jamais Prisma directement.
 
+> **Engine v3.0.** L'engine modélise désormais la **mining note v3.0** (économie mining,
+> take-profit, courbe de vending, curtailment, projection d'accumulation BTC) — pas
+> l'ancien Scenario Lab. La **route Scenario Lab et ses métadonnées preset/routing ont été
+> retirées** (le moteur reste consommé par les loaders/data/UI) ; l'agent batch
+> `scenario-narrative` subsiste et narre l'accumulation BTC. `METHODOLOGY_VERSION = "v3.0"`.
+
 ## Auth (deux niveaux, le serveur fait foi)
 
 | Niveau | Fichier | Voit | Autorité |
@@ -67,8 +73,17 @@ ChartTimeSelector, TimeseriesSection.
 
 ## On-chain (TESTNET uniquement)
 
-- Vault = **Model B** : wrapper ERC-4626 sur du **cash USDC**, yield exogène injecté ;
-  le mining n'est PAS on-chain (advisory). `contracts/src/HearstYieldVault.sol`.
+- **Produit actif = mining note v3.0** (ADR-019, `docs/methodology/v3.0.md`) sur
+  **`PermissionedDynaVault v2.1`** : 3 poches on-chain **40/27/33** (B1 Mining Power / B2
+  BTC Pouch / B3 Reserve USDC), asset **USDC** (6 déc.), BTC accumulé sur 24 mois et livré à
+  l'échéance — **aucune distribution périodique, aucun APY fixe**. Moteur mensuel keeper
+  (`rebalance`/`payElectricity`/`reportMiningMetrics`, take-profit, vending, curtailment),
+  kill-switch `KEEPER_ENABLED` (défaut **OFF**), human-gated, jamais exposé au chat/agents.
+  **Interface = SOURCE DE VÉRITÉ `docs/VAULT_SPEC_V2.1.md`** ; adaptateur unique
+  `src/lib/chain/dynavault.ts`.
+- **Contrat écrit mais PAS déployé** (adresses `TBD`). Tant que
+  `NEXT_PUBLIC_DYNAVAULT_ADDRESS` n'est pas posée, l'app tourne en mode **`legacy`** sur
+  l'ancien ERC-4626 `contracts/src/HearstYieldVault.sol` (wrapper Model B sur cash USDC).
 - Aussi `EventLogger.sol` + `PoRRegistry.sol`. Déployés **Base Sepolia testnet**.
 - **Mainnet gaté sur audit Spearbit + remédiation** (ADR-006) — lever le lock n'autorise
   PAS du code mainnet non audité.

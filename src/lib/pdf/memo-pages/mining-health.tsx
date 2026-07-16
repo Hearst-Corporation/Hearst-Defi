@@ -82,7 +82,7 @@ export function MiningHealthPage({
         <KpiCell
           label="Margin score"
           value={`${marginScore} / 100`}
-          hint="Engine-derived; lower triggers R2"
+          hint="Engine-derived; low margin informs curtailment"
           // Engine composite — estimated.
           provenance="estimated"
         />
@@ -124,13 +124,14 @@ export function MiningHealthPage({
       <Text style={styles.h2}>Operator commentary</Text>
       <Commentary>
         Mining margin score is the engine-derived composite of hashprice, energy
-        cost and uptime. It drives the R2 rebalancing rule when it crosses the
-        configured threshold. During the period under review, margin stayed
-        within the band that keeps the Mining Power pocket productive as the
-        note's primary BTC-accumulation engine, funded by the Reserve USDC
-        pocket's electricity account. On-chain attestation will replace the
-        current paper attestation in Phase 2 once the EventLogger contract is
-        live on Base Sepolia.
+        cost and uptime. When BTC price falls below the configured pre/post-halving
+        threshold, the Mining Power pocket is curtailed on-chain to protect
+        margin. During the period under review, margin stayed within the band
+        that keeps the Mining Power pocket productive as the note's primary
+        BTC-accumulation engine, with its electricity settled on-chain through
+        the electricity account. On-chain attestation will replace the current
+        paper attestation in Phase 2 once the EventLogger contract is live on
+        Base Sepolia.
       </Commentary>
 
       <PageFooter pageNumber={pageNumber} totalPages={totalPages} />

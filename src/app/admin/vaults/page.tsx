@@ -161,7 +161,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                   <TableHeader className={TABLE_HEAD}>
                     Principal vs Capacity
                   </TableHeader>
-                  <TableHeader className={TABLE_HEAD}>Target APY</TableHeader>
+                  <TableHeader className={TABLE_HEAD}>Est. Return</TableHeader>
                   <TableHeader className={`${TABLE_HEAD} pr-5 text-right`}>
                     <span className="sr-only">Actions</span>
                   </TableHeader>
@@ -220,7 +220,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                         </div>
                       </TableCell>
 
-                      {/* Target APY */}
+                      {/* Estimated return band (accumulated BTC, not a fixed APY) */}
                       <TableCell className="align-top">
                         <div className="flex items-center gap-1.5">
                           <ApyRange low={apyLow} high={apyHigh} precision={1} />

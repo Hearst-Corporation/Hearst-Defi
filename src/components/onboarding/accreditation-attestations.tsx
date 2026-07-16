@@ -24,7 +24,7 @@ const ATTESTATIONS = [
   {
     id: "not-guaranteed",
     label:
-      "I understand that projected APY ranges (8–15%) are target estimates based on stated assumptions and are not a commitment of future returns.",
+      "I understand this is a BTC-accumulation mining note that accumulates Bitcoin over a 24-month term and delivers BTC at maturity — it makes no periodic cash distribution and carries no fixed APY. Estimated return ranges (8–15%, expressed in accumulated BTC) are estimates based on stated assumptions and are not a commitment of future returns.",
   },
 ] as const;
 

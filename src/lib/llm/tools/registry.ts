@@ -451,7 +451,7 @@ async function runProductConstructionTool(input: unknown): Promise<{
       `- inferred vault: ${result.vault.ticker} (${result.vault.label})`,
       `- BTC live: $${Math.round(result.market.btcUsd).toLocaleString("en-US")} · hashprice $${result.market.hashpriceUsdPerThDay.toFixed(3)}/TH/day`,
       `- Telegram machines: ${result.telegram.machineCount}${result.telegram.topMachine ? ` (top ${result.telegram.topMachine})` : ""}`,
-      `- target APY range: ${lo}–${hi}% (Monte-Carlo seed ${result.quant.seed}, ${result.quant.paths} paths)`,
+      `- estimated return range: ${lo}–${hi}% (BTC accumulated over the term, not a distributed APY — Monte-Carlo seed ${result.quant.seed}, ${result.quant.paths} paths)`,
       `- P(below floor ${result.quant.floorApyPct}%): ${result.quant.probBelowFloorPct}%`,
       `- no product created/deployed/sent · ${result.disclaimer}`,
     ],

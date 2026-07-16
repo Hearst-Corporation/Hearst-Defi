@@ -5,8 +5,22 @@
 
 import { SHARE_CLASS_A, SHARE_CLASS_B, type ShareClassTerms } from "./share-class";
 import type { AllocationBucket, VaultId, VaultMode } from "./types";
+import {
+  B1_MINING_ALLOCATION_BPS,
+  B2_BTC_ALLOCATION_BPS,
+  B3_USDC_ALLOCATION_BPS,
+  PRODUCT_DURATION_MONTHS,
+} from "@/lib/products/dynavault-factsheet";
 
 export type { VaultId } from "./types";
+
+// The flagship note's 3-pocket allocation has ONE source of truth: the bps
+// constants on the factsheet (PermissionedDynaVault v2.1 §Appendix). The vault
+// definition below DERIVES its percentages from them — it never restates
+// 40 / 27 / 30 as literals, so a change to the factsheet flows through here.
+const B1_MINING_PCT = B1_MINING_ALLOCATION_BPS / 100; // 40
+const B2_BTC_PCT = B2_BTC_ALLOCATION_BPS / 100; // 27
+const B3_USDC_PCT = B3_USDC_ALLOCATION_BPS / 100; // 33
 
 // Provenance vocabulary mirrors CLAUDE.md #2 (Live / Oracle / Attested /
 // Estimated / Manual / Stale). The default here is the worst-case label a vault
@@ -85,22 +99,23 @@ export const VAULT_YIELD: VaultDefinition = {
     "Mining-backed BTC accumulation note: real Bitcoin mining structured across three pockets (mining power, BTC, USDC reserve), accumulating BTC over a 24-month term with rule-based take-profit; accumulated BTC is settled at maturity, with no periodic cash distribution.",
   apyTarget: { low: 8, high: 15 },
   baseMode: "balanced",
-  // Three-pocket target (v2.1 §Appendix, bps 4000 / 2700 / 3300): B1 mining 40%,
-  // B2 BTC 27%, B3 USDC reserve 33%. The legacy stable_reserve sleeve is retired
-  // (0) — the single reserve is the USDC pocket carried by usdc_base.
+  // Three-pocket target — DERIVED from the factsheet bps constants (single
+  // source of truth): B1 mining 40%, B2 BTC 27%, B3 USDC reserve 33%. The legacy
+  // stable_reserve sleeve is retired (0) — the single reserve is the USDC pocket
+  // carried by usdc_base.
   allocationTargets: {
-    mining: 40,
-    btc_tactical: 27,
-    usdc_base: 33,
+    mining: B1_MINING_PCT,
+    btc_tactical: B2_BTC_PCT,
+    usdc_base: B3_USDC_PCT,
     stable_reserve: 0,
   },
   shareClasses: [SHARE_CLASS_A, SHARE_CLASS_B],
   defaultProvenance: "estimated",
   methodologyVersion: METHODOLOGY_V3,
-  productDurationMonths: 24,
+  productDurationMonths: PRODUCT_DURATION_MONTHS,
   assumptions: [
-    "Three-pocket structure — 40% mining power, 27% BTC, 33% USDC reserve — driven by real Bitcoin mining; $250k minimum ticket and 60-day soft lock-up are contractual, not enforced on-chain.",
-    "Return accrues as BTC accumulated over a 24-month term with rule-based take-profit; there is no periodic cash distribution — accumulated BTC is settled at maturity.",
+    `Three-pocket structure — ${B1_MINING_PCT}% mining power, ${B2_BTC_PCT}% BTC, ${B3_USDC_PCT}% USDC reserve — driven by real Bitcoin mining; $250k minimum ticket and 60-day soft lock-up are contractual, not enforced on-chain.`,
+    `Return accrues as BTC accumulated over a ${PRODUCT_DURATION_MONTHS}-month term with rule-based take-profit; there is no periodic cash distribution — accumulated BTC is settled at maturity.`,
     "Estimated target range is expressed in accumulated BTC, not a distributed cash yield. Outputs are projections, not guaranteed. Past performance does not predict future results.",
   ],
 };

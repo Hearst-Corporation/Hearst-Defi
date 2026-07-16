@@ -7,7 +7,12 @@ import {
 import { Card } from "@/components/catalyst/card";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { BTC_MINING_PERFORMANCE_VAULT } from "@/lib/products/btc-mining-performance-vault";
-import { buildBtcMiningVaultBrief } from "@/lib/product-workspace/btc-mining-vault-preset";
+import {
+  ALLOCATION_TOTAL_BPS,
+  B1_MINING_ALLOCATION_BPS,
+  B2_BTC_ALLOCATION_BPS,
+  B3_USDC_ALLOCATION_BPS,
+} from "@/lib/products/dynavault-factsheet";
 
 /**
  * Admin · BTC Mining Performance Vault — read-only product surface.
@@ -15,13 +20,17 @@ import { buildBtcMiningVaultBrief } from "@/lib/product-workspace/btc-mining-vau
  * Renders the committed product (`src/lib/products/*`) as an admin documentation
  * page on the canon shell (AdminPageShell + AdminSectionCard, DS tokens only).
  *
- * Honesty (non-negotiables #1, #5, #10; doc §12, §22):
- *  - figures are READ from BTC_MINING_PERFORMANCE_VAULT;
- *  - v2 is a mining NOTE: the estimated-yield band and the total target are BTC
- *    ACCUMULATED over the term (rule-based take-profit), NEVER a periodic cash
- *    distribution, and the two bands are NEVER summed into a single headline;
- *  - the mining floor (30%) is always visible; configured values are labelled
- *    "configured, not validated" and gated by a warning strip.
+ * Honesty (non-negotiables #1, #5, #10; methodology v3.0 / ADR-019):
+ *  - this is a mining NOTE: BTC is ACCUMULATED over the ~24-month term (rule-based
+ *    take-profit) and delivered at maturity — there is NO periodic cash
+ *    distribution and NO fixed APY;
+ *  - the estimated-return band and the total target are BOTH ranges, expressed as
+ *    accumulated BTC, and are NEVER summed into a single headline;
+ *  - allocation is FIXED on-chain across three pockets — B1 Mining Power 40%,
+ *    B2 BTC Pouch 27%, B3 Reserve USDC 33% (from the factsheet bps constants);
+ *  - outcomes are shaped by three on-chain mechanisms (take-profit / vending /
+ *    curtailment), NOT by reallocating pockets;
+ *  - configured values are labelled "configured, not validated" behind a warning.
  *
  * No data fetch, no record creation, no run, no deploy implied.
  */
@@ -32,6 +41,10 @@ function pct(fraction: number): number {
   return Math.round(fraction * 100);
 }
 
+function bpsToPct(bps: number): number {
+  return Math.round((bps / ALLOCATION_TOTAL_BPS) * 100);
+}
+
 export const metadata = {
   title: "BTC Mining Performance Vault — Hearst Connect",
 };
@@ -39,33 +52,55 @@ export const metadata = {
 export default async function BtcMiningPerformanceVaultPage() {
   await requireAdmin();
 
-  const brief = buildBtcMiningVaultBrief(PRODUCT);
-  const a = PRODUCT.allocation;
+  // v3.0 objective — held in-page (not the LLM-fallback brief, whose legacy
+  // "monthly distribution paid in USDC" copy contradicts the accumulation model).
+  const objective =
+    "Package a real, mining-first Bitcoin operation into an investable performance cycle: BTC accumulated over the term across three fixed on-chain pockets and delivered at maturity, an inclusive full-cycle performance target, an early-exit mechanism, and a capital-first recovery extension — target and expected, risk-adjusted and collateral-protected, never guaranteed and never a periodic cash distribution.";
 
-  const sleeves: ReadonlyArray<{ id: string; label: string; range: string; note: string }> = [
+  // Fixed on-chain allocation — three pockets, 40/27/33, from the factsheet bps
+  // constants (never re-hardcoded here). Allocation does NOT float across bands;
+  // outcomes are shaped by the three mechanisms below, not by reallocation.
+  const pockets: ReadonlyArray<{
+    id: string;
+    label: string;
+    weight: string;
+    note: string;
+  }> = [
     {
-      id: "mining",
-      label: "Mining sleeve",
-      range: `${pct(a.mining.min)}–${pct(a.mining.max)}%`,
-      note: `Structural floor ${pct(a.mining.floor)}% — productive core.`,
+      id: "b1",
+      label: "B1 · Mining Power",
+      weight: `${bpsToPct(B1_MINING_ALLOCATION_BPS)}%`,
+      note: "Productive core — net mining margin accrues to the note as BTC.",
     },
     {
-      id: "btc",
-      label: "BTC holding / collateral",
-      range: `${pct(a.btcHoldingCollateral.min)}–${pct(a.btcHoldingCollateral.max)}%`,
-      note: "Core + tactical combined; backs USDC borrowing.",
+      id: "b2",
+      label: "B2 · BTC Pouch",
+      weight: `${bpsToPct(B2_BTC_ALLOCATION_BPS)}%`,
+      note: "BTC accumulated over the term; realised at configured take-profit tiers.",
     },
     {
-      id: "stable",
-      label: "Stable funding reserve",
-      range: `${pct(a.stableFundingReserve.min)}–${pct(a.stableFundingReserve.max)}%`,
-      note: "Funds power/ops from the cheapest source.",
+      id: "b3",
+      label: "B3 · Reserve USDC",
+      weight: `${bpsToPct(B3_USDC_ALLOCATION_BPS)}%`,
+      note: "Depletes along a fixed vending curve to fund operations.",
+    },
+  ];
+
+  const mechanisms: ReadonlyArray<{ id: string; label: string; note: string }> = [
+    {
+      id: "take-profit",
+      label: "Take-profit (B2)",
+      note: "BTC realised at configured price tiers — a realisation event, not an LP distribution.",
     },
     {
-      id: "overlay",
-      label: "Yield overlay",
-      range: `${pct(a.yieldOverlay.min)}–${pct(a.yieldOverlay.max)}%`,
-      note: "Excess liquidity only.",
+      id: "vending",
+      label: "Vending curve (B3)",
+      note: "Reserve USDC depletes along a fixed schedule across the term to fund operations.",
+    },
+    {
+      id: "curtailment",
+      label: "Curtailment (B1)",
+      note: "Mining curtailed when BTC sits below the configured pre/post-halving threshold.",
     },
   ];
 
@@ -75,7 +110,7 @@ export default async function BtcMiningPerformanceVaultPage() {
       titleAccent="Performance Vault"
       contextLabel="Products · configured, not validated"
     >
-      {/* Warning strip — doc §22 mandatory investor-facing notice. */}
+      {/* Warning strip — mandatory investor-facing notice. */}
       <AdminSectionCard ariaLabel="Status warning">
         <div className="flex items-start gap-3 border-l-2 border-[var(--ct-status-warning)] p-5">
           <span className="ct-bento-label text-[var(--ct-status-warning)]">
@@ -95,14 +130,14 @@ export default async function BtcMiningPerformanceVaultPage() {
         ariaLabel="Thesis"
       >
         <div className="flex flex-col gap-5 p-5">
-          <p className="ct-metric-caption">{brief.objective}</p>
+          <p className="ct-metric-caption">{objective}</p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Card
               material="flat"
               hoverOverlay={false}
               contentClassName="flex flex-col gap-1"
             >
-              <span className="ct-bento-label">Estimated yield target</span>
+              <span className="ct-bento-label">Estimated return band</span>
               <span className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
                 {pct(PRODUCT.monthlyDistributionTargetAnnualized.min)}–
                 {pct(PRODUCT.monthlyDistributionTargetAnnualized.max)}%
@@ -110,7 +145,8 @@ export default async function BtcMiningPerformanceVaultPage() {
               <span className="ct-metric-caption">
                 Mining note — BTC accumulated over the ~
                 {PRODUCT.targetDurationMonths}-month term with rule-based
-                take-profit. Not distributed, not guaranteed.
+                take-profit and delivered at maturity. Not distributed, not
+                guaranteed.
               </span>
             </Card>
             <Card
@@ -127,36 +163,58 @@ export default async function BtcMiningPerformanceVaultPage() {
                 {pct(PRODUCT.totalPerformanceTarget.min)}–
                 {pct(PRODUCT.totalPerformanceTarget.max)}% total target over ~
                 {PRODUCT.targetDurationMonths} months, inclusive of the
-                accumulation layer.
+                accumulation band.
               </span>
             </Card>
           </div>
           <p className="ct-metric-caption italic">
-            The total target is inclusive of the estimated-yield accumulation
-            layer — the two bands describe the same cycle and never sum.
+            Both bands are ranges expressed as accumulated BTC — the total target
+            is inclusive of the estimated-return band and the two never sum. There
+            is no periodic cash distribution and no fixed APY.
           </p>
         </div>
       </AdminSectionCard>
 
-      {/* Allocation sleeves */}
+      {/* Allocation — three fixed on-chain pockets, 40/27/33 */}
       <AdminSectionCard
-        title="Allocation bands"
-        subtitle="Indicative regimes, not fixed weights — risk-adjusted at runtime."
-        ariaLabel="Allocation bands"
+        title="On-chain allocation"
+        subtitle="Three pockets, fixed on-chain — 40 / 27 / 33. Outcomes are shaped by mechanisms, not by reallocation."
+        ariaLabel="On-chain allocation"
       >
-        <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
-          {sleeves.map((s) => (
+        <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-3">
+          {pockets.map((p) => (
             <Card
-              key={s.id}
+              key={p.id}
               material="flat"
               hoverOverlay={false}
               contentClassName="flex flex-col gap-1"
             >
-              <span className="ct-bento-label">{s.label}</span>
+              <span className="ct-bento-label">{p.label}</span>
               <span className="ct-metric-value tabular-nums text-[var(--ct-accent)]">
-                {s.range}
+                {p.weight}
               </span>
-              <span className="ct-metric-caption">{s.note}</span>
+              <span className="ct-metric-caption">{p.note}</span>
+            </Card>
+          ))}
+        </div>
+      </AdminSectionCard>
+
+      {/* Mechanisms — the three on-chain levers that shape outcomes */}
+      <AdminSectionCard
+        title="Mechanisms"
+        subtitle="Take-profit, vending curve, curtailment — configured contract values, never a performance claim."
+        ariaLabel="Mechanisms"
+      >
+        <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-3">
+          {mechanisms.map((m) => (
+            <Card
+              key={m.id}
+              material="flat"
+              hoverOverlay={false}
+              contentClassName="flex flex-col gap-1"
+            >
+              <span className="ct-bento-label">{m.label}</span>
+              <span className="ct-metric-caption">{m.note}</span>
             </Card>
           ))}
         </div>
@@ -165,45 +223,40 @@ export default async function BtcMiningPerformanceVaultPage() {
       {/* Structural facts */}
       <AdminSectionCard
         title="Structure"
-        subtitle="Cycle duration, mining floor, BTC collateral role, recovery — configured."
+        subtitle="Term, allocation, BTC delivery, recovery — configured."
         ariaLabel="Structure"
       >
         <ul className="flex flex-col gap-2 p-5 ct-metric-caption">
           <li>
-            • Target cycle:{" "}
+            • Term:{" "}
             <span className="text-[var(--ct-text-strong)]">
               ~{PRODUCT.targetDurationMonths} months
             </span>{" "}
-            (early closure on target hit).
+            — BTC accumulated over the term and delivered at maturity (early
+            closure on target hit).
           </li>
           <li>
-            • Mining floor:{" "}
+            • Fixed allocation:{" "}
             <span className="text-[var(--ct-text-strong)]">
-              {pct(a.mining.floor)}%
+              {bpsToPct(B1_MINING_ALLOCATION_BPS)} /{" "}
+              {bpsToPct(B2_BTC_ALLOCATION_BPS)} /{" "}
+              {bpsToPct(B3_USDC_ALLOCATION_BPS)}
             </span>{" "}
-            structural — sub-floor only under protection/recovery governance.
+            (B1 Mining Power / B2 BTC Pouch / B3 Reserve USDC), set on-chain.
           </li>
           <li>
-            • BTC holding / collateral:{" "}
+            • Return delivery:{" "}
             <span className="text-[var(--ct-text-strong)]">
-              {pct(a.btcHoldingCollateral.min)}–{pct(a.btcHoldingCollateral.max)}%
+              accumulated BTC at maturity
             </span>{" "}
-            (core + tactical combined).
+            — no periodic cash distribution, no fixed APY.
           </li>
           <li>
-            • Stable funding reserve:{" "}
+            • Minimum ticket &amp; soft lock-up:{" "}
             <span className="text-[var(--ct-text-strong)]">
-              {pct(a.stableFundingReserve.min)}–
-              {pct(a.stableFundingReserve.max)}%
+              contractual / applicative
             </span>{" "}
-            — never auto-spent first.
-          </li>
-          <li>
-            • Yield overlay:{" "}
-            <span className="text-[var(--ct-text-strong)]">
-              {pct(a.yieldOverlay.min)}–{pct(a.yieldOverlay.max)}%
-            </span>{" "}
-            on genuine excess liquidity only.
+            — not enforced on-chain (on-chain gates are the TVL cap + whitelist).
           </li>
           <li>
             • Recovery extension:{" "}

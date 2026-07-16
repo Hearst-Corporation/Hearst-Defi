@@ -112,10 +112,9 @@ describe("POINT 2 — sentinel tx hashes are filtered before any explorer link",
   });
 
   const ledgerSurfaces: Array<{ file: string; gate: RegExp }> = [
-    {
-      file: "src/components/portfolio/distrib-calendar.tsx",
-      gate: /!isPlaceholderTxHash\(/,
-    },
+    // NOTE: portfolio/distrib-calendar.tsx was retired with the v3.0 mining-note
+    // model (no periodic cash distribution) — the surface no longer exists, so
+    // it is no longer part of this contract.
     {
       file: "src/components/admin/cockpit/live-ops.tsx",
       gate: /!isPlaceholderTxHash\(/,

@@ -49,19 +49,6 @@ function toNumber(v: unknown): number {
   return 0;
 }
 
-/** Next UTC end-of-month boundary from `now` (matches portfolio.ts cadence). */
-function nextEndOfMonth(now: Date): Date {
-  const eom = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 0),
-  );
-  if (now.getUTCDate() === eom.getUTCDate()) {
-    return new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 2, 0, 23, 59, 59, 0),
-    );
-  }
-  return eom;
-}
-
 /**
  * Human-readable provenance qualifier appended after each figure so the model
  * can explain freshness ("live", "estimated", "stale") truthfully.
@@ -98,11 +85,18 @@ function fmtDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
+// v3.0 mining note = 3 on-chain pockets (B1 Mining Power 40% / B2 BTC Pouch 27%
+// / B3 Reserve USDC 33%). Legacy four-sleeve snapshot keys are kept as fallbacks
+// so historical snapshots still render a human label rather than a raw bucket id.
 const ALLOCATION_LABELS: Record<string, string> = {
-  mining: "mining",
-  usdc_base: "USDC base",
-  btc_tactical: "BTC tactique",
-  stable_reserve: "reserve stable",
+  mining_power: "Mining Power",
+  btc_pouch: "BTC Pouch",
+  reserve_usdc: "Reserve USDC",
+  // legacy four-sleeve keys (pre-v3.0 snapshots)
+  mining: "Mining Power",
+  usdc_base: "Reserve USDC",
+  btc_tactical: "BTC Pouch",
+  stable_reserve: "Reserve USDC",
 };
 
 // ---------------------------------------------------------------------------
@@ -111,8 +105,10 @@ const ALLOCATION_LABELS: Record<string, string> = {
 
 /**
  * Build a compact, structured text block describing the passed user's OWN
- * portfolio (value, YTD yield, next distribution, allocation breakdown), each
- * figure carrying a provenance qualifier (live / estimated / stale / …).
+ * portfolio (value, accumulation to date, pocket allocation breakdown), each
+ * figure carrying a provenance qualifier (live / estimated / stale / …). The
+ * v3.0 mining note accumulates BTC to maturity — there is no periodic cash
+ * distribution to surface, so this block never asserts a "next distribution".
  *
  * Returns null when there is nothing to surface: no Investor row for this user,
  * or an investor with zero positions (a brand-new account has no portfolio to
@@ -169,7 +165,8 @@ export async function buildPortfolioContextBlock(
     0,
   );
 
-  // --- YTD yield (realised distributions + accrued, like loadPortfolio) ---
+  // --- Value accumulated YTD (realised ledger + accrued, like loadPortfolio) ---
+  // v3.0: this is BTC-accumulation value to date, NOT a distributed yield.
   const totalYieldYtdUsdc =
     ytdTxs.reduce((sum, t) => sum + toNumber(t.amountUsdc), 0) +
     positions.reduce((sum, p) => sum + toNumber(p.accruedYieldUsdc), 0);
@@ -197,10 +194,7 @@ export async function buildPortfolioContextBlock(
     `- Valeur totale : ${fmtUsdc(totalValueUsdc)} USDC (${qualifierLabel(valueProvenance)})`,
   );
   lines.push(
-    `- Rendement cumule YTD : ${fmtUsdc(totalYieldYtdUsdc)} USDC (${qualifierLabel(yieldProvenance)})`,
-  );
-  lines.push(
-    `- Prochaine distribution : ${fmtDate(nextEndOfMonth(now))} (estimated)`,
+    `- Valeur accumulee YTD : ${fmtUsdc(totalYieldYtdUsdc)} USDC (${qualifierLabel(yieldProvenance)}) — accumulation BTC vers la maturite`,
   );
 
   // --- Allocation breakdown (vault-level) ---------------------------------

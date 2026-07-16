@@ -150,8 +150,8 @@ export const ScenarioNarrativeOutputSchema = z
     key_drivers: z.array(z.string().min(1).max(200)).min(1).max(5),
     /**
      * Structured PTAI tuple — single source of truth for any UI surface
-     * that needs to render the 4-line format (Scenario Lab, Investor Memo
-     * PDF, Governance proposal detail). Required as of audit
+     * that needs to render the 4-line format (Investor Memo PDF, Governance
+     * proposal detail; the Scenario Lab route was retired). Required as of audit
      * coherence-2026-05-26 / 08-ptai-format (P1.4).
      */
     ptai: PtaiSchema,

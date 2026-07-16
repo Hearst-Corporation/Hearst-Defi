@@ -613,7 +613,7 @@ export function VaultForm(props: VaultFormProps) {
 
             <FieldGrid columns={2}>
               <label className="flex flex-col gap-2">
-                <span className={BENTO_LABEL}>Target APY Low (bps) *</span>
+                <span className={BENTO_LABEL}>Est. Return Low (bps) *</span>
                 <input
                   type="number"
                   className={inputClass("tabular-nums")}
@@ -625,7 +625,7 @@ export function VaultForm(props: VaultFormProps) {
               </label>
 
               <label className="flex flex-col gap-2">
-                <span className={BENTO_LABEL}>Target APY High (bps) *</span>
+                <span className={BENTO_LABEL}>Est. Return High (bps) *</span>
                 <input
                   type="number"
                   className={inputClass("tabular-nums")}
@@ -638,7 +638,7 @@ export function VaultForm(props: VaultFormProps) {
             </FieldGrid>
 
             <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
-              <span className={BENTO_LABEL}>APY Range Preview</span>
+              <span className={BENTO_LABEL}>Estimated Return Range Preview</span>
               <ApyRange
                 low={form.targetApyLowBps / 100}
                 high={form.targetApyHighBps / 100}
@@ -956,7 +956,7 @@ export function VaultForm(props: VaultFormProps) {
                 <RecapRow label="Lockup">
                   <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{form.softLockupDays} days</span>
                 </RecapRow>
-                <RecapRow label="Target APY">
+                <RecapRow label="Est. Return">
                   <ApyRange
                     low={form.targetApyLowBps / 100}
                     high={form.targetApyHighBps / 100}

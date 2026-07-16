@@ -31,7 +31,7 @@ describe("Proof Center — section heading contract", () => {
 
     // sectionLed: the page <h2> owns the title, so the bento panel drops its
     // own heading but still surfaces the source title as subtext.
-    expect(html).toContain("Yield source — Bitcoin mining revenue");
+    expect(html).toContain("Accumulation source — Bitcoin mining revenue");
     expect(html).not.toMatch(/<p class="eyebrow">Mining cash-flow evidence<\/p>/);
   });
 

@@ -353,9 +353,11 @@ BASESCAN_API_KEY=...
 > **✅ ALIGNEMENT FAIT (2026-07-16, orchestrateur) :**
 > §9.0 asset USDC (tranché) · §9.0 décimales shares → v2=6 mode-aware, legacy 18 inchangé (`ce8a1487`) ·
 > §9.1 renames `isIdle`/`canPay` (`1d806147`) · §9.2/§9.3 10 fonctions owner/keeper + 12 events ajoutés
-> à l'ABI (`1d806147`) · §9.4 3 routes gatées honnêtes 501 not_supported (`1a9d4e21`). Runtime prod
-> inchangé (v2 dormant). **Restent :** §9.5 swapAndReport (cosmétique), méthodo v3.0/v1.0 (hors vault,
-> déférée), et les « à vérifier » §9.6 (localisation 40/27/33 côté UI, modélisation LBTC).
+> à l'ABI (`1d806147`) · §9.4 3 routes gatées honnêtes 501 not_supported (`1a9d4e21`) ·
+> §9.6 bump méthodo **v3.0 complété** (`082b02e0`, `METHODOLOGY_VERSION = "v3.0"`) + allocations
+> 40/27/33 **vérifiées conformes** (`96831b66`, faux positif) + surfaces investisseur alignées
+> v3.0 (`9e99c3f3`, `27db751d`, `02caf407`). Runtime prod inchangé (v2 dormant). **Restent :**
+> §9.5 swapAndReport (cosmétique) et la modélisation LBTC (§9.6, contradiction de spec §5/§3).
 
 ### 9.0 — À TRANCHER (bloquants)
 
@@ -407,9 +409,13 @@ soupçon « c'est probablement `bytes` » subsiste et n'est levé que par le byt
 
 - **Reframe v2 EST sur main** (commit `453dfcf0` « aligne l'UI et les documents sur le modèle
   note-de-mining v2 », HEAD actuel `e26aa2be`) — l'UI/docs sont déjà passés au modèle Mining Note.
-- **Incohérence méthodologie (décalage confirmé).** `src/lib/engine/methodology.ts` a l'en-tête
-  « Methodology **v3.0** » mais la constante `METHODOLOGY_VERSION = "v1.0"` (+ `@see v1.0.md`). Le
-  bump v3.0 est **à moitié appliqué** — à réconcilier (une seule version affichée par les projections).
+- ✅ **Méthodologie v3.0 — RÉSOLU (2026-07-16, `082b02e0`).** `src/lib/engine/methodology.ts`
+  affiche désormais `METHODOLOGY_VERSION = "v3.0"` (+ `@see /docs/methodology/v3.0.md`) ; le bump
+  n'est plus à moitié appliqué. `docs/methodology/v3.0.md` = **méthodologie active** (mining note,
+  ADR-019) ; v1.0/v2.0 marquées **références historiques immuables**. Les surfaces investisseur
+  (vault, proof, profile, memo PDF) et les prompts agents ont été alignés v3.0 (retrait des
+  distributions USDC mensuelles et du point-unique de rendement — `9e99c3f3`, `27db751d`,
+  `02caf407`, `439d2ed8`, `4aa137b0`).
 - ✅ **Allocations 40/27/33 — VÉRIFIÉ CONFORME (2026-07-16), aucun décalage.** Correctement portées :
   `dynavault-factsheet.ts` (`B1_MINING_ALLOCATION_BPS = 4_000`, `B2_BTC_ALLOCATION_BPS = 2_700`,
   `B3_USDC_ALLOCATION_BPS = 3_300`, total `10_000`, source citée « v2.1 §Appendix », + override chaîne

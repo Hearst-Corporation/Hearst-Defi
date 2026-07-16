@@ -140,17 +140,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Hearst Connect
 
-Single-vault institutional DeFi platform. **Hearst Yield Vault.**
+Single-vault institutional DeFi platform. **Hearst Mining Note** (on
+`PermissionedDynaVault v2.1`, Base Sepolia testnet).
 
-Mining-backed structured yield, monthly USDC distributions, target APY range 8–15%.
-Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
+BTC-accumulation instrument backed by real Bitcoin mining, structured in **3 on-chain
+pockets — 40 / 27 / 33** (B1 Mining Power / B2 BTC Pouch / B3 Reserve USDC). BTC is
+**accumulated over a 24-month term and delivered at maturity** — there is **no periodic
+cash distribution and no fixed APY**. Estimated return is disclosed **as a range, in
+accumulated BTC, not guaranteed** (methodology **v3.0**, ADR-019). Cayman SPV structure,
+$250k min ticket, 60-day soft lock-up (both contractual / applicative, not enforced
+on-chain). *(The earlier "yield vault / monthly USDC distributions / target APY 8–15%"
+framing is retired — v3.0 replaced it.)*
 
 ## Source of truth (read before any feature work)
 
 - **Agent routing**: `AGENTS.md` (keystone) → per-domain `docs/*_CONTEXT.md`, `docs/DO_NOT_TOUCH.md`,
   `docs/OWNERSHIP_MATRIX.md`, `docs/COMMON_TASKS.md`, `docs/SYSTEM_MAP.md`. Scoped Cursor rules in `.cursor/rules/`.
 - **Product spec**: `/docs/spec/*.mdx` — read the relevant spec file before coding
-- **Methodology**: `/docs/methodology/v1.0.md` — immutable once published, bump version if change needed
+- **Methodology**: `/docs/methodology/v3.0.md` — **active** (mining note, ADR-019). `v1.0.md` (rule-based yield) and `v2.0.md` (Monte Carlo extension) are **immutable historical references** on file for memos generated under them; `v2.1-draft.md` never ratified. Immutable once published; bump version + ADR to change.
 - **Roadmap**: `/docs/roadmap.json` + `/admin/roadmap` UI — planning context for major feature work, not a blocker for active UI calibration / fix-forward passes
 - **Decisions**: `/docs/decisions/ADR-*.md` — Architecture Decision Records, append-only
 - **Design system** (copie locale éditable) : DS Cockpit dé-vendoré dans `cockpit-shell/` (composants + `tokens.css`) — cascade `cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Éditable librement (tokens `--ct-*`, CSS, composants) : pas de package figé, pas de source centrale. **Un seul vert : `--ct-accent` #A7FB90**, pas de namespace `--ds-*`. Docs : `docs/DESIGN_SYSTEM.md` + `docs/CSS_INDEX.md` (carte de la cascade).
@@ -158,7 +165,9 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
 
 ## Non-negotiables (CI enforces most)
 
-1. **APY always as range**, never single point. Output `"9.4-12.8%"` not `"11%"`.
+1. **Estimated return always as a range**, never a single point. Output `"9.4-12.8%"` not
+   `"11%"`. Under v3.0 the range describes **accumulated BTC, not distributed / not a fixed
+   APY** — the range mechanic is preserved, only its meaning changed.
 2. **Every metric has a provenance badge**: Live / Oracle / Attested / Estimated / Manual / Stale.
 3. **PTAI format mandatory** for simulations and rebalancing actions:
    Projection → Trigger → Action → Impact.
@@ -182,18 +191,28 @@ Cayman SPV structure, $250k min ticket, 60-day soft lock-up.
    warm-up; suppression re-checked at send time; every send forbidden-words guarded,
    carries an unsubscribe link, and is audited. Not a financial/custodial action.
 5. **Forbidden words in agent outputs**: "guarantee", "promise", "certain", "will deliver", "risk-free".
-6. **Scenario Engine is pure-function**: no DB, no fetch, no I/O in `src/lib/engine/*`.
+6. **Engine is pure-function**: no DB, no fetch, no I/O in `src/lib/engine/*`. (The engine
+   now models the v3.0 mining note — mining economics, take-profit, vending curve,
+   curtailment, BTC-accumulation projection — not the retired scenario-lab. The standalone
+   Scenario Lab route and its preset/routing metadata were removed; the `scenario-narrative`
+   batch agent stays, narrating BTC-accumulation.)
 7. **Monte Carlo allowed (V2, see ADR-006)** *alongside* the rule-based engine —
    rule-based stays the default. PRNG **seed must be injected** (engine purity #6
-   still holds: no `Math.random()` ungoverned, no `Date.now()`). MC requires
-   Methodology v2.0; headline APY stays a **range** (#1), MC only adds p5/p50/p95.
-8. **Smart contracts**: testnet event logger Phase 2 ✅, ERC-4626 vault written +
-   tested on Base Sepolia (Phase 3). **Mainnet deploy stays gated on a completed
-   Spearbit audit + remediation** (ADR-006) — lifting the lock does NOT authorize
-   unaudited mainnet code.
-9. **Multi-vault allowed (V1+, see ADR-006)**: Yield / Defensive / BTC Plus. Vault id
-   is a first-class key; each vault carries its own assumptions, share classes, and
-   provenance — no vault reuses another's numbers silently.
+   still holds: no `Math.random()` ungoverned, no `Date.now()`). MC belongs to
+   **Methodology v2.0 (historical)**; the range stays a **range** (#1), MC only adds
+   p5/p50/p95. The **active** product runs on **v3.0** (mining note), which does not require MC.
+8. **Smart contracts**: the v3.0 mining note targets **`PermissionedDynaVault v2.1`**
+   (3 pockets 40/27/33, keeper-driven monthly engine — the SOURCE OF TRUTH for its
+   interface is `docs/VAULT_SPEC_V2.1.md`). It is **written but NOT deployed** (all
+   addresses TBD); the app runs in `legacy` mode on the prior ERC-4626
+   `HearstYieldVault` until `NEXT_PUBLIC_DYNAVAULT_ADDRESS` is posted. Also on Base
+   Sepolia: event logger + PoR registry (Phase 2 ✅). **Mainnet deploy stays gated on a
+   completed Spearbit audit + remediation** (ADR-006) — lifting the lock does NOT
+   authorize unaudited mainnet code.
+9. **Vault id is a first-class key** (multi-vault plumbing kept, `engine/vaults.ts` +
+   loaders): each vault carries its own assumptions, share classes, and provenance — no
+   vault reuses another's numbers silently. **The active product is a single mining note**
+   (v3.0); the earlier Yield / Defensive / BTC Plus family is not the shipped model.
 10. Every projection must show its **assumptions** and a **"not guaranteed"** disclaimer.
 11. **HARD RULE — no cross-project imports.** It is **forbidden** to copy, move, or import any
     component, file, asset, snippet, type, style, or dependency from `/Users/adrienbeyondcrypto/Dev/Projects/hearst-connect`

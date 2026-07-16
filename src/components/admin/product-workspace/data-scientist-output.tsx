@@ -208,11 +208,11 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
   // Executive bullets — extracted for the Hero right panel.
   const mainDrivers = [
     base
-      ? `Yield driver: mining ${pctOf(base.allocation.mining)} + overlay ${pctOf(base.allocation.usdc)}`
-      : "Yield driver: mining sleeve + yield overlay",
+      ? `Accumulation driver: Mining Power ${pctOf(base.allocation.mining)} + Reserve ${pctOf(base.allocation.usdc)}`
+      : "Accumulation driver: the Mining Power pocket + Reserve USDC",
     base
-      ? `Upside driver: BTC holding ${pctOf(base.allocation.btc)}`
-      : "Upside driver: the BTC holding sleeve",
+      ? `Upside driver: BTC Pouch ${pctOf(base.allocation.btc)}`
+      : "Upside driver: the BTC Pouch pocket",
     `Downside: ${draft.quant.probBelowFloorPct.toFixed(1)}% of paths finish below the ${pctOf(draft.quant.floorApyPct)} floor`,
   ];
 
@@ -234,7 +234,7 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-(--ct-space-4) border-y ct-bc-soft py-(--ct-space-4)">
            <div className="flex flex-col gap-(--ct-space-1)">
-               <div className="ct-bento-label">Monthly Distribution Target</div>
+               <div className="ct-bento-label">Estimated Return Band</div>
                <span className="stat-value">{targets.distribution}</span>
            </div>
            <div className="flex flex-col gap-(--ct-space-1)">
@@ -283,7 +283,7 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
           <div className="flex h-full flex-col gap-(--ct-space-5)">
              <div className="grid grid-cols-2 gap-(--ct-space-3)">
                  <Metric
-                     label="Target APY"
+                     label="Est. Return"
                      value={<span className="ct-text-accent">{headline}</span>}
                  />
                  <Metric

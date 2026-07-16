@@ -60,7 +60,7 @@ export function ProofCenterColdShell({
             <PanelStatus
               message={
                 chainConfigured
-                  ? "Contracts are deployed on a test network. Attestations, distributions, and event logs publish once the vault operates."
+                  ? "Contracts are deployed on a test network. Attestations, settlement events, and event logs publish once the vault operates."
                   : "On-chain proof modules activate after deployment. Off-chain documents publish as operations posts them."
               }
             />

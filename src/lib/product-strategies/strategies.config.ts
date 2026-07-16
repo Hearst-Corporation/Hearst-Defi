@@ -101,7 +101,7 @@ const stableSafe: ProductStrategyScenario = {
   constraints: { maxBtcBps: 1000, minStableReserveBps: 4000 },
   narrativeBullets: [
     "Capital-protection first: majority in the stable reserve.",
-    "Yield overlay targets monthly income, subject to the stated assumptions.",
+    "Yield overlay targets an estimated income range, subject to the stated assumptions — not a fixed or promised payout.",
   ],
 };
 
@@ -201,7 +201,7 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     slug: "stable-income",
     name: "Stable USDC Income",
     description:
-      "Capital-protection-first income product: a large stable reserve plus a yield overlay targeting monthly income under the stated assumptions.",
+      "Capital-protection-first income product: a large stable reserve plus a yield overlay targeting an estimated income range under the stated assumptions — not a fixed or promised payout.",
     status: "active",
     productFamily: "stable_income",
     defaultRiskProfile: "safe",

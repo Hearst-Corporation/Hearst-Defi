@@ -40,7 +40,7 @@ function buildRisks(riskScore: number): RiskRow[] {
       status: "Within band",
       tone: overall,
       detail:
-        "Operator JV with margin score above the R2 threshold. Hashprice and energy exposure capped by the pocket allocation band.",
+        "Operator revenue-share with margin score inside its configured band. Below the pre/post-halving price threshold the Mining Power pocket is curtailed on-chain to protect margin; hashprice and energy exposure are capped by the fixed pocket allocation.",
     },
     {
       id: "counterparty",
@@ -56,7 +56,7 @@ function buildRisks(riskScore: number): RiskRow[] {
       status: "Range-bound",
       tone: overall,
       detail:
-        "The BTC Pouch is sized inside its volatility guardrail. Allocation re-runs across five scenarios are reported on the allocation page.",
+        "The BTC Pouch is sized inside its fixed on-chain allocation band. BTC exposure is realised through configured take-profit tiers, not discretionary trading; the fixed pocket weights are reported on the allocation page.",
     },
     {
       id: "regulatory",
@@ -84,7 +84,7 @@ export function RiskFrameworkPage({
       <PageHeader period={data.period} />
 
       <EyebrowTitle
-        eyebrow="05 / Risk framework"
+        eyebrow="04 / Risk framework"
         title="Five canonical risk dimensions"
       />
 
@@ -149,9 +149,10 @@ export function RiskFrameworkPage({
       <Text style={[styles.bodySmall, { marginTop: 14 }]}>
         The composite risk score weights each dimension under methodology
         v3.0. It is a backward-looking and forward-looking blend; outcomes are
-        not guaranteed. A breach in any dimension triggers an explicit
-        rebalancing rule (R1-R8); none were triggered outside the published
-        ruleset during the period.
+        not guaranteed. The fixed 40/27/33 allocation is not discretionarily
+        rebalanced: outcomes are shaped by three configured on-chain mechanisms
+        — take-profit tiers, the Reserve USDC vending curve and mining
+        curtailment — each disclosed as a parameter of the note.
       </Text>
 
       <PageFooter pageNumber={pageNumber} totalPages={totalPages} />

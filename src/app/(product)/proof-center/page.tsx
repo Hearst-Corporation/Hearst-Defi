@@ -1,6 +1,6 @@
-// Investor-facing Proof Center — scoped to the default vault (Hearst Yield Vault).
+// Investor-facing Proof Center — scoped to the default vault (Hearst mining note).
 // The (product) layout already enforces requireInvestor().
-// Layer-1 fit bento hub: bounded widgets (PoR, cash-flow, distributions, rebalances).
+// Layer-1 fit bento hub: bounded widgets (PoR, mining cash-flow, settlement events, rebalances).
 // Unbounded content (event log, proofs grid, contracts, timelocks) → /proof-center/full
 
 export const dynamic = "force-dynamic";

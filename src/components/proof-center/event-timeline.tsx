@@ -20,7 +20,7 @@ interface EventTimelineProps extends ProofCenterSectionLedProps {
 
 const KIND_LABEL: Record<EventKind, string> = {
   Rebalance: "Rebalance",
-  Distribution: "Distribution",
+  Distribution: "Settlement",
   ModeChange: "Mode change",
   GuardrailBreach: "Guardrail breach",
   TriggerArmed: "Trigger armed",

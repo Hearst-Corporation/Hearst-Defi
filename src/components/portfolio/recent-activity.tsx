@@ -20,11 +20,14 @@ const usdFmt = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
+// v3.0 mining note: no periodic cash distribution. A `distribution` ledger row
+// is a BTC realisation / proceeds event delivered at maturity — labelled
+// "Proceeds", matching the position-detail transaction table. Never "Payout".
 const TYPE_LABELS: Record<string, string> = {
   deposit: "Deposit",
   claim: "Claim",
   withdraw: "Withdrawal",
-  distribution: "Payout",
+  distribution: "Proceeds",
 };
 
 function TransactionIcon({ type, dir }: { type: string; dir: "in" | "out" }) {
@@ -76,7 +79,7 @@ export function RecentActivity({
           <p className="ct-metric-caption">
             {hasTransactions
               ? "Last 5 transactions"
-              : "Deposits, payouts, and withdrawals"}
+              : "Deposits, proceeds, and withdrawals"}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
@@ -138,7 +141,7 @@ export function RecentActivity({
         <div className="flex flex-col items-center justify-center gap-2 p-10 text-center">
           <span className="ct-section-title">No transactions yet</span>
           <span className="ct-metric-caption max-w-xs">
-            Deposits, payouts, and withdrawals appear here once activity is
+            Deposits, proceeds, and withdrawals appear here once activity is
             posted.
           </span>
         </div>

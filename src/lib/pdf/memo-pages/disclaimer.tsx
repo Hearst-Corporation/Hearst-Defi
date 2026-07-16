@@ -26,14 +26,14 @@ export function DisclaimerPage({
 
   const methodologyBody = data.memo
     ? stripMarkdown(data.memo.methodology_note)
-    : "Outputs follow Hearst methodology v3.0. The estimated target return is published as a range, not a point, and expressed in accumulated BTC over the term — not a distributed cash yield. The five canonical risks are tracked under a composite score. Backtests apply the same rule set R1-R8 to historical windows; they are simulations, not forecasts.";
+    : "Outputs follow Hearst methodology v3.0. The estimated target return is published as a range, not a point, and expressed in accumulated BTC over the 24-month term — not a distributed cash yield. The five canonical risks are tracked under a composite score. The fixed 40/27/33 allocation is not discretionarily rebalanced; outcomes are shaped by three configured on-chain mechanisms — take-profit tiers, the Reserve USDC vending curve and mining curtailment — each disclosed as a parameter of the note, not a forecast.";
 
   return (
     <Page size="A4" style={styles.page}>
       <PageHeader period={data.period} />
 
       <EyebrowTitle
-        eyebrow="07 / Methodology & disclaimers"
+        eyebrow="06 / Methodology & disclaimers"
         title="What is not guaranteed"
       />
 

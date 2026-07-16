@@ -21,6 +21,11 @@
  * A "Data Quality Agent" advisory row (built in the loader) states plainly that
  * this operational feed is sample/estimated and not yet wired to canon.
  */
+import {
+  B1_MINING_ALLOCATION_BPS,
+  B2_BTC_ALLOCATION_BPS,
+  B3_USDC_ALLOCATION_BPS,
+} from "@/lib/products/dynavault-factsheet";
 import type { HcProductionDatum } from "../preview/_charts/production-bars";
 import type { RiskDimension } from "../preview/_charts/risk-dimensions";
 import type { UptimeSegment } from "../preview/_charts/uptime-band";
@@ -126,11 +131,17 @@ export const PILOT_ORCHESTRATION: Orchestration = {
   },
 } as const;
 
-/** Deterministic split ratios of the deposit into the 3 pockets (B1 / B2 / B3). */
+/**
+ * Deterministic split ratios of the deposit into the 3 pockets (B1 / B2 / B3).
+ * DERIVED from the canonical bps constants (dynavault-factsheet / Methodology
+ * v3.0 §2 — 40 / 27 / 33) so this split can never drift from the on-chain
+ * layout, the invest form, or PositionStrategyAllocation. Never hand-typed.
+ */
+const BPS_PER_PERCENT = 100;
 export const POCKET_SPLIT = {
-  b1MiningPct: 40,
-  b2WbtcPct: 37,
-  b3UsdcPct: 23,
+  b1MiningPct: B1_MINING_ALLOCATION_BPS / BPS_PER_PERCENT,
+  b2BtcPct: B2_BTC_ALLOCATION_BPS / BPS_PER_PERCENT,
+  b3UsdcPct: B3_USDC_ALLOCATION_BPS / BPS_PER_PERCENT,
 } as const;
 
 /** Take-profit is deposit ×1.24 (+24%). */

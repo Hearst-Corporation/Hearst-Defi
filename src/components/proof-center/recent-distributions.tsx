@@ -93,8 +93,8 @@ export function RecentDistributions({
             </MicroLabel>
             <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
               {sectionLed
-                ? `Last ${distributions.length} USDC proceeds`
-                : "USDC proceeds"}
+                ? `Last ${distributions.length} settlement events`
+                : "On-chain settlement events"}
             </h3>
           </div>
           <div className="flex shrink-0 items-center gap-2 pb-0.5">
@@ -105,7 +105,7 @@ export function RecentDistributions({
 
       <ul
         className="flex flex-col px-5"
-        aria-label="Recent distributions"
+        aria-label="Recent on-chain settlement events"
       >
         {distributions.map((d) => {
           const provenance = distributionProvenance(d.txHash);
@@ -136,7 +136,7 @@ export function RecentDistributions({
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <MicroLabel>Distributed</MicroLabel>
+                  <MicroLabel>Settled</MicroLabel>
                   <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] tabular-nums">
                     {dateFmt.format(d.distributedAt)} UTC
                   </span>

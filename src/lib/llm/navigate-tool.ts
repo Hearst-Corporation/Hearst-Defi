@@ -257,7 +257,7 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/distributions",
     label: "Admin — Distributions",
     description:
-      "Monthly USDC distribution management: calculation, scheduling, execution.",
+      "Historical distributions ledger (legacy records). The v3.0 mining note accumulates BTC and delivers it at maturity — there is no periodic cash distribution to schedule.",
   },
   {
     key: "admin-feedback",

@@ -79,7 +79,7 @@ export function AllocationBreakdownPage({
       <PageHeader period={data.period} />
 
       <EyebrowTitle
-        eyebrow="06 / Allocation breakdown"
+        eyebrow="05 / Allocation breakdown"
         title="Three pockets"
       />
 

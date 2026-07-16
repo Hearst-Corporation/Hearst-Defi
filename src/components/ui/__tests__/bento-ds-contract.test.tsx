@@ -27,11 +27,6 @@ const AUDIT_SRC = readFileSync(
   "utf8",
 );
 
-const BANNER_SRC = readFileSync(
-  join(process.cwd(), "src/components/admin/projection/preview-source-banner.tsx"),
-  "utf8",
-);
-
 describe("bento DS contract", () => {
   it("BentoPanel uses ct-glass-panel, not bg-black in classNames", () => {
     expect(BENTO_SRC).toContain("ct-glass-panel");
@@ -92,12 +87,5 @@ describe("primary pages — no ad-hoc surface hardcodes in patched files", () =>
     expect(AUDIT_SRC).not.toContain("ct-bento-input");
     expect(AUDIT_SRC).not.toContain("bg-[#15191C]");
     expect(AUDIT_SRC).toContain("AdminPageShell");
-  });
-
-  it("preview source banner uses ct-glass-panel, not bg-[#15191C]", () => {
-    expect(BANNER_SRC).toContain("ct-glass-panel");
-    expect(BANNER_SRC).not.toContain("bg-[#15191C]");
-    expect(BANNER_SRC).toContain("ct-text-accent");
-    expect(BANNER_SRC).not.toContain("text-[#A7FB90]");
   });
 });

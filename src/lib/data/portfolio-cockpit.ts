@@ -266,9 +266,9 @@ function emptyCockpit(d: PortfolioDashboard): PortfolioCockpit {
 
   // 3 pockets at $0 but with their deterministic target-allocation percentages.
   const zeroPockets: readonly PocketCard[] = [
-    { label: "B1 · Mining power", valueUsdc: 0, pct: POCKET_SPLIT.b1MiningPct, role: "Buys the hashrate NFT (RWA-backed) · target allocation", asset: "hearst" },
-    { label: "B2 · wBTC", valueUsdc: 0, pct: POCKET_SPLIT.b2WbtcPct, role: "Accumulates BTC over the term · target allocation", asset: "bitcoin" },
-    { label: "B3 · USDC", valueUsdc: 0, pct: POCKET_SPLIT.b3UsdcPct, role: "Reserve · funds electricity first · target allocation", asset: "usdc" },
+    { label: "B1 · Mining Power", valueUsdc: 0, pct: POCKET_SPLIT.b1MiningPct, role: "Buys the hashrate NFT (RWA-backed) · target allocation", asset: "hearst" },
+    { label: "B2 · BTC Pouch", valueUsdc: 0, pct: POCKET_SPLIT.b2BtcPct, role: "Accumulates BTC over the term · target allocation", asset: "bitcoin" },
+    { label: "B3 · Reserve USDC", valueUsdc: 0, pct: POCKET_SPLIT.b3UsdcPct, role: "Reserve · funds electricity first · target allocation", asset: "usdc" },
   ];
 
   return {
@@ -391,13 +391,13 @@ export const loadPortfolioCockpit = cache(
 
     // ── DERIVED — 3 pockets = deterministic split of the REAL deposit ──────────
     const b1 = Math.round(deposit * (POCKET_SPLIT.b1MiningPct / 100));
-    const b2 = Math.round(deposit * (POCKET_SPLIT.b2WbtcPct / 100));
+    const b2 = Math.round(deposit * (POCKET_SPLIT.b2BtcPct / 100));
     // B3 takes the remainder so the three sum EXACTLY to the deposit.
     const b3 = deposit - b1 - b2;
     const pockets: readonly PocketCard[] = [
-      { label: "B1 · Mining power", valueUsdc: b1, pct: POCKET_SPLIT.b1MiningPct, role: "Buys the hashrate NFT (RWA-backed) · target allocation", asset: "hearst" },
-      { label: "B2 · wBTC", valueUsdc: b2, pct: POCKET_SPLIT.b2WbtcPct, role: "Accumulates BTC over the term · target allocation", asset: "bitcoin" },
-      { label: "B3 · USDC", valueUsdc: b3, pct: POCKET_SPLIT.b3UsdcPct, role: "Reserve · funds electricity first · target allocation", asset: "usdc" },
+      { label: "B1 · Mining Power", valueUsdc: b1, pct: POCKET_SPLIT.b1MiningPct, role: "Buys the hashrate NFT (RWA-backed) · target allocation", asset: "hearst" },
+      { label: "B2 · BTC Pouch", valueUsdc: b2, pct: POCKET_SPLIT.b2BtcPct, role: "Accumulates BTC over the term · target allocation", asset: "bitcoin" },
+      { label: "B3 · Reserve USDC", valueUsdc: b3, pct: POCKET_SPLIT.b3UsdcPct, role: "Reserve · funds electricity first · target allocation", asset: "usdc" },
     ];
     const pocketTotalUsdc = b1 + b2 + b3;
 

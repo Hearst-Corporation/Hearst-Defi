@@ -186,8 +186,9 @@ function PrivyConnectInner({
         </p>
 
         <p className="body-xs m-0 max-w-prose text-pretty">
-          This wallet will receive your monthly USDC distributions and act as
-          the signing key for on-chain position management.
+          This wallet is your whitelisted on-chain address — it receives the
+          Bitcoin delivered at maturity and acts as the signing key for on-chain
+          position management.
         </p>
       </WalletSurface>
     );
@@ -196,8 +197,9 @@ function PrivyConnectInner({
   return (
     <WalletSurface surface={surface} className={shellClass}>
       <p className="body-sm m-0 max-w-prose text-pretty">
-        Link the wallet address that will receive your USDC distributions.
-        Compatible with major wallets including MetaMask, Ledger, and Coinbase Wallet.
+        Link the wallet address to be whitelisted for the note — it receives the
+        Bitcoin delivered at maturity. Compatible with major wallets including
+        MetaMask, Ledger, and Coinbase Wallet.
       </p>
 
       <Button
@@ -225,8 +227,8 @@ function PrivyConnectInner({
       ) : null}
 
       <p className="body-xs m-0 max-w-prose text-pretty">
-        Wallet binding is used solely for on-chain distribution delivery.
-        No private keys are stored or transmitted.
+        Wallet binding is used solely for on-chain whitelisting and settlement at
+        maturity. No private keys are stored or transmitted.
       </p>
     </WalletSurface>
   );
@@ -281,9 +283,9 @@ export function WalletChamber({
             <p className="ct-bento-label m-0">Onboarding · Step 3 of 3</p>
             <h1 className="h1 m-0">Connect your wallet</h1>
             <p className="body-sm m-0 max-w-prose text-pretty">
-              Link the wallet address that will receive your USDC distributions.
-              This wallet will also be the signing key for on-chain position
-              management.
+              Link the wallet address to be whitelisted for the note — it
+              receives the Bitcoin delivered at maturity and is the signing key
+              for on-chain position management.
             </p>
           </div>
         </>
@@ -296,7 +298,7 @@ export function WalletChamber({
           irContact={irContact}
           compliance={
             <>
-              You can update your distribution wallet after onboarding via your{" "}
+              You can update your whitelisted wallet after onboarding via your{" "}
               <Link href="/profile" className="ct-link-accent">
                 Profile
               </Link>{" "}

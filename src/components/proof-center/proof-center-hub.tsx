@@ -188,7 +188,7 @@ export function ProofCenterHub({
 
               <div className="dashboard-cockpit-cell">
                 <ProofHubCard
-                  eyebrow="Yield source"
+                  eyebrow="Accumulation source"
                   title="Mining cash-flow"
                   provenance={coverageProvenance === "pending" ? "manual" : coverageProvenance === "invalid" ? "stale" : coverageProvenance}
                   variant={variant}
