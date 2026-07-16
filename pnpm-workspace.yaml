@@ -54,3 +54,6 @@ onlyBuiltDependencies:
   - utf-8-validate
   - core-js
   - protobufjs
+
+allowBuilds:
+  prisma: set this to true or false

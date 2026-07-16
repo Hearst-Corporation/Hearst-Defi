@@ -1,8 +1,7 @@
 import { ProposalQueue } from "@/components/admin/governance/proposal-queue";
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
 import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
-import { Button } from "@/components/catalyst/button";
-import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
 import { buildGovernanceKpiStrip } from "@/lib/admin/governance-kpi-strip";
@@ -55,9 +54,14 @@ export default async function GovernancePage({ searchParams }: PageProps) {
       titleAccent="Console"
       contextLabel="Proof & System"
       headerActions={
-        <Button href="/admin/governance/propose" className={CATALYST_ACCENT_BTN}>
+        <CockpitButton
+          href="/admin/governance/propose"
+          variant="primary"
+          shape="rect"
+          size="lg"
+        >
           New proposal
-        </Button>
+        </CockpitButton>
       }
     >
       <AdminSectionCard

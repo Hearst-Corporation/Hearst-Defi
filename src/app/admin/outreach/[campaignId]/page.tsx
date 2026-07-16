@@ -83,7 +83,7 @@ export default async function CampaignDetailPage({
             <AdminDetailItem label="Kind">{detail.kind}</AdminDetailItem>
             <AdminDetailItem label="Status">{detail.status}</AdminDetailItem>
             <AdminDetailItem label="From">
-              <span className="break-all font-mono text-[var(--ct-text-body)]">
+              <span className="break-all mono text-[var(--ct-text-body)]">
                 {detail.fromEmail ?? "default"}
               </span>
             </AdminDetailItem>
@@ -127,7 +127,7 @@ export default async function CampaignDetailPage({
             subtitle="Dispatch progress across recipients once sending begins."
           >
             <div className="p-5">
-              <p className="ct-metric-value font-mono">{deliverySummary}</p>
+              <p className="ct-metric-value mono">{deliverySummary}</p>
             </div>
           </AdminSectionCard>
         )}
@@ -142,7 +142,7 @@ export default async function CampaignDetailPage({
             <div className="flex flex-col gap-4 p-5">
               <p className="ct-metric-caption leading-relaxed">
                 Dispatch all approved emails. The campaign switches to{" "}
-                <span className="font-mono">sending</span> and Inngest fans out
+                <span className="mono">sending</span> and Inngest fans out
                 delivery over each approved recipient.
               </p>
               <div className="flex flex-wrap items-center gap-2">

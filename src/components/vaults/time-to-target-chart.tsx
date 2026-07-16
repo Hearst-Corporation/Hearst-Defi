@@ -282,7 +282,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
                   x={Math.min(targetX + 2, VB_W - PAD_R - 40)}
                   y={PAD_T + 5}
                   fill={ACCENT}
-                  className="text-[7px] font-mono"
+                  className="text-[7px] mono"
                   aria-hidden="true"
                 >
                   {targetLabel}
@@ -299,7 +299,7 @@ export function TimeToTargetChart({ amount, vault }: TimeToTargetChartProps) {
               y={VB_H - 1}
               textAnchor="middle"
               fill="var(--ct-text-muted)"
-              className="text-[7px] font-mono"
+              className="text-[7px] mono"
               aria-hidden="true"
             >
               M{m}

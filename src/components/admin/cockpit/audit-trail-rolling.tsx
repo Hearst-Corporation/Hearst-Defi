@@ -78,7 +78,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
       <TableCell className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] tabular-nums">
         {formatAdminRollingTimestamp(new Date(entry.occurredAt))}
       </TableCell>
-      <TableCell className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] font-mono text-[var(--ct-text-faint)] group-hover:text-[var(--ct-text-muted)]">
+      <TableCell className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] mono text-[var(--ct-text-faint)] group-hover:text-[var(--ct-text-muted)]">
         {wallet}
       </TableCell>
       <TableCell className="truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] uppercase">
@@ -87,7 +87,7 @@ function AuditRow({ entry }: { entry: AuditTrailEntry }) {
       <TableCell className="hidden truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] uppercase md:table-cell">
         {entry.entityType}
       </TableCell>
-      <TableCell className="hidden truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] font-mono text-[var(--ct-text-faint)] lg:table-cell">
+      <TableCell className="hidden truncate px-3 py-2 text-left text-[length:var(--ct-text-xs)] mono text-[var(--ct-text-faint)] lg:table-cell">
         {entityId}
       </TableCell>
     </TableRow>

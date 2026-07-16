@@ -180,7 +180,7 @@ export default async function SourcePage({
             <p className="ct-metric-caption">
               Telegram not configured. Set TELEGRAM_API_ID /
               TELEGRAM_API_HASH / TELEGRAM_SESSION in .env.local (login via{" "}
-              <code className="font-mono text-[var(--ct-text-secondary)]">
+              <code className="mono text-[var(--ct-text-secondary)]">
                 node scripts/telegram-login.mjs
               </code>
               ).

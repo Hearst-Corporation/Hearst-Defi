@@ -2,14 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
-import { Button } from "@/components/catalyst/button";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
-import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
-import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
+import { BentoLabel } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { Field, FieldDescription } from "@/components/catalyst/field";
+import { Select } from "@/components/catalyst/select";
+import { Textarea } from "@/components/catalyst/textarea";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { prisma } from "@/lib/db";
 import { proposeAction } from "@/lib/governance/actions";
-import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";
 
@@ -23,10 +24,6 @@ const ACTION_TYPES = [
   "sweepFees",
   "emergencyShutdown",
 ] as const;
-
-// Portfolio-canon field chrome: dark sub-surface, hairline border, accent focus.
-const FIELD =
-  "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-sm)] text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)] transition-colors focus:border-[var(--ct-border-accent)] focus:outline-none";
 
 async function handlePropose(formData: FormData) {
   "use server";
@@ -69,98 +66,107 @@ export default async function ProposePage() {
         </Link>
       }
     >
-
-        <AdminSectionCard ariaLabel="Proposal form" title="Proposal details" subtitle="Select the vault and describe the governance action to draft.">
-          <div className="p-5 lg:p-6">
-            <form action={handlePropose} className="flex flex-col gap-5">
-              <div className="flex flex-col gap-1.5">
-                <BentoLabel htmlFor="vaultId">Vault *</BentoLabel>
-                {vaults.length === 0 ? (
-                  <EmptySurface
-                    variant="inline"
-                    message="No vaults available yet."
-                    detail="Create a vault deployment before drafting a governance proposal."
-                    ariaLabel="Governance proposals awaiting vaults"
+      <AdminSectionCard
+        ariaLabel="Proposal form"
+        title="Proposal details"
+        subtitle="Select the vault and describe the governance action to draft."
+      >
+        <div className="p-5 lg:p-6">
+          <form action={handlePropose} className="flex flex-col gap-5">
+            <Field>
+              <BentoLabel htmlFor="vaultId">Vault *</BentoLabel>
+              {vaults.length === 0 ? (
+                <EmptySurface
+                  variant="inline"
+                  message="No vaults available yet."
+                  detail="Create a vault deployment before drafting a governance proposal."
+                  ariaLabel="Governance proposals awaiting vaults"
+                >
+                  <Link
+                    href="/admin/vaults/new"
+                    className="text-[var(--ct-accent)] underline underline-offset-2"
                   >
-                    <Link
-                      href="/admin/vaults/new"
-                      className="text-[var(--ct-accent)] underline underline-offset-2"
-                    >
-                      Create a vault first.
-                    </Link>
-                  </EmptySurface>
-                ) : (
-                  <select id="vaultId" name="vaultId" required className={FIELD}>
-                    <option value="">Select a vault…</option>
-                    {vaults.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.ticker} — {v.name}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <BentoLabel htmlFor="actionType">Action type *</BentoLabel>
-                <select id="actionType" name="actionType" required className={FIELD}>
-                  <option value="">Select an action…</option>
-                  {ACTION_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
+                    Create a vault first.
+                  </Link>
+                </EmptySurface>
+              ) : (
+                <Select id="vaultId" name="vaultId" required defaultValue="">
+                  <option value="">Select a vault…</option>
+                  {vaults.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.ticker} — {v.name}
                     </option>
                   ))}
-                </select>
-              </div>
+                </Select>
+              )}
+            </Field>
 
-              <div className="flex flex-col gap-1.5">
-                <BentoLabel htmlFor="calldata">
-                  Calldata (raw JSON — optional)
-                </BentoLabel>
-                <textarea
-                  id="calldata"
-                  name="calldata"
-                  rows={4}
-                  placeholder='{"newFeeBps": 250}'
-                  className={cn(FIELD, "resize-y font-mono")}
-                />
-              </div>
+            <Field>
+              <BentoLabel htmlFor="actionType">Action type *</BentoLabel>
+              <Select id="actionType" name="actionType" required defaultValue="">
+                <option value="">Select an action…</option>
+                {ACTION_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </Select>
+            </Field>
 
-              <div className="flex flex-col gap-1.5">
-                <BentoLabel htmlFor="justification">Justification *</BentoLabel>
-                <textarea
-                  id="justification"
-                  name="justification"
-                  rows={5}
-                  required
-                  minLength={80}
-                  placeholder="Explain why this action is necessary, what the expected impact is, and any risk mitigations applied…"
-                  className={cn(FIELD, "resize-y")}
-                />
-                <span className="ct-metric-caption">Min 80 characters.</span>
-              </div>
+            <Field>
+              <BentoLabel htmlFor="calldata">
+                Calldata (raw JSON — optional)
+              </BentoLabel>
+              <Textarea
+                id="calldata"
+                name="calldata"
+                rows={4}
+                placeholder='{"newFeeBps": 250}'
+                className="mono"
+              />
+            </Field>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <Button
-                  type="submit"
-                  className={CATALYST_ACCENT_BTN}
-                  disabled={vaults.length === 0}
-                >
-                  Submit proposal
-                </Button>
-                <Link href="/admin/governance" className={BENTO_SECONDARY_BTN}>
-                  Cancel
-                </Link>
-              </div>
+            <Field>
+              <BentoLabel htmlFor="justification">Justification *</BentoLabel>
+              <Textarea
+                id="justification"
+                name="justification"
+                rows={5}
+                required
+                minLength={80}
+                placeholder="Explain why this action is necessary, what the expected impact is, and any risk mitigations applied…"
+              />
+              <FieldDescription>Min 80 characters.</FieldDescription>
+            </Field>
 
-              <p className="ct-metric-caption">
-                Submitting moves the proposal directly to SIGNING state. The
-                proposer&apos;s own approval is not automatically counted — sign
-                explicitly in the detail view.
-              </p>
-            </form>
-          </div>
-        </AdminSectionCard>
+            <div className="flex flex-wrap items-center gap-3">
+              <CockpitButton
+                type="submit"
+                variant="primary"
+                shape="rect"
+                size="lg"
+                disabled={vaults.length === 0}
+              >
+                Submit proposal
+              </CockpitButton>
+              <CockpitButton
+                href="/admin/governance"
+                variant="secondary"
+                shape="rect"
+                size="lg"
+              >
+                Cancel
+              </CockpitButton>
+            </div>
+
+            <FieldDescription>
+              Submitting moves the proposal directly to SIGNING state. The
+              proposer&apos;s own approval is not automatically counted — sign
+              explicitly in the detail view.
+            </FieldDescription>
+          </form>
+        </div>
+      </AdminSectionCard>
     </AdminPageShell>
   );
 }

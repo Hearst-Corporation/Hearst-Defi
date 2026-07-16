@@ -9,7 +9,8 @@ import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { VaultAdminKpiStrip } from "@/components/vaults/vault-admin-kpi-strip";
 import { VaultAllocationAdminRows } from "@/components/vaults/vault-allocation-display";
 import { VaultLegalProofRows } from "@/components/vaults/vault-legal-proof-rows";
-import { BentoPanel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { BentoPanel } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { AdminTable } from "@/components/admin/admin-table-layout";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -181,12 +182,14 @@ export default async function VaultDetailPage({ params }: PageProps) {
         <div className="flex flex-wrap items-center gap-2">
               {vault.status === "draft" && (
                 <>
-                  <Link
+                  <CockpitButton
                     href={`/admin/vaults/${id}/edit`}
-                    className={BENTO_SECONDARY_BTN}
+                    variant="secondary"
+                    shape="rect"
+                    size="lg"
                   >
                     Edit
-                  </Link>
+                  </CockpitButton>
                   <VaultActionButton
                     label="Submit for Review"
                     variant="primary"
@@ -373,7 +376,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           label="Approvals"
           title="Approvals"
           description={
-            <span className="ct-metric-value font-mono text-[var(--ct-text-muted)]">
+            <span className="ct-metric-value mono text-[var(--ct-text-muted)]">
               {approveCount} / {vault.requiredSigners} required
             </span>
           }
@@ -385,7 +388,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 Approval&quot; to appear):
               </span>
               <div className="flex items-center justify-between gap-3">
-                <code className="ct-metric-caption break-all font-mono text-[var(--ct-text-strong)]">
+                <code className="ct-metric-caption break-all mono text-[var(--ct-text-strong)]">
                   {actorWallet}
                 </code>
                 <span
@@ -416,7 +419,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
               colWidths={["35%", "15%", "35%", "15%"]}
               renderRow={(approval) => (
                 <>
-                  <td className={`${CELL} truncate font-mono tabular-nums`}>
+                  <td className={`${CELL} truncate mono tabular-nums`}>
                     {approval.signerWallet}
                   </td>
                   <td className={CELL}>
@@ -434,7 +437,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                   <td className={`${CELL} hidden wrap-break-word md:table-cell`}>
                     {approval.reason ?? "—"}
                   </td>
-                  <td className={`${CELL} whitespace-nowrap font-mono tabular-nums text-[var(--ct-text-faint)]`}>
+                  <td className={`${CELL} whitespace-nowrap mono tabular-nums text-[var(--ct-text-faint)]`}>
                     {approval.signedAt.toISOString().slice(0, 10)}
                   </td>
                 </>
@@ -448,7 +451,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           label="Subscribers"
           title="Subscribers"
           description={
-            <span className="ct-metric-value font-mono text-[var(--ct-text-muted)]">
+            <span className="ct-metric-value mono text-[var(--ct-text-muted)]">
               {vault.positions.length} active · {formatUsdFull(aumUsdc)}
             </span>
           }
@@ -476,7 +479,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                     <td className={`${CELL} truncate text-[var(--ct-text-body)]`}>
                       {pos.investor.user.email}
                     </td>
-                    <td className={`${CELL} font-mono`}>{classCode}</td>
+                    <td className={`${CELL} mono`}>{classCode}</td>
                     <td className={`${CELL_STRONG} text-right`}>
                       {formatUsdFull(Number(pos.principalUsdc))}
                     </td>

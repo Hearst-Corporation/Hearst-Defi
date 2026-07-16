@@ -1,5 +1,14 @@
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import {
+  BentoPanel,
+  BentoHeader,
+  BentoLabel,
+} from "@/components/catalyst/bento";
+import { fieldControlClass } from "@/components/catalyst/field-controls";
+import { Select } from "@/components/catalyst/select";
+import { Textarea } from "@/components/catalyst/textarea";
+import { TextField } from "@/components/catalyst/field";
 import {
   Table,
   TableBody,
@@ -8,13 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/catalyst/table";
-import {
-  BentoPanel,
-  BentoHeader,
-  BentoLabel,
-  BENTO_SECONDARY_BTN,
-} from "@/components/catalyst/bento";
-import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import {
   addAllowlistEntryAction,
   toggleAllowlistEntryAction,
@@ -65,11 +67,9 @@ function riskColor(score: number): "green" | "amber" | "red" {
   return "red";
 }
 
-// Portfolio-canon field chrome: dark sub-surface, hairline border, accent focus.
-const FIELD =
-  "w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-sm)] text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)] transition-colors focus:border-[var(--ct-border-accent)] focus:outline-none";
-const FIELD_COMPACT =
-  "w-full rounded-lg border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] px-3 py-2 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)] transition-colors focus:border-[var(--ct-border-accent)] focus:outline-none";
+const FIELD_COMPACT = fieldControlClass(
+  "py-2 text-[length:var(--ct-text-2xs)]",
+);
 
 export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
   return (
@@ -101,66 +101,64 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5 sm:col-span-2">
                 <BentoLabel htmlFor="add-address">Address (0x…) *</BentoLabel>
-                <input
+                <TextField
                   id="add-address"
                   name="address"
                   type="text"
                   required
                   pattern="0x[0-9a-fA-F]{40}"
                   placeholder="0xABCDEF…"
-                  className={cn(FIELD, "font-mono")}
+                  className="mono"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
                 <BentoLabel htmlFor="add-label">Label *</BentoLabel>
-                <input
+                <TextField
                   id="add-label"
                   name="label"
                   type="text"
                   required
                   maxLength={200}
                   placeholder="Coinbase Custody Vault"
-                  className={FIELD}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
                 <BentoLabel htmlFor="add-category">Category *</BentoLabel>
-                <select id="add-category" name="category" required className={FIELD}>
+                <Select id="add-category" name="category" required>
                   {ALL_CATEGORIES.map((c) => (
                     <option key={c} value={c}>
                       {CATEGORY_LABELS[c]}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
               <div className="flex flex-col gap-1.5">
                 <BentoLabel htmlFor="add-riskScore">Risk score (0–100)</BentoLabel>
-                <input
+                <TextField
                   id="add-riskScore"
                   name="riskScore"
                   type="number"
                   min={0}
                   max={100}
                   defaultValue={0}
-                  className={FIELD}
                 />
               </div>
               <div className="flex flex-col gap-1.5 sm:col-span-2">
                 <BentoLabel htmlFor="add-notes">Notes (optional)</BentoLabel>
-                <textarea
+                <Textarea
                   id="add-notes"
                   name="notes"
                   rows={2}
                   maxLength={500}
                   placeholder="Context for this entry…"
-                  className={cn(FIELD, "resize-none")}
+                  className="resize-none"
                 />
               </div>
             </div>
             <div className="flex justify-end">
-              <Button type="submit" className={CATALYST_ACCENT_BTN}>
+              <CockpitButton type="submit" variant="primary" shape="rect" size="lg">
                 Add to allowlist
-              </Button>
+              </CockpitButton>
             </div>
           </form>
         </div>
@@ -218,7 +216,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                 >
                   <TableCell className="pl-5">
                     <p className="ct-metric-value">{entry.label}</p>
-                    <p className="ct-metric-caption break-all font-mono">
+                    <p className="ct-metric-caption break-all mono">
                       {entry.address}
                     </p>
                     {entry.notes ? (
@@ -275,7 +273,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                           <BentoLabel htmlFor={`edit-label-${entry.id}`}>
                             Label
                           </BentoLabel>
-                          <input
+                          <TextField
                             id={`edit-label-${entry.id}`}
                             name="label"
                             type="text"
@@ -288,7 +286,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                           <BentoLabel htmlFor={`edit-risk-${entry.id}`}>
                             Risk score
                           </BentoLabel>
-                          <input
+                          <TextField
                             id={`edit-risk-${entry.id}`}
                             name="riskScore"
                             type="number"
@@ -302,7 +300,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                           <BentoLabel htmlFor={`edit-notes-${entry.id}`}>
                             Notes
                           </BentoLabel>
-                          <textarea
+                          <Textarea
                             id={`edit-notes-${entry.id}`}
                             name="notes"
                             rows={2}
@@ -311,9 +309,14 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                             className={cn(FIELD_COMPACT, "resize-none")}
                           />
                         </div>
-                        <button type="submit" className={BENTO_SECONDARY_BTN}>
+                        <CockpitButton
+                          type="submit"
+                          variant="secondary"
+                          shape="rect"
+                          size="lg"
+                        >
                           Save
-                        </button>
+                        </CockpitButton>
                       </form>
                     </details>
                   </TableCell>

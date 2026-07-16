@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { BENTO_PRIMARY_BTN } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { draftAllCampaignEmails } from "@/app/admin/outreach/actions";
 
 /**
@@ -31,13 +31,15 @@ export function DraftCampaignButton({ campaignId }: { campaignId: string }) {
   }
 
   return (
-    <button
+    <CockpitButton
       type="button"
-      className={BENTO_PRIMARY_BTN}
+      variant="primary"
+      shape="rect"
+      size="lg"
       onClick={onClick}
       disabled={isPending}
     >
       {isPending ? "Drafting…" : "Draft with agent"}
-    </button>
+    </CockpitButton>
   );
 }

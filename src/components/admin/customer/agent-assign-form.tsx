@@ -5,9 +5,8 @@ import { toast } from "sonner";
 
 import {
   BentoLabel,
-  BENTO_PRIMARY_BTN,
-  BENTO_SECONDARY_BTN,
 } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { assignTemplate, recalibrateAgent } from "@/app/admin/customers/[id]/actions";
 import type { AgentTemplate } from "@prisma/client";
 
@@ -105,20 +104,28 @@ export function AgentAssignForm({
             ))}
           </select>
         </label>
-        <button type="submit" className={BENTO_SECONDARY_BTN} disabled={isPending}>
+        <CockpitButton
+          type="submit"
+          variant="secondary"
+          shape="rect"
+          size="lg"
+          disabled={isPending}
+        >
           Assign
-        </button>
+        </CockpitButton>
       </form>
 
       <form action={onRecalibrate} aria-label="Recalibrate from questionnaire">
         <input type="hidden" name="userId" value={userId} />
-        <button
+        <CockpitButton
           type="submit"
-          className={BENTO_PRIMARY_BTN}
+          variant="primary"
+          shape="rect"
+          size="lg"
           disabled={isPending || !canRecalibrate}
         >
           Recalibrate from questionnaire
-        </button>
+        </CockpitButton>
         {!canRecalibrate && (
           <p className="ct-metric-caption mt-2">
             No questionnaire answers yet — fill the qualification above first.

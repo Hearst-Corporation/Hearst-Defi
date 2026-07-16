@@ -204,7 +204,7 @@ export function PreFlightCheck({
           Readiness
         </span>
         <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
-          <span className="font-semibold text-[var(--ct-text-strong)] tabular-nums font-mono">
+          <span className="font-semibold text-[var(--ct-text-strong)] tabular-nums mono">
             {checksComplete}
           </span>
           {" "}of 4 complete

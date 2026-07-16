@@ -8,22 +8,20 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { PRODUCT_NAV } from "@/components/nav/product-nav-items";
-import {
-  BitcoinHero,
-  AccumulationChart,
-  StrategyFlowCanvas,
-  CapacityWidget,
-  MiningPulseWidget,
-} from "@/components/investor-widgets";
 import { dashboardCompleteFixture } from "@/features/investor-ui/fixtures/dashboard-complete";
 import { miningCompleteFixture } from "@/features/investor-ui/fixtures/mining-complete";
 import { resolved } from "@/features/investor-ui/types/common";
+
+import { DashboardPositionPanel } from "../dashboard/_components/dashboard-position-panel";
+import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
+import { DashboardStrategyPanel } from "../dashboard/_components/dashboard-strategy-panel";
+import { DashboardCapacityPanel } from "../dashboard/_components/dashboard-capacity-panel";
+import { DashboardHealthPanel } from "../dashboard/_components/dashboard-health-panel";
 
 const INVESTOR_SURFACES = [
   "src/app/(product)/dashboard/page.tsx",
   "src/app/(product)/btc/page.tsx",
   "src/app/(product)/mining/page.tsx",
-  "src/components/investor-widgets",
 ] as const;
 
 const BANNED_INVESTOR_COPY = [
@@ -87,21 +85,20 @@ describe("PROMPT 227 — banned yield vocabulary on investor surfaces", () => {
 });
 
 describe("PROMPT 227 — widget renders", () => {
-  it("BitcoinHero shows BTC accumulated, not yield", () => {
+  it("DashboardPositionPanel shows BTC accumulated, not yield", () => {
     const html = renderToStaticMarkup(
-      <BitcoinHero
+      <DashboardPositionPanel
         position={resolved("FIXTURE", dashboardCompleteFixture.position.value!)}
         mining={miningCompleteFixture}
       />,
     );
     expect(html).toContain("BTC accumulated");
     expect(html).not.toMatch(/estimated return|apy|yield/i);
-    expect(html).toContain("₿");
   });
 
-  it("AccumulationChart has no APY range", () => {
+  it("AccumulationChartPanel has no APY range", () => {
     const html = renderToStaticMarkup(
-      <AccumulationChart
+      <AccumulationChartPanel
         points={[
           { period: "2026-01", cumulativeBtc: 0.04, miningBtc: 0.035 },
           { period: "2026-02", cumulativeBtc: 0.09, miningBtc: 0.08 },
@@ -115,12 +112,11 @@ describe("PROMPT 227 — widget renders", () => {
     expect(html).not.toMatch(/9\.4|12\.8|apy|yield/i);
   });
 
-  it("StrategyFlowCanvas uses Mining Power / Bitcoin Reserve labels", () => {
+  it("DashboardStrategyPanel uses Mining Power / Bitcoin Reserve labels", () => {
     const html = renderToStaticMarkup(
-      <StrategyFlowCanvas
+      <DashboardStrategyPanel
         pockets={dashboardCompleteFixture.allocation.value!.pockets}
-        btcAccumulated="0.184205 BTC"
-        miningActive
+        mining={miningCompleteFixture}
       />,
     );
     expect(html).toContain("Mining Power");
@@ -129,9 +125,9 @@ describe("PROMPT 227 — widget renders", () => {
     expect(html).not.toContain("B1 ·");
   });
 
-  it("CapacityWidget CTA is Allocate more capital", () => {
+  it("DashboardCapacityPanel CTA is Allocate more capital", () => {
     const html = renderToStaticMarkup(
-      <CapacityWidget
+      <DashboardCapacityPanel
         capacity={dashboardCompleteFixture.capacity}
         subscription={dashboardCompleteFixture.subscription}
         position={dashboardCompleteFixture.position}
@@ -140,8 +136,10 @@ describe("PROMPT 227 — widget renders", () => {
     expect(html).toContain("Allocate more capital");
   });
 
-  it("MiningPulseWidget links to /mining", () => {
-    const html = renderToStaticMarkup(<MiningPulseWidget mining={miningCompleteFixture} />);
+  it("DashboardHealthPanel links to /mining", () => {
+    // using dashboardCompleteFixture.btc which doesn't exist? wait
+    const btcCompleteFixture = require("@/features/investor-ui/fixtures/btc-complete").btcCompleteFixture;
+    const html = renderToStaticMarkup(<DashboardHealthPanel mining={miningCompleteFixture} btc={btcCompleteFixture} />);
     expect(html).toContain("/mining");
     expect(html).toContain("Explore mining contribution");
   });

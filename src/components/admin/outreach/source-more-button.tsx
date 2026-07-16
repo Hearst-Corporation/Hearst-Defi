@@ -3,8 +3,7 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
-import { cn } from "@/lib/cn";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { runSourcing } from "@/app/admin/outreach/actions";
 
 /**
@@ -37,13 +36,16 @@ export function SourceMoreButton({ icpId }: { icpId: string }) {
   }
 
   return (
-    <button
+    <CockpitButton
       type="button"
-      className={cn(BENTO_SECONDARY_BTN, "shrink-0 px-3 py-1.5 text-[length:var(--ct-text-2xs)]")}
+      variant="secondary"
+      shape="rect"
+      size="lg"
+      className="shrink-0 px-3 py-1.5 text-[length:var(--ct-text-2xs)]"
       onClick={onClick}
       disabled={isPending}
     >
       {isPending ? "Sourcing…" : "Source more"}
-    </button>
+    </CockpitButton>
   );
 }

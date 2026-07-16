@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 
 import { submitKycDocument } from "@/lib/onboarding/actions";
-import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { cn } from "@/lib/cn";
 
 // ---------------------------------------------------------------------------
@@ -68,11 +68,6 @@ type FormState =
 const FIELD_LABEL = "ct-bento-label";
 const SELECT_INPUT =
   "body-sm bg-surface-inset border border-[var(--ct-border)] focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] ct-text-strong rounded-lg px-4 py-2.5 outline-none transition-colors disabled:opacity-[var(--ct-opacity-50)] disabled:cursor-not-allowed";
-// Shared bento CTA chrome (single source of truth in @/components/catalyst/bento).
-// The submit button keeps `w-full` (full-width on its own row); the shared
-// BENTO_PRIMARY_BTN has the identical chrome otherwise.
-const PRIMARY_BTN = cn("w-full", BENTO_PRIMARY_BTN);
-const SECONDARY_BTN = BENTO_SECONDARY_BTN;
 
 export interface KycDocumentFormProps {
   /** Called after a successful submission (e.g. navigate to the next step). */
@@ -186,14 +181,16 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
             className="sr-only"
           />
           <div className="flex items-center gap-3">
-            <button
+            <CockpitButton
               type="button"
+              variant="secondary"
+              shape="rect"
+              size="lg"
               disabled={submitting || succeeded}
               onClick={() => fileInputRef.current?.click()}
-              className={SECONDARY_BTN}
             >
               Choose document
-            </button>
+            </CockpitButton>
             <span
               className={cn(
                 "body-xs m-0 truncate",
@@ -209,13 +206,16 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
           </p>
         </div>
 
-        <button
+        <CockpitButton
           type="submit"
-          className={PRIMARY_BTN}
+          variant="primary"
+          shape="rect"
+          size="lg"
+          className="w-full"
           disabled={submitting || succeeded}
         >
           {submitting ? "Uploading…" : "Submit for verification"}
-        </button>
+        </CockpitButton>
 
         {succeeded ? (
           <p className="body-xs ct-text-accent m-0" role="status">

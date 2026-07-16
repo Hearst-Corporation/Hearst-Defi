@@ -705,7 +705,7 @@ function DistributionRange({ chart }: { chart: ChatChart }) {
   return (
     <svg className="mt-1.5 block h-[76px] w-full" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
       <polyline points={highs} fill="none" className="stroke-[var(--ct-accent)] [stroke-width:2.2]" />
-      <polyline points={lows} fill="none" className="stroke-[#60a5fa] [stroke-width:2.2]" />
+      <polyline points={lows} fill="none" className="stroke-[var(--ct-status-info)] [stroke-width:2.2]" />
       <line x1="18" y1="58" x2="238" y2="58" className="stroke-[var(--ct-border-soft)] [stroke-width:1]" />
       <text x="18" y="70" className="fill-[var(--ct-text-faint)] text-[8px]">M1</text>
       <text x="222" y="70" className="fill-[var(--ct-text-faint)] text-[8px]">M12</text>
@@ -722,7 +722,7 @@ function StressCorridor({ chart }: { chart: ChatChart }) {
     .join(" ");
   return (
     <svg className="mt-1.5 block h-[76px] w-full" viewBox="0 0 260 74" role="img" aria-label={chart.title}>
-      <polyline points={points} fill="none" className="stroke-[#f9a03f] [stroke-width:2.4]" />
+      <polyline points={points} fill="none" className="stroke-[var(--ct-status-warning)] [stroke-width:2.4]" />
       <line x1="20" y1="58" x2="232" y2="58" className="stroke-[var(--ct-border-soft)] [stroke-width:1]" />
       {chart.points.map((point, index) => (
         <circle

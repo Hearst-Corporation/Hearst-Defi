@@ -402,7 +402,7 @@ export function VaultForm(props: VaultFormProps) {
               >
                 <span
                   className={cn(
-                    "flex size-7 items-center justify-center rounded-full border font-mono text-[length:var(--ct-text-2xs)] transition-colors",
+                    "flex size-7 items-center justify-center rounded-full border mono text-[length:var(--ct-text-2xs)] transition-colors",
                     isActive &&
                       "border-[var(--ct-accent)] text-[var(--ct-accent)] ring-2 ring-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]",
                     isCompleted &&
@@ -677,7 +677,7 @@ export function VaultForm(props: VaultFormProps) {
                 <div key={key} className="flex flex-col gap-2">
                   <div className="flex items-center justify-between gap-3">
                     <span className={BENTO_LABEL}>{label}</span>
-                    <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-strong)]">
+                    <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-strong)]">
                       {pct(form[key])}%
                     </span>
                   </div>
@@ -787,7 +787,7 @@ export function VaultForm(props: VaultFormProps) {
                       <div key={i} className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
                           <input
-                            className={inputClass("flex-1 font-mono")}
+                            className={inputClass("flex-1 mono")}
                             value={s}
                             onChange={(e) => {
                               const next = [...form.signersWhitelist];
@@ -842,7 +842,7 @@ export function VaultForm(props: VaultFormProps) {
                     Your current admin identity:
                   </span>
                   <div className="flex items-center justify-between gap-3">
-                    <code className="select-all break-all font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-strong)]">{props.adminId}</code>
+                    <code className="select-all break-all mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-strong)]">{props.adminId}</code>
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
@@ -927,7 +927,7 @@ export function VaultForm(props: VaultFormProps) {
             <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <FieldGrid columns={2} className="pb-4">
                 <RecapRow label="Ticker">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-strong)]">{form.ticker}</span>
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-strong)]">{form.ticker}</span>
                 </RecapRow>
                 <RecapRow label="Name">
                   <span className="truncate text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]" title={form.name}>{form.name}</span>
@@ -942,19 +942,19 @@ export function VaultForm(props: VaultFormProps) {
 
               <FieldGrid columns={2} className="py-4">
                 <RecapRow label="Min Ticket">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{formatUsdFull(form.minTicketUsdc)}</span>
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{formatUsdFull(form.minTicketUsdc)}</span>
                 </RecapRow>
                 <RecapRow label="Capacity">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{formatUsdFull(form.capacityUsdc)}</span>
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{formatUsdFull(form.capacityUsdc)}</span>
                 </RecapRow>
                 <RecapRow label="Fees">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">
                     {pct(form.mgmtFeeBps)}% mgmt / {pct(form.perfFeeBps)}% perf
                     {form.hurdleBps > 0 ? ` / ${pct(form.hurdleBps)}% hurdle` : ""}
                   </span>
                 </RecapRow>
                 <RecapRow label="Lockup">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{form.softLockupDays} days</span>
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{form.softLockupDays} days</span>
                 </RecapRow>
                 <RecapRow label="Est. Return">
                   <ApyRange
@@ -980,21 +980,21 @@ export function VaultForm(props: VaultFormProps) {
 
               <FieldGrid columns={2} className="py-4">
                 <RecapRow label="Mining">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetMiningBps)}%</span>
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetMiningBps)}%</span>
                 </RecapRow>
                 <RecapRow label="BTC Tactical">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetBtcTacticalBps)}%</span>
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetBtcTacticalBps)}%</span>
                 </RecapRow>
                 <RecapRow label="USDC Base">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetUsdcBaseBps)}%</span>
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetUsdcBaseBps)}%</span>
                 </RecapRow>
                 <RecapRow label="Stable Reserve">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetStableReserveBps)}%</span>
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{pct(form.targetStableReserveBps)}%</span>
                 </RecapRow>
                 <RecapRow label="Total">
                   <span
                     className={cn(
-                      "font-mono text-[length:var(--ct-text-xs)] font-semibold tabular-nums",
+                      "mono text-[length:var(--ct-text-xs)] font-semibold tabular-nums",
                       allocTotal() === 10000 ? "text-[var(--ct-accent)]" : "text-[var(--ct-status-danger)]",
                     )}
                   >
@@ -1010,7 +1010,7 @@ export function VaultForm(props: VaultFormProps) {
                   </span>
                 </RecapRow>
                 <RecapRow label="Required Quorum">
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">
                     {form.requiredSigners} of {form.signersWhitelist.filter((s) => s.trim().length > 0).length}
                   </span>
                 </RecapRow>
@@ -1054,11 +1054,11 @@ export function VaultForm(props: VaultFormProps) {
               <div className="flex flex-col gap-2 border-t border-[var(--ct-border-soft)] pt-3">
                 <div className="flex items-center justify-between gap-3">
                   <span className={BENTO_LABEL}>Vault</span>
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-strong)]">{form.ticker || "—"}</span>
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-strong)]">{form.ticker || "—"}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className={BENTO_LABEL}>Required signers</span>
-                  <span className="font-mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">
+                  <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">
                     {form.requiredSigners} of {filledSigners.length}
                   </span>
                 </div>
@@ -1085,7 +1085,7 @@ export function VaultForm(props: VaultFormProps) {
                         key={`${s}-${i}`}
                         className="flex items-center justify-between gap-3"
                       >
-                        <code className="break-all font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
+                        <code className="break-all mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)]">
                           {s.trim()}
                           {isMe && (
                             <span className="text-[var(--ct-text-faint)]"> (you)</span>

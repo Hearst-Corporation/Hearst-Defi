@@ -56,7 +56,7 @@ export default async function SpecPage({
                 >
                   <span
                     className={cn(
-                      "ct-metric-caption font-mono tabular-nums",
+                      "ct-metric-caption mono tabular-nums",
                       active
                         ? "text-[var(--ct-accent)]"
                         : "text-[var(--ct-text-muted)]",

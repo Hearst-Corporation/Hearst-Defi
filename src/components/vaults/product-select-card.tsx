@@ -1,8 +1,7 @@
 import { ApyRange } from "@/components/catalyst/apy-range";
-import { Button } from "@/components/catalyst/button";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
-import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import type { VaultProduct } from "@/lib/data/vaults";
 import {
   AUM_PENDING_LABEL,
@@ -38,7 +37,7 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
           <div className="flex flex-col gap-1.5 min-w-0">
             <h3 className="ct-metric-value truncate">
               {vault.name}{" "}
-              <span className="font-mono ct-metric-caption font-normal">{vault.ticker}</span>
+              <span className="mono ct-metric-caption font-normal">{vault.ticker}</span>
             </h3>
             <span className="ct-bento-label">
               {strategyLabel}
@@ -97,13 +96,16 @@ export function ProductSelectCard({ vault, demo = false }: ProductSelectCardProp
         </dl>
 
         {isLive ? (
-          <Button
+          <CockpitButton
             href={href}
+            variant="primary"
+            shape="rect"
+            size="lg"
             aria-label={`View details for ${vault.name}`}
-            className={cn("mt-auto w-full", CATALYST_ACCENT_BTN)}
+            className="mt-auto w-full"
           >
             View details
-          </Button>
+          </CockpitButton>
         ) : (
           <p className="mt-auto ct-metric-caption leading-relaxed">
             {nonLiveNote(vault.status)}

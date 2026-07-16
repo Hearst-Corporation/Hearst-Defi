@@ -17,7 +17,7 @@ import {
 } from "@/components/catalyst/table";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { ApyRange } from "@/components/catalyst/apy-range";
-import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { Progress } from "@/components/catalyst/progress";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -117,9 +117,14 @@ export default async function VaultsPage({ searchParams }: PageProps) {
       titleAccent="Portfolio"
       contextLabel="Vault Portfolio"
       headerActions={
-        <Link href="/admin/vaults/new" className={BENTO_PRIMARY_BTN}>
+        <CockpitButton
+          href="/admin/vaults/new"
+          variant="primary"
+          shape="rect"
+          size="lg"
+        >
           + New deployment
-        </Link>
+        </CockpitButton>
       }
     >
         {/* List — KPI strip → status filter sub-header → Catalyst table soudés
@@ -183,7 +188,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                       {/* Identity */}
                       <TableCell className="pl-5 align-top">
                         <div className="flex flex-col gap-0.5">
-                          <span className="ct-metric-value font-mono">
+                          <span className="ct-metric-value mono">
                             {vault.ticker}
                           </span>
                           <span className="ct-metric-caption truncate">
@@ -213,7 +218,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                             />
                             <ProvenanceBadge kind="manual" variant="strip" />
                           </div>
-                          <span className="ct-metric-caption font-mono tabular-nums">
+                          <span className="ct-metric-caption mono tabular-nums">
                             {formatUsdCompact(aumUsdc)} /{" "}
                             {formatUsdCompact(capacityUsdc)}
                           </span>
@@ -231,18 +236,22 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                       {/* Actions */}
                       <TableCell className="pr-5 align-top">
                         <div className="flex flex-wrap items-center justify-end gap-2">
-                          <Link
+                          <CockpitButton
                             href={`/admin/vaults/${vault.id}`}
-                            className={BENTO_SECONDARY_BTN}
+                            variant="secondary"
+                            shape="rect"
+                            size="lg"
                           >
                             View
-                          </Link>
-                          <Link
+                          </CockpitButton>
+                          <CockpitButton
                             href={`/admin/vaults/new?cloneFrom=${encodeURIComponent(vault.ticker)}`}
-                            className={BENTO_SECONDARY_BTN}
+                            variant="secondary"
+                            shape="rect"
+                            size="lg"
                           >
                             Clone
-                          </Link>
+                          </CockpitButton>
                           {vault.status === "live" && (
                             <VaultActionButton
                               label="Pause"

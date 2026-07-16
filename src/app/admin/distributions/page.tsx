@@ -183,7 +183,7 @@ export default async function DistributionsPage({
                         <span className="text-[var(--ct-text-muted)]">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="ct-metric-caption font-mono">
+                    <TableCell className="ct-metric-caption mono">
                       {d.period}
                     </TableCell>
                     <TableCell className="ct-metric-value text-right tabular-nums">
@@ -195,7 +195,7 @@ export default async function DistributionsPage({
                     <TableCell className="ct-metric-caption text-right">
                       {formatAdminDate(new Date(d.distributedAt))}
                     </TableCell>
-                    <TableCell className="ct-metric-caption hidden text-right font-mono xl:table-cell">
+                    <TableCell className="ct-metric-caption hidden text-right mono xl:table-cell">
                       {d.txHash ? (
                         d.txHash.startsWith("0xMOCK") ? (
                           <span className="text-[var(--ct-text-muted)]">

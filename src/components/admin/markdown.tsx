@@ -62,13 +62,13 @@ export function Markdown({
           code: ({ children, className }) => {
             if (className?.startsWith("language-")) {
               return (
-                <code className="font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
+                <code className="mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                   {children}
                 </code>
               );
             }
             return (
-              <code className="rounded-sm bg-surface-inset px-1 py-0.5 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-accent)]">
+              <code className="rounded-sm bg-surface-inset px-1 py-0.5 mono text-[length:var(--ct-text-2xs)] text-[var(--ct-accent)]">
                 {children}
               </code>
             );

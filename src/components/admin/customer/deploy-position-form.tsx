@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 
-import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { BentoLabel } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { cn } from "@/lib/cn";
 import { deployPosition, type DeployPositionResult } from "@/app/admin/customers/actions";
 
@@ -86,13 +87,15 @@ export function DeployPositionForm({
           </select>
         </div>
 
-        <button
+        <CockpitButton
           type="submit"
-          className={BENTO_SECONDARY_BTN}
+          variant="secondary"
+          shape="rect"
+          size="lg"
           disabled={blocked || pending}
         >
           {pending ? "Deploying…" : "Deploy position"}
-        </button>
+        </CockpitButton>
       </form>
 
       {result !== null && (

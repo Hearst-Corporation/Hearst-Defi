@@ -3,16 +3,13 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { cn } from "@/lib/cn";
 import { generateActivationLink } from "@/app/admin/customers/[id]/actions";
 
-// Smaller secondary CTA for inline use (matches the bento secondary chrome at
-// the table/list density).
-const SECONDARY_SM = cn(
-  BENTO_SECONDARY_BTN,
-  "px-3 py-1.5 text-[length:var(--ct-text-2xs)]",
-);
+// Smaller secondary CTA for inline use (matches the table/list density).
+const SECONDARY_SM =
+  "px-3 py-1.5 text-[length:var(--ct-text-2xs)]";
 
 /**
  * Admin recovery for the welcome-email dead-end: mints a fresh activation link
@@ -48,14 +45,17 @@ export function ActivationLinkButton({ investorId }: { investorId: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <button
+      <CockpitButton
         type="button"
+        variant="secondary"
+        shape="rect"
+        size="lg"
         className={cn(SECONDARY_SM, "self-start")}
         onClick={onClick}
         disabled={isPending}
       >
         {isPending ? "Generating…" : "Generate activation link"}
-      </button>
+      </CockpitButton>
       {link && (
         <div className="flex flex-col gap-2">
           <p className="ct-metric-caption m-0">
@@ -63,12 +63,19 @@ export function ActivationLinkButton({ investorId }: { investorId: string }) {
             in. Valid 7 days.
           </p>
           <div className="flex flex-wrap items-center gap-2">
-            <code className="ct-metric-caption break-all font-mono text-[var(--ct-text-body)]">
+            <code className="ct-metric-caption break-all mono text-[var(--ct-text-body)]">
               {link}
             </code>
-            <button type="button" className={SECONDARY_SM} onClick={copy}>
+            <CockpitButton
+              type="button"
+              variant="secondary"
+              shape="rect"
+              size="lg"
+              className={SECONDARY_SM}
+              onClick={copy}
+            >
               Copy
-            </button>
+            </CockpitButton>
           </div>
         </div>
       )}

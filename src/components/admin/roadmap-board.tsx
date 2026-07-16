@@ -26,7 +26,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
           <div className="flex flex-col gap-3 p-5">
             <div className="flex items-center justify-between gap-4">
               <span className="ct-bento-label">MVP progress</span>
-              <span className="ct-metric-value font-mono tabular-nums">
+              <span className="ct-metric-value mono tabular-nums">
                 {mvpPhase.doneCount} / {mvpPhase.total} (
                 {progressPct(mvpPhase.doneCount, mvpPhase.total)}%)
               </span>
@@ -53,7 +53,7 @@ export function RoadmapBoard({ phases }: RoadmapBoardProps) {
           >
             <div className="flex items-baseline justify-between gap-4 border-b border-[var(--ct-border)] pb-3">
               <h2 className="h2">{phase.label}</h2>
-              <span className="ct-metric-caption font-mono tabular-nums">
+              <span className="ct-metric-caption mono tabular-nums">
                 {phase.doneCount} / {phase.total}
               </span>
             </div>
@@ -94,7 +94,7 @@ function RoadmapWeekCard({ week }: { week: RoadmapWeekWithState }) {
       <header className="flex flex-col gap-2 border-b border-[var(--ct-border-soft)] p-5">
         <h3 className="ct-bento-label leading-none">{week.label}</h3>
         <div className="ct-metric-caption flex items-center gap-4">
-          <span className="font-mono tabular-nums">
+          <span className="mono tabular-nums">
             {week.doneCount} / {week.total}
           </span>
           <Progress

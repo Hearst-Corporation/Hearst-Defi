@@ -54,7 +54,7 @@ export function DistributionPreview({
         </div>
         <div className="flex flex-col items-end gap-1.5 text-right">
           <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">Period</p>
-          <p className="font-mono text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)]">{period}</p>
+          <p className="mono text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)]">{period}</p>
         </div>
       </div>
 
@@ -77,7 +77,7 @@ export function DistributionPreview({
           <TableBody>
             {recipients.map((r) => (
               <TableRow key={r.investorId} className="border-b border-[var(--ct-border-soft)] last:border-0">
-                <TableCell className="truncate px-5 py-3 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
+                <TableCell className="truncate px-5 py-3 mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                   {abbrWallet(r.walletAddress)}
                 </TableCell>
                 <TableCell className="px-5 py-3 text-right text-[var(--ct-text-muted)]">

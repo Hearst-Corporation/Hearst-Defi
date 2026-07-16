@@ -8,7 +8,8 @@
 import { useId, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN, BentoLabel } from "@/components/catalyst/bento";
+import { BentoLabel } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { Modal } from "@/components/catalyst/modal";
 
 const RULE_IDS = [
@@ -63,9 +64,15 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
 
   return (
     <>
-      <button type="button" onClick={handleOpen} className={BENTO_SECONDARY_BTN}>
+      <CockpitButton
+        type="button"
+        variant="secondary"
+        shape="rect"
+        size="lg"
+        onClick={handleOpen}
+      >
         Trigger test signal
-      </button>
+      </CockpitButton>
 
       <Modal
         isOpen={open}
@@ -107,22 +114,26 @@ export function ManualSignalTrigger({ action, vaultId }: ManualSignalTriggerProp
         )}
 
         <div className="mt-8 flex justify-end gap-2">
-          <button
+          <CockpitButton
             type="button"
+            variant="secondary"
+            shape="rect"
+            size="lg"
             onClick={handleClose}
             disabled={isPending}
-            className={BENTO_SECONDARY_BTN}
           >
             Cancel
-          </button>
-          <button
+          </CockpitButton>
+          <CockpitButton
             type="button"
+            variant="primary"
+            shape="rect"
+            size="lg"
             onClick={handleSubmit}
             disabled={isPending}
-            className={BENTO_PRIMARY_BTN}
           >
             {isPending ? "…" : "Create signal"}
-          </button>
+          </CockpitButton>
         </div>
       </Modal>
     </>

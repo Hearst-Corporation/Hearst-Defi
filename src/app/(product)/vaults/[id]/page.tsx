@@ -2,13 +2,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { getVault, type VaultProduct } from "@/lib/data/vaults";
-import { Button } from "@/components/catalyst/button";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
 import { VaultChainReadout } from "@/components/vaults/vault-chain-readout";
 import { vaultStatusLabel } from "@/lib/constants/vault";
 import { cn } from "@/lib/cn";
-import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import { investDepositPath, INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
 export const dynamic = "force-dynamic";
@@ -97,13 +96,13 @@ export default async function VaultDetailPage({ params }: PageProps) {
         </div>
 
         {isLive ? (
-          <Button href={investHref} className={cn("shrink-0", CATALYST_ACCENT_BTN)}>
+          <CockpitButton href={investHref} variant="primary" shape="rect" size="lg" className="shrink-0">
             Continue to deposit
-          </Button>
+          </CockpitButton>
         ) : (
-          <Button href={INVEST_SELECT_PATH} outline className="shrink-0">
+          <CockpitButton href={INVEST_SELECT_PATH} variant="outline" shape="rect" size="lg" className="shrink-0">
             Browse other products
-          </Button>
+          </CockpitButton>
         )}
       </section>
 

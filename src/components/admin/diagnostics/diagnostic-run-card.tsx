@@ -52,7 +52,7 @@ export function DiagnosticRunCard({
         {blurb}
       </p>
       <div className="mt-3 flex items-center justify-between">
-        <span className="font-mono text-xs text-[var(--ct-text-muted)]">
+        <span className="mono text-xs text-[var(--ct-text-muted)]">
           {s
             ? `${s.pass}/${s.total} pass${s.fail ? ` · ${s.fail} fail` : ""}${
                 s.warn ? ` · ${s.warn} warn` : ""

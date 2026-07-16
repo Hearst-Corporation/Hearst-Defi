@@ -7,10 +7,9 @@ import DOMPurify from "dompurify";
 import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { Modal } from "@/components/catalyst/modal";
 import {
-  BENTO_PRIMARY_BTN,
-  BENTO_SECONDARY_BTN,
   BentoPanel,
 } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import {
   BENTO_FIELD,
   BENTO_FIELD_LABEL,
@@ -158,7 +157,7 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
         <div className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <p className="ct-metric-caption font-mono">{email.toEmail}</p>
+              <p className="ct-metric-caption mono">{email.toEmail}</p>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={variant}>{email.status}</Badge>
                 {email.draftedByAgent && (
@@ -178,13 +177,16 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
               </div>
             </div>
             {/* Preview affordance */}
-            <button
+            <CockpitButton
               type="button"
-              className={cn(BENTO_SECONDARY_BTN, "shrink-0 px-3 py-1.5 text-[length:var(--ct-text-2xs)]")}
+              variant="secondary"
+              shape="rect"
+              size="lg"
+              className="shrink-0 px-3 py-1.5 text-[length:var(--ct-text-2xs)]"
               onClick={() => setPreviewOpen(true)}
             >
               Preview
-            </button>
+            </CockpitButton>
           </div>
 
           <label className={BENTO_FIELD} htmlFor={`email-subject-${email.id}`}>
@@ -212,22 +214,26 @@ export function EmailReviewCard({ email }: { email: OutreachEmailReview }) {
           </label>
 
           <div className="flex flex-wrap items-center gap-2">
-            <button
+            <CockpitButton
               type="button"
-              className={BENTO_SECONDARY_BTN}
+              variant="secondary"
+              shape="rect"
+              size="lg"
               onClick={onSave}
               disabled={locked || savePending || !dirty}
             >
               {savePending ? "Saving…" : "Save"}
-            </button>
-            <button
+            </CockpitButton>
+            <CockpitButton
               type="button"
-              className={BENTO_PRIMARY_BTN}
+              variant="primary"
+              shape="rect"
+              size="lg"
               onClick={onApprove}
               disabled={locked || approvePending || email.status === "approved"}
             >
               {approvePending ? "Approving…" : "Approve"}
-            </button>
+            </CockpitButton>
           </div>
         </div>
       </BentoPanel>

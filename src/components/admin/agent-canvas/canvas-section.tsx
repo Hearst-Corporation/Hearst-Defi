@@ -5,8 +5,8 @@ import { ProvenanceBadge, type Provenance as BadgeProvenance } from "@/component
 import {
   BentoHeader,
   BentoPanel,
-  BENTO_SECONDARY_BTN,
 } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { cn } from "@/lib/cn";
 
 import { CanvasActionButton } from "./canvas-action-button";
@@ -73,17 +73,19 @@ export function CanvasSectionView({
         {section.options.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {section.options.map((opt) => (
-              <button
+              <CockpitButton
                 key={opt.id}
                 type="button"
-                className={BENTO_SECONDARY_BTN}
+                variant="secondary"
+                shape="rect"
+                size="lg"
                 onClick={() => {
                   if (opt.effect.kind === "prefill_chat") onPrefillChat(opt.effect.prompt);
                   else onSetField(opt.effect.sectionId, opt.effect.fieldKey, opt.effect.value);
                 }}
               >
                 {opt.label}
-              </button>
+              </CockpitButton>
             ))}
           </div>
         )}

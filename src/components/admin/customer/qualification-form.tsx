@@ -3,7 +3,8 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { BentoLabel, BENTO_PRIMARY_BTN } from "@/components/catalyst/bento";
+import { BentoLabel } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { saveQualification } from "@/app/admin/customers/[id]/actions";
 import type { QualificationProfile } from "@prisma/client";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
@@ -79,9 +80,15 @@ export function QualificationForm({
         })}
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
+        <CockpitButton
+          type="submit"
+          variant="primary"
+          shape="rect"
+          size="lg"
+          disabled={isPending}
+        >
           {isPending ? "Saving…" : "Save & recalibrate"}
-        </button>
+        </CockpitButton>
       </div>
     </form>
   );

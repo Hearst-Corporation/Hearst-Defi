@@ -114,7 +114,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           subtitle="Proposer, signer quorum, timelock, and lifecycle timestamps."
           headerTrailing={
             <>
-              <Badge color="green" className="font-mono uppercase">
+              <Badge color="green" className="mono uppercase">
                 {proposal.vaultTicker}
               </Badge>
               <Badge
@@ -129,7 +129,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
             <BentoKpiTile
               label="Proposed by"
-              value={<span className="font-mono break-all">{proposal.proposedBy}</span>}
+              value={<span className="mono break-all">{proposal.proposedBy}</span>}
               className="bg-surface-card"
             />
             <BentoKpiTile
@@ -167,7 +167,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
             <div className="p-5 lg:p-6 border-t border-[var(--ct-border-soft)]">
               <div className="flex flex-col gap-1.5 rounded-lg border border-[var(--ct-border)] bg-surface-inset p-4">
                 <p className="ct-bento-label">Timelock countdown</p>
-                <p className="ct-metric-value font-mono">
+                <p className="ct-metric-value mono">
                   {timelockCountdown(proposal.etaAt)}
                 </p>
               </div>
@@ -209,7 +209,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         {proposal.calldata ? (
           <AdminSectionCard ariaLabel="Calldata" title="Calldata" subtitle="Encoded transaction payload to be executed on-chain.">
             <div className="p-5 lg:p-6">
-              <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] p-4 font-mono text-[length:var(--ct-text-nano)] text-[var(--ct-text-body)]">
+              <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg border border-[var(--ct-border)] bg-[var(--ct-surface-inset)] p-4 mono text-[length:var(--ct-text-nano)] text-[var(--ct-text-body)]">
                 {formatProposalCalldata(proposal.calldata)}
               </pre>
             </div>
@@ -247,7 +247,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                       {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <span className="font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
+                      <span className="mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                         {sig.signerAddress}
                       </span>
                       {sig.reason ? (

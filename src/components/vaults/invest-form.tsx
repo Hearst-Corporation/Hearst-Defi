@@ -10,9 +10,8 @@ import {
   BentoPanel,
   BentoHeader,
   BentoLabel,
-  BENTO_PRIMARY_BTN,
-  BENTO_SECONDARY_BTN,
 } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { ApyRange } from "@/components/catalyst/apy-range";
 import { Ptai } from "@/components/catalyst/ptai";
 import { kycLabel } from "@/lib/profile/kyc-display";
@@ -521,12 +520,23 @@ function InvestFormUnconfigured({
           <InvestHelpLinks />
 
           <div className="flex items-center justify-between gap-3">
-            <Link href={investProductPath(vault.id)} className={BENTO_SECONDARY_BTN}>
+            <CockpitButton
+              href={investProductPath(vault.id)}
+              variant="secondary"
+              shape="rect"
+              size="lg"
+            >
               ← Back
-            </Link>
-            <button type="button" disabled className={BENTO_PRIMARY_BTN}>
+            </CockpitButton>
+            <CockpitButton
+              type="button"
+              variant="primary"
+              shape="rect"
+              size="lg"
+              disabled
+            >
               Connect a wallet to continue
-            </button>
+            </CockpitButton>
           </div>
         </div>
       </BentoPanel>
@@ -884,13 +894,15 @@ function InvestFormLive({
                   // confirm here. Hide the on-chain Confirm/Cancel row so there is
                   // a single, unambiguous CTA that never waits on a wallet.
                   <div className="flex items-center justify-between gap-3 pt-1">
-                    <button
+                    <CockpitButton
                       type="button"
+                      variant="secondary"
+                      shape="rect"
+                      size="lg"
                       onClick={handleCancelConfirm}
-                      className={BENTO_SECONDARY_BTN}
                     >
                       Cancel
-                    </button>
+                    </CockpitButton>
                     <DemoDepositSimulate
                       vaultId={vault.id}
                       amountUsdc={amount}
@@ -899,24 +911,28 @@ function InvestFormLive({
                   </div>
                 ) : (
                   <div className="flex items-center justify-between gap-3 pt-1">
-                    <button
+                    <CockpitButton
                       type="button"
+                      variant="secondary"
+                      shape="rect"
+                      size="lg"
                       onClick={handleCancelConfirm}
                       disabled={depositing}
-                      className={BENTO_SECONDARY_BTN}
                     >
                       Cancel
-                    </button>
-                    <button
+                    </CockpitButton>
+                    <CockpitButton
                       type="button"
+                      variant="primary"
+                      shape="rect"
+                      size="lg"
                       onClick={() => void handleConfirm()}
                       disabled={!ctaEnabled || depositing}
-                      className={BENTO_PRIMARY_BTN}
                     >
                       {depositing
                         ? "Confirming…"
                         : `Confirm ${formatUsdAmount(amount)} deposit`}
-                    </button>
+                    </CockpitButton>
                   </div>
                 )}
               </div>
@@ -925,22 +941,26 @@ function InvestFormLive({
                 <InvestHelpLinks />
 
                 <div className="flex items-center justify-between gap-3">
-                  <Link
+                  <CockpitButton
                     href={investProductPath(vault.id)}
-                    className={BENTO_SECONDARY_BTN}
+                    variant="secondary"
+                    shape="rect"
+                    size="lg"
                   >
                     ← Back
-                  </Link>
+                  </CockpitButton>
 
-                  <button
+                  <CockpitButton
                     type="button"
+                    variant="primary"
+                    shape="rect"
+                    size="lg"
                     onClick={handleReview}
                     disabled={!ctaEnabled}
                     aria-disabled={!ctaEnabled}
-                    className={BENTO_PRIMARY_BTN}
                   >
                     {ctaLabel(currentCtaState, amount)}
-                  </button>
+                  </CockpitButton>
                 </div>
               </>
             )}

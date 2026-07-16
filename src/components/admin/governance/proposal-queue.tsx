@@ -47,7 +47,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3">
-                  <Badge color="green" className="font-mono uppercase">
+                  <Badge color="green" className="mono uppercase">
                     {proposal.vaultTicker}
                   </Badge>
                   <span className="ct-metric-value truncate">
@@ -56,7 +56,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
                 </div>
                 <p className="ct-metric-caption mt-1.5">
                   Proposed by{" "}
-                  <span className="font-mono text-[var(--ct-text-body)]">
+                  <span className="mono text-[var(--ct-text-body)]">
                     {proposal.proposedBy.slice(0, 8)}…
                   </span>
                   {" · "}
@@ -87,7 +87,7 @@ export function ProposalQueue({ proposals }: { proposals: ProposalSummary[] }) {
             {proposal.state === "TIMELOCK" && proposal.etaAt ? (
               <div className="ct-metric-caption mt-3 border-t border-[var(--ct-border-soft)] pt-3">
                 Timelock ETA:{" "}
-                <span className="font-mono text-[var(--ct-text-body)]">
+                <span className="mono text-[var(--ct-text-body)]">
                   {formatGovernanceTimestamp(proposal.etaAt)}
                 </span>
               </div>

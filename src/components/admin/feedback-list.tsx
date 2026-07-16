@@ -73,7 +73,7 @@ function FeedbackRow({ item }: { item: FeedbackItem }) {
             </span>
           ) : null}
           {item.pathname ? (
-            <span className="font-mono">{item.pathname}</span>
+            <span className="mono">{item.pathname}</span>
           ) : null}
           {item.resolved ? (
             <span className="ct-bento-label inline-flex items-center rounded-md border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 text-[var(--ct-accent)]">

@@ -18,7 +18,7 @@ function Trend({ pct }: { pct: number }) {
   return (
     <span
       className={cn(
-        "ct-metric-caption font-mono tabular-nums",
+        "ct-metric-caption mono tabular-nums",
         flat ? "ct-text-muted" : up ? "ct-status-success" : "ct-status-danger",
       )}
     >

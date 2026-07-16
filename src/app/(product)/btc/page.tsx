@@ -1,25 +1,22 @@
-/**
- * /btc — Bitcoin accumulation page (PROMPT 227 primary product surface).
- */
 import { BentoPageShell } from "@/components/catalyst/bento";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import {
-  BitcoinOrbit,
-  ProductProgress,
-  AccumulationFlowCanvas,
-  AccumulationChart,
-  OperationalStatusStrip,
-  ContextualProof,
-  AiInsightWidget,
-} from "@/components/investor-widgets";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getFixtureInvestorUiDataSource } from "@/features/investor-ui/data-source";
 import { DataNotConfigured } from "@/features/investor-ui/components/states/data-states";
+import { Card } from "@/components/catalyst/card";
 
 import { getBtcPageData } from "./_data/get-btc-page-data";
 import { buildAccumulationSeries } from "../dashboard/_data/accumulation-series";
-import { formatBtcAmount, satsToBtcString, toProvenance, formatIsoDateTime } from "./_data/format-btc";
+import { formatBtcAmount, toProvenance, formatIsoDateTime } from "./_data/format-btc";
+
+import { HeroPanel } from "@/features/investor-ui/components/widgets/hero-panel";
+import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
+import { SourcesAccumulationPanel } from "@/features/investor-ui/components/sources-accumulation-panel";
+import { DashboardStrategyPanel } from "../dashboard/_components/dashboard-strategy-panel";
+import { DashboardHealthPanel } from "../dashboard/_components/dashboard-health-panel";
+import { ContextualProofPanel } from "@/features/investor-ui/components/widgets/contextual-proof-panel";
+import { PortfolioInsightPanel } from "../dashboard/_components/portfolio-insight-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +40,7 @@ export default async function BtcPage({
   const data = await getBtcPageData(state);
   const mining = await getFixtureInvestorUiDataSource().getMining();
   const aiExperts = await getFixtureInvestorUiDataSource().getAiExperts();
+  const dashboard = await getFixtureInvestorUiDataSource().getDashboard();
 
   const reserve = data.reserve;
   const production = data.extra.production;
@@ -59,9 +57,15 @@ export default async function BtcPage({
     mining.mining.value?.currentMonth ?? data.extra.trajectory.value?.monthsElapsed ?? null;
   const monthsTotal =
     mining.mining.value?.productDurationMonths ?? data.extra.trajectory.value?.monthsTotal ?? 24;
-  const progressPct = monthsElapsed != null ? (monthsElapsed / monthsTotal) * 100 : 0;
 
   const accumulationPoints = buildAccumulationSeries(production.value?.monthly);
+  
+  // Synthesize sources data from accumulation points
+  const sourcesData = accumulationPoints.map(p => ({
+    period: p.period,
+    mining: p.miningBtc,
+    strategic: Math.max(0, p.cumulativeBtc - p.miningBtc)
+  }));
 
   const proofItems = (data.extra.proofs.value ?? []).map((p) => ({
     label: p.label,
@@ -84,69 +88,56 @@ export default async function BtcPage({
 
       <div className="flex min-w-0 flex-col gap-[var(--ct-space-5)]">
         {reserve.status === "NOT_CONFIGURED" || reserve.value === null ? (
-          <div className="iw-surface-primary p-[var(--ct-space-5)]">
+          <Card className="w-full p-[var(--ct-space-5)]">
             <DataNotConfigured
               label="Bitcoin reserve"
               detail="PermissionedDynaVault v2.1 is not deployed yet."
             />
-          </div>
+          </Card>
         ) : (
-          <div className="iw-surface-open flex flex-col gap-[var(--ct-space-4)] lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex min-w-0 flex-1 flex-col gap-[var(--ct-space-3)]">
-              <div className="flex items-center gap-[var(--ct-space-2)]">
-                <span className="stat-label ct-text-muted">BTC accumulated</span>
-                <ProvenanceBadge kind={toProvenance(reserve.status)} variant="compact" />
-              </div>
-              <span className="text-[length:2rem] font-bold tracking-tight ct-text-strong tabular leading-none">
-                {totalBtc ?? "—"}
-              </span>
-              <div className="flex flex-wrap gap-x-[var(--ct-space-5)] gap-y-[var(--ct-space-2)] body-sm ct-text-muted">
-                <span>
-                  Current value{" "}
-                  <span className="ct-text-body font-medium tabular">
-                    {reserve.value.reserveBtcUsd
-                      ? `$${Number(reserve.value.reserveBtcUsd).toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                      : "—"}
-                  </span>
-                </span>
-                <span>
-                  Mining-produced{" "}
-                  <span className="ct-text-body font-medium tabular">{miningBtc ?? "—"}</span>
-                </span>
-              </div>
-              <ProductProgress
-                currentMonth={monthsElapsed}
-                totalMonths={monthsTotal}
-                statusLabel="Accumulating"
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)]">
+            <div className="lg:col-span-12 flex min-w-0">
+              <HeroPanel
+                title="BTC accumulated"
+                mainValue={totalBtc ?? "—"}
+                provenance={toProvenance(reserve.status)}
+                metrics={[
+                  { label: "Current value", value: reserve.value.reserveBtcUsd ? `$${Number(reserve.value.reserveBtcUsd).toLocaleString("en-US", { maximumFractionDigits: 0 })}` : "—" },
+                  { label: "Mining-produced", value: miningBtc ?? "—", accent: true },
+                  { label: "Strategic exposure", value: strategicBtc ?? "—" },
+                ]}
+                progress={monthsElapsed != null ? {
+                  current: monthsElapsed,
+                  total: monthsTotal,
+                  label: "Product term progress"
+                } : undefined}
               />
             </div>
-            <BitcoinOrbit progressPct={progressPct} pulse />
           </div>
         )}
 
-        <AccumulationFlowCanvas
-          miningBtc={miningBtc}
-          strategicBtc={strategicBtc}
-          totalBtc={totalBtc}
-        />
-
-        <AccumulationChart
+        <AccumulationChartPanel
           points={accumulationPoints}
           currentMonth={monthsElapsed}
           totalMonths={monthsTotal}
           provenance={toProvenance(reserve.status)}
         />
+        
+        <SourcesAccumulationPanel monthlyProduction={sourcesData} />
 
-        <OperationalStatusStrip mining={mining} btc={data} />
-
-        <div className="iw-surface-primary p-[var(--ct-space-5)]">
-          <span className="stat-label ct-text-muted">Contextual proofs</span>
-          <div className="mt-[var(--ct-space-4)]">
-            <ContextualProof items={proofItems} />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)]">
+          <div className="lg:col-span-7 flex min-w-0 flex-col gap-[var(--ct-space-5)]">
+            <DashboardStrategyPanel
+              pockets={dashboard.allocation.value?.pockets ?? null}
+              mining={mining}
+            />
+          </div>
+          <div className="lg:col-span-5 flex min-w-0 flex-col gap-[var(--ct-space-5)]">
+            <DashboardHealthPanel mining={mining} btc={data} />
+            {proofItems.length > 0 && <ContextualProofPanel items={proofItems} />}
+            <PortfolioInsightPanel aiExperts={aiExperts} variant="bitcoin" />
           </div>
         </div>
-
-        <AiInsightWidget aiExperts={aiExperts} variant="bitcoin" />
       </div>
     </BentoPageShell>
   );

@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { deleteProof } from "@/app/admin/proofs/actions";
 import { OFF_CHAIN_PROOFS_EMPTY } from "@/components/proof/empty-messages";
 import { PublishOnChainButton } from "@/components/admin/publish-on-chain-button";
-import { BentoPanel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { BentoPanel } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { abbreviateAddress } from "@/lib/onchain";
 import { safeUrl } from "@/lib/safe-url";
 import { cn } from "@/lib/cn";
@@ -99,10 +100,10 @@ function AdminProofRow({ item }: { item: ProofItem }) {
           <div className="ct-metric-caption flex flex-wrap items-center gap-2">
             <ProofChip accent>{item.proofType}</ProofChip>
             {item.period ? <ProofChip>{item.period}</ProofChip> : null}
-            <time className="font-mono text-[var(--ct-text-muted)]">
+            <time className="mono text-[var(--ct-text-muted)]">
               {postedAtDisplay}
             </time>
-            <span className="font-mono text-[var(--ct-text-secondary)]">
+            <span className="mono text-[var(--ct-text-secondary)]">
               by {abbreviateAddress(item.postedBy)}
             </span>
           </div>
@@ -110,7 +111,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
           <div className="ct-metric-caption flex flex-wrap items-center gap-x-5 gap-y-2">
             <span>
               <span className="text-[var(--ct-text-muted)]">hash </span>
-              <span className="font-mono text-[var(--ct-text-secondary)]">
+              <span className="mono text-[var(--ct-text-secondary)]">
                 {abbreviateAddress(item.hash)}
               </span>
             </span>
@@ -120,7 +121,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
                 href={safeHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-[var(--ct-accent)] underline decoration-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] underline-offset-2 hover:decoration-[var(--ct-accent)]"
+                className="mono text-[var(--ct-accent)] underline decoration-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] underline-offset-2 hover:decoration-[var(--ct-accent)]"
               >
                 {uriDisplay} ↗
               </a>
@@ -128,7 +129,7 @@ function AdminProofRow({ item }: { item: ProofItem }) {
             {item.txHash ? (
               <span>
                 <span className="text-[var(--ct-text-muted)]">tx </span>
-                <span className="font-mono text-[var(--ct-text-secondary)]">
+                <span className="mono text-[var(--ct-text-secondary)]">
                   {abbreviateAddress(item.txHash)}
                 </span>
               </span>
@@ -144,17 +145,17 @@ function AdminProofRow({ item }: { item: ProofItem }) {
           {item.proofType === "mining_attestation" && !item.txHash ? (
             <PublishOnChainButton proofId={item.id} />
           ) : null}
-          <button
+          <CockpitButton
             type="button"
+            variant="secondary"
+            shape="rect"
+            size="lg"
             onClick={onDelete}
             disabled={isPending}
-            className={cn(
-              BENTO_SECONDARY_BTN,
-              "border-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] text-[var(--ct-status-danger)] hover:bg-[color-mix(in_srgb,var(--ct-status-danger)_20%,transparent)]",
-            )}
+            className="border-[color-mix(in_srgb,var(--ct-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-status-danger)_10%,transparent)] text-[var(--ct-status-danger)] hover:bg-[color-mix(in_srgb,var(--ct-status-danger)_20%,transparent)]"
           >
             {isPending ? "Deleting…" : "Delete"}
-          </button>
+          </CockpitButton>
         </div>
       </div>
     </BentoPanel>

@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 
 import type { PendingActionProposal } from "@/lib/canvas/contract";
-import { BENTO_PRIMARY_BTN, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { cn } from "@/lib/cn";
 import { buildOutreachPostDraftMessage } from "@/lib/canvas/outreach-turn";
 
@@ -204,27 +204,32 @@ export function CanvasActionButton({
       )}
 
       {(phase === "idle" || phase === "proposing" || phase === "error") && (
-        <button
+        <CockpitButton
           type="button"
-          className={cn(BENTO_SECONDARY_BTN, "self-start")}
+          variant="secondary"
+          shape="rect"
+          size="lg"
+          className="self-start"
           disabled={disabled || busy}
           onClick={propose}
         >
           {phase === "proposing" ? "Preparing…" : proposal.label}
-        </button>
+        </CockpitButton>
       )}
 
       {(phase === "awaiting_confirm" || phase === "executing") && (
         <>
           <div className="flex items-center gap-2">
-            <button
+            <CockpitButton
               type="button"
-              className={BENTO_PRIMARY_BTN}
+              variant="primary"
+              shape="rect"
+              size="lg"
               disabled={disabled || busy}
               onClick={confirm}
             >
               {phase === "executing" ? "Executing…" : "Confirm"}
-            </button>
+            </CockpitButton>
             <button
               type="button"
               className={cn(

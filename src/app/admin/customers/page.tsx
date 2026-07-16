@@ -168,7 +168,7 @@ export default async function CustomersPage({
                       </div>
                     </TableCell>
                     <TableCell
-                      className={`ct-metric-caption hidden text-center font-mono lg:table-cell`}
+                      className={`ct-metric-caption hidden text-center mono lg:table-cell`}
                     >
                       {truncateWallet(c.walletAddress)}
                     </TableCell>

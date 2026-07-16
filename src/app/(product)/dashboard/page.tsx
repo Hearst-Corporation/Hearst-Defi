@@ -1,32 +1,18 @@
-/**
- * /dashboard — Bitcoin accumulation investor cockpit (PROMPT 227).
- *
- * Five narrative zones on one open column:
- *   A — Hero position + BTC orbit
- *   B — Available capacity + allocate CTA
- *   C — Strategy flow canvas
- *   D — BTC accumulation chart (no yield/APY)
- *   E — Mining pulse
- *   F — Verified activity timeline
- *   G — Compact AI insight
- */
 import { BentoPageShell } from "@/components/catalyst/bento";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import {
-  BitcoinHero,
-  CapacityWidget,
-  StrategyFlowCanvas,
-  AccumulationChart,
-  MiningPulseWidget,
-  VerifiedActivityTimeline,
-  AiInsightWidget,
-} from "@/components/investor-widgets";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getFixtureInvestorUiDataSource, getInvestorUiDataSource } from "@/features/investor-ui/data-source";
 import { btcPageExtraCompleteFixture } from "@/app/(product)/btc/_data/btc-page-fixtures";
 
 import { buildAccumulationSeries } from "./_data/accumulation-series";
+import { DashboardPositionPanel } from "./_components/dashboard-position-panel";
+import { DashboardCapacityPanel } from "./_components/dashboard-capacity-panel";
+import { DashboardStrategyPanel } from "./_components/dashboard-strategy-panel";
+import { DashboardHealthPanel } from "./_components/dashboard-health-panel";
+import { VerifiedActivityPanel } from "./_components/verified-activity-panel";
+import { PortfolioInsightPanel } from "./_components/portfolio-insight-panel";
+import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -46,13 +32,6 @@ const FIXTURE_VARIANTS = [
 
 interface DashboardPageProps {
   searchParams: Promise<{ state?: string | string[] }>;
-}
-
-function satsToBtcLabel(sats: string | null | undefined): string | null {
-  if (sats == null) return null;
-  const n = Number(sats);
-  if (!Number.isFinite(n)) return null;
-  return `${(n / 1e8).toFixed(6)} BTC`;
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
@@ -81,7 +60,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const accumulationPoints = buildAccumulationSeries(productionMonthly);
   const miningVal = mining.mining.value;
-  const btcAccumulated = satsToBtcLabel(miningVal?.totalBtcEarnedSats);
 
   return (
     <BentoPageShell testId="dashboard-page">
@@ -96,36 +74,54 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       />
 
       <div className="flex min-w-0 flex-col gap-[var(--ct-space-5)]">
-        <BitcoinHero position={dashboard.position} mining={mining} />
+        {/* Ligne 1 — Position (7) + Capacity (5) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)]">
+          <div className="lg:col-span-7 flex min-w-0">
+            <DashboardPositionPanel position={dashboard.position} mining={mining} />
+          </div>
+          <div className="lg:col-span-5 flex min-w-0">
+            <DashboardCapacityPanel
+              capacity={dashboard.capacity}
+              subscription={dashboard.subscription}
+              position={dashboard.position}
+            />
+          </div>
+        </div>
 
-        <CapacityWidget
-          capacity={dashboard.capacity}
-          subscription={dashboard.subscription}
-          position={dashboard.position}
-        />
-
-        <StrategyFlowCanvas
-          pockets={dashboard.allocation.value?.pockets ?? null}
-          btcAccumulated={btcAccumulated}
-          miningActive={miningVal?.fleetActive === true}
-        />
-
-        <AccumulationChart
+        {/* Ligne 2 — Accumulation Chart (12) */}
+        <AccumulationChartPanel
           points={accumulationPoints}
           currentMonth={miningVal?.currentMonth ?? null}
           totalMonths={miningVal?.productDurationMonths ?? null}
           provenance={btc.reserve.status === "STALE" ? "stale" : "estimated"}
         />
 
-        <MiningPulseWidget mining={mining} />
+        {/* Ligne 3 — Strategy Flow (7) + Mining/Reserve Health (5) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)]">
+          <div className="lg:col-span-7 flex min-w-0">
+            <DashboardStrategyPanel
+              pockets={dashboard.allocation.value?.pockets ?? null}
+              mining={mining}
+            />
+          </div>
+          <div className="lg:col-span-5 flex min-w-0">
+            <DashboardHealthPanel mining={mining} btc={btc} />
+          </div>
+        </div>
 
-        <VerifiedActivityTimeline
-          activity={dashboard.activity}
-          alerts={dashboard.alerts}
-          proofs={dashboard.proofs}
-        />
-
-        <AiInsightWidget aiExperts={aiExperts} variant="portfolio" />
+        {/* Ligne 4 — Verified Activity (7) + Portfolio Insight (5) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)]">
+          <div className="lg:col-span-7 flex min-w-0">
+            <VerifiedActivityPanel
+              activity={dashboard.activity}
+              alerts={dashboard.alerts}
+              proofs={dashboard.proofs}
+            />
+          </div>
+          <div className="lg:col-span-5 flex min-w-0">
+            <PortfolioInsightPanel aiExperts={aiExperts} />
+          </div>
+        </div>
       </div>
     </BentoPageShell>
   );

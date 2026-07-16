@@ -11,7 +11,7 @@ export function InputGroup({ children }: React.ComponentPropsWithoutRef<'span'>)
         'has-[[data-slot=icon]:first-child]:[&_input]:pl-10 has-[[data-slot=icon]:last-child]:[&_input]:pr-10 sm:has-[[data-slot=icon]:first-child]:[&_input]:pl-8 sm:has-[[data-slot=icon]:last-child]:[&_input]:pr-8',
         '*:data-[slot=icon]:pointer-events-none *:data-[slot=icon]:absolute *:data-[slot=icon]:top-3 *:data-[slot=icon]:z-10 *:data-[slot=icon]:size-5 sm:*:data-[slot=icon]:top-2.5 sm:*:data-[slot=icon]:size-4',
         '[&>[data-slot=icon]:first-child]:left-3 sm:[&>[data-slot=icon]:first-child]:left-2.5 [&>[data-slot=icon]:last-child]:right-3 sm:[&>[data-slot=icon]:last-child]:right-2.5',
-        '*:data-[slot=icon]:text-[var(--ct-text-faint)] dark:*:data-[slot=icon]:text-[var(--ct-text-muted)]'
+        '*:data-[slot=icon]:text-[var(--ct-text-faint)]'
       )}
     >
       {children}
@@ -40,9 +40,7 @@ export const Input = forwardRef(function Input(
         // Basic layout
         'relative block w-full',
         // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-        'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-[var(--ct-surface-card)] before:shadow-[var(--ct-shadow-soft)]',
-        // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
-        'dark:before:hidden',
+        'before:hidden',
         // Focus ring
         'after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset focus-within:after:ring-2 focus-within:after:ring-[var(--ct-accent)]',
         // Disabled state
@@ -83,8 +81,6 @@ export const Input = forwardRef(function Input(
           'data-invalid:border-[var(--ct-status-danger)] data-invalid:data-hover:border-[var(--ct-status-danger)]',
           // Disabled state
           'data-disabled:border-[var(--ct-border-strong)] data-disabled:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] data-hover:data-disabled:border-[var(--ct-border-strong)]',
-          // System icons
-          'dark:scheme-dark',
         ])}
       />
     </span>
