@@ -1,8 +1,7 @@
 import { Card } from "@/components/catalyst/card";
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { type Provenance } from "@/components/ui/provenance-badge";
 import { DataNotConfigured, DataUnavailable } from "@/features/investor-ui/components/states/data-states";
 import type { ResolvedViewModel, InvestorPositionViewModel, MiningViewModel } from "@/features/investor-ui/types";
-import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { investDepositPath } from "@/lib/vaults/invest-routes";
 import Link from "next/link";

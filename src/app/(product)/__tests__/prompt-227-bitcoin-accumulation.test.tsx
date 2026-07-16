@@ -10,6 +10,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PRODUCT_NAV } from "@/components/nav/product-nav-items";
 import { dashboardCompleteFixture } from "@/features/investor-ui/fixtures/dashboard-complete";
 import { miningCompleteFixture } from "@/features/investor-ui/fixtures/mining-complete";
+import { btcCompleteFixture } from "@/features/investor-ui/fixtures/btc-complete";
 import { resolved } from "@/features/investor-ui/types/common";
 
 import { DashboardPositionPanel } from "../dashboard/_components/dashboard-position-panel";
@@ -137,8 +138,6 @@ describe("PROMPT 227 — widget renders", () => {
   });
 
   it("DashboardHealthPanel links to /mining", () => {
-    // using dashboardCompleteFixture.btc which doesn't exist? wait
-    const btcCompleteFixture = require("@/features/investor-ui/fixtures/btc-complete").btcCompleteFixture;
     const html = renderToStaticMarkup(<DashboardHealthPanel mining={miningCompleteFixture} btc={btcCompleteFixture} />);
     expect(html).toContain("/mining");
     expect(html).toContain("Explore mining contribution");
