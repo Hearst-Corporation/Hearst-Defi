@@ -3,6 +3,7 @@
 
 import { notFound } from "next/navigation";
 
+import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { PortfolioLeafHeader } from "@/components/portfolio/portfolio-leaf-header";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { getInvestor } from "@/lib/auth/session";
@@ -60,6 +61,13 @@ export default async function PortfolioTaxPage() {
   });
   const { form1099Int, form1099B, crs } = preview;
 
+  // No active position → there is no real ledger to preview from. loadPortfolio
+  // still returns defined (zero) totals for an empty ledger, which would flip
+  // getTaxPreview's `isLive` check to true and render a false "estimated" badge
+  // over all-zero figures. Gate on the actual position count instead, and show
+  // an honest empty state — never a fabricated $0.00 tax preview.
+  const hasPositions = positions.length > 0;
+
   // These YTD/CRS figures are always a preview — "estimated" when computed from
   // the real ledger, "simulated" when the deterministic sandbox stub was used.
   const provenanceKind = preview.dataSource === "live" ? "estimated" : "simulated";
@@ -73,101 +81,111 @@ export default async function PortfolioTaxPage() {
           kicker={`YTD · ${TAX_YEAR} · PREVIEW ONLY`}
         />
 
-        {/* 1099-INT */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
-          <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h2 className="ct-section-title">Form 1099-INT</h2>
-              <p className="ct-metric-caption">
-                Interest income · as of {form1099Int.ytdCutDate}
-              </p>
-            </div>
-            <ProvenanceBadge kind={provenanceKind} />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Box 1 · Interest income</div>
-              <div className={KPI_VALUE}>
-                {formatUsdFull(form1099Int.interestIncomeUsd)}
+        {hasPositions ? (
+          <>
+            {/* 1099-INT */}
+            <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
+              <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <h2 className="ct-section-title">Form 1099-INT</h2>
+                  <p className="ct-metric-caption">
+                    Interest income · as of {form1099Int.ytdCutDate}
+                  </p>
+                </div>
+                <ProvenanceBadge kind={provenanceKind} />
               </div>
-            </div>
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Box 4 · Federal withheld</div>
-              <div className={KPI_VALUE}>
-                {formatUsdFull(form1099Int.federalTaxWithheldUsd)}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
+                <div className={KPI_TILE}>
+                  <div className="ct-bento-label">Box 1 · Interest income</div>
+                  <div className={KPI_VALUE}>
+                    {formatUsdFull(form1099Int.interestIncomeUsd)}
+                  </div>
+                </div>
+                <div className={KPI_TILE}>
+                  <div className="ct-bento-label">Box 4 · Federal withheld</div>
+                  <div className={KPI_VALUE}>
+                    {formatUsdFull(form1099Int.federalTaxWithheldUsd)}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        {/* 1099-B */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
-          <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h2 className="ct-section-title">Form 1099-B</h2>
-              <p className="ct-metric-caption">
-                Proceeds &amp; cost basis · capital gains on redemption only
-              </p>
-            </div>
-            <ProvenanceBadge kind={provenanceKind} />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Box 1e · Cost basis</div>
-              <div className={KPI_VALUE}>
-                {formatUsdFull(form1099B.costBasisUsd)}
+            {/* 1099-B */}
+            <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
+              <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <h2 className="ct-section-title">Form 1099-B</h2>
+                  <p className="ct-metric-caption">
+                    Proceeds &amp; cost basis · capital gains on redemption only
+                  </p>
+                </div>
+                <ProvenanceBadge kind={provenanceKind} />
               </div>
-            </div>
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Box 1d · Proceeds</div>
-              <div className={KPI_VALUE}>
-                {formatUsdFull(form1099B.proceedsUsd)}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
+                <div className={KPI_TILE}>
+                  <div className="ct-bento-label">Box 1e · Cost basis</div>
+                  <div className={KPI_VALUE}>
+                    {formatUsdFull(form1099B.costBasisUsd)}
+                  </div>
+                </div>
+                <div className={KPI_TILE}>
+                  <div className="ct-bento-label">Box 1d · Proceeds</div>
+                  <div className={KPI_VALUE}>
+                    {formatUsdFull(form1099B.proceedsUsd)}
+                  </div>
+                </div>
+                <div className={KPI_TILE}>
+                  <div className="ct-bento-label">Short-term gain/loss</div>
+                  <div className={KPI_VALUE}>
+                    {formatUsdFull(form1099B.shortTermGainLossUsd)}
+                  </div>
+                </div>
+                <div className={KPI_TILE}>
+                  <div className="ct-bento-label">Long-term gain/loss</div>
+                  <div className={KPI_VALUE}>
+                    {formatUsdFull(form1099B.longTermGainLossUsd)}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Short-term gain/loss</div>
-              <div className={KPI_VALUE}>
-                {formatUsdFull(form1099B.shortTermGainLossUsd)}
-              </div>
-            </div>
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Long-term gain/loss</div>
-              <div className={KPI_VALUE}>
-                {formatUsdFull(form1099B.longTermGainLossUsd)}
-              </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        {/* CRS */}
-        <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
-          <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h2 className="ct-section-title">CRS preview</h2>
-              <p className="ct-metric-caption">
-                Common Reporting Standard
-                {crs.residenceCountry
-                  ? ` · residence ${crs.residenceCountry}`
-                  : null}
-              </p>
-            </div>
-            <ProvenanceBadge kind={provenanceKind} />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Account balance</div>
-              <div className={KPI_VALUE}>
-                {formatUsdFull(crs.accountBalanceUsd)}
+            {/* CRS */}
+            <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] flex flex-col overflow-hidden">
+              <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <h2 className="ct-section-title">CRS preview</h2>
+                  <p className="ct-metric-caption">
+                    Common Reporting Standard
+                    {crs.residenceCountry
+                      ? ` · residence ${crs.residenceCountry}`
+                      : null}
+                  </p>
+                </div>
+                <ProvenanceBadge kind={provenanceKind} />
               </div>
-            </div>
-            <div className={KPI_TILE}>
-              <div className="ct-bento-label">Gross interest</div>
-              <div className={KPI_VALUE}>
-                {formatUsdFull(crs.grossInterestUsd)}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--ct-border-soft)]">
+                <div className={KPI_TILE}>
+                  <div className="ct-bento-label">Account balance</div>
+                  <div className={KPI_VALUE}>
+                    {formatUsdFull(crs.accountBalanceUsd)}
+                  </div>
+                </div>
+                <div className={KPI_TILE}>
+                  <div className="ct-bento-label">Gross interest</div>
+                  <div className={KPI_VALUE}>
+                    {formatUsdFull(crs.grossInterestUsd)}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
+          </>
+        ) : (
+          <EmptySurface
+            message="No tax preview yet"
+            detail="You have no active position — 1099-INT, 1099-B and CRS figures populate once you hold a position with real ledger activity."
+            ariaLabel="No tax preview: no active position"
+          />
+        )}
 
         <p className="ct-metric-caption px-1">
           Preview only — final tax documents are issued annually. Not tax advice.
