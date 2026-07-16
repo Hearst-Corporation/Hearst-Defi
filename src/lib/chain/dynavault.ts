@@ -1,6 +1,12 @@
 // src/lib/chain/dynavault.ts
+import "server-only";
 //
 // THE single passage point between Hearst Connect and PermissionedDynaVault v2.1.
+//
+// `server-only` is load-bearing: this module speaks viem/RPC. It must NEVER reach
+// a client bundle — the browser talks to our server surface, never to the chain.
+// The frontend-api-only invariant (docs/frontend-api-only-policy.md) is enforced
+// here + by src/lib/chain/__tests__/no-client-chain-access.test.ts.
 //
 // Architectural contract: when the contract changes again, ONLY this file changes.
 // Nothing else in the app may declare a vault ABI, resolve a vault address, or
