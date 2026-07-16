@@ -30,10 +30,12 @@ export default async function EditVaultPage({ params }: PageProps) {
 
   // Map DB row → FormState for pre-population
   let stored: string[];
+  let whitelistCorrupted = false;
   try {
     stored = parseStringArray(vault.signersWhitelist, "signer whitelist");
   } catch {
     stored = [];
+    whitelistCorrupted = true;
   }
   const signersWhitelist =
     stored.length >= 2 ? stored : [...stored, ...Array(2 - stored.length).fill("")];
@@ -83,6 +85,16 @@ export default async function EditVaultPage({ params }: PageProps) {
         title="Vault draft"
         subtitle="Edit this vault's parameters, share classes, and assumptions before publishing."
       >
+        {whitelistCorrupted ? (
+          <div
+            role="alert"
+            className="mx-5 mt-5 rounded-lg border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] px-3 py-2 text-[length:var(--ct-text-xs)] text-[var(--ct-status-warning)]"
+          >
+            Stored signer whitelist could not be read (invalid data) — the field below starts
+            empty, not a copy of what&apos;s saved. Re-enter signers before submitting to avoid
+            overwriting the existing whitelist unintentionally.
+          </div>
+        ) : null}
         <div className={FORM_SURFACE}>
           <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
         </div>
