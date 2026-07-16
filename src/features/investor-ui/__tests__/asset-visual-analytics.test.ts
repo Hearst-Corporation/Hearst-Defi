@@ -117,9 +117,10 @@ describe("asset visual analytics", () => {
     expect(strategy).not.toMatch(/\bflex-1\b/);
   });
 
-  it("dashboard grid uses items-start for natural card heights", () => {
+  it("dashboard uses independent flex columns for natural card flow", () => {
     const page = readFileSync(join(process.cwd(), "src/app/(product)/dashboard/page.tsx"), "utf8");
-    expect(page).toContain("items-start");
+    expect(page).toContain("lg:flex-row");
+    expect(page).not.toContain("grid-cols-12");
   });
 
   it("accumulation and sources panels share asset chart config", () => {

@@ -173,6 +173,26 @@ Scope:
 STOP: never touches src/lib/engine/**, stable funding / exit recovery logic, Prisma,
 router/nav/chat guards, package.json scripts, cockpit.css, or DS tokens.
 
+### fix/dashboard-btc-alignment
+Owner: Cursor Agent — Fix dashboard/btc layout holes and alignment
+Branch: fix/dashboard-btc-alignment
+Worktree: principal (Hearst-Defi)
+Started: 2026-07-16
+Status: active
+
+Goal: eliminate the visual holes and alignment issues on /dashboard and /btc by
+restructuring the layout from rigid grid rows to independent flex columns so each
+column flows naturally without forcing adjacent cards to share row heights.
+
+Scope:
+- src/app/(product)/dashboard/page.tsx
+- src/app/(product)/btc/page.tsx
+- src/features/investor-ui/__tests__/asset-visual-analytics.test.ts (if tests need updating)
+- docs/agent-file-locks.md (this entry)
+
+STOP: no engine, no data layer, no auth/wallet/session, no next.config.ts,
+no package.json, no Prisma/schema/migrations, no CSP, no cross-project imports.
+
 ### feat/projection-safe-input-preset
 Owner: Claude Opus — MISSION HC-4873 Projection safe input preset
 Branch: feat/projection-safe-input-preset
