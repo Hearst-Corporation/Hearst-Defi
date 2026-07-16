@@ -247,7 +247,11 @@ describe("Bitcoin page — institutional ledger (PROMPT 236)", () => {
     const html = await renderBtcWidgets("complete");
     expect(html).toContain("BTC maturity delivery");
     expect(html).toContain("Maturity delivery: BTC only");
-    expect(html).toMatch(/Month \d+ \/ 24/);
+    // P1.7 dedup — the "Month x / 24" term bar lives in the hero only; the
+    // maturity card contributes the estimated maturity month + months
+    // remaining instead (honest "—" while no asOf anchor is provided).
+    expect(html).toContain("Estimated maturity");
+    expect(html).toContain("Months remaining");
     expect(html).toContain("Pending contract deployment");
     expect(html).toContain("Fireblocks");
     // No USDC redemption on the investor maturity surface.
