@@ -8,6 +8,23 @@ export const ACCUMULATION_CHART_CONFIG = {
   reference: { label: "Reference path", color: ASSET_TOKEN.neutral },
 } satisfies ChartConfig;
 
+/** Accent (product-green) variant of the accumulation chart — Dashboard tone.
+ *  Same series keys/labels as ACCUMULATION_CHART_CONFIG; only colours change. */
+export const ACCUMULATION_CHART_CONFIG_ACCENT = {
+  actual: { label: "Total BTC accumulated", color: "var(--ct-accent)" },
+  mining: { label: "Mining-produced BTC", color: "var(--ct-chart-series-2)" },
+  reference: { label: "Reference path", color: "var(--ct-chart-neutral)" },
+} satisfies ChartConfig;
+
+/** Tone switch for the shared accumulation chart (D2): Dashboard = accent
+ *  green, /btc = asset orange. */
+export type AccumulationChartTone = "accent" | "btc";
+
+export const ACCUMULATION_CHART_CONFIGS: Record<AccumulationChartTone, ChartConfig> = {
+  accent: ACCUMULATION_CHART_CONFIG_ACCENT,
+  btc: ACCUMULATION_CHART_CONFIG,
+};
+
 /** Strategy composition donut — 40 / 27 / 33 pockets. */
 export const STRATEGY_DONUT_CONFIG = {
   value: { label: "Allocation" },

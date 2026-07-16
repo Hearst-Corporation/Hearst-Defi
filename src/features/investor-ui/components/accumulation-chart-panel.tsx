@@ -10,16 +10,35 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ACCUMULATION_CHART_CONFIG } from "@/features/investor-ui/charts/asset-chart-config";
+import {
+  ACCUMULATION_CHART_CONFIGS,
+  ACCUMULATION_CHART_CONFIG,
+  type AccumulationChartTone,
+} from "@/features/investor-ui/charts/asset-chart-config";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
-import type { AccumulationPoint } from "@/app/(product)/dashboard/_data/accumulation-series";
+import { formatPeriodMonth } from "@/features/investor-ui/format-btc";
+import type { AccumulationPoint } from "@/features/investor-ui/charts/accumulation-series";
 import Link from "next/link";
+
+export interface AccumulationChartAction {
+  label: string;
+  href: string;
+}
+
+/** Default keeps the historical behaviour (Dashboard linked to /btc). Pass
+ *  `action={null}` to render no link (e.g. on /btc itself — no self-link). */
+const DEFAULT_ACTION: AccumulationChartAction = { label: "View Bitcoin →", href: "/btc" };
 
 interface AccumulationChartPanelProps {
   points: readonly AccumulationPoint[];
   currentMonth: number | null;
   totalMonths: number | null;
   provenance: Provenance;
+  /** Colour direction (D1/D2): "btc" = asset orange (default, /btc),
+   *  "accent" = product green (Dashboard). */
+  tone?: AccumulationChartTone;
+  /** Header link. Omit for the historical "View Bitcoin →"; null for none. */
+  action?: AccumulationChartAction | null;
 }
 
 export function AccumulationChartPanel({
@@ -27,11 +46,16 @@ export function AccumulationChartPanel({
   currentMonth,
   totalMonths,
   provenance,
+  tone = "btc",
+  action = DEFAULT_ACTION,
 }: AccumulationChartPanelProps) {
   const termLabel =
     currentMonth != null && totalMonths != null
       ? `Month ${currentMonth} of ${totalMonths}`
       : null;
+
+  const chartConfig = ACCUMULATION_CHART_CONFIGS[tone] ?? ACCUMULATION_CHART_CONFIG;
+  const gradientId = `fillActualBtc-${tone}`;
 
   if (points.length < 2) {
     return (
@@ -46,8 +70,10 @@ export function AccumulationChartPanel({
   }
 
   const data = points.map((p, i) => {
-    const d = new Date(p.period + "-01");
-    const month = d.toLocaleDateString("en-US", { month: "short" });
+    const month = formatPeriodMonth(p.period);
+    // Fixture-only illustrative baseline (85% of actual) — labelled
+    // "Reference path" in the chart config; covered by the page-level
+    // simulated provenance, never presented as a target or a promise.
     const reference = p.cumulativeBtc * 0.85;
     return {
       period: p.period,
@@ -73,20 +99,22 @@ export function AccumulationChartPanel({
           {termLabel ? <span className="ct-metric-caption">{termLabel}</span> : null}
         </div>
         <span className="flex items-center gap-[var(--ct-space-3)]">
-          <Link href="/btc" className="body-xs ct-link-accent whitespace-nowrap">
-            View Bitcoin →
-          </Link>
+          {action ? (
+            <Link href={action.href} className="body-xs ct-link-accent whitespace-nowrap">
+              {action.label}
+            </Link>
+          ) : null}
           <ProvenanceBadge kind={provenance} variant="compact" />
         </span>
       </div>
 
       <ChartContainer
-        config={ACCUMULATION_CHART_CONFIG}
+        config={chartConfig}
         className="aspect-auto h-[var(--ct-chart-investor-main)] w-full min-w-0 rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-inset)] p-[var(--ct-space-4)]"
       >
         <AreaChart data={data} margin={{ left: 4, right: 8, top: 12, bottom: 0 }}>
           <defs>
-            <linearGradient id="fillActualBtc" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="var(--color-actual)" stopOpacity={0.35} />
               <stop offset="95%" stopColor="var(--color-actual)" stopOpacity={0.02} />
             </linearGradient>
@@ -135,7 +163,7 @@ export function AccumulationChartPanel({
             dataKey="actual"
             stroke="var(--color-actual)"
             strokeWidth={2}
-            fill="url(#fillActualBtc)"
+            fill={`url(#${gradientId})`}
             type="monotone"
             isAnimationActive={false}
             dot={(props) => {

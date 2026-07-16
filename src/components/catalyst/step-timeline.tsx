@@ -57,7 +57,9 @@ export function StepTimeline({ steps, className, ...rest }: StepTimelineProps) {
             <span
               aria-hidden="true"
               className={cn(
-                "relative z-10 flex h-(--ct-space-8) w-(--ct-space-8) shrink-0 items-center justify-center rounded-(--ct-radius-full) border bg-[var(--ct-surface-card)] text-[length:var(--ct-text-xs)] font-semibold",
+                // --ct-surface-inset (not surface-card): nodes sit ON a Card,
+                // so a card-coloured fill made them invisible (#000 on #000).
+                "relative z-10 flex h-(--ct-space-8) w-(--ct-space-8) shrink-0 items-center justify-center rounded-(--ct-radius-full) border bg-[var(--ct-surface-inset)] text-[length:var(--ct-text-xs)] font-semibold",
                 TONE_NODE[tone],
               )}
               style={{ fontVariantNumeric: "tabular-nums" }}

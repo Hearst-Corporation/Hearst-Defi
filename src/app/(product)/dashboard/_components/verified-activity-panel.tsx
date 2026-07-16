@@ -1,19 +1,19 @@
+// Verified activity (Zone 4) — tightened ledger: max 5 timeline rows
+// (1 alert + 1 attestation + 3 activity items), contextual proof links,
+// maturity disclaimer footer preserved. Dates via the shared deterministic
+// formatter (no toLocaleDateString locale drift).
+
 import { Card } from "@/components/catalyst/card";
 import { StepTimeline, type StepTimelineItem } from "@/components/catalyst/step-timeline";
 import { BentoBadge } from "@/components/catalyst/bento-badge";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import Link from "next/link";
 import type { ResolvedViewModel, ActivityItemViewModel, AlertViewModel, ProofSummaryViewModel } from "@/features/investor-ui/types";
 import { DataUnavailable } from "@/features/investor-ui/components/states/data-states";
+import { formatIsoDate, formatUsdCompactAmount, toProvenance } from "@/features/investor-ui/format-btc";
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
-
-function formatUsdc(s: string): string | null {
-  const n = Number(s);
-  if (!Number.isFinite(n)) return null;
-  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
-}
+const MAX_ALERTS = 1;
+const MAX_ACTIVITY = 3;
 
 export function VerifiedActivityPanel({
   activity,
@@ -36,8 +36,7 @@ export function VerifiedActivityPanel({
 
   const steps: StepTimelineItem[] = [];
 
-  // Add alerts first
-  (alerts.value ?? []).slice(0, 2).forEach((a) => {
+  (alerts.value ?? []).slice(0, MAX_ALERTS).forEach((a) => {
     steps.push({
       title: a.message,
       description: <BentoBadge variant={a.severity === "warning" ? "warning" : "default"}>{a.severity}</BentoBadge>,
@@ -45,14 +44,13 @@ export function VerifiedActivityPanel({
     });
   });
 
-  // Add proof if available
   const p = proofs.value;
   if (p && p.totalProofs > 0) {
     steps.push({
       title: "Custody attestation updated",
       description: (
         <div className="flex flex-col gap-[var(--ct-space-1)]">
-          <span>{p.latestProofAt ? formatDate(p.latestProofAt) : "—"} · {p.types.join(", ")}</span>
+          <span>{p.latestProofAt ? formatIsoDate(p.latestProofAt) : "—"} · {p.types.join(", ")}</span>
           <Link href="/proof-center" className="ct-link-accent text-[length:var(--ct-text-nano)]">View attestation</Link>
         </div>
       ),
@@ -60,13 +58,12 @@ export function VerifiedActivityPanel({
     });
   }
 
-  // Add normal activity
-  (activity.value ?? []).slice(0, 3).forEach((item) => {
+  (activity.value ?? []).slice(0, MAX_ACTIVITY).forEach((item) => {
     steps.push({
       title: item.type === "deposit" ? "Capital allocation confirmed" : item.type.replace(/_/g, " "),
       description: (
         <div className="flex flex-col gap-[var(--ct-space-1)]">
-          <span>{formatUsdc(item.amountUsdc) ?? "—"} · {formatDate(item.occurredAt)}</span>
+          <span>{formatUsdCompactAmount(item.amountUsdc) ?? "—"} · {formatIsoDate(item.occurredAt)}</span>
           {item.txHash && (
             <Link href="/proof-center" className="ct-link-accent text-[length:var(--ct-text-nano)]">View proof</Link>
           )}
@@ -77,19 +74,20 @@ export function VerifiedActivityPanel({
   });
 
   return (
-    <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)]">
-      <div className="flex items-center justify-between">
-        <span className="ct-bento-label">Verified activity</span>
+    <Card className="w-full p-[var(--ct-space-5)]" contentClassName="flex flex-col gap-[var(--ct-space-4)]">
+      <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-2)]">
+        <span className="flex items-center gap-[var(--ct-space-2)]">
+          <span className="ct-bento-label">Verified activity</span>
+          <ProvenanceBadge kind={toProvenance(activity.status)} variant="compact" />
+        </span>
         <Link href="/portfolio/activity" className="body-xs ct-link-accent">
           View all activity →
         </Link>
       </div>
-      
-      <div>
-        <StepTimeline steps={steps} aria-label="Verified activity timeline" />
-      </div>
 
-      <p className="ct-metric-caption m-0 pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
+      <StepTimeline steps={steps} aria-label="Verified activity timeline" />
+
+      <p className="ct-metric-caption m-0 pt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)]">
         Bitcoin accumulates over the product term and is delivered at maturity — not as periodic payouts.
       </p>
     </Card>

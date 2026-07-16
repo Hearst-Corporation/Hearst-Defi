@@ -1,11 +1,20 @@
+// Dashboard capacity panel (Zone 2 right) — allocation decision widget.
+// Hierarchy: vault utilization % + Progress FIRST, figures as BentoDetailRow
+// detail, then the CTA ("can I allocate more"). Every CTA state preserved
+// (eligible / not_eligible / whitelist_required / cap_reached / closed /
+// not_configured). Provenance via the unified toProvenance mapping
+// (FIXTURE -> simulated).
+
 import { Card } from "@/components/catalyst/card";
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { Progress } from "@/components/catalyst/progress";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { BentoBadge } from "@/components/catalyst/bento-badge";
+import { BentoDetailRow } from "@/components/catalyst/bento";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
 import { investDepositPath } from "@/lib/vaults/invest-routes";
 import { DataNotConfigured, DataUnavailable } from "@/features/investor-ui/components/states/data-states";
+import { toProvenance, formatUsdCompactAmount } from "@/features/investor-ui/format-btc";
 import type {
   ResolvedViewModel,
   VaultCapacityViewModel,
@@ -21,12 +30,6 @@ function parseUsdc(s: string | null | undefined): number | null {
   if (s == null) return null;
   const n = Number(s);
   return Number.isFinite(n) ? n : null;
-}
-
-function formatUsdc(s: string | null | undefined): string | null {
-  const n = parseUsdc(s);
-  if (n == null) return null;
-  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 }
 
 function resolveCtaState(sub: SubscriptionViewModel | null, capacityFull: boolean): CtaState {
@@ -79,67 +82,77 @@ export function DashboardCapacityPanel({
   const capacityFull = available !== null && available <= 0;
   const ctaState = resolveCtaState(sub, capacityFull);
   const cta = CTA_COPY[ctaState];
-  const provenance: Provenance = capacity.status === "STALE" ? "stale" : "estimated";
 
   return (
-    <Card className="w-full h-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)] border-l-[3px] border-l-[var(--ct-asset-usdc-border)]">
+    <Card
+      className="w-full h-full p-[var(--ct-space-5)] border-l-[3px] border-l-[var(--ct-asset-usdc-border)]"
+      contentClassName="flex h-full flex-col gap-[var(--ct-space-4)]"
+    >
+      {/* Utilization first — the "can I still get in" signal */}
       <div className="flex flex-col gap-[var(--ct-space-1)]">
         <div className="flex items-center justify-between gap-[var(--ct-space-2)]">
           <div className="flex items-center gap-[var(--ct-space-2)]">
             <AssetIcon variant="usdc" size="sm" />
             <span className="ct-bento-label">Available capacity</span>
           </div>
-          <ProvenanceBadge kind={provenance} variant="compact" />
+          <ProvenanceBadge kind={toProvenance(capacity.status)} variant="compact" />
         </div>
         <span className="text-[length:var(--ct-text-3xl)] font-medium tabular tracking-tight leading-none text-[var(--ct-asset-usdc)]">
-          {formatUsdc(cap?.availableCapacity) ?? "—"}
+          {utilizationPct != null ? `${utilizationPct.toFixed(1)}%` : "—"}
         </span>
-        <span className="ct-metric-caption">Subscribed in USDC · vault TVL cap</span>
+        <span className="ct-metric-caption">Vault utilization · USDC subscriptions</span>
       </div>
 
-      <div className="flex flex-col gap-1.5 pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
-        <div className="flex justify-between items-center body-xs">
-          <span className="ct-text-muted">Vault utilization</span>
-          <span className="ct-text-strong font-medium tabular">of {formatUsdc(cap?.tvlCap) ?? "—"}</span>
-        </div>
+      <div className="flex flex-col gap-1.5">
         <Progress
           value={utilizationPct ?? 0}
           max={100}
           label="Vault utilization"
           fillClassName="bg-[var(--ct-asset-usdc)]"
         />
-        <div className="flex justify-between mt-1 ct-metric-caption">
+        <div className="flex justify-between ct-metric-caption">
           <span>
-            Allocated: <span className="ct-text-strong">{formatUsdc(cap?.totalAssets) ?? "—"}</span>
+            Allocated: <span className="ct-text-strong">{formatUsdCompactAmount(cap?.totalAssets) ?? "—"}</span>
           </span>
           <span>
-            Available: <span className="text-[var(--ct-asset-usdc)]">{formatUsdc(cap?.availableCapacity) ?? "—"}</span>
+            Cap: <span className="ct-text-strong">{formatUsdCompactAmount(cap?.tvlCap) ?? "—"}</span>
           </span>
-        </div>
-        <div className="ct-metric-caption">
-          Your allocation: <span className="ct-text-strong">{formatUsdc(pos?.principal) ?? "—"}</span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-[var(--ct-space-3)] pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[var(--ct-space-2)]">
-          <div className="flex flex-col">
-            <span className="ct-bento-label">Minimum additional</span>
-            <span className="body-sm ct-text-strong tabular font-medium">{formatUsdc(sub?.minimumDeposit) ?? "—"}</span>
-          </div>
-          {ctaState === "eligible" ? (
-            <CockpitButton href={investDepositPath(VAULT_ID)} variant="secondary" shape="rect" size="lg">
+      {/* Figures as detail rows */}
+      <div className="flex flex-col pt-[var(--ct-space-2)] border-t border-[var(--ct-border-soft)]">
+        <BentoDetailRow label="Available capacity">
+          <span className="tabular text-[var(--ct-asset-usdc)]">{formatUsdCompactAmount(cap?.availableCapacity) ?? "—"}</span>
+        </BentoDetailRow>
+        <BentoDetailRow label="Your allocation">
+          <span className="tabular">{formatUsdCompactAmount(pos?.principal) ?? "—"}</span>
+        </BentoDetailRow>
+        <BentoDetailRow label="Minimum additional">
+          <span className="tabular">{formatUsdCompactAmount(sub?.minimumDeposit) ?? "—"}</span>
+        </BentoDetailRow>
+      </div>
+
+      {/* CTA — all states preserved */}
+      <div className="mt-auto flex flex-col gap-[var(--ct-space-2)] pt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)]">
+        {ctaState === "eligible" ? (
+          <CockpitButton
+            href={investDepositPath(VAULT_ID)}
+            variant="primary"
+            shape="rect"
+            size="lg"
+            className="w-full justify-center"
+          >
+            {cta.label}
+          </CockpitButton>
+        ) : (
+          <div className="flex items-center justify-between gap-[var(--ct-space-2)]">
+            <BentoBadge variant="flat">{ctaState.replace(/_/g, " ")}</BentoBadge>
+            <CockpitButton disabled variant="secondary" shape="rect" size="lg" className="pointer-events-none">
               {cta.label}
             </CockpitButton>
-          ) : (
-            <div className="flex items-center gap-[var(--ct-space-2)]">
-              <BentoBadge variant="flat">{ctaState.replace(/_/g, " ")}</BentoBadge>
-              <CockpitButton disabled variant="secondary" shape="rect" size="lg" className="pointer-events-none">
-                {cta.label}
-              </CockpitButton>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
         <p className="ct-metric-caption m-0">{cta.helper}</p>
       </div>
     </Card>

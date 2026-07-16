@@ -4,15 +4,17 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getFixtureInvestorUiDataSource, getInvestorUiDataSource } from "@/features/investor-ui/data-source";
 import { btcPageExtraCompleteFixture } from "@/app/(product)/btc/_data/btc-page-fixtures";
+import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
+import { toProvenance } from "@/features/investor-ui/format-btc";
 
-import { buildAccumulationSeries } from "./_data/accumulation-series";
-import { DashboardPositionPanel } from "./_components/dashboard-position-panel";
+import { DashboardHero } from "./_components/dashboard-hero";
 import { DashboardCapacityPanel } from "./_components/dashboard-capacity-panel";
-import { DashboardStrategyPanel } from "./_components/dashboard-strategy-panel";
-import { DashboardHealthPanel } from "./_components/dashboard-health-panel";
+import { StrategyStrip } from "./_components/strategy-strip";
 import { VerifiedActivityPanel } from "./_components/verified-activity-panel";
-import { PortfolioInsightPanel } from "./_components/portfolio-insight-panel";
 import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
+import { MiningPulsePanel } from "@/features/investor-ui/components/widgets/mining-pulse-panel";
+import { ReserveHealthPanel } from "@/features/investor-ui/components/widgets/reserve-health-panel";
+import { AnalystNotePanel } from "@/features/investor-ui/components/analyst-note-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -53,12 +55,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     dataSource.getAiExperts(),
   ]);
 
+  const productionBlock = btcPageExtraCompleteFixture.production;
   const productionMonthly =
     previewState === "not-configured" || previewState === "unavailable"
       ? null
-      : btcPageExtraCompleteFixture.production.value?.monthly;
+      : productionBlock.value?.monthly;
 
   const accumulationPoints = buildAccumulationSeries(productionMonthly);
+  const accumulationProvenance = toProvenance(productionBlock.status);
   const miningVal = mining.mining.value;
 
   return (
@@ -74,12 +78,27 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       />
 
       <div className="flex min-w-0 flex-col gap-[var(--ct-space-5)]">
-        {/* Top row — Position (7) + Capacity (5) aligned to the same height */}
+        {/* Zone 1 — program summary band (single "View Bitcoin →" CTA, D10) */}
+        <DashboardHero
+          position={dashboard.position}
+          mining={mining}
+          accumulationPoints={accumulationPoints}
+          accumulationStatus={productionBlock.status}
+        />
+
+        {/* Zone 2 — analytical hero (accent tone, D1/D2) + allocation capacity */}
         <div className="flex flex-col lg:flex-row gap-[var(--ct-space-5)] lg:items-stretch">
-          <div className="flex-[7] min-w-0">
-            <DashboardPositionPanel position={dashboard.position} mining={mining} />
+          <div className="flex-[8] min-w-0">
+            <AccumulationChartPanel
+              points={accumulationPoints}
+              currentMonth={miningVal?.currentMonth ?? null}
+              totalMonths={miningVal?.productDurationMonths ?? null}
+              provenance={accumulationProvenance}
+              tone="accent"
+              action={null}
+            />
           </div>
-          <div className="flex-[5] min-w-0">
+          <div className="flex-[4] min-w-0">
             <DashboardCapacityPanel
               capacity={dashboard.capacity}
               subscription={dashboard.subscription}
@@ -88,35 +107,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </div>
         </div>
 
-        <AccumulationChartPanel
-          points={accumulationPoints}
-          currentMonth={miningVal?.currentMonth ?? null}
-          totalMonths={miningVal?.productDurationMonths ?? null}
-          provenance={btc.reserve.status === "STALE" ? "stale" : "estimated"}
+        {/* Zone 3 — operational row: mining pulse · reserve health · strategy strip */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[var(--ct-space-5)]">
+          <MiningPulsePanel mining={mining} monthlyProduction={accumulationPoints} />
+          <ReserveHealthPanel btc={btc} />
+          <StrategyStrip allocation={dashboard.allocation} />
+        </div>
+
+        {/* Zone 4 — verified activity ledger */}
+        <VerifiedActivityPanel
+          activity={dashboard.activity}
+          alerts={dashboard.alerts}
+          proofs={dashboard.proofs}
         />
 
-        {/* Bottom area — two independent columns so each flows naturally */}
-        <div className="flex flex-col lg:flex-row gap-[var(--ct-space-5)] lg:items-start">
-          <div className="flex-[7] min-w-0 flex flex-col gap-[var(--ct-space-5)]">
-            <DashboardStrategyPanel
-              pockets={dashboard.allocation.value?.pockets ?? null}
-              mining={mining}
-            />
-            <VerifiedActivityPanel
-              activity={dashboard.activity}
-              alerts={dashboard.alerts}
-              proofs={dashboard.proofs}
-            />
-          </div>
-          <div className="flex-[5] min-w-0 flex flex-col gap-[var(--ct-space-5)]">
-            <DashboardHealthPanel
-              mining={mining}
-              btc={btc}
-              monthlyProduction={accumulationPoints.map((p) => ({ period: p.period, miningBtc: p.miningBtc }))}
-            />
-            <PortfolioInsightPanel aiExperts={aiExperts} />
-          </div>
-        </div>
+        {/* Zone 5 — advisory footnote */}
+        <AnalystNotePanel aiExperts={aiExperts} variant="portfolio" />
       </div>
     </BentoPageShell>
   );

@@ -10,14 +10,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PRODUCT_NAV } from "@/components/nav/product-nav-items";
 import { dashboardCompleteFixture } from "@/features/investor-ui/fixtures/dashboard-complete";
 import { miningCompleteFixture } from "@/features/investor-ui/fixtures/mining-complete";
-import { btcCompleteFixture } from "@/features/investor-ui/fixtures/btc-complete";
 import { resolved } from "@/features/investor-ui/types/common";
 
-import { DashboardPositionPanel } from "../dashboard/_components/dashboard-position-panel";
+import { DashboardHero } from "../dashboard/_components/dashboard-hero";
 import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
-import { DashboardStrategyPanel } from "../dashboard/_components/dashboard-strategy-panel";
+import { StrategyCompositionPanel } from "@/features/investor-ui/components/strategy-composition-panel";
 import { DashboardCapacityPanel } from "../dashboard/_components/dashboard-capacity-panel";
-import { DashboardHealthPanel } from "../dashboard/_components/dashboard-health-panel";
+import { MiningPulsePanel } from "@/features/investor-ui/components/widgets/mining-pulse-panel";
 
 const INVESTOR_SURFACES = [
   "src/app/(product)/dashboard/page.tsx",
@@ -86,11 +85,16 @@ describe("PROMPT 227 — banned yield vocabulary on investor surfaces", () => {
 });
 
 describe("PROMPT 227 — widget renders", () => {
-  it("DashboardPositionPanel shows BTC accumulated, not yield", () => {
+  it("DashboardHero shows BTC accumulated, not yield", () => {
     const html = renderToStaticMarkup(
-      <DashboardPositionPanel
+      <DashboardHero
         position={resolved("FIXTURE", dashboardCompleteFixture.position.value!)}
         mining={miningCompleteFixture}
+        accumulationPoints={[
+          { period: "2026-01", cumulativeBtc: 0.04, miningBtc: 0.035 },
+          { period: "2026-02", cumulativeBtc: 0.09, miningBtc: 0.08 },
+        ]}
+        accumulationStatus="FIXTURE"
       />,
     );
     expect(html).toContain("BTC accumulated");
@@ -113,11 +117,10 @@ describe("PROMPT 227 — widget renders", () => {
     expect(html).not.toMatch(/9\.4|12\.8|apy|yield/i);
   });
 
-  it("DashboardStrategyPanel uses Mining Power / Bitcoin Reserve labels", () => {
+  it("StrategyCompositionPanel uses Mining Power / Bitcoin Reserve labels", () => {
     const html = renderToStaticMarkup(
-      <DashboardStrategyPanel
+      <StrategyCompositionPanel
         pockets={dashboardCompleteFixture.allocation.value!.pockets}
-        mining={miningCompleteFixture}
       />,
     );
     expect(html).toContain("Mining Power");
@@ -137,8 +140,8 @@ describe("PROMPT 227 — widget renders", () => {
     expect(html).toContain("Allocate more capital");
   });
 
-  it("DashboardHealthPanel links to /mining", () => {
-    const html = renderToStaticMarkup(<DashboardHealthPanel mining={miningCompleteFixture} btc={btcCompleteFixture} />);
+  it("MiningPulsePanel links to /mining", () => {
+    const html = renderToStaticMarkup(<MiningPulsePanel mining={miningCompleteFixture} />);
     expect(html).toContain("/mining");
     expect(html).toContain("Explore mining contribution");
   });

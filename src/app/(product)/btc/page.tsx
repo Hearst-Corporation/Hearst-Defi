@@ -1,3 +1,29 @@
+// /btc — asset-centric Bitcoin page (UI refonte, Bitcoin pass).
+// Orange-dominant (D1: --ct-asset-* tokens, --ct-accent untouched), MORE
+// graphical than the Dashboard but with a different order and widget set:
+// how much BTC, where it comes from, how the strategy splits, what trajectory.
+//
+// Zones:
+//  1. Bitcoin hero — HeroPanel asset="btc" (program-accumulated BTC primary);
+//  2. Main accumulation chart — tone="btc", action -> /proof-center (no
+//     self-link; the single Bitcoin CTA lives on the Dashboard hero, D10);
+//  3. Sources of accumulation (page emblem) + 4. Strategy composition donut
+//     (the /btc exclusive, D3) side by side;
+//  5. Operational support strip — mining pulse / reserve health (compact,
+//     D4) + contextual proofs (real kinds, no fabricated date);
+//  6. Accumulation trajectory (simulated bands, D8 — the % range headline
+//     is retired from this surface) + Bitcoin analyst note (D6).
+//
+// Honesty contract:
+//  - "BTC accumulated" (hero) = the PROGRAM cumulative series — the same
+//    series the chart plots, never mining.totalBtcEarnedSats (fleet figure,
+//    surfaced by MiningPulsePanel under its own "BTC produced (mining)"
+//    label) and never reserveBtcSats (surfaced by ReserveHealthPanel as
+//    "BTC in reserve");
+//  - "Current value (per BTC)" = reserveBtcUsd / reserveBtc, a labelled
+//    ratio of two fixture fields — no fabricated totals;
+//  - FIXTURE provenance renders as "simulated" everywhere (toProvenance).
+
 import { BentoPageShell } from "@/components/catalyst/bento";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
@@ -7,28 +33,29 @@ import { DataNotConfigured } from "@/features/investor-ui/components/states/data
 import { Card } from "@/components/catalyst/card";
 
 import { getBtcPageData } from "./_data/get-btc-page-data";
-import { buildAccumulationSeries } from "../dashboard/_data/accumulation-series";
-import { formatBtcAmount, toProvenance, formatIsoDateTime } from "./_data/format-btc";
+import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
+import {
+  formatBtcAmount,
+  formatUsdCompactAmount,
+  formatIsoDateTime,
+  toProvenance,
+} from "@/features/investor-ui/format-btc";
 
 import { HeroPanel } from "@/features/investor-ui/components/widgets/hero-panel";
 import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
 import { SourcesAccumulationPanel } from "@/features/investor-ui/components/sources-accumulation-panel";
-import { DashboardStrategyPanel } from "../dashboard/_components/dashboard-strategy-panel";
-import { DashboardHealthPanel } from "../dashboard/_components/dashboard-health-panel";
-import { ContextualProofPanel } from "@/features/investor-ui/components/widgets/contextual-proof-panel";
-import { PortfolioInsightPanel } from "../dashboard/_components/portfolio-insight-panel";
+import { StrategyCompositionPanel } from "@/features/investor-ui/components/strategy-composition-panel";
+import { MiningPulsePanel } from "@/features/investor-ui/components/widgets/mining-pulse-panel";
+import { ReserveHealthPanel } from "@/features/investor-ui/components/widgets/reserve-health-panel";
+import { AnalystNotePanel } from "@/features/investor-ui/components/analyst-note-panel";
+import { BtcProofPanel } from "./_components/btc-proof-panel";
+import { BtcTrajectoryChart } from "./_components/btc-trajectory-chart";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Bitcoin · Hearst Connect",
 };
-
-function btcFromSats(sats: string | null | undefined): number | null {
-  if (sats == null) return null;
-  const n = Number(sats);
-  return Number.isFinite(n) ? n / 1e8 : null;
-}
 
 export default async function BtcPage({
   searchParams,
@@ -44,34 +71,46 @@ export default async function BtcPage({
 
   const reserve = data.reserve;
   const production = data.extra.production;
-  const miningBtcNum = btcFromSats(production.value?.cumulativeSatsEarned);
-  const totalBtcNum = btcFromSats(reserve.value?.reserveBtcSats);
-  const strategicBtcNum =
-    miningBtcNum != null && totalBtcNum != null ? Math.max(0, totalBtcNum - miningBtcNum) : null;
+  const trajectory = data.extra.trajectory;
+  const proofs = data.extra.proofs.value ?? [];
 
-  const miningBtc = miningBtcNum != null ? `${miningBtcNum.toFixed(6)} BTC` : null;
-  const strategicBtc = strategicBtcNum != null ? `${strategicBtcNum.toFixed(6)} BTC` : null;
-  const totalBtc = totalBtcNum != null ? formatBtcAmount(String(totalBtcNum)) : null;
+  // Program cumulative series — the SAME series the accumulation chart plots.
+  const accumulationPoints = buildAccumulationSeries(production.value?.monthly);
+  const lastPoint = accumulationPoints[accumulationPoints.length - 1];
+
+  const programBtc =
+    lastPoint != null ? formatBtcAmount(lastPoint.cumulativeBtc.toFixed(8), 4) : null;
+  const miningProgramBtc =
+    production.value?.cumulativeBtcEarned != null
+      ? formatBtcAmount(production.value.cumulativeBtcEarned, 6)
+      : null;
+  const strategicBtc =
+    lastPoint != null
+      ? formatBtcAmount(Math.max(0, lastPoint.cumulativeBtc - lastPoint.miningBtc).toFixed(8), 4)
+      : null;
+
+  // Implied per-BTC valuation — ratio of the reserve's two fixture fields.
+  const reserveBtcNum =
+    reserve.value?.reserveBtcSats != null ? Number(reserve.value.reserveBtcSats) / 1e8 : null;
+  const usdPerBtc =
+    reserve.value?.reserveBtcUsd != null && reserveBtcNum != null && reserveBtcNum > 0
+      ? formatUsdCompactAmount(String(Number(reserve.value.reserveBtcUsd) / reserveBtcNum))
+      : null;
 
   const monthsElapsed =
-    mining.mining.value?.currentMonth ?? data.extra.trajectory.value?.monthsElapsed ?? null;
+    mining.mining.value?.currentMonth ?? trajectory.value?.monthsElapsed ?? null;
   const monthsTotal =
-    mining.mining.value?.productDurationMonths ?? data.extra.trajectory.value?.monthsTotal ?? 24;
+    mining.mining.value?.productDurationMonths ?? trajectory.value?.monthsTotal ?? 24;
 
-  const accumulationPoints = buildAccumulationSeries(production.value?.monthly);
-  
-  // Synthesize sources data from accumulation points
-  const sourcesData = accumulationPoints.map(p => ({
+  // Per-source CUMULATIVE series — SourcesAccumulationPanel derives the real
+  // monthly deltas internally before rendering (honest "monthly" bars).
+  const sourcesData = accumulationPoints.map((p) => ({
     period: p.period,
     mining: p.miningBtc,
-    strategic: Math.max(0, p.cumulativeBtc - p.miningBtc)
+    strategic: Math.max(0, p.cumulativeBtc - p.miningBtc),
   }));
 
-  const proofItems = (data.extra.proofs.value ?? []).map((p) => ({
-    label: p.label,
-    lastVerified: formatIsoDateTime(data.generatedAt).split(",")[0] ?? null,
-    href: p.href,
-  }));
+  const productionProvenance = toProvenance(production.status);
 
   return (
     <BentoPageShell testId="btc-page">
@@ -87,6 +126,7 @@ export default async function BtcPage({
       />
 
       <div className="flex min-w-0 flex-col gap-[var(--ct-space-5)]">
+        {/* Zone 1 — Bitcoin hero (asset-centric, BTC-first) */}
         {reserve.status === "NOT_CONFIGURED" || reserve.value === null ? (
           <Card className="w-full p-[var(--ct-space-5)]">
             <DataNotConfigured
@@ -97,47 +137,67 @@ export default async function BtcPage({
         ) : (
           <HeroPanel
             title="BTC accumulated"
-            mainValue={totalBtc ?? "—"}
-            provenance={toProvenance(reserve.status)}
+            mainValue={programBtc ?? "—"}
+            provenance={productionProvenance}
             asset="btc"
             metrics={[
-              { label: "Current value", value: reserve.value.reserveBtcUsd ? `$${Number(reserve.value.reserveBtcUsd).toLocaleString("en-US", { maximumFractionDigits: 0 })}` : "—" },
-              { label: "Mining-produced", value: miningBtc ?? "—", accent: "btc" },
+              { label: "Current value (per BTC)", value: usdPerBtc ?? "—" },
+              { label: "Mining-produced (program)", value: miningProgramBtc ?? "—", accent: "btc" },
               { label: "Strategic exposure", value: strategicBtc ?? "—", accent: "mining" },
             ]}
-            progress={monthsElapsed != null ? {
-              current: monthsElapsed,
-              total: monthsTotal,
-              label: "Product term progress",
-              fillClassName: "bg-[var(--ct-asset-btc)]",
-            } : undefined}
+            progress={
+              monthsElapsed != null
+                ? {
+                    current: monthsElapsed,
+                    total: monthsTotal,
+                    label: "Product term progress",
+                    fillClassName: "bg-[var(--ct-asset-btc)]",
+                  }
+                : undefined
+            }
           />
         )}
 
+        {/* Zone 2 — main accumulation chart (orange, proofs link — no self-link) */}
         <AccumulationChartPanel
           points={accumulationPoints}
           currentMonth={monthsElapsed}
           totalMonths={monthsTotal}
-          provenance={toProvenance(reserve.status)}
+          provenance={productionProvenance}
+          tone="btc"
+          action={{ label: "View proofs →", href: "/proof-center" }}
         />
-        
-        <SourcesAccumulationPanel monthlyProduction={sourcesData} />
 
+        {/* Zones 3 + 4 — sources of accumulation (emblem) · strategy donut (/btc exclusive) */}
         <div className="flex flex-col lg:flex-row gap-[var(--ct-space-5)] lg:items-start">
-          <div className="flex-[7] min-w-0 flex flex-col gap-[var(--ct-space-5)]">
-            <DashboardStrategyPanel
-              pockets={dashboard.allocation.value?.pockets ?? null}
-              mining={mining}
+          <div className="flex-[7] min-w-0">
+            <SourcesAccumulationPanel
+              monthlyProduction={sourcesData}
+              provenance={productionProvenance}
             />
-            {proofItems.length > 0 && <ContextualProofPanel items={proofItems} />}
           </div>
-          <div className="flex-[5] min-w-0 flex flex-col gap-[var(--ct-space-5)]">
-            <DashboardHealthPanel
-              mining={mining}
-              btc={data}
-              monthlyProduction={accumulationPoints.map((p) => ({ period: p.period, miningBtc: p.miningBtc }))}
+          <div className="flex-[5] min-w-0">
+            <StrategyCompositionPanel
+              pockets={dashboard.allocation.value?.pockets ?? null}
+              provenance={toProvenance(dashboard.allocation.status)}
             />
-            <PortfolioInsightPanel aiExperts={aiExperts} variant="bitcoin" />
+          </div>
+        </div>
+
+        {/* Zone 5 — operational support strip (compact, not the stars) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[var(--ct-space-5)]">
+          <MiningPulsePanel mining={mining} density="compact" />
+          <ReserveHealthPanel btc={data} density="compact" />
+          <BtcProofPanel proofs={proofs} provenance={toProvenance(data.extra.proofs.status)} />
+        </div>
+
+        {/* Zone 6 — trajectory bands (simulated) + analyst note */}
+        <div className="flex flex-col lg:flex-row gap-[var(--ct-space-5)] lg:items-start">
+          <div className="flex-[7] min-w-0">
+            <BtcTrajectoryChart trajectory={trajectory} />
+          </div>
+          <div className="flex-[5] min-w-0">
+            <AnalystNotePanel aiExperts={aiExperts} variant="bitcoin" />
           </div>
         </div>
       </div>

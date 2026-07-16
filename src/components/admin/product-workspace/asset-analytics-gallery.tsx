@@ -14,10 +14,10 @@ import {
 } from "@/components/catalyst/card";
 import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
 import { SourcesAccumulationPanel } from "@/features/investor-ui/components/sources-accumulation-panel";
-import { DashboardStrategyPanel } from "@/app/(product)/dashboard/_components/dashboard-strategy-panel";
+import { StrategyCompositionPanel } from "@/features/investor-ui/components/strategy-composition-panel";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
 import { ASSET_TOKEN } from "@/lib/ds/asset-tokens";
-import type { MiningViewModel } from "@/features/investor-ui/types";
+import type { AllocationPocketViewModel } from "@/features/investor-ui/types/dashboard";
 
 const DEMO_ACCUMULATION = [
   { period: "2026-01", cumulativeBtc: 0.042, miningBtc: 0.036 },
@@ -34,24 +34,11 @@ const DEMO_SOURCES = DEMO_ACCUMULATION.map((p) => ({
   strategic: Math.max(0, p.cumulativeBtc - p.miningBtc),
 }));
 
-const DEMO_MINING: MiningViewModel = {
-  generatedAt: new Date().toISOString(),
-  mining: {
-    status: "LIVE",
-    value: {
-      reportedHashrateTh: "1240",
-      totalBtcEarnedSats: "27600000",
-      lastReportTime: new Date().toISOString(),
-      currentMonth: 6,
-      productDurationMonths: 24,
-      fleetActive: true,
-      curtailed: false,
-      halvingMonth: null,
-      vendingCurveBps: null,
-    },
-  },
-  electricity: { status: "LIVE", value: null },
-};
+const DEMO_POCKETS: readonly AllocationPocketViewModel[] = [
+  { pocket: "B1", label: "Mining Power", targetBps: 4000, actualBps: 3960 },
+  { pocket: "B2", label: "BTC Pouch", targetBps: 2700, actualBps: 2740 },
+  { pocket: "B3", label: "Reserve", targetBps: 3300, actualBps: 3300 },
+];
 
 const TOKEN_ROWS = [
   { domain: "Bitcoin", token: "--ct-asset-btc", usage: "BTC series, hero accent, accumulation area" },
@@ -99,7 +86,7 @@ export function AssetAnalyticsGallery() {
       </div>
 
       <div className="grid gap-(--ct-space-5) lg:grid-cols-2 items-start">
-        <DashboardStrategyPanel pockets={null} mining={DEMO_MINING} />
+        <StrategyCompositionPanel pockets={DEMO_POCKETS} provenance="estimated" />
         <Card>
           <CardHeader>
             <CardTitle>Semantic tokens</CardTitle>

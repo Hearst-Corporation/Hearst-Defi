@@ -1,7 +1,8 @@
-// src/app/(product)/btc/_data/format-btc.ts
+// src/features/investor-ui/format-btc.ts
 //
-// Pure display formatters for the /btc page. No business logic — string
-// formatting only (mirrors the pattern of src/lib/format/usd-compact.ts).
+// Shared pure display formatters + honesty mapping for the investor UI
+// (Dashboard + /btc + shared panels). No business logic — string formatting
+// only.
 
 /** "612000000" sats -> "6.12000000" BTC (decimal string in, decimal string out). */
 export function satsToBtcString(sats: string, precision = 8): string {
@@ -17,9 +18,17 @@ export function formatBtcAmount(btcDecimalString: string, precision = 2): string
   return `${n.toFixed(precision)} BTC`;
 }
 
-/** Basis points -> "33.00%". */
+/** Basis points -> "33.0%". */
 export function formatBps(bps: number, precision = 1): string {
   return `${(bps / 100).toFixed(precision)}%`;
+}
+
+/** USDC decimal string -> "$8,420,000" (no cents — headline display). */
+export function formatUsdCompactAmount(decimal: string | null | undefined): string | null {
+  if (decimal == null) return null;
+  const n = Number(decimal);
+  if (!Number.isFinite(n)) return null;
+  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 }
 
 /** ISO date -> "Jun 30, 2026" (deterministic, no locale drift). */
@@ -35,7 +44,7 @@ export function formatIsoDate(iso: string | null): string {
   return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
 }
 
-/** ISO date -> "Jun 30, 2026, 14:32 UTC" for event timeline rows. */
+/** ISO date -> "Jun 30, 2026, 14:32 UTC" for event/signal rows. */
 export function formatIsoDateTime(iso: string | null): string {
   if (!iso) return "—";
   const d = new Date(iso);
@@ -45,25 +54,17 @@ export function formatIsoDateTime(iso: string | null): string {
   return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}, ${hh}:${mm} UTC`;
 }
 
-/** "2026-06" -> "Jun '26" (bar chart x-axis label). */
-export function formatPeriodShort(period: string): string {
-  const [y, m] = period.split("-");
+/** "2026-06" -> "Jun" (dense x-axis label, deterministic — no locale drift). */
+export function formatPeriodMonth(period: string): string {
+  const m = period.split("-")[1];
   const monthIdx = Number(m) - 1;
-  const month = MONTHS[monthIdx] ?? period;
-  return `${month} '${y?.slice(2) ?? ""}`;
+  return MONTHS[monthIdx] ?? period;
 }
 
-/** "0x8f2a...c19e" passthrough helper — truncates a full hash defensively if a
- *  fixture ever supplies one, otherwise returns the input unchanged. */
-export function truncateHash(hash: string): string {
-  if (hash.length <= 12 || hash.includes("...")) return hash;
-  return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
-}
-
-/** Maps a block's DataStatus to the closest <ProvenanceBadge>/<Metric> kind.
- *  "FIXTURE" -> "simulated" (sandbox marker, never mistaken for Live —
- *  ProvenanceBadge doc). Never returns "live" for anything but a real LIVE
- *  status. */
+/** Maps a block's DataStatus to the closest <ProvenanceBadge> kind.
+ *  UNIFIED honesty mapping: "FIXTURE" -> "simulated" (sandbox marker, never
+ *  mistaken for Live — ProvenanceBadge doc). Never returns "live" for
+ *  anything but a real LIVE status. */
 export type BtcProvenanceKind =
   | "live"
   | "stale"

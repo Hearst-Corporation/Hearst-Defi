@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/catalyst/card";
+import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
@@ -10,29 +11,55 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { SOURCES_STACKED_CONFIG } from "@/features/investor-ui/charts/asset-chart-config";
+import { toMonthlyDeltas } from "@/features/investor-ui/charts/accumulation-series";
+import { formatPeriodMonth } from "@/features/investor-ui/format-btc";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
 
 interface SourcesAccumulationPanelProps {
+  /**
+   * CUMULATIVE per-source series (as derived from `buildAccumulationSeries`:
+   * each month carries the running total per source). The panel converts it
+   * to real monthly deltas before rendering — bars labelled "monthly" must
+   * never show cumulative values.
+   */
   monthlyProduction: { period: string; mining: number; strategic: number }[];
+  /** Honesty badge for the series. Defaults to "simulated" (fixture seam). */
+  provenance?: Provenance;
 }
 
-export function SourcesAccumulationPanel({ monthlyProduction }: SourcesAccumulationPanelProps) {
+export function SourcesAccumulationPanel({
+  monthlyProduction,
+  provenance = "simulated",
+}: SourcesAccumulationPanelProps) {
   if (monthlyProduction.length === 0) return null;
 
-  const data = monthlyProduction.map((p) => ({
-    ...p,
-    month: new Date(p.period + "-01").toLocaleDateString("en-US", { month: "short" }),
-    total: p.mining + p.strategic,
+  const deltas = toMonthlyDeltas(
+    monthlyProduction.map((p) => ({
+      period: p.period,
+      miningBtc: p.mining,
+      cumulativeBtc: p.mining + p.strategic,
+    })),
+  );
+
+  const data = deltas.map((p) => ({
+    period: p.period,
+    mining: p.miningBtc,
+    strategic: p.strategicBtc,
+    month: formatPeriodMonth(p.period),
+    total: p.totalBtc,
   }));
 
   return (
     <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)]">
-      <div className="flex flex-col gap-[var(--ct-space-1)]">
-        <div className="flex items-center gap-[var(--ct-space-2)]">
-          <AssetIcon variant="btc" size="sm" />
-          <span className="ct-bento-label">Sources of accumulation</span>
+      <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-2)]">
+        <div className="flex flex-col gap-[var(--ct-space-1)]">
+          <div className="flex items-center gap-[var(--ct-space-2)]">
+            <AssetIcon variant="btc" size="sm" />
+            <span className="ct-bento-label">Sources of accumulation</span>
+          </div>
+          <span className="ct-metric-caption">Monthly accumulation by source</span>
         </div>
-        <span className="ct-metric-caption">Monthly breakdown of BTC acquired</span>
+        <ProvenanceBadge kind={provenance} variant="compact" />
       </div>
 
       <ChartContainer
