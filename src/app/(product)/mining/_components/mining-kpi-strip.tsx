@@ -4,7 +4,7 @@
 // no business logic (formatting only, no math beyond string composition).
 
 import { Metric } from "@/components/catalyst/metric";
-import type { Provenance } from "@/components/ui/provenance-badge";
+import type { Provenance } from "@/components/catalyst/provenance-badge";
 import type {
   ElectricityViewModel,
   MiningSummaryViewModel,

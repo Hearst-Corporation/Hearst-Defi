@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/catalyst/table";
 import { ApyRange } from "@/components/catalyst/apy-range";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge } from "@/components/catalyst/provenance-badge";
 import { cn } from "@/lib/cn";
 
 export const dynamic = "force-dynamic";

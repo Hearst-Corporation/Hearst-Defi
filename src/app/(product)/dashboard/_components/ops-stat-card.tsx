@@ -13,7 +13,7 @@
 // same y. Hierarchy pass 2026-07-16: bigger icon (md), link moved right.
 
 import { Card } from "@/components/catalyst/card";
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge, type Provenance } from "@/components/catalyst/provenance-badge";
 import Link from "next/link";
 
 export interface OpsStatCardProps {
@@ -45,6 +45,10 @@ export function OpsStatCard({
   footerLabel,
   footerMeta,
 }: OpsStatCardProps) {
+  // A11y (P1.8): callers historically embed a trailing "→" in footerLabel.
+  // Strip it from the accessible text and re-render it as a decorative,
+  // aria-hidden glyph so screen readers never announce a raw arrow.
+  const footerText = footerLabel.replace(/\s*(?:→|->)\s*$/u, "");
   return (
     <Card className="w-full h-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-3)]">
       {/* Header — md icon gives the card its identity at a glance */}
@@ -80,7 +84,9 @@ export function OpsStatCard({
           href={footerHref}
           className="body-xs ct-link-accent whitespace-nowrap focus-visible:outline-none ct-focus-ring rounded-sm"
         >
-          {footerLabel}
+          {footerText}
+          <span aria-hidden="true"> →</span>
+          <span className="sr-only"> (View {label} details)</span>
         </Link>
       </div>
     </Card>

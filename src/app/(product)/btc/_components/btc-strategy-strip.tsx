@@ -7,7 +7,7 @@
 // component, token-only (`--ct-*`), no chart.
 
 import { Card } from "@/components/catalyst/card";
-import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge, type Provenance } from "@/components/catalyst/provenance-badge";
 import type { AllocationPocketViewModel, PocketId } from "@/features/investor-ui/types/dashboard";
 
 // Pocket → asset dot colour (mirrors STRATEGY_DONUT_CONFIG assignment).

@@ -20,7 +20,7 @@ import { ApyRange } from "@/components/catalyst/apy-range";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { Progress } from "@/components/catalyst/progress";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge } from "@/components/catalyst/provenance-badge";
 import { prisma } from "@/lib/db";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
 import { formatUsdCompact } from "@/lib/vaults/product-display";

@@ -3,7 +3,7 @@
  */
 import { BentoPageShell } from "@/components/catalyst/bento";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge } from "@/components/catalyst/provenance-badge";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import {
   getFixtureInvestorUiDataSource,

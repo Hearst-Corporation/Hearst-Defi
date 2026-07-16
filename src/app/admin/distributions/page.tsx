@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/catalyst/table";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
-import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { ProvenanceBadge } from "@/components/catalyst/provenance-badge";
 import {
   distributionVaultScopeWhere,
   matchesDistributionVaultScope,
