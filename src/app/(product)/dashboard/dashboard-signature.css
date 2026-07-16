@@ -1,0 +1,144 @@
+/*
+ * dashboard-signature.css — visual finish layer shared by BOTH cockpit
+ * surfaces: /dashboard ([data-testid="dashboard-page"]) AND /btc
+ * ([data-testid="btc-page"]). The file lives under dashboard/ for historical
+ * import-path reasons — do NOT rename/move it (both pages import this path).
+ *
+ * Pure presentation: the animated Bitcoin orb, the concentric strategy ring,
+ * and the cockpit no-scroll fit chain for the two pages. Flat direction —
+ * NO glow, NO halo, NO drop-shadow (user call, 2026-07-16). All motion
+ * respects prefers-reduced-motion. Accent = --ct-accent (green) on
+ * /dashboard, --ct-asset-btc (orange) tone on /btc. Scoped under
+ * .dash-signature + the two page testids so nothing leaks to other routes.
+ */
+
+.dash-signature {
+  position: relative;
+}
+
+/* ─── Cockpit no-scroll layout — dashboard only (design pass 2026-07-16).
+   The page renders NO title header: the KPI band is the first thing read.
+   Three rows fill the viewport exactly — band (auto) · chart+ring (flex-1) ·
+   ops row (auto). No top-level vertical scroll on desktop; drill-down lives
+   on dedicated pages (/proof-center, /mining, /btc). Scoped to this page. */
+.ct-page-area:has([data-testid="dashboard-page"]),
+.ct-page-area:has([data-testid="btc-page"]) {
+  padding-top: var(--ct-space-3);
+}
+
+@media (min-width: 80rem) and (min-height: 46rem) {
+  /* Real chain (verified in-browser): main#main-content is the scroll owner
+     (overflow:auto) → .product-doc-shell → .ct-bento-page → __body. Pin the
+     whole chain and let row 2 absorb the free height. */
+  main#main-content:has([data-testid="dashboard-page"]),
+  main#main-content:has([data-testid="btc-page"]) {
+    overflow: hidden;
+  }
+  main#main-content:has([data-testid="dashboard-page"]) .product-doc-shell,
+  main#main-content:has([data-testid="btc-page"]) .product-doc-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  [data-testid="dashboard-page"],
+  [data-testid="btc-page"] {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-bottom: 0;
+  }
+  [data-testid="dashboard-page"] > .ct-bento-page__body,
+  [data-testid="btc-page"] > .ct-bento-page__body {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .dash-signature {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  /* Row 2 (chart + strategy ring) absorbs the free height. */
+  .dash-signature > .dash-row-main {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  /* The chart card stretches; its recharts container follows. */
+  .dash-signature .dash-row-main .ct-card {
+    height: 100%;
+  }
+  .dash-signature .dash-row-main [data-slot="chart"] {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto !important;
+  }
+}
+
+/* ─── Bitcoin orb — orbital rings + glyph, corner of the KPI band ─── */
+.dash-orb {
+  --orb-color: var(--ct-accent);
+  position: relative;
+  width: var(--orb-size, 132px);
+  height: var(--orb-size, 132px);
+  flex: none;
+}
+.dash-orb svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.dash-orb-ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--orb-color) 42%, transparent);
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.dash-orb-ring--outer { animation: dash-orb-spin 26s linear infinite; }
+.dash-orb-ring--mid   { animation: dash-orb-spin 18s linear infinite reverse; }
+.dash-orb-ring--inner { animation: dash-orb-spin 12s linear infinite; }
+.dash-orb-sat {
+  fill: var(--orb-color);
+}
+.dash-orb-core {
+  fill: color-mix(in srgb, var(--orb-color) 14%, var(--ct-bg-deep));
+  stroke: color-mix(in srgb, var(--orb-color) 55%, transparent);
+  stroke-width: 1;
+}
+.dash-orb-glyph {
+  fill: var(--orb-color);
+  font-weight: 700;
+}
+
+@keyframes dash-orb-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Strategy ring — concentric health arc (flat) ─── */
+.dash-ring {
+  --ring-color: var(--ct-accent);
+  position: relative;
+  width: var(--ring-size, 160px);
+  height: var(--ring-size, 160px);
+  flex: none;
+}
+.dash-ring svg { display: block; width: 100%; height: 100%; }
+.dash-ring-track { fill: none; stroke: color-mix(in srgb, #ffffff 6%, transparent); }
+.dash-ring-arc {
+  fill: none;
+  stroke: var(--ring-color);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dash-ring-tick { stroke: color-mix(in srgb, #ffffff 22%, transparent); }
+.dash-ring-shield {
+  fill: color-mix(in srgb, var(--ring-color) 12%, var(--ct-bg-deep));
+  stroke: color-mix(in srgb, var(--ring-color) 45%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-orb-ring--outer,
+  .dash-orb-ring--mid,
+  .dash-orb-ring--inner {
+    animation: none !important;
+  }
+  .dash-ring-arc { transition: none; }
+}

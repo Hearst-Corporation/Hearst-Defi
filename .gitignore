@@ -122,3 +122,4 @@ ds-bundle/
 
 # Telegram machine-price generated artifact (regenerated on demand)
 telegram-machines.html
+.sweep/

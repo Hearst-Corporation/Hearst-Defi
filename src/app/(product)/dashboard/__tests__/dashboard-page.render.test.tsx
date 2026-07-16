@@ -87,9 +87,11 @@ describe("DashboardHero (D5/D10)", () => {
     expect(html).toContain("Capital allocated");
     expect(html).toContain("$250,000");
     expect(html).toContain("BTC accumulated");
-    expect(html).toContain("Current BTC value");
-    expect(html).toContain("Product term progress");
-    expect(html).toContain("Month 9 of 24");
+    expect(html).toContain("Your BTC value");
+    // Reporting-period cell carries the term progress (Month 9 / 24).
+    expect(html).toContain("Reporting period");
+    expect(html).toContain("Month");
+    expect(html).toContain("24");
     expect(html).toContain("37.5% complete");
   });
 
@@ -102,9 +104,8 @@ describe("DashboardHero (D5/D10)", () => {
     expect(html).not.toContain("0.184205");
   });
 
-  it("carries the page's single View Bitcoin CTA", () => {
-    expect(html.match(/View Bitcoin/g)).toHaveLength(1);
-    expect(html).toContain('href="/btc"');
+  it("carries no View Bitcoin CTA (rail navigation owns it, design pass)", () => {
+    expect(html).not.toContain("View Bitcoin");
   });
 
   it("marks fixture sources as Simulated (unified provenance)", () => {
@@ -280,20 +281,22 @@ describe("VerifiedActivityPanel (Zone 4)", () => {
 describe("dashboard page structure (D1/D2/D10)", () => {
   const pageSrc = readFileSync(join(DASHBOARD_ROOT, "page.tsx"), "utf8");
 
-  it("runs the accumulation chart in accent tone with no self/duplicate link", () => {
-    expect(pageSrc).toContain('tone="accent"');
-    expect(pageSrc).toContain("action={null}");
+  it("runs the signature accumulation chart (accent tone is intrinsic, no self-link)", () => {
+    // The signature chart is accent-green by construction and carries no
+    // route-self link — it renders the dashboard's own accumulation curve.
+    expect(pageSrc).toContain("AccumulationChartSignature");
+    expect(pageSrc).not.toContain("AccumulationChartPanel");
   });
 
-  it("composes the five zones", () => {
+  it("composes the three cockpit zones (no-scroll pass 2026-07-16)", () => {
     expect(pageSrc).toContain("DashboardHero");
-    expect(pageSrc).toContain("AccumulationChartPanel");
-    expect(pageSrc).toContain("DashboardCapacityPanel");
-    expect(pageSrc).toContain("MiningPulsePanel");
-    expect(pageSrc).toContain("ReserveHealthPanel");
-    expect(pageSrc).toContain("StrategyStrip");
-    expect(pageSrc).toContain("VerifiedActivityPanel");
-    expect(pageSrc).toContain("AnalystNotePanel");
+    expect(pageSrc).toContain("AccumulationChartSignature");
+    expect(pageSrc).toContain("StrategyOverviewPanel");
+    expect(pageSrc).toContain("OpsRow");
+    // Verified activity + analyst note retired from this surface — they live
+    // on /proof-center. Guard against them creeping back.
+    expect(pageSrc).not.toContain("VerifiedActivityPanel");
+    expect(pageSrc).not.toContain("AnalystNotePanel");
   });
 
   it("keeps flex columns (no grid-cols-12) per the visual analytics guard", () => {
@@ -301,14 +304,14 @@ describe("dashboard page structure (D1/D2/D10)", () => {
     expect(pageSrc).not.toContain("grid-cols-12");
   });
 
-  it("has exactly ONE 'View Bitcoin' across dashboard sources (D10)", () => {
-    // The legacy dashboard-strategy-panel / dashboard-health-panel /
-    // portfolio-insight-panel files were removed by the Bitcoin pass — every
-    // remaining dashboard source is live.
+  it("has NO 'View Bitcoin' CTA across dashboard sources (design pass — rail owns nav)", () => {
+    // The hero's redundant "View Bitcoin →" button was retired 2026-07-16:
+    // the left rail's Bitcoin entry is the navigation. Guard against it
+    // creeping back into any dashboard source.
     const occurrences = collectSourceFiles(DASHBOARD_ROOT)
       .map((f) => (stripComments(readFileSync(f, "utf8")).match(/View Bitcoin/g) ?? []).length)
       .reduce((a, b) => a + b, 0);
-    expect(occurrences).toBe(1);
+    expect(occurrences).toBe(0);
   });
 
   it("dashboard sources carry no banned vocabulary", () => {

@@ -56,6 +56,10 @@ export function ChartTimeSelector({
             onClick={() => onChange(opt)}
             className={cn(
               "h-6 rounded-sm px-[var(--ct-space-1_5)] transition-colors ease-[var(--ct-ease)]",
+              // Keyboard focus — repo pattern (cockpit-button): suppress the
+              // UA outline, show the accent ring. Never outline-hidden +
+              // outline-2 (Tailwind v4 outline-style poisoning).
+              "focus-visible:outline-none ct-focus-ring",
               isActive
                 ? [
                     "ct-text-accent",
@@ -64,7 +68,7 @@ export function ChartTimeSelector({
                   ]
                 : [
                     "ct-text-muted",
-                    "hover:ct-text-body",
+                    "ct-text-body-hover",
                     "border-b border-b-transparent",
                   ],
             )}

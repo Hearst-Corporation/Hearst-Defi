@@ -9,16 +9,17 @@
 //  - every source carries its own provenance: position block badge in the
 //    header, accumulation-series badge on its tile (FIXTURE -> simulated via
 //    the unified toProvenance mapping);
-//  - the single "View Bitcoin →" CTA of the page lives here (D10);
+//  - no "View Bitcoin" CTA — the rail's Bitcoin entry is the navigation
+//    (design pass 2026-07-16, retired the redundant hero button);
 //  - empty states preserved from the retired position panel (NOT_CONFIGURED /
 //    UNAVAILABLE / no-position CTA).
 
 import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { Progress } from "@/components/catalyst/progress";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
 import { DataNotConfigured, DataUnavailable } from "@/features/investor-ui/components/states/data-states";
+import { BitcoinOrb } from "./bitcoin-orb";
 import type { ResolvedViewModel, InvestorPositionViewModel, MiningViewModel } from "@/features/investor-ui/types";
 import type { AccumulationPoint } from "@/features/investor-ui/charts/accumulation-series";
 import {
@@ -86,71 +87,134 @@ export function DashboardHero({
   const lastPoint = accumulationPoints[accumulationPoints.length - 1];
   const btcAccumulated = lastPoint != null ? formatBtcAmount(lastPoint.cumulativeBtc.toFixed(8)) : null;
 
+  // KPI band cells — the institutional summary strip (design target). Each
+  // carries its own tone; separators are hairline verticals between cells.
+  const cells: KpiCell[] = [
+    {
+      label: "Current position",
+      value: formatUsdCompactAmount(value.value) ?? "—",
+      sub: "Principal + BTC value",
+      tone: "accent",
+      badge: toProvenance(position.status),
+    },
+    {
+      label: "Capital allocated",
+      value: formatUsdCompactAmount(value.principal) ?? "—",
+      sub: "Committed to the note",
+    },
+    {
+      // Program-level cumulative series (the chart's line) — labelled as such
+      // so it never reads as the investor's personal holding. No badge on a
+      // "—" (honesty: never a fake number, never a badge on nothing).
+      label: "BTC accumulated",
+      value: btcAccumulated ?? "—",
+      sub: "Program cumulative",
+      tone: "btc",
+      icon: "btc",
+      badge: btcAccumulated != null ? toProvenance(accumulationStatus) : undefined,
+    },
+    {
+      // Investor-level figure (position.accrued) — YOUR share, marked to spot.
+      label: "Your BTC value",
+      value: formatUsdCompactAmount(value.accrued) ?? "—",
+      sub: "Your share, at spot",
+    },
+  ];
+
   return (
     <Card
-      className="w-full p-[var(--ct-space-5)] border-l-[3px] border-l-[var(--ct-accent)]"
-      contentClassName="flex flex-col gap-[var(--ct-space-5)]"
+      className="w-full overflow-hidden p-0"
+      contentClassName="flex flex-col"
     >
-      {/* Header — primary figure + the page's single Bitcoin CTA (D10) */}
-      <div className="flex flex-wrap items-start justify-between gap-[var(--ct-space-4)]">
-        <div className="flex min-w-0 flex-col gap-[var(--ct-space-1)]">
-          <div className="flex items-center gap-[var(--ct-space-2)]">
-            <span className="ct-bento-label">Current position</span>
-            <ProvenanceBadge kind={toProvenance(position.status)} variant="compact" />
-          </div>
-          <span className="ct-text-accent text-[length:var(--ct-text-3xl)] font-medium tabular tracking-tight leading-none">
-            {formatUsdCompactAmount(value.value) ?? "—"}
-          </span>
-          <span className="ct-metric-caption">Principal + accumulated BTC value</span>
-        </div>
-        <CockpitButton href="/btc" variant="quiet" shape="rect" size="lg" className="shrink-0 border border-[var(--ct-border-soft)]">
-          View Bitcoin →
-        </CockpitButton>
-      </div>
+      {/* KPI band + orb — one compact row; page-level provenance badge in the
+          top-right corner (the page renders no separate header). */}
+      <div className="relative flex flex-col xl:flex-row items-center gap-[var(--ct-space-3)] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
+        <span className="absolute bottom-[var(--ct-space-2)] right-[var(--ct-space-3)]">
+          <ProvenanceBadge kind="simulated" variant="compact" />
+        </span>
+        <div className="grid w-full flex-1 min-w-0 grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+          {cells.map((c, i) => (
+            <KpiBandCell key={c.label} cell={c} first={i === 0} />
+          ))}
 
-      {/* Program KPI band */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-[var(--ct-space-4)] pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="ct-bento-label truncate">Capital allocated</span>
-          <span className="ct-text-strong text-[length:var(--ct-text-lg)] font-medium tabular leading-tight">
-            {formatUsdCompactAmount(value.principal) ?? "—"}
-          </span>
+          {/* Reporting period cell (5th) — term progress; always rendered
+              (same skeleton as the /btc band) with an honest "Term not
+              started" fallback instead of a phantom empty column. */}
+          <div className="flex min-w-0 flex-col justify-center gap-[var(--ct-space-1)] px-[var(--ct-space-4)] py-[var(--ct-space-1)] border-l border-[var(--ct-border-soft)]">
+            <span className="ct-bento-label truncate">Reporting period</span>
+            {currentMonth != null ? (
+              <>
+                <span className="ct-text-strong text-[length:var(--ct-text-lg)] font-medium leading-tight">
+                  Month <span className="ct-text-accent tabular">{currentMonth}</span>
+                  <span className="ct-text-muted"> / {totalMonths}</span>
+                </span>
+                {/* Decorative bar — the adjacent "% complete" caption carries
+                    the same info for screen readers (no double announcement). */}
+                <div
+                  aria-hidden="true"
+                  className="h-1 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,#ffffff_8%,transparent)]"
+                >
+                  <div
+                    className="h-full rounded-full bg-[var(--ct-accent)]"
+                    style={{ width: `${Math.min(100, termPct ?? 0)}%` }}
+                  />
+                </div>
+                {termPctLabel ? <span className="ct-metric-caption">{termPctLabel}</span> : null}
+              </>
+            ) : (
+              <>
+                <span className="ct-text-strong text-[length:var(--ct-text-lg)] font-medium leading-tight">
+                  —
+                </span>
+                <span className="ct-metric-caption truncate">Term not started</span>
+              </>
+            )}
+          </div>
         </div>
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="flex items-center gap-1.5 min-w-0">
-            <AssetIcon variant="btc" size="sm" label="" />
-            <span className="ct-bento-label truncate">BTC accumulated</span>
-            <ProvenanceBadge kind={toProvenance(accumulationStatus)} variant="strip" />
-          </span>
-          <span className="text-[var(--ct-asset-btc)] text-[length:var(--ct-text-lg)] font-medium tabular leading-tight">
-            {btcAccumulated ?? "—"}
-          </span>
-        </div>
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="ct-bento-label truncate">Current BTC value</span>
-          <span className="ct-text-strong text-[length:var(--ct-text-lg)] font-medium tabular leading-tight">
-            {formatUsdCompactAmount(value.accrued) ?? "—"}
-          </span>
+
+        <div className="hidden xl:flex items-center justify-center px-[var(--ct-space-2)]">
+          <BitcoinOrb tone="accent" size={88} />
         </div>
       </div>
-
-      {/* Product term progress */}
-      {currentMonth != null ? (
-        <div className="flex flex-col gap-1.5 pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
-          <div className="flex justify-between items-center body-xs">
-            <span className="ct-text-muted">Product term progress</span>
-            <span className="ct-text-strong font-medium tabular">
-              Month {currentMonth} of {totalMonths}
-            </span>
-          </div>
-          <Progress
-            value={termPct ?? 0}
-            max={100}
-            label="Product term progress"
-          />
-          {termPctLabel ? <span className="ct-metric-caption">{termPctLabel}</span> : null}
-        </div>
-      ) : null}
     </Card>
+  );
+}
+
+interface KpiCell {
+  label: string;
+  value: string;
+  sub: string;
+  tone?: "accent" | "btc" | "default";
+  icon?: "btc";
+  badge?: ReturnType<typeof toProvenance>;
+}
+
+function KpiBandCell({ cell, first }: { cell: KpiCell; first: boolean }) {
+  const valueClass =
+    cell.tone === "accent"
+      ? "ct-text-accent"
+      : cell.tone === "btc"
+        ? "text-[var(--ct-asset-btc)]"
+        : "ct-text-strong";
+  const valueSize = cell.tone === "accent" ? "var(--ct-text-xl)" : "var(--ct-text-lg)";
+  return (
+    <div
+      className={`flex min-w-0 flex-col gap-[var(--ct-space-1)] px-[var(--ct-space-4)] py-[var(--ct-space-1)]${
+        first ? "" : " border-l border-[var(--ct-border-soft)]"
+      }`}
+    >
+      <span className="flex items-center gap-[var(--ct-space-1_5)] min-w-0">
+        {cell.icon === "btc" ? <AssetIcon variant="btc" size="sm" label="" /> : null}
+        <span className="ct-bento-label truncate">{cell.label}</span>
+        {cell.badge ? <ProvenanceBadge kind={cell.badge} variant="strip" /> : null}
+      </span>
+      <span
+        className={`${valueClass} font-medium tabular tracking-tight leading-none`}
+        style={{ fontSize: valueSize }}
+      >
+        {cell.value}
+      </span>
+      <span className="ct-metric-caption truncate">{cell.sub}</span>
+    </div>
   );
 }

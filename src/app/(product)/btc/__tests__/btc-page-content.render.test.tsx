@@ -270,11 +270,9 @@ describe("Bitcoin page — institutional ledger (PROMPT 236)", () => {
 describe("btc page structure", () => {
   const pageSrc = readFileSync(join(BTC_ROOT, "page.tsx"), "utf8");
 
-  it("runs the chart in btc tone, no projection line, proofs action", () => {
+  it("runs the signature chart in btc tone (orange-dominant, no green accent)", () => {
+    expect(pageSrc).toContain("AccumulationChartSignature");
     expect(pageSrc).toContain('tone="btc"');
-    expect(pageSrc).toContain("showReference={false}");
-    expect(pageSrc).toContain("View proofs");
-    expect(pageSrc).toContain("/proof-center");
     expect(pageSrc).not.toContain('tone="accent"');
   });
 
@@ -284,26 +282,29 @@ describe("btc page structure", () => {
     expect(live).not.toContain("View Bitcoin");
   });
 
-  it("composes the five zones and drops the duplicated Dashboard modules", () => {
-    expect(pageSrc).toContain("HeroPanel");
-    expect(pageSrc).toContain("BtcStrategyStrip");
-    expect(pageSrc).toContain("AccumulationChartPanel");
-    expect(pageSrc).toContain("SourcesAccumulationPanel");
-    expect(pageSrc).toContain("BtcLedgerTable");
-    expect(pageSrc).toContain("BtcMaturityPanel");
+  it("composes the three cockpit zones (design pass 2026-07-16)", () => {
+    expect(pageSrc).toContain("BtcHeroBand");
+    expect(pageSrc).toContain("BtcCompositionPanel");
+    expect(pageSrc).toContain("BtcOpsRow");
     // Modules that belong to the Dashboard (or were retired) are gone:
-    expect(pageSrc).not.toContain("StrategyCompositionPanel");
     expect(pageSrc).not.toContain("MiningPulsePanel");
     expect(pageSrc).not.toContain("ReserveHealthPanel");
     expect(pageSrc).not.toContain("BtcProofPanel");
     expect(pageSrc).not.toContain("BtcTrajectoryChart");
+    // The pre-cockpit modules moved behind Zone 3 drill-down links:
+    expect(pageSrc).not.toContain("BtcLedgerTable");
+    expect(pageSrc).not.toContain("BtcMaturityPanel");
+    expect(pageSrc).not.toContain("SourcesAccumulationPanel");
   });
 
-  it("keeps only the three institutional local components", () => {
+  it("keeps the cockpit local components (ledger/maturity/strip stay on disk for drill-down reuse)", () => {
     const components = readdirSync(join(BTC_ROOT, "_components")).sort();
     expect(components).toEqual([
+      "btc-composition-panel.tsx",
+      "btc-hero-band.tsx",
       "btc-ledger-table.tsx",
       "btc-maturity-panel.tsx",
+      "btc-ops-row.tsx",
       "btc-strategy-strip.tsx",
     ]);
   });
