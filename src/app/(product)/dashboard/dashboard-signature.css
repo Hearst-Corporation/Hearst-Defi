@@ -185,17 +185,33 @@
   flex: none;
 }
 .dash-ring svg { display: block; width: 100%; height: 100%; }
-.dash-ring-track { fill: none; stroke: color-mix(in srgb, #ffffff 6%, transparent); }
+.dash-ring-track { fill: none; stroke: var(--ink-hairline); }
 .dash-ring-arc {
   fill: none;
   stroke: var(--ring-color);
   stroke-linecap: round;
   transition: stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.dash-ring-tick { stroke: color-mix(in srgb, #ffffff 22%, transparent); }
+/* Ticks — 24% of the strong ink ≈ the previous 22% white, but the grey
+   temperature is now piloted from the named ink gamme (P1.1). */
+.dash-ring-tick { stroke: color-mix(in srgb, var(--ink-strong) 24%, transparent); }
 .dash-ring-shield {
   fill: color-mix(in srgb, var(--ring-color) 12%, var(--ct-bg-deep));
   stroke: color-mix(in srgb, var(--ring-color) 45%, transparent);
+}
+
+/* ─── Card border interaction — P1.6 « bordure porteuse » ───
+   Scoped to the two cockpit surfaces only: the carrying card border rests on
+   --ink-hairline and etches to --ink-etch on hover, 200ms. Border-colour
+   only — FLAT stays intact (no shadow, no glow, no lift). */
+[data-testid="dashboard-page"] .dash-signature .ct-card,
+[data-testid="btc-page"] .dash-signature .ct-card {
+  border-color: var(--ink-hairline);
+  transition: border-color var(--ct-dur-snap) var(--ct-ease);
+}
+[data-testid="dashboard-page"] .dash-signature .ct-card:hover,
+[data-testid="btc-page"] .dash-signature .ct-card:hover {
+  border-color: var(--ink-etch);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -205,4 +221,8 @@
     animation: none !important;
   }
   .dash-ring-arc { transition: none; }
+  [data-testid="dashboard-page"] .dash-signature .ct-card,
+  [data-testid="btc-page"] .dash-signature .ct-card {
+    transition: none;
+  }
 }

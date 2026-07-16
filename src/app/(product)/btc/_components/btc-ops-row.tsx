@@ -16,6 +16,7 @@
 import { OpsStatCard } from "@/app/(product)/dashboard/_components/ops-stat-card";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
 import { Figure } from "@/features/investor-ui/components/figure";
+import { HairlineProgress } from "@/features/investor-ui/components/hairline-progress";
 import {
   buildAccumulationSeries,
   toMonthlyDeltas,
@@ -170,15 +171,7 @@ export function BtcOpsRow({
           termPct != null ? (
             // Decorative bar — "Month x / y" value + "n months remaining"
             // footer meta already carry the same info for screen readers.
-            <div
-              aria-hidden="true"
-              className="h-1 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,#ffffff_8%,transparent)]"
-            >
-              <div
-                className="h-full rounded-full bg-[var(--ct-asset-btc)]"
-                style={{ width: `${termPct}%` }}
-              />
-            </div>
+            <HairlineProgress pct={termPct} tone="btc" />
           ) : undefined
         }
         footerHref="/proof-center"

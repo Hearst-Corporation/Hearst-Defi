@@ -19,6 +19,7 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { AssetIcon, type AssetIconVariant } from "@/features/investor-ui/components/asset-icon";
 import { Figure } from "@/features/investor-ui/components/figure";
+import { HairlineProgress } from "@/features/investor-ui/components/hairline-progress";
 import type { BtcProvenanceKind } from "@/features/investor-ui/format-btc";
 
 export type KpiBandTone = "accent" | "btc";
@@ -44,16 +45,11 @@ const TONE_TEXT: Record<KpiBandTone, string> = {
   btc: "ct-text-btc",
 };
 
-const TONE_FILL: Record<KpiBandTone, string> = {
-  accent: "var(--ct-accent)",
-  btc: "var(--ct-asset-btc)",
-};
-
 export function KpiBandCell({ cell }: { cell: KpiBandCellData }) {
   const valueClass =
     cell.tone === "accent" || cell.tone === "btc" ? TONE_TEXT[cell.tone] : "ct-text-strong";
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)] min-w-0">
+    <div className="ct-kpi-cell flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)] min-w-0">
       {/* Micro-label — ONE voice across the page: ct-bento-label (uppercase,
           tracking-widest, muted), same convention as the Zone 3 cards (P0.6). */}
       <dt className="flex items-center gap-[var(--ct-space-1_5)] ct-bento-label min-w-0">
@@ -91,7 +87,7 @@ export function ReportingPeriodCell({ currentMonth, totalMonths, tone }: Reporti
     termPct != null ? `${termPct.toFixed(1).replace(/\.0$/, "")}% complete` : null;
 
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)] sm:col-span-2 xl:col-span-1">
+    <div className="ct-kpi-cell flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)] sm:col-span-2 xl:col-span-1">
       <dt className="ct-bento-label">Reporting period</dt>
       {currentMonth != null ? (
         <>
@@ -101,16 +97,8 @@ export function ReportingPeriodCell({ currentMonth, totalMonths, tone }: Reporti
           </dd>
           {/* Decorative bar — the "% complete" qualifier above carries the
               same info for screen readers (no double announcement). */}
-          <dd aria-hidden="true" className="w-full flex-none">
-            <div className="h-1 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,#ffffff_8%,transparent)]">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${Math.min(100, termPct ?? 0)}%`,
-                  background: TONE_FILL[tone],
-                }}
-              />
-            </div>
+          <dd className="w-full flex-none">
+            <HairlineProgress pct={termPct ?? 0} tone={tone} />
           </dd>
         </>
       ) : (

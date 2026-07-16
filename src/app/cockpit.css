@@ -193,6 +193,16 @@
   --ct-row-hover-glow: rgba(255, 255, 255, 0.05);
   --ct-row-hover-glow-strong: rgba(255, 255, 255, 0.06);
 
+  /* ── Gamme d'encres nommée (P1.1) — LA source des gris blancs du cockpit.
+     Remplace les color-mix(#ffffff X%) inline dispersés dans les héros, les
+     ops-rows et dashboard-signature.css : la température des gris se pilote
+     d'un point. hairline = tracks/filets · etch = bordure au hover (gravure)
+     · muted = encre secondaire · strong = encre pleine. */
+  --ink-hairline: color-mix(in srgb, #ffffff 6%, transparent);
+  --ink-etch: color-mix(in srgb, #ffffff 10%, transparent);
+  --ink-muted: color-mix(in srgb, #ffffff 55%, transparent);
+  --ink-strong: color-mix(in srgb, #ffffff 92%, transparent);
+
   /* Status semantic colors (source of truth — tokens.css n'en a pas).
      Success/live/positive = the single brand green. The semantic token NAME
      stays (components keep using --ct-status-success) but it resolves to the
@@ -566,10 +576,43 @@ body {
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--ct-text-muted) 55%, transparent);
   text-underline-offset: 2px;
+  /* P1.6 — the only interactive element of the ops row gets its 150-250ms:
+     colour + underline slide together (micro duration, 180ms). */
+  transition:
+    color var(--ct-dur-micro) var(--ct-ease),
+    text-decoration-color var(--ct-dur-micro) var(--ct-ease),
+    text-underline-offset var(--ct-dur-micro) var(--ct-ease);
 }
 .ct-link-accent:hover {
   color: var(--ct-text-primary);
   text-decoration-color: color-mix(in srgb, var(--ct-accent) 45%, transparent);
+  text-underline-offset: 3px;
+}
+
+/* ── KPI band cell hover (P1.6) — the hero cells were static divs; they get
+   the canonical subtle row glow as an overlay (opacity fade, --ct-dur-base).
+   Overlay = pseudo-element so the cell's opaque --ct-bg-deep ground and the
+   hairline grid stay untouched; pointer-events none, purely scenographic. */
+.ct-kpi-cell {
+  position: relative;
+}
+.ct-kpi-cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ct-row-hover-glow-subtle);
+  opacity: 0;
+  transition: opacity var(--ct-dur-base) var(--ct-ease);
+  pointer-events: none;
+}
+.ct-kpi-cell:hover::after {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ct-kpi-cell::after,
+  .ct-link-accent {
+    transition: none;
+  }
 }
 
 .ct-prose-narrow {

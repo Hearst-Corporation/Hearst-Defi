@@ -8,10 +8,13 @@
 // via toProvenance; no fabricated fallback — an unresolved block renders "—"
 // with its honest detail line.
 
+import { Cpu } from "lucide-react";
 import { OpsStatCard } from "./ops-stat-card";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
 import { Figure } from "@/features/investor-ui/components/figure";
+import { HairlineProgress } from "@/features/investor-ui/components/hairline-progress";
 import { formatUsdCompactAmount } from "@/features/investor-ui/format-btc";
+import { cn } from "@/lib/cn";
 import { investDepositPath } from "@/lib/vaults/invest-routes";
 import type {
   ResolvedViewModel,
@@ -75,15 +78,7 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
           utilizationPct != null ? (
             // Decorative bar — the detail line ("x.x% vault utilization")
             // already carries the same figure for screen readers.
-            <div
-              aria-hidden="true"
-              className="h-1 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,#ffffff_8%,transparent)]"
-            >
-              <div
-                className="h-full rounded-full bg-[var(--ct-accent)]"
-                style={{ width: `${Math.min(100, utilizationPct)}%` }}
-              />
-            </div>
+            <HairlineProgress pct={utilizationPct} tone="accent" />
           ) : undefined
         }
         footerHref={investDepositPath(VAULT_ID)}
@@ -127,17 +122,33 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
 
       <OpsStatCard
         label="Fleet status"
+        icon={
+          // Same gabarit as the 3 neighbouring AssetIcon chips (md = 20px round
+          // soft chip, glyph at 55%) — the last pixel of row uniformity (P1.3).
+          <span
+            role="img"
+            aria-label="Fleet status"
+            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--ct-asset-mining-soft)] text-[var(--ct-asset-mining)]"
+          >
+            <Cpu size={11} strokeWidth={1.75} aria-hidden />
+          </span>
+        }
         value={
           <span className="flex items-center gap-[var(--ct-space-2)]">
+            {/* Canon LED dots (P1.3): green = fleet actively producing,
+                amber = curtailed, off = idle / no telemetry. */}
             <span
               aria-hidden
-              className="h-2 w-2 rounded-full shrink-0"
-              style={{
-                backgroundColor: fleetActive && !curtailed ? "var(--ct-accent)" : "var(--ct-chart-neutral)",
-              }}
+              className={cn(
+                "h-2 w-2 rounded-full shrink-0",
+                fleetActive && !curtailed ? "ct-led-green" : curtailed ? "ct-led-amber" : "ct-led-off",
+              )}
             />
             <span
-              className={`text-[length:var(--ct-text-2xl)] font-medium ${fleetActive && !curtailed ? "ct-text-accent" : "ct-text-muted"}`}
+              className={cn(
+                "text-[length:var(--ct-text-2xl)] font-medium",
+                fleetActive && !curtailed ? "ct-text-accent" : "ct-text-muted",
+              )}
             >
               {m != null ? fleetState : "—"}
             </span>
