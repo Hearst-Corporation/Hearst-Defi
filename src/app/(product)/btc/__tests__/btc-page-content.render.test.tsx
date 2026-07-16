@@ -1,16 +1,19 @@
-// /btc recomposition (UI refonte, Bitcoin pass) — render + structure tests.
+// /btc institutional ledger (PROMPT 236) — render + structure tests.
 // Pattern: renderToStaticMarkup (vitest env = node, no RTL/jsdom — cf.
 // shared-panels.render.test.tsx / dashboard-page.render.test.tsx).
 //
 // Locks:
-//  - Zone 1: hero = PROGRAM cumulative BTC (same series as the chart), never
-//    mining.totalBtcEarnedSats and never reserveBtcSats — those figures keep
-//    their own labels ("BTC produced (mining)" / "BTC in reserve");
-//  - Zone 2: chart action -> /proof-center, NO self-link, no "View Bitcoin";
-//  - Zone 5: proof panel shows REAL kinds, no fabricated "Verified {date}";
-//  - Zone 6 (D8): trajectory = simulated bands ONLY — the 9.4–12.8% return
-//    range is banned from this surface;
-//  - compliance: no yield/APY/guarantee/promise/risk-free/"Just now".
+//  - Zone 1: hero dominant = "Your attributed BTC" (the investor's own share),
+//    with Vault BTC reserve / Mining-produced BTC / Current value / Last
+//    verified as distinct, separately-labelled metrics;
+//  - Zone 2: chart action -> /proof-center, NO self-link, no "View Bitcoin",
+//    NO planned/reference projection line (showReference={false});
+//  - Zone 3: sources explicitly named (Mining credits / Reserve acquisitions),
+//    never the vague "Strategic BTC";
+//  - Zone 4: a real Bitcoin ledger with per-row evidence (no separate proof card);
+//  - Zone 5: BTC-only maturity delivery + custody;
+//  - retired from this surface: Accumulation Trajectory, p5/p50/p95, take-profit
+//    mechanics, any return %/yield/APY.
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -21,23 +24,27 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { getBtcPageData } from "../_data/get-btc-page-data";
 import { getFixtureInvestorUiDataSource } from "@/features/investor-ui/data-source";
 import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
-import { formatBtcAmount, toProvenance } from "@/features/investor-ui/format-btc";
+import {
+  formatBtcAmount,
+  satsToBtcString,
+  formatUsdCompactAmount,
+  formatIsoDate,
+  toProvenance,
+} from "@/features/investor-ui/format-btc";
 
 import { HeroPanel } from "@/features/investor-ui/components/widgets/hero-panel";
 import { AccumulationChartPanel } from "@/features/investor-ui/components/accumulation-chart-panel";
 import { SourcesAccumulationPanel } from "@/features/investor-ui/components/sources-accumulation-panel";
-import { StrategyCompositionPanel } from "@/features/investor-ui/components/strategy-composition-panel";
-import { MiningPulsePanel } from "@/features/investor-ui/components/widgets/mining-pulse-panel";
-import { ReserveHealthPanel } from "@/features/investor-ui/components/widgets/reserve-health-panel";
-import { AnalystNotePanel } from "@/features/investor-ui/components/analyst-note-panel";
-import { BtcProofPanel } from "../_components/btc-proof-panel";
-import { BtcTrajectoryChart } from "../_components/btc-trajectory-chart";
+import { BtcStrategyStrip } from "../_components/btc-strategy-strip";
+import { BtcLedgerTable } from "../_components/btc-ledger-table";
+import { BtcMaturityPanel } from "../_components/btc-maturity-panel";
 
 const FORBIDDEN_COPY = /\bapy\b|\byield\b|\bguarantee\b|\bpromise\b|\brisk-free\b|\bwill deliver\b|Just now/i;
 
 const BANNED_SOURCE_COPY = [
   /\bestimated return\b/i,
   /\breturn range\b/i,
+  /\breturn band\b/i,
   /\btarget apy\b/i,
   /\bprojected yield\b/i,
   /\bexpected return\b/i,
@@ -45,6 +52,11 @@ const BANNED_SOURCE_COPY = [
   /\bcash distribution\b/i,
   /\bperformance variation\b/i,
   /\bApyRange\b/,
+  /\bp5\b/,
+  /\bp50\b/,
+  /\bp95\b/,
+  /Accumulation Trajectory/i,
+  /Strategic BTC/i,
   /Just now/,
 ];
 
@@ -71,39 +83,72 @@ function collectSourceFiles(dir: string): string[] {
 async function renderBtcWidgets(state?: string) {
   const data = await getBtcPageData(state);
   const mining = await getFixtureInvestorUiDataSource().getMining();
-  const aiExperts = await getFixtureInvestorUiDataSource().getAiExperts();
   const dashboard = await getFixtureInvestorUiDataSource().getDashboard();
 
+  const reserve = data.reserve;
+  const attribution = data.extra.attribution;
   const production = data.extra.production;
+  const events = data.extra.events.value ?? [];
+  const custody = data.extra.custody.value;
+
   const points = buildAccumulationSeries(production.value?.monthly);
-  const lastPoint = points[points.length - 1];
-  const programBtc =
-    lastPoint != null ? formatBtcAmount(lastPoint.cumulativeBtc.toFixed(8), 4) : null;
-  const miningProgramBtc =
-    production.value?.cumulativeBtcEarned != null
-      ? formatBtcAmount(production.value.cumulativeBtcEarned, 6)
+
+  const attributedBtc =
+    attribution.value?.attributedBtcSats != null
+      ? formatBtcAmount(satsToBtcString(attribution.value.attributedBtcSats, 8), 6)
       : null;
+  const vaultReserveBtc =
+    reserve.value?.reserveBtcSats != null
+      ? formatBtcAmount(satsToBtcString(reserve.value.reserveBtcSats, 8), 2)
+      : null;
+  const miningProducedBtc =
+    production.value?.cumulativeBtcEarned != null
+      ? formatBtcAmount(production.value.cumulativeBtcEarned, 2)
+      : null;
+  const currentValueUsd = formatUsdCompactAmount(attribution.value?.attributedBtcUsd);
+  const lastVerified =
+    attribution.value?.lastVerifiedAt != null ? formatIsoDate(attribution.value.lastVerifiedAt) : null;
+
+  const monthsElapsed = mining.mining.value?.currentMonth ?? null;
+  const monthsTotal = mining.mining.value?.productDurationMonths ?? 24;
+
   const provenance = toProvenance(production.status);
+  const ownershipUnavailable = attribution.value === null && reserve.value === null;
 
   return renderToStaticMarkup(
     <>
-      <HeroPanel
-        title="BTC accumulated"
-        mainValue={programBtc ?? "—"}
-        provenance={provenance}
-        asset="btc"
-        metrics={[
-          { label: "Current value (per BTC)", value: "$6,000,000" },
-          { label: "Mining-produced (program)", value: miningProgramBtc ?? "—", accent: "btc" },
-          { label: "Strategic exposure", value: "0.4200 BTC", accent: "mining" },
-        ]}
-      />
+      {ownershipUnavailable ? null : (
+        <>
+          <HeroPanel
+            title="Your attributed BTC"
+            mainValue={attributedBtc ?? "—"}
+            provenance={toProvenance(attribution.status)}
+            asset="btc"
+            metrics={[
+              { label: "Vault BTC reserve", value: vaultReserveBtc ?? "—", accent: "btc" },
+              { label: "Mining-produced BTC", value: miningProducedBtc ?? "—", accent: "mining" },
+              { label: "Current value", value: currentValueUsd ?? "—" },
+              { label: "Last verified", value: lastVerified ?? "—" },
+            ]}
+            progress={
+              monthsElapsed != null
+                ? { current: monthsElapsed, total: monthsTotal, label: "Product term progress" }
+                : undefined
+            }
+          />
+          <BtcStrategyStrip
+            pockets={dashboard.allocation.value?.pockets ?? null}
+            provenance={toProvenance(dashboard.allocation.status)}
+          />
+        </>
+      )}
       <AccumulationChartPanel
         points={points}
-        currentMonth={9}
-        totalMonths={24}
+        currentMonth={monthsElapsed}
+        totalMonths={monthsTotal}
         provenance={provenance}
         tone="btc"
+        showReference={false}
         action={{ label: "View proofs →", href: "/proof-center" }}
       />
       <SourcesAccumulationPanel
@@ -113,53 +158,61 @@ async function renderBtcWidgets(state?: string) {
           strategic: Math.max(0, p.cumulativeBtc - p.miningBtc),
         }))}
         provenance={provenance}
+        title="Sources of Bitcoin"
+        caption="Monthly BTC by origin"
+        action={{ label: "View mining contribution →", href: "/mining" }}
       />
-      <StrategyCompositionPanel
-        pockets={dashboard.allocation.value?.pockets ?? null}
-        provenance={toProvenance(dashboard.allocation.status)}
+      <BtcLedgerTable events={events} provenance={toProvenance(data.extra.events.status)} />
+      <BtcMaturityPanel
+        monthsElapsed={monthsElapsed}
+        monthsTotal={monthsTotal}
+        custody={custody}
+        reserve={reserve.value}
+        provenance={toProvenance(data.extra.custody.status)}
       />
-      <MiningPulsePanel mining={mining} density="compact" />
-      <ReserveHealthPanel btc={data} density="compact" />
-      <BtcProofPanel
-        proofs={data.extra.proofs.value ?? []}
-        provenance={toProvenance(data.extra.proofs.status)}
-      />
-      <BtcTrajectoryChart trajectory={data.extra.trajectory} />
-      <AnalystNotePanel aiExperts={aiExperts} variant="bitcoin" />
     </>,
   );
 }
 
-describe("Bitcoin page widgets (UI refonte)", () => {
-  it("renders the full complete composition without banned copy", async () => {
+describe("Bitcoin page — institutional ledger (PROMPT 236)", () => {
+  it("renders the complete composition without banned copy", async () => {
     const html = await renderBtcWidgets("complete");
-    expect(html).toContain("BTC accumulated");
-    expect(html).toContain("Sources of accumulation");
-    expect(html).toContain("Strategy composition");
-    expect(html).toContain("Mining pulse");
-    expect(html).toContain("Reserve health");
-    expect(html).toContain("Contextual proofs");
-    expect(html).toContain("Accumulation trajectory");
-    expect(html).toContain("Bitcoin Reserve Analyst");
+    expect(html).toContain("Your attributed BTC");
+    expect(html).toContain("Sources of Bitcoin");
+    expect(html).toContain("Bitcoin ledger");
+    expect(html).toContain("BTC maturity delivery");
+    // Retired vocabulary is gone from the surface.
     expect(html).not.toMatch(FORBIDDEN_COPY);
-    expect(html).not.toMatch(/\bestimated return\b/i);
+    expect(html).not.toContain("p5");
+    expect(html).not.toContain("Accumulation trajectory");
+    expect(html).not.toContain("Strategic BTC");
   });
 
-  it("hero = program cumulative BTC; fleet + reserve figures keep distinct labels", async () => {
+  it("hero separates attributed / vault reserve / mining-produced BTC", async () => {
     const html = await renderBtcWidgets("complete");
-    // Program series last point: 2.8 BTC mining cumulative × 1.15 sleeve.
-    expect(html).toContain("3.2200 BTC");
-    expect(html).toContain("Mining-produced (program)");
-    expect(html).toContain("2.800000 BTC");
-    // Fleet production (MiningPulsePanel) — its own label, never the hero's.
-    expect(html).toContain("BTC produced (mining)");
-    expect(html).toContain("0.184205 BTC");
-    // Reserve holdings (ReserveHealthPanel) — its own label.
-    expect(html).toContain("BTC in reserve");
-    expect(html).toContain("6.12 BTC");
+    expect(html).toContain("Your attributed BTC");
+    expect(html).toContain("0.184205 BTC"); // investor's attributed share
+    expect(html).toContain("Vault BTC reserve");
+    expect(html).toContain("6.12 BTC"); // vault reserve, distinct label
+    expect(html).toContain("Mining-produced BTC");
+    expect(html).toContain("2.80 BTC"); // program mining, distinct label
+    expect(html).toContain("Current value");
+    expect(html).toContain("$18,421");
+    expect(html).toContain("Last verified");
   });
 
-  it("chart links to proofs — no self-link, no View Bitcoin (D10)", async () => {
+  it("compact 40/27/33 strip is present (donut demoted)", async () => {
+    const html = await renderBtcWidgets("complete");
+    // Real pocket labels from the allocation view model (B1/B2/B3).
+    expect(html).toContain("Mining Power");
+    expect(html).toContain("BTC Pouch");
+    expect(html).toContain("Reserve");
+    expect(html).toContain("40%");
+    expect(html).toContain("27%");
+    expect(html).toContain("33%");
+  });
+
+  it("chart links to proofs — no self-link, no View Bitcoin", async () => {
     const html = await renderBtcWidgets("complete");
     expect(html).toContain("View proofs");
     expect(html).toContain('href="/proof-center"');
@@ -167,35 +220,38 @@ describe("Bitcoin page widgets (UI refonte)", () => {
     expect(html).not.toMatch(/href="\/btc"/);
   });
 
-  it("proof panel shows real kinds and no fabricated verification date", async () => {
+  it("sources panel is Bitcoin-titled with no vague Strategic BTC", async () => {
     const html = await renderBtcWidgets("complete");
-    expect(html).toContain("PoR");
-    expect(html).toContain("Custody");
-    expect(html).toContain("Event log");
-    expect(html).toContain("View proof");
-    // The falsified "Verified {generatedAt}" line is retired.
-    expect(html).not.toMatch(/Verified\s/);
+    // Series labels live in the Recharts legend (client runtime, absent from
+    // static markup); the static header title + the retired-term absence are
+    // what we can assert here.
+    expect(html).toContain("Sources of Bitcoin");
+    expect(html).toContain("View mining contribution");
+    expect(html).not.toContain("Strategic BTC");
   });
 
-  it("proof panel with zero proofs still renders its Card (no silent grid hole)", () => {
-    const html = renderToStaticMarkup(
-      <BtcProofPanel proofs={[]} provenance="estimated" />,
-    );
-    expect(html).toContain("Contextual proofs");
-    expect(html).toMatch(/Proof references will appear once attestations are indexed/i);
-    // No proof rows rendered, but the header + card chrome still occupy
-    // their place in the md:grid-cols-3 zone-5 grid.
-    expect(html).not.toContain("View proof");
+  it("ledger shows movements with per-row evidence and statuses", async () => {
+    const html = await renderBtcWidgets("complete");
+    expect(html).toContain("Mining settlement credited to B2 reserve");
+    expect(html).toContain("Reserve acquisition settled");
+    expect(html).toContain("Operational conversion");
+    expect(html).toContain("Verified");
+    expect(html).toContain("Confirmed");
+    expect(html).toContain("View"); // per-row evidence link
+    // signed BTC deltas — inflow carries a "+", outflow reads muted (no red).
+    expect(html).toContain("+0.517 BTC");
+    expect(html).toContain("0.032 BTC");
   });
 
-  it("trajectory = simulated bands only, no % return range (D8)", async () => {
+  it("maturity delivery is BTC-only with honest wallet state", async () => {
     const html = await renderBtcWidgets("complete");
-    expect(html).toContain("Methodology v3.0");
-    expect(html).toContain("not guaranteed");
-    expect(html).toContain("p5");
-    // The 9.4–12.8% headline is banned from this surface (SVG pixel
-    // coordinates are not display copy — only rendered percentages count).
-    expect(html).not.toMatch(/9\.4\s*(?:–|-|&#x2013;)\s*12\.8|9\.4\s*%|12\.8\s*%/);
+    expect(html).toContain("BTC maturity delivery");
+    expect(html).toContain("Maturity delivery: BTC only");
+    expect(html).toMatch(/Month \d+ \/ 24/);
+    expect(html).toContain("Pending contract deployment");
+    expect(html).toContain("Fireblocks");
+    // No USDC redemption on the investor maturity surface.
+    expect(html).not.toMatch(/redemption in USDC|USDC redemption/i);
   });
 
   it("marks fixture sources as Simulated (unified provenance)", async () => {
@@ -206,19 +262,17 @@ describe("Bitcoin page widgets (UI refonte)", () => {
   it("renders not-configured with honest empty states", async () => {
     const html = await renderBtcWidgets("not-configured");
     expect(html).toMatch(/Accumulation history will appear/i);
-    expect(html).toContain("not deployed yet");
-    // Zone 5 (proof panel): empty proofs no longer collapse to a silent hole
-    // in the md:grid-cols-3 grid — the card still renders, honestly empty.
-    expect(html).toContain("Contextual proofs");
-    expect(html).toMatch(/Proof references will appear once attestations are indexed/i);
+    expect(html).toMatch(/Bitcoin movements will appear/i);
+    expect(html).not.toMatch(FORBIDDEN_COPY);
   });
 });
 
 describe("btc page structure", () => {
   const pageSrc = readFileSync(join(BTC_ROOT, "page.tsx"), "utf8");
 
-  it("runs the chart in btc tone with the proofs action", () => {
+  it("runs the chart in btc tone, no projection line, proofs action", () => {
     expect(pageSrc).toContain('tone="btc"');
+    expect(pageSrc).toContain("showReference={false}");
     expect(pageSrc).toContain("View proofs");
     expect(pageSrc).toContain("/proof-center");
     expect(pageSrc).not.toContain('tone="accent"');
@@ -230,28 +284,33 @@ describe("btc page structure", () => {
     expect(live).not.toContain("View Bitcoin");
   });
 
-  it("composes the six zones from shared panels", () => {
+  it("composes the five zones and drops the duplicated Dashboard modules", () => {
     expect(pageSrc).toContain("HeroPanel");
+    expect(pageSrc).toContain("BtcStrategyStrip");
     expect(pageSrc).toContain("AccumulationChartPanel");
     expect(pageSrc).toContain("SourcesAccumulationPanel");
-    expect(pageSrc).toContain("StrategyCompositionPanel");
-    expect(pageSrc).toContain("MiningPulsePanel");
-    expect(pageSrc).toContain("ReserveHealthPanel");
-    expect(pageSrc).toContain("BtcProofPanel");
-    expect(pageSrc).toContain("BtcTrajectoryChart");
-    expect(pageSrc).toContain("AnalystNotePanel");
-    expect(pageSrc).toContain("lg:flex-row");
-    expect(pageSrc).not.toContain("grid-cols-12");
+    expect(pageSrc).toContain("BtcLedgerTable");
+    expect(pageSrc).toContain("BtcMaturityPanel");
+    // Modules that belong to the Dashboard (or were retired) are gone:
+    expect(pageSrc).not.toContain("StrategyCompositionPanel");
+    expect(pageSrc).not.toContain("MiningPulsePanel");
+    expect(pageSrc).not.toContain("ReserveHealthPanel");
+    expect(pageSrc).not.toContain("BtcProofPanel");
+    expect(pageSrc).not.toContain("BtcTrajectoryChart");
   });
 
-  it("keeps only the two resurrected local components (D9)", () => {
+  it("keeps only the three institutional local components", () => {
     const components = readdirSync(join(BTC_ROOT, "_components")).sort();
-    expect(components).toEqual(["btc-proof-panel.tsx", "btc-trajectory-chart.tsx"]);
+    expect(components).toEqual([
+      "btc-ledger-table.tsx",
+      "btc-maturity-panel.tsx",
+      "btc-strategy-strip.tsx",
+    ]);
   });
 
   it("live btc sources carry no banned vocabulary", () => {
     for (const f of collectSourceFiles(BTC_ROOT)) {
-      const src = readFileSync(f, "utf8");
+      const src = stripComments(readFileSync(f, "utf8"));
       for (const pattern of BANNED_SOURCE_COPY) {
         expect(src, `${f} matched ${pattern}`).not.toMatch(pattern);
       }

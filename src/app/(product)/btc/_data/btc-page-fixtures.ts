@@ -5,16 +5,20 @@
 // (fixtureBlock/fixtureUnresolved) without importing it directly, since that
 // module is internal to A5's fixtures directory — this file builds the same
 // envelope locally to stay decoupled while the contract is still page-scoped.
+//
+// PROMPT 236 — BTC-only accumulation ledger. No trajectory / p5-p50-p95 bands /
+// take-profit ladder here: those were retired from the investor surface. The
+// blocks below feed: attributed BTC (hero), production (accumulation chart +
+// sources), the BTC movement ledger (events), custody + proofs.
 
 import { resolved, type ResolvedViewModel } from "@/features/investor-ui/types/common";
 import type {
+  BtcAttributionViewModel,
   BtcCustodyViewModel,
   BtcEventViewModel,
   BtcPageExtraViewModel,
   BtcProductionViewModel,
   BtcProofRefViewModel,
-  BtcTakeProfitLadderViewModel,
-  BtcTrajectoryViewModel,
 } from "./btc-page-types";
 
 const GENERATED_AT = "2026-07-01T12:00:00.000Z";
@@ -54,13 +58,6 @@ const AI_EXPERTS_CONTEXTUAL = [
       "Tracks the B2 BTC Pouch against the 24-month accumulation term and flags pace deviations — advisory only, no autonomous action.",
   },
   {
-    id: "take-profit-monitor",
-    name: "Take-Profit Monitor",
-    focus: "Ladder tier proximity",
-    summary:
-      "Watches spot BTC against the note's take-profit ladder triggers and surfaces proximity to the next tier.",
-  },
-  {
     id: "custody-attestation-reviewer",
     name: "Custody Attestation Reviewer",
     focus: "Proof-of-reserve cadence",
@@ -82,42 +79,18 @@ const PRODUCTION_MONTHLY = [
   cumulativeSatsEarned: String(row.cumSats),
 }));
 
-const TRAJECTORY_BANDS = Array.from({ length: 7 }, (_, i) => {
-  const m = i * 4; // months 0..24
-  const p50 = 100 + m * 0.55;
-  return {
-    m,
-    p5: p50 - 6 - i * 0.6,
-    p50,
-    p95: p50 + 6 + i * 0.6,
-  };
-});
-
 export const btcPageExtraCompleteFixture: BtcPageExtraViewModel = {
+  attribution: fixtureBlock<BtcAttributionViewModel>({
+    // Investor's economic BTC share — a per-holder position (like a portfolio
+    // balance), not a fleet metric. Simulated until the vault ships.
+    attributedBtcSats: "18420500", // 0.184205 BTC
+    attributedBtcUsd: "18421",
+    lastVerifiedAt: "2026-07-01T00:00:00.000Z",
+  }),
   production: fixtureBlock<BtcProductionViewModel>({
     monthly: PRODUCTION_MONTHLY,
     cumulativeSatsEarned: "280000000",
     cumulativeBtcEarned: "2.80000000",
-  }),
-  trajectory: fixtureBlock<BtcTrajectoryViewModel>({
-    narrative:
-      "The note has accumulated BTC for 6 of its 24 months. Mining settlements have been credited to the B2 reserve every month on schedule, with no curtailment events.",
-    monthsElapsed: 6,
-    monthsTotal: 24,
-    projectedRangeLowPct: 9.4,
-    projectedRangeHighPct: 12.8,
-    methodologyVersion: "v3.0",
-    disclaimer:
-      "Estimated range of accumulated BTC at maturity, not a fixed return and not guaranteed. Methodology v3.0.",
-    bands: TRAJECTORY_BANDS,
-  }),
-  takeProfitLadder: fixtureBlock<BtcTakeProfitLadderViewModel>({
-    tiers: [
-      { tier: 1, triggerMultiple: 1.3, sellPortionBps: 2500, status: "triggered", triggeredAt: "2026-05-14T09:20:00.000Z" },
-      { tier: 2, triggerMultiple: 1.6, sellPortionBps: 2500, status: "armed", triggeredAt: null },
-      { tier: 3, triggerMultiple: 2.0, sellPortionBps: 2500, status: "pending", triggeredAt: null },
-      { tier: 4, triggerMultiple: 2.5, sellPortionBps: 2500, status: "pending", triggeredAt: null },
-    ],
   }),
   custody: fixtureBlock<BtcCustodyViewModel>({
     provider: "fireblocks",
@@ -130,22 +103,42 @@ export const btcPageExtraCompleteFixture: BtcPageExtraViewModel = {
       type: "mining_settlement",
       label: "Mining settlement credited to B2 reserve",
       occurredAt: "2026-06-30T00:00:00.000Z",
-      detail: "51.7M sats credited from June fleet production.",
+      deltaSats: "51700000",
+      source: "Mining",
+      status: "verified",
+      detail: "June fleet production settled into the BTC reserve pouch.",
       txHash: "0x8f2a...c19e",
       proofHref: "/proof-center",
     },
     {
-      type: "take_profit_execution",
-      label: "Take-profit tier 1 triggered",
-      occurredAt: "2026-05-14T09:20:00.000Z",
-      detail: "BTC spot crossed avg entry x1.30 — 25% tactical portion executed.",
+      type: "btc_purchase",
+      label: "Reserve acquisition settled",
+      occurredAt: "2026-06-28T00:00:00.000Z",
+      deltaSats: "9100000",
+      source: "Bitcoin Reserve",
+      status: "verified",
+      detail: "B2 pouch topped up from operating liquidity, per the reserve policy.",
       txHash: "0x1d90...44ab",
+      proofHref: "/proof-center",
+    },
+    {
+      type: "operational_conversion",
+      label: "Operational conversion",
+      occurredAt: "2026-06-15T00:00:00.000Z",
+      deltaSats: "-3200000",
+      source: "Operations",
+      status: "confirmed",
+      detail: "Portion converted to cover the monthly electricity settlement.",
+      txHash: "0x77c3...9f10",
       proofHref: "/proof-center",
     },
     {
       type: "proof_of_reserve",
       label: "Proof-of-reserve attestation published",
       occurredAt: "2026-06-30T00:00:00.000Z",
+      deltaSats: null,
+      source: "Custody",
+      status: "verified",
       detail: "Fireblocks vault account 86 attested against on-chain custody ledger.",
       txHash: null,
       proofHref: "/proof-center",
@@ -154,6 +147,9 @@ export const btcPageExtraCompleteFixture: BtcPageExtraViewModel = {
       type: "custody_attestation",
       label: "Custody attestation refreshed",
       occurredAt: "2026-06-01T00:00:00.000Z",
+      deltaSats: null,
+      source: "Custody",
+      status: "verified",
       detail: "Quarterly custody attestation cycle completed, no exceptions.",
       txHash: null,
       proofHref: "/proof-center",
@@ -169,13 +165,10 @@ export const btcPageExtraCompleteFixture: BtcPageExtraViewModel = {
 };
 
 export const btcPageExtraNotConfiguredFixture: BtcPageExtraViewModel = {
+  attribution: fixtureUnresolved<BtcAttributionViewModel>("NOT_CONFIGURED", {
+    freshness: "PermissionedDynaVault v2.1 not deployed",
+  }),
   production: fixtureUnresolved<BtcProductionViewModel>("NOT_CONFIGURED", {
-    freshness: "PermissionedDynaVault v2.1 not deployed",
-  }),
-  trajectory: fixtureUnresolved<BtcTrajectoryViewModel>("NOT_CONFIGURED", {
-    freshness: "PermissionedDynaVault v2.1 not deployed",
-  }),
-  takeProfitLadder: fixtureUnresolved<BtcTakeProfitLadderViewModel>("NOT_CONFIGURED", {
     freshness: "PermissionedDynaVault v2.1 not deployed",
   }),
   custody: fixtureUnresolved<BtcCustodyViewModel>("NOT_CONFIGURED", {
@@ -192,13 +185,13 @@ export const btcPageExtraNotConfiguredFixture: BtcPageExtraViewModel = {
 
 export const btcPageExtraStaleFixture: BtcPageExtraViewModel = {
   ...btcPageExtraCompleteFixture,
-  production: {
-    ...btcPageExtraCompleteFixture.production,
+  attribution: {
+    ...btcPageExtraCompleteFixture.attribution,
     status: "STALE",
     freshness: "last indexed 6 days ago",
   },
-  trajectory: {
-    ...btcPageExtraCompleteFixture.trajectory,
+  production: {
+    ...btcPageExtraCompleteFixture.production,
     status: "STALE",
     freshness: "last indexed 6 days ago",
   },
@@ -213,8 +206,5 @@ export const btcPageExtraPartialFixture: BtcPageExtraViewModel = {
   ...btcPageExtraCompleteFixture,
   custody: fixtureUnresolved<BtcCustodyViewModel>("PARTIAL", {
     freshness: "Custody provider linked, attestation pending",
-  }),
-  takeProfitLadder: fixtureUnresolved<BtcTakeProfitLadderViewModel>("UNAVAILABLE", {
-    freshness: "Ladder indexer temporarily unavailable",
   }),
 };

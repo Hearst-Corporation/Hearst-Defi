@@ -39,6 +39,10 @@ interface AccumulationChartPanelProps {
   tone?: AccumulationChartTone;
   /** Header link. Omit for the historical "View Bitcoin →"; null for none. */
   action?: AccumulationChartAction | null;
+  /** Illustrative dashed "Reference path" baseline. Default true (Dashboard
+   *  keeps it). PROMPT 236: /btc passes `false` — the investor surface shows
+   *  historical accumulation only, no planned/reference projection line. */
+  showReference?: boolean;
 }
 
 export function AccumulationChartPanel({
@@ -48,6 +52,7 @@ export function AccumulationChartPanel({
   provenance,
   tone = "btc",
   action = DEFAULT_ACTION,
+  showReference = true,
 }: AccumulationChartPanelProps) {
   const termLabel =
     currentMonth != null && totalMonths != null
@@ -140,15 +145,17 @@ export function AccumulationChartPanel({
           />
           <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
           <ChartLegend content={<ChartLegendContent />} />
-          <Line
-            dataKey="reference"
-            stroke="var(--color-reference)"
-            strokeWidth={1}
-            strokeDasharray="4 4"
-            dot={false}
-            type="monotone"
-            isAnimationActive={false}
-          />
+          {showReference ? (
+            <Line
+              dataKey="reference"
+              stroke="var(--color-reference)"
+              strokeWidth={1}
+              strokeDasharray="4 4"
+              dot={false}
+              type="monotone"
+              isAnimationActive={false}
+            />
+          ) : null}
           <Area
             dataKey="mining"
             stroke="var(--color-mining)"
@@ -191,7 +198,7 @@ export function AccumulationChartPanel({
       </ChartContainer>
 
       <p className="ct-metric-caption m-0">
-        Historical accumulation only — maturity target is product-defined, not guaranteed.
+        Historical accumulation only — delivered in BTC at maturity, not guaranteed.
       </p>
     </Card>
   );

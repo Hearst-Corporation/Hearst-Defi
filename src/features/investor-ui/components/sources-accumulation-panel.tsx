@@ -14,6 +14,7 @@ import { SOURCES_STACKED_CONFIG } from "@/features/investor-ui/charts/asset-char
 import { toMonthlyDeltas } from "@/features/investor-ui/charts/accumulation-series";
 import { formatPeriodMonth } from "@/features/investor-ui/format-btc";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
+import Link from "next/link";
 
 interface SourcesAccumulationPanelProps {
   /**
@@ -25,11 +26,21 @@ interface SourcesAccumulationPanelProps {
   monthlyProduction: { period: string; mining: number; strategic: number }[];
   /** Honesty badge for the series. Defaults to "simulated" (fixture seam). */
   provenance?: Provenance;
+  /** Section title. PROMPT 236 renames this to "Sources of Bitcoin" on /btc. */
+  title?: string;
+  /** Optional caption under the title. */
+  caption?: string;
+  /** Optional header link (e.g. "View mining contribution →"). Mining Pulse
+   *  is not a standalone card on /btc — it collapses to this contextual link. */
+  action?: { label: string; href: string };
 }
 
 export function SourcesAccumulationPanel({
   monthlyProduction,
   provenance = "simulated",
+  title = "Sources of accumulation",
+  caption = "Monthly accumulation by source",
+  action,
 }: SourcesAccumulationPanelProps) {
   if (monthlyProduction.length === 0) return null;
 
@@ -55,11 +66,18 @@ export function SourcesAccumulationPanel({
         <div className="flex flex-col gap-[var(--ct-space-1)]">
           <div className="flex items-center gap-[var(--ct-space-2)]">
             <AssetIcon variant="btc" size="sm" />
-            <span className="ct-bento-label">Sources of accumulation</span>
+            <span className="ct-bento-label">{title}</span>
           </div>
-          <span className="ct-metric-caption">Monthly accumulation by source</span>
+          <span className="ct-metric-caption">{caption}</span>
         </div>
-        <ProvenanceBadge kind={provenance} variant="compact" />
+        <span className="flex items-center gap-[var(--ct-space-3)]">
+          {action ? (
+            <Link href={action.href} className="body-xs ct-link-accent whitespace-nowrap">
+              {action.label}
+            </Link>
+          ) : null}
+          <ProvenanceBadge kind={provenance} variant="compact" />
+        </span>
       </div>
 
       <ChartContainer

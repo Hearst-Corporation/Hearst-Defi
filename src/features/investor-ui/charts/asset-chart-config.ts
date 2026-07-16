@@ -33,10 +33,12 @@ export const STRATEGY_DONUT_CONFIG = {
   ops: { label: "Operating Reserve", color: ASSET_TOKEN.usdc },
 } satisfies ChartConfig;
 
-/** Monthly sources stacked bar. */
+/** Monthly sources stacked bar — each source explicitly named (PROMPT 236:
+ *  never the vague "Strategic BTC"). "mining" = credits from fleet production;
+ *  "strategic" = BTC bought into the B2 reserve pouch. */
 export const SOURCES_STACKED_CONFIG = {
-  mining: { label: "Mining-produced BTC", color: ASSET_TOKEN.mining },
-  strategic: { label: "Strategic BTC", color: ASSET_TOKEN.btc },
+  mining: { label: "Mining credits", color: ASSET_TOKEN.mining },
+  strategic: { label: "Reserve acquisitions", color: ASSET_TOKEN.btc },
 } satisfies ChartConfig;
 
 /** Mining pulse monthly production bars. */

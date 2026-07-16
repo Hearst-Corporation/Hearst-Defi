@@ -2,7 +2,7 @@
 //
 // Composes A5's `BtcViewModel` (reserve/performance, via
 // `FixtureInvestorUiDataSource`/`InvestorUiDataSource`) with the page-scoped
-// EXTRA blocks (production/trajectory/ladder/custody/events/proofs/experts —
+// EXTRA blocks (attribution/production/custody/events/proofs/experts —
 // see btc-page-types.ts) into one `BtcPageViewModel` the page renders.
 //
 // `?state=` query param drives BOTH halves together so the four preview
