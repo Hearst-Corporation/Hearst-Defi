@@ -1,20 +1,9 @@
 /**
- * /mining — UI V2 mining operations view ("institutional mining control
- * room"): the mining fleet's operational state, BTC production, term
- * progress, and electricity coverage backing the note.
- *
- * Rail entry "Mining" in `PRODUCT_NAV` (`src/components/nav/product-nav-items.ts`).
- *
- * Data flows Page → InvestorUiDataSource → fixture / GPU1 adapter — never
- * Prisma/Supabase/RPC/legacy `src/lib/mining/*` directly from this file.
- *
- * `?state=` QA preview switcher (mirrors Dashboard/BTC): mining-complete /
- * mining-stale / mining-unavailable. Absent/unknown falls back to the real
- * `getInvestorUiDataSource()` factory (fixture-backed today — the contract is
- * not deployed, CLAUDE.md non-negotiable #8).
+ * /mining — Advanced mining contribution view (off primary rail, PROMPT 227).
  */
-import { BentoPageShell, BentoPanel } from "@/components/catalyst/bento";
+import { BentoPageShell } from "@/components/catalyst/bento";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
+import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import {
   getFixtureInvestorUiDataSource,
@@ -56,10 +45,12 @@ export default async function MiningPage({ searchParams }: MiningPageProps) {
 
   return (
     <BentoPageShell testId="mining-page">
-      <ProductPageHeader titleLead="Mining" contextLabel="OPERATIONS" />
-      <BentoPanel>
-        <MiningPageContent viewModel={viewModel} />
-      </BentoPanel>
+      <ProductPageHeader
+        titleLead="Mining"
+        contextLabel="CONTRIBUTION"
+        titleRowEnd={<ProvenanceBadge kind="simulated" />}
+      />
+      <MiningPageContent viewModel={viewModel} />
     </BentoPageShell>
   );
 }

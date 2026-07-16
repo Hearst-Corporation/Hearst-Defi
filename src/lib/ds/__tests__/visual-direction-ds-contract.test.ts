@@ -147,14 +147,11 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
       join(ROOT, "src/components/nav/product-nav-items.ts"),
       "utf8",
     );
-    // PRODUCT_NAV (UI V2, simplified PROMPT 225) = Dashboard · Proof · Profile.
-    // BTC/Mining left the rail (routes preserved as Dashboard drill-downs).
-    // Subscribing to the mining note starts from a Dashboard CTA, not a
-    // dedicated "Vault" / "Invest" rail entry.
+    // PRODUCT_NAV (PROMPT 227) = Dashboard · Bitcoin · Profile.
     expect(nav).not.toMatch(/id:\s*"invest"/);
     expect(nav).not.toMatch(/id:\s*"holdings"/);
-    expect(nav).not.toMatch(/id:\s*"proof-center"/);
-    expect(nav).toMatch(/id:\s*"proof"/);
+    expect(nav).not.toMatch(/id:\s*"proof"/);
+    expect(nav).toMatch(/id:\s*"bitcoin"/);
     expect(nav).toMatch(/id:\s*"dashboard"/);
   });
 });

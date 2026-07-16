@@ -26,27 +26,11 @@ export type NavItem = {
 };
 
 /**
- * Investor-facing navigation (UI V2 — investor information architecture).
+ * Investor-facing navigation (UI V2 — PROMPT 227).
  *
- * Three rail entries: Dashboard · Proof · Profile (simplified from 5 in
- * PROMPT 225, per the IA decision in `docs/investor-navigation-decision.md`).
- * BTC and Mining left the rail — both render 100% fixture data today
- * (`FixtureInvestorUiDataSource`; GPU1 adapter throws, contract undeployed) and
- * their headline figures already live on the Dashboard (PerformancePanel +
- * MiningPulse), so neither has the real depth to justify a co-equal primary
- * seat. Their ROUTES are preserved as Dashboard drill-downs (reachable via the
- * "Full mining report →" / "BTC accumulation detail →" links and direct URL,
- * exactly as `/portfolio`, `/my-vaults` and `/vaults/[id]/invest` already sit
- * off the rail). They return to the rail — or fold into the Dashboard — the
- * moment real GPU1/contract data backs them.
- *
- * Routing notes:
- *   - "Dashboard" → `/dashboard` (V2 entry point; legacy `/portfolio` cockpit
- *     stays reachable by direct URL, off the rail).
- *   - "Proof" → `/proof-center` (the only real-data trust surface; kept in the
- *     rail as a secondary utility — label shortened to "Proof").
- *   - "Profile" → `/profile` (real DB-backed account home).
- *   - Off-rail routes (KEEP ROUTE, REMOVE FROM NAV): `/btc`, `/mining`.
+ * Three rail entries: Dashboard · Bitcoin · Profile.
+ * Proof, Mining, Vault, Invest, Allocation removed from primary rail.
+ * Secondary routes preserved: /mining, /portfolio/activity, /proof-center, /vaults/.../invest
  */
 export const PRODUCT_NAV: NavItem[] = [
   {
@@ -56,10 +40,11 @@ export const PRODUCT_NAV: NavItem[] = [
     icon: "LayoutDashboard",
   },
   {
-    id: "proof",
-    label: "Proof",
-    href: "/proof-center",
-    icon: "FileCheck",
+    id: "bitcoin",
+    label: "Bitcoin",
+    railLabel: "Bitcoin",
+    href: "/btc",
+    icon: "Bitcoin",
   },
   {
     id: "profile",

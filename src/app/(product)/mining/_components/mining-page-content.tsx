@@ -2,7 +2,6 @@
 // states. Server Component: no hooks, no client fetch, pure render off an
 // already-resolved MiningViewModel.
 
-import { Card, CardHeader, CardTitle } from "@/components/catalyst/card";
 import {
   DataNotConfigured,
   DataStale,
@@ -29,10 +28,8 @@ export function MiningPageContent({ viewModel }: MiningPageContentProps) {
 
   return (
     <div className="flex flex-col gap-[var(--ct-space-5)]">
-      <Card contentClassName="flex flex-col gap-[var(--ct-space-4)]">
-        <CardHeader>
-          <CardTitle>Mining flow</CardTitle>
-        </CardHeader>
+      <div className="iw-surface-primary flex flex-col gap-[var(--ct-space-4)] p-[var(--ct-space-5)]">
+        <span className="stat-label ct-text-muted">Mining flow</span>
 
         {bothNotConfigured ? (
           <DataNotConfigured
@@ -49,7 +46,7 @@ export function MiningPageContent({ viewModel }: MiningPageContentProps) {
             summaryText={summaryText}
           />
         )}
-      </Card>
+      </div>
 
       <div className="flex flex-col gap-[var(--ct-space-2)]">
         {mining.status === "NOT_CONFIGURED" ? (
