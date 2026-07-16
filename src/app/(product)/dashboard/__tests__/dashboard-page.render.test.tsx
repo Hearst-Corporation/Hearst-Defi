@@ -99,8 +99,13 @@ describe("DashboardHero (D5/D10)", () => {
     // The SAME figure the accumulation chart's "actual" line ends on (mining
     // cumulative + strategic sleeve) — NOT mining.totalBtcEarnedSats (the
     // 0.184205 BTC fleet figure, which belongs to MiningPulsePanel).
+    // P0.6 Figure idiom: the value and its unit are separate spans — the unit
+    // ("BTC") renders as a small uppercase tracked span right after the digits.
     const last = points[points.length - 1]!;
-    expect(html).toContain(`${last.cumulativeBtc.toFixed(2)} BTC`);
+    const value = last.cumulativeBtc.toFixed(2);
+    expect(html).toMatch(
+      new RegExp(`${value.replace(".", "\\.")}\\s*<span[^>]*>BTC</span>`),
+    );
     expect(html).not.toContain("0.184205");
   });
 
