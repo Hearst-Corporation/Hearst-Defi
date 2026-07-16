@@ -1,4 +1,5 @@
 import { AdminPageShell } from "@/components/admin/admin-page-shell";
+import { PanelStatus } from "@/components/catalyst/panel-status";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { resolveVault } from "@/lib/vaults/resolver";
 import { cloneFormValues } from "@/lib/vaults/clone";
@@ -69,14 +70,20 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
     draftUpdatedAt = draft.updatedAt;
   }
 
-  // Resolve ?cloneFrom=<vaultIdOrSlug> — silently ignored if invalid
+  // Resolve ?cloneFrom=<vaultIdOrSlug>. If the reference doesn't resolve, the
+  // wizard still opens (fix-forward, never a hard block) but the admin is told
+  // explicitly — otherwise a typo'd/deleted vault ref silently produced a blank
+  // wizard indistinguishable from "cloning nothing on purpose".
   let cloneValues: Partial<FormState> | undefined;
+  let cloneNotFound: string | undefined;
   const rawCloneFrom = params["cloneFrom"];
   const cloneFrom = typeof rawCloneFrom === "string" ? rawCloneFrom.trim() : "";
   if (cloneFrom.length > 0) {
     const sourceRef = await resolveVault(cloneFrom);
     if (sourceRef) {
       cloneValues = cloneFormValues(sourceRef);
+    } else {
+      cloneNotFound = cloneFrom;
     }
   }
 
@@ -84,13 +91,16 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
   // Product Workspace. Pure URL handoff: nothing was persisted, the decode is
   // whitelisted + clamped (decodeVaultFormPrefill), and the values seed the form
   // exactly like a clone. The admin still completes fees/SPV/signers + signs.
+  let prefillInvalid = false;
   if (!cloneValues) {
     const rawPrefill = params["prefill"];
-    const prefill = decodeVaultFormPrefill(
-      typeof rawPrefill === "string" ? rawPrefill : undefined,
-    );
-    if (prefill) {
-      cloneValues = prefill as Partial<FormState>;
+    if (typeof rawPrefill === "string" && rawPrefill.length > 0) {
+      const prefill = decodeVaultFormPrefill(rawPrefill);
+      if (prefill) {
+        cloneValues = prefill as Partial<FormState>;
+      } else {
+        prefillInvalid = true;
+      }
     }
   }
 
@@ -126,12 +136,32 @@ export default async function NewVaultPage({ searchParams }: NewVaultPageProps) 
           updatedAt={draftUpdatedAt}
         />
       ) : (
-        <VaultWizard
-          resumeStep={applyResume}
-          resumeForm={applyResumeForm}
-          cloneValues={cloneValues}
-          adminId={adminId}
-        />
+        <>
+          {cloneNotFound ? (
+            <PanelStatus
+              tone="danger"
+              role="alert"
+              message={`Clone source "${cloneNotFound}" not found`}
+              detail="No vault matched that reference — the wizard did not pre-fill from it."
+              className="mb-4"
+            />
+          ) : null}
+          {prefillInvalid ? (
+            <PanelStatus
+              tone="danger"
+              role="alert"
+              message="Prefill link could not be read"
+              detail="The handoff link was malformed or expired — the wizard did not pre-fill from it."
+              className="mb-4"
+            />
+          ) : null}
+          <VaultWizard
+            resumeStep={applyResume}
+            resumeForm={applyResumeForm}
+            cloneValues={cloneValues}
+            adminId={adminId}
+          />
+        </>
       )}
     </AdminPageShell>
   );
