@@ -106,5 +106,5 @@ Détail staging : voir ci-dessous et `.cursor/rules/commit-discipline.mdc`.
 ## Conventions clés
 - Server Components par défaut ; `"use client"` seulement si interactivité requise.
 - Pas de `any`, pas de `as unknown as`. Pas de `useEffect` pour fetch.
-- `cn()` (`@/lib/cn`) pour les classes conditionnelles. Tokens `--ct-*` uniquement (un seul vert `#A7FB90`).
+- `cn()` (`@/lib/cn`) pour les classes conditionnelles. Design LIBRE (RÈGLE DESIGN #0 du CLAUDE.md) — seul impératif : composants Catalyst ; tokens/couleurs/CSS libres.
 - Sous-agents spécialisés disponibles sous `.claude/agents/` (engine-dev, agent-dev, sc-dev, ui-dev).

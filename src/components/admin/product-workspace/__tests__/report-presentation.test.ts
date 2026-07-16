@@ -107,11 +107,12 @@ describe("data-scientist-output — compact report layout", () => {
       path.join(process.cwd(), "src/components/admin/product-workspace/data-scientist-output.tsx"),
       "utf8",
     );
-    // Top banner + KPIs exist.
-    expect(src).toContain("Target APY");
-    expect(src).toContain("Floor APY");
+    // Top banner + KPIs exist — APY vocabulary retired (v3.0 accumulation
+    // framing): "Target APY" → "Est. Return", "Floor APY" → "Accumulation Floor".
+    expect(src).toContain("Est. Return");
+    expect(src).toContain("Accumulation Floor");
     // The KPIs appear BEFORE the Thesis prose in source order.
-    const kpiIdx = src.indexOf("Target APY");
+    const kpiIdx = src.indexOf("Est. Return");
     const thesisIdx = src.indexOf("Investment Thesis");
     expect(kpiIdx).toBeGreaterThan(-1);
     expect(thesisIdx).toBeGreaterThan(-1);

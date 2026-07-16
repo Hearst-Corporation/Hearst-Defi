@@ -3004,6 +3004,20 @@ body {
 .ct-surface-3    { background: var(--ct-surface-inset); }
 .ct-hover-surface:hover { background: var(--ct-surface-inset); }
 
+/* ── HOVER-STATE FLAT UTILITIES ── Tailwind v4 ne génère AUCUN CSS pour une
+   variante (hover:/group-hover:) appliquée à une classe non-utility comme
+   `hover:ct-surface-1` : le hover vit donc sur la classe elle-même, même
+   pattern que .ct-bg-accent-strong-hover / .ct-bc-strong-hover ci-dessous.
+   `:not(:disabled)` = pas de wash hover sur un contrôle désactivé (no-op sur
+   les éléments non-form). Consommées par les primitives catalyst. */
+.ct-surface-1-hover:hover:not(:disabled) { background: var(--ct-surface-inset); }
+.ct-surface-2-hover:hover:not(:disabled) { background: var(--ct-surface-inset); }
+.ct-surface-3-hover:hover:not(:disabled) { background: var(--ct-surface-inset); }
+.ct-text-primary-hover:hover:not(:disabled) { color: var(--ct-text-primary); }
+.ct-text-body-hover:hover:not(:disabled) { color: var(--ct-text-body); }
+.ct-text-strong-hover:hover:not(:disabled) { color: var(--ct-text-strong); }
+.group:hover .ct-text-body-group-hover { color: var(--ct-text-body); }
+
 /* Donut/ring segment hover affordance — token-based stroke wash (replaces the
    `hover:stroke-white/20` Tailwind arbitrary in vault-allocation-display). */
 .ct-donut-seg {

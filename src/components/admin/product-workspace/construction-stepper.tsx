@@ -540,7 +540,7 @@ function BitcoinResultStrip({ metrics }: { metrics: StepMetric[] }) {
  * metric is a full-width cell (label on top, large fixed value below), cells
  * divided by thin vertical hairlines. Same grammar as the dashboard KPI tiles and
  * the Bitcoin strip, so every step reads identically — no boxes-in-boxes. The
- * Headline APY (data-scientist step) is the only accent-tinted value.
+ * headline range metric (data-scientist step) is the only accent-tinted value.
  */
 function StepResultStrip({
   stepId,
@@ -725,7 +725,7 @@ export function ConstructionStepper({ objective }: { objective: string | null })
         onChange={(e) => setObjectiveInput(e.target.value)}
         disabled={isRunning}
         maxLength={220}
-        placeholder="e.g. Frame a new Hearst Yield Vault and project its APY range"
+        placeholder="e.g. Frame a new Hearst Mining Note and project its accumulation range"
         className="min-w-0 flex-1 rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-inset px-(--ct-space-3) py-(--ct-space-2) text-[length:var(--ct-text-sm)] ct-text-strong placeholder:ct-text-faint focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)] disabled:opacity-[var(--ct-opacity-50)]"
       />
       <Button type="submit" variant="primary" size="sm" disabled={isRunning || !trimmedObjective}>

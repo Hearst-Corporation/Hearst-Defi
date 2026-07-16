@@ -20,16 +20,16 @@ export const cockpitButtonVariants = cva(
         primary:
           "font-bold ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover",
         secondary:
-          "ct-surface-0 border ct-bc-soft ct-text-primary hover:ct-surface-2 ct-bc-strong-hover hover:ct-text-strong",
+          "ct-surface-0 border ct-bc-soft ct-text-primary ct-surface-2-hover ct-bc-strong-hover ct-text-strong-hover",
         quiet:
-          "border-transparent bg-transparent ct-text-muted hover:ct-text-strong hover:ct-surface-1",
+          "border-transparent bg-transparent ct-text-muted ct-text-strong-hover ct-surface-1-hover",
         outline:
-          "border ct-bc-soft bg-transparent ct-text-primary hover:ct-surface-1 hover:ct-text-strong",
-        ghost: "ct-text-muted hover:ct-surface-1 hover:ct-text-strong border-transparent",
+          "border ct-bc-soft bg-transparent ct-text-primary ct-surface-1-hover ct-text-strong-hover",
+        ghost: "ct-text-muted ct-surface-1-hover ct-text-strong-hover border-transparent",
         danger:
-          "border ct-bc-danger ct-status-danger-bg ct-status-danger hover:ct-status-danger-bg",
+          "border ct-bc-danger ct-status-danger-bg ct-status-danger",
         destructive:
-          "border ct-bc-danger ct-status-danger-bg ct-status-danger hover:ct-status-danger-bg",
+          "border ct-bc-danger ct-status-danger-bg ct-status-danger",
       },
       shape: {
         pill: "rounded-full",

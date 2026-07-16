@@ -1,28 +1,22 @@
-# RÈGLE ABSOLUE #0 — PAS DE RÉIMPORT NI DE MINI DESIGN SYSTEM (PRIME SUR TOUT)
+# RÈGLE DESIGN #0 — LIBERTÉ VISUELLE TOTALE · SEUL IMPÉRATIF : COMPOSANTS CATALYST
 
-**Cette règle est la PREMIÈRE à lire et PRIME sur toutes les autres.** Quand Adrien
-demande une modification UI, tu corriges **le composant runtime existant dans le design
-system existant**. Point.
+**La seule règle de design de ce repo :** l'UI se construit avec les **composants Catalyst**
+(`src/components/catalyst/*` + primitives). C'est le seul garde-fou design qui subsiste.
 
-**Tu n'as PAS le droit de :**
-- réimporter une maquette Figma ;
-- recréer une version parallèle du composant ;
-- ajouter de nouveaux tokens locaux ;
-- ajouter des hex hardcodés ;
-- créer une nouvelle couche CSS ;
-- remplacer le design system par une interprétation personnelle ;
-- modifier les assets pour corriger un problème de layout ;
-- refaire une section entière si le problème est local.
+**Tout le reste est LIBRE — aucune autre contrainte de design ne s'applique :**
+- crée de nouveaux tokens, de nouvelles classes / couches CSS, du hardcode si tu veux ;
+- réinterprète, refonds une section entière, change le layout, la palette, la typo, les
+  espacements — pas de mono-accent imposé, pas d'échelle d'espacement figée, pas de
+  frontière dashboard/marketing, pas d'obligation de « corriger le runtime existant » ;
+- tu peux redessiner librement, t'inspirer d'une maquette, oser une direction visuelle.
 
-**Ordre obligatoire, sans exception :**
-1. Identifier le **composant runtime réel** affiché dans Chrome.
-2. Identifier la **règle CSS / classe / token** qui cause le problème.
-3. Corriger **à la source** avec les tokens existants (`--ct-*`).
-4. Ne toucher **qu'aux fichiers nécessaires**.
-5. Valider que le rendu existant **n'est pas remplacé** par une nouvelle maquette.
+**Ceci ANNULE et REMPLACE, pour ce repo, la section « DESIGN » du `~/.claude/CLAUDE.md`
+global** (squelette Catalyst imposé, charte qualité, un seul accent, tokens obligatoires,
+échelle d'espacement, méthode de travail visuel). Il ne reste que « composants Catalyst ».
 
-Figma sert **uniquement** de référence visuelle ou de source d'assets approuvés.
-**Le runtime et le design system du repo sont la SEULE source de vérité.**
+Inchangés — ce ne sont PAS des règles de design : workflow git / multi-agent, sécurité
+back-end, non-négociables PRODUIT (honnêteté des états, ranges, provenance, mots interdits),
+stack.
 
 ---
 
@@ -160,7 +154,7 @@ framing is retired — v3.0 replaced it.)*
 - **Methodology**: `/docs/methodology/v3.0.md` — **active** (mining note, ADR-019). `v1.0.md` (rule-based yield) and `v2.0.md` (Monte Carlo extension) are **immutable historical references** on file for memos generated under them; `v2.1-draft.md` never ratified. Immutable once published; bump version + ADR to change.
 - **Roadmap**: `/docs/roadmap.json` + `/admin/roadmap` UI — planning context for major feature work, not a blocker for active UI calibration / fix-forward passes
 - **Decisions**: `/docs/decisions/ADR-*.md` — Architecture Decision Records, append-only
-- **Design system** (copie locale éditable) : DS Cockpit dé-vendoré dans `cockpit-shell/` (composants + `tokens.css`) — cascade `cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Éditable librement (tokens `--ct-*`, CSS, composants) : pas de package figé, pas de source centrale. **Un seul vert : `--ct-accent` #A7FB90**, pas de namespace `--ds-*`. Docs : `docs/DESIGN_SYSTEM.md` + `docs/CSS_INDEX.md` (carte de la cascade).
+- **Design system** (copie locale éditable) : DS Cockpit dé-vendoré dans `cockpit-shell/` (composants + `tokens.css`) — cascade `cockpit-shell/tokens.css` → `src/app/cockpit.css` → `src/app/globals.css`. Éditable librement (tokens, CSS, composants, nouveaux tokens/couches autorisés — voir RÈGLE DESIGN #0). Pas de mono-accent imposé, pas de palette figée. Docs : `docs/DESIGN_SYSTEM.md` + `docs/CSS_INDEX.md` (carte de la cascade).
 - **Plan source**: `/Users/adrienbeyondcrypto/.claude/plans/tu-es-claude-opus-functional-eich.md`
 
 ## Non-negotiables (CI enforces most)
@@ -221,17 +215,15 @@ framing is retired — v3.0 replaced it.)*
     from scratch** using this project's locked design system (Cockpit tokens) and conventions.
     No `git mv`, no copy-paste, no symlink, no new dependency added just because A had it.
 
-## Méthode de travail visuel (RÈGLES ASSOUPLIES)
+## Méthode de travail visuel
 
-- **Initiative visuelle encouragée :** Les améliorations proactives (glassmorphism, lueurs/glows, dégradés radiaux premium) sont appréciées pour renforcer l'aspect institutionnel, tant qu'elles respectent globalement l'ambiance sombre et les couleurs de base.
-- **Réversibilité.** Toute modif doit pouvoir être annulée vite. Pas de `git add/commit/push/reset` sans demande explicite.
-- **Après chaque modif CSS/Turbopack** : `browser_close` puis re-`navigate` (sinon CSS servi en cache, Playwright garde l'ancien chunk).
-- **Accent = vert `#A7FB90` principalement** (fond noir `--ct-bg-deep`). Panneaux modules = **graphite opaque plat** (`.ct-glass-panel`, nom legacy — pas de verre dépoli). Lueurs ambiantes autorisées **sur le shell / fond**, pas comme fill de card.
-- **Portfolio empty state** — Sans position active : l'interface affiche naturellement son layout vide (le contrat ghost a été supprimé). Pas de faux badge `Live`/`Verified` ni de mockup chart fictif.
-- **Phase chantier UI :** spacing, marges, hiérarchie de page, wording, nav et
-  layout shell/doc-flow peuvent être itérés directement dans `cockpit.css`,
-  `doc-flow.css` et les composants concernés sans étape roadmap/ADR préalable,
-  tant que les non-négociables produit et l'honnêteté des états restent intacts.
+Design LIBRE (voir RÈGLE DESIGN #0). Aucune contrainte de charte, d'accent, d'échelle ou
+de « corriger le runtime ». Seul impératif : composants Catalyst. Itère librement le
+layout, la palette, la typo, le spacing, les effets — sans étape roadmap/ADR préalable.
+
+Seul garde-fou qui subsiste ici, et c'est du PRODUIT, pas du design : **honnêteté des
+états**. Portfolio/UI sans position active → layout vide honnête, jamais de faux badge
+`Live`/`Verified` ni de chart fictif.
 
 ## Stack
 
@@ -283,7 +275,7 @@ Supabase Postgres (~50 Prisma tables); file storage = Supabase Storage (`reports
 - **No `any`, no `as unknown as`** — fix the model. **All routes typed**; `next/link`, never `<a href>`.
 - **`server-only`** at the top of any module touching `fs`/`prisma` (see `src/lib/roadmap.ts`).
 - **`cn()` from `@/lib/cn`** for conditional classes — never raw conditional template strings.
-- **Dark mode only.** Colors from `--ct-*` CSS vars (`cockpit.css` is the live value, `tokens.css` the base); no `dark:` modifiers; no `tailwind.config.js`.
+- **Couleurs, tokens, CSS : LIBRES** (RÈGLE DESIGN #0). Les tokens `--ct-*` restent disponibles (`cockpit.css` live, `tokens.css` base) mais ne sont plus obligatoires — hardcode, nouveaux tokens et nouvelles couches CSS autorisés.
 - **Env vars validated by Zod at boot** in `src/lib/env.ts`.
 
 Per-domain conventions and invariants live in the `docs/*_CONTEXT.md` bundles + `.cursor/rules/`.

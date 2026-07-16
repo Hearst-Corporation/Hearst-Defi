@@ -57,10 +57,6 @@ const ALLOCATION_CHART_CONFIG = {
   BTC: { label: "BTC" },
   USDC: { label: "USDC" },
   Reserve: { label: "Reserve" },
-  Canonical: { label: "Canonical" },
-  "BTC holding": { label: "BTC holding" },
-  "Stable reserve": { label: "Stable reserve" },
-  "Yield overlay": { label: "Yield overlay" },
 } satisfies ChartConfig;
 
 type AllocationDatum = {
@@ -213,7 +209,7 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
     base
       ? `Upside driver: BTC Pouch ${pctOf(base.allocation.btc)}`
       : "Upside driver: the BTC Pouch pocket",
-    `Downside: ${draft.quant.probBelowFloorPct.toFixed(1)}% of paths finish below the ${pctOf(draft.quant.floorApyPct)} floor`,
+    `Downside: ${draft.quant.probBelowFloorPct.toFixed(1)}% of paths finish below the ${pctOf(draft.quant.floorApyPct)} accumulation floor`,
   ];
 
   return (
@@ -291,7 +287,7 @@ export function DataScientistOutput({ draft }: { draft: ProductConstructionDraft
                      value={pctFrac(draft.quant.percentiles.p50)}
                  />
                  <Metric
-                     label="Floor APY"
+                     label="Accumulation Floor"
                      value={pctOf(draft.quant.floorApyPct)}
                  />
                  <Metric

@@ -74,12 +74,12 @@ export function Metric({
       <div className="flex items-center justify-between gap-(--ct-space-2) relative z-10">
         {tooltip ? (
           <Tooltip content={tooltip}>
-            <span className="stat-label ct-text-muted group-hover:ct-text-body transition-colors ease-[var(--ct-ease)] cursor-help border-b border-dotted border-(--ct-border-soft)">
+            <span className="stat-label ct-text-muted ct-text-body-group-hover transition-colors ease-[var(--ct-ease)] cursor-help border-b border-dotted border-(--ct-border-soft)">
               {label}
             </span>
           </Tooltip>
         ) : (
-          <span className="stat-label ct-text-muted group-hover:ct-text-body transition-colors ease-[var(--ct-ease)]">
+          <span className="stat-label ct-text-muted ct-text-body-group-hover transition-colors ease-[var(--ct-ease)]">
             {label}
           </span>
         )}

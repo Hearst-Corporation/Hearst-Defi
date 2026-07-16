@@ -126,7 +126,7 @@ export function PresetPicker<T extends string>({
           "px-[var(--ct-space-4)] py-[var(--ct-space-3)] text-left",
           "disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-40)]",
           "transition-colors ease-[var(--ct-ease)] duration-[var(--ct-dur-fast)]",
-          "hover:ct-surface-1",
+          "ct-surface-1-hover",
           "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
         )}
       >
@@ -188,9 +188,9 @@ export function PresetPicker<T extends string>({
                     "focus-visible:outline-none focus-visible:shadow-[var(--ct-shadow-focus-ring)]",
                     isSelected
                       ? "ct-surface-1 ct-text-primary"
-                      : "ct-text-body hover:ct-surface-3 hover:ct-text-primary",
+                      : "ct-text-body ct-surface-3-hover ct-text-primary-hover",
                     isExcluded &&
-                      "cursor-not-allowed opacity-[var(--ct-opacity-40)] hover:bg-transparent",
+                      "cursor-not-allowed opacity-[var(--ct-opacity-40)]",
                   )}
                 >
                   <span className="body-sm font-medium">{o.label}</span>

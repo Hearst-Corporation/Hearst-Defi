@@ -53,11 +53,9 @@ jobs:
       - name: Run Typecheck
         run: pnpm typecheck
 
-      # Design-system anti-regression: hardcode guard (8 witness files) +
-      # convergence guard (repo-wide: ui/ sealed, no raw accent hex, no
-      # exact-token px, no raw surface #15191C/zinc-9xx, no raw status hue).
-      - name: DS guards
-        run: pnpm ds:guard:all
+      # DS guards retirés (RÈGLE DESIGN #0 — liberté visuelle, seul impératif
+      # composants Catalyst). Les scripts `pnpm ds:guard*` restent disponibles
+      # en local mais ne gatent plus la CI. Ne pas ré-armer sans accord d'Adrien.
 
   # ────────────────────────────────────────────────────────────────
   # Job — SecDevOps gate (secret-leak scan)

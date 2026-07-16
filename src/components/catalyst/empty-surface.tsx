@@ -82,7 +82,7 @@ export function EmptySurface({
         <Link
           href={link.href}
           aria-label={link.ariaLabel ?? link.label}
-          className="body-xs ct-text-muted hover:ct-text-primary transition-colors ease-[var(--ct-ease)] underline underline-offset-2 decoration-[var(--ct-border)] mt-[var(--ct-space-1)]"
+          className="body-xs ct-text-muted ct-text-primary-hover transition-colors ease-[var(--ct-ease)] underline underline-offset-2 decoration-[var(--ct-border)] mt-[var(--ct-space-1)]"
         >
           {link.label}
         </Link>

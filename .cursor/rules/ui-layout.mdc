@@ -7,14 +7,14 @@ alwaysApply: false
 # UI & layout rule
 
 > Note : `.cursor/rules/do-not-touch.mdc` (alwaysApply) est le **plancher** au-dessus de
-> cette règle. En cas de conflit, le do-not-touch gagne. Cette règle = structure/layout,
-> **pas** les tokens CSS (voir `design-system.mdc`).
+> cette règle. Le LAYOUT/DESIGN est LIBRE (RÈGLE DESIGN #0 du CLAUDE.md — seul impératif :
+> composants Catalyst). Ce qui suit = invariants d'ARCHITECTURE et d'HONNÊTETÉ, pas de design.
 
-## Read first
-- **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** — **obligatoire** : viewport → `W_pf`, rails, splits hero/deck, paddings empilés. **Ne jamais supprimer** (gate pre-commit).
+## Référence (utile, pas contraignant)
+- `docs/PORTFOLIO_LAYOUT_REFERENCE.md` — carte du layout portfolio existant. **Ne jamais
+  supprimer le fichier** (gate pre-commit) ; le layout lui-même est libre d'évoluer.
 - `docs/UI_CONTEXT.md` — shell, rails, zones, mapping pages.
 - `docs/CSS_INDEX.md` — plages de lignes CSS.
-- `docs/DESIGN_SYSTEM.md` §9 — empty state honnête (cockpit sans position active).
 
 ## Must avoid
 - Supprimer ou renommer `docs/PORTFOLIO_LAYOUT_REFERENCE.md` — doc protégée ; mettre à jour in place.
@@ -28,7 +28,6 @@ alwaysApply: false
 - `pnpm test` ciblé : nav (`src/components/nav/__tests__`) + `portfolio-zero-render`
   (`src/app/(product)/portfolio/__tests__/portfolio-zero-render.test.tsx`).
 - Après un changement visuel : `browser_close` puis re-`browser_navigate` (sinon CSS en cache).
-- `/ds-layout` + `/ds-primitives` (read-only) pour vérifier rails/zones/primitives.
 
 ## STOP and ask before
 - Ajouter une route aux listes `BARE_EXACT` / `NO_CHAT_PREFIXES` de `src/components/app-chrome.tsx`.

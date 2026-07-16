@@ -10,7 +10,7 @@
  *
  * HONESTY (PROMPT 17 STOP conditions enforced visually):
  *   - Operator economics renders under its OWN header, explicitly "separate from
- *     investor return" — it is never shown as part of the client APY.
+ *     investor return" — it is never shown as part of the investor return.
  *   - Recovery is labelled "not a guarantee"; the recovery flag is read-only.
  *   - The funding decision shows its PARTIAL status + missing inputs verbatim.
  *   - The Monte-Carlo disclosure states it is static / scenario-level.
@@ -236,7 +236,7 @@ function ProductEngineReportBody({
         >
           <div className="flex flex-col gap-(--ct-space-1)">
             <p className="text-[length:var(--ct-text-xs)] ct-status-warning pb-(--ct-space-2)">
-              These figures model the operator side only. They are never added to the client APY / distribution.
+              These figures model the operator side only. They are never added to the client BTC accumulation.
             </p>
             <Row k="Machine markup" v={pct(op.machineMarkup.value)} />
             <Row k="Revenue share" v={pct(op.revenueShare.value)} />

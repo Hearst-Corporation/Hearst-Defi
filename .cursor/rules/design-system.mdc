@@ -1,79 +1,31 @@
 ---
-description: Design system -- token cascade, graphite opaque surfaces, --ct-* discipline. The hottest surface (cockpit.css 71 touches).
+description: Design -- RÈGLE DESIGN #0 (CLAUDE.md), liberté visuelle totale, seul impératif composants Catalyst.
 globs: src/app/cockpit.css,src/app/globals.css,src/app/doc-flow.css,src/app/doc-flow-typography.css,src/app/tokens-layer.css,cockpit-shell/tokens.css,cockpit-shell/src/**/*.tsx,src/app/(product)/**/*.css
 alwaysApply: false
 ---
 
-# Design system (P1 — hottest surface in the repo)
+# Design — LIBERTÉ TOTALE (RÈGLE DESIGN #0 du CLAUDE.md)
 
-> `do-not-touch.mdc` (`alwaysApply`) is the floor. It wins over this rule on any overlap.
+> `do-not-touch.mdc` (`alwaysApply`) reste le plancher (fichiers protégés). Pour le DESIGN,
+> la seule règle qui subsiste est ci-dessous.
 
-## Read first
-- `docs/DS_SINGLE_SOURCE_OF_TRUTH.md` — **conflict resolution hierarchy** + V4 absorption map + agent checklist before creating any new class/token.
-- **`docs/PORTFOLIO_LAYOUT_REFERENCE.md`** — **obligatoire** si `portfolio.css`, shell rails, ou calibration surfaces portfolio ; **ne jamais supprimer**.
-- `docs/CSS_INDEX.md` — file map + which surface owns which token.
-- `docs/DESIGN_SYSTEM.md` — cascade, tokens `--ct-*`, surfaces graphite + ambient shell, §9 cockpit preview.
+## La seule règle
+**Construis l'UI avec les composants Catalyst** (`src/components/catalyst/*` + primitives).
 
-## Must avoid
-- Business logic, data loaders, server actions inside any CSS / DS file.
-- Raw hex / rgb literals for brand colors → use `--ct-*` tokens.
-- `dark:` modifiers — dark mode only at MVP, colors come from CSS vars.
-- Reintroducing a `--ds-*` namespace, a 2nd green, or a `tailwind.config.js`.
+## Tout le reste est LIBRE
+- Nouveaux tokens, nouvelles classes / couches CSS, hex hardcodés : **autorisés**.
+- Palette, typo, spacing, effets, layouts : **libres**. Pas de mono-accent imposé, pas de
+  « un seul vert », pas d'échelle d'espacement figée, pas d'obligation de corriger le
+  runtime existant — refontes de sections entières permises.
+- Les anciens guards (`pnpm ds:guard*`, table anti-hardcode) sont **retirés de la CI** —
+  ne pas les ré-armer sans accord explicite d'Adrien.
 
-## Anti-regression hard rules (enforced by `pnpm ds:guard`)
-
-These patterns are **banned** in the guarded files (witness page + shared DS primitives).
-Any PR that reintroduces them will fail `node scripts/ds-hardcode-guard.mjs`.
-
-| Pattern | Replacement |
-|---|---|
-| `#A7FB90` (raw hex anywhere) | `var(--ct-accent)` or `color-mix(in_srgb,var(--ct-accent)_<N>%,transparent)` |
-| `border-white/<n>`, `dark:border-white/<n>` | `border-[var(--ct-border)]` or `border-[var(--ct-border-soft)]` |
-| `text-[10px]`, `text-[11px]` | `text-[length:var(--ct-text-nano)]` or class `ct-bento-label` |
-| `tracking-[0.15em]` | class `ct-bento-label` (carries `--ct-tracking-widest`) |
-| `text-zinc-400`, `text-zinc-500` | `text-[var(--ct-text-muted)]` or `text-[var(--ct-text-body)]` |
-
-To extend the guard to a new file: add its relative path to `GUARDED_FILES` in `scripts/ds-hardcode-guard.mjs`.
-
-## Canonical admin table pattern
-
-`/admin/customers` is the **witness page** for the admin table DS. Before creating any new admin
-list table, read this page. The canonical pattern is:
-
-```tsx
-// 1. Header token — never inline the recipe, use the shared constant or ct-bento-label
-const TABLE_HEAD = "bg-transparent ct-bento-label";
-
-// 2. Card wrapper — token border, not border-white/*
-<section className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-sm">
-
-// 3. Section sub-header — ct-bento-label, not text-[11px] tracking-[0.15em]
-<h2 className="ct-bento-label text-[var(--ct-text-body)]">Section title</h2>
-
-// 4. Table — Catalyst Table/TableHead/TableRow/TableCell (already imported in page.tsx)
-<Table bleed dense>
-  <TableHead>
-    <TableRow>
-      <TableHeader className={`${TABLE_HEAD} pl-5`}>Column</TableHeader>
-    </TableRow>
-  </TableHead>
-  <TableBody>…</TableBody>
-</Table>
-```
-
-Do **not** copy-paste raw `th`/`td` with per-cell inline styles. The Catalyst `Table` components
-are the single structural primitive for admin list surfaces. `TABLE_HEAD` lives in the page file
-as a module-level constant — do not duplicate it across pages; if you need it in a 2nd page,
-extract it to `@/components/admin/admin-table-layout.tsx`.
-
-## Validate before done
-- Read-only audits: `/ds-tokens` `/ds-spacing` `/ds-typo` `/ds-shadows` `/coherence`.
-- After ANY CSS change: `browser_close` then re-`navigate` (Turbopack serves the cached chunk otherwise).
-
-## STOP and ask before
-- Reordering `@layer cockpit, theme, base, components, utilities;` (globals.css line 4) — it keeps the `* { padding:0 }` reset from beating Tailwind utilities.
-- Editing one of the 11 tokens in `cockpit-shell/tokens.css` that `cockpit.css` `:root` supersedes — base edit has **no visible effect**; edit the live value in `cockpit.css`.
-- Removing `layer()` from `tokens-layer.css` — it pulls shell tokens into the `cockpit` layer.
-- Re-splitting brand/success accent or adding a 2nd green (one vert: `--ct-accent` #A7FB90).
-- Flat-black dashboard bg — reverted, signed comment in `cockpit.css`; keep the ambient light behind opaque panels.
-- Dense list/table panel — `material="flat"` on `Card` (same opaque graphite; anti cage-in-cage).
+## Référence (utile, PAS contraignant)
+- `docs/DESIGN_SYSTEM.md`, `docs/CSS_INDEX.md` — où vivent la cascade et les tokens
+  existants (`cockpit-shell/tokens.css` → `src/app/cockpit.css` → `globals.css`).
+- Piège technique réel (pas une règle design) : les tokens de `cockpit-shell/tokens.css`
+  supersédés par `cockpit.css :root` — éditer la valeur live dans `cockpit.css`.
+- Piège technique réel : l'ordre `@layer cockpit, theme, base, components, utilities;`
+  (globals.css) garde le reset sous les utilities Tailwind — ne pas le réordonner à
+  l'aveugle.
+- Après tout changement CSS : `browser_close` puis re-`navigate` (cache Turbopack).
