@@ -1,7 +1,7 @@
 // src/features/investor-ui/types/ai-expert.ts
 //
-// AI-expert advisory block view model. Mirrors gpu1-backend AiExpertsSummary
-// (gpu1-backend/src/domain/index.ts ~L218-221). Kept as a first-class block so
+// AI-expert advisory block view model. Mirrors hearst-connect-backend AiExpertsSummary
+// (hearst-connect-backend/src/domain/index.ts ~L218-221). Kept as a first-class block so
 // any screen (Dashboard sidebar, a future dedicated surface) can render its
 // slot honestly — this is an ADVISORY signal only, never an autonomous write
 // (see CLAUDE.md non-negotiable #4 / ADR-012 / ADR-017): no chat, no

@@ -1,7 +1,7 @@
 // src/features/investor-ui/types/btc.ts
 //
-// BTC-screen view models. Mirrors gpu1-backend ReserveSummary / PerformanceSummary
-// (gpu1-backend/src/domain/index.ts ~L154-166) redeclared as UI types.
+// BTC-screen view models. Mirrors hearst-connect-backend ReserveSummary / PerformanceSummary
+// (hearst-connect-backend/src/domain/index.ts ~L154-166) redeclared as UI types.
 
 import type { ResolvedViewModel } from "./common";
 

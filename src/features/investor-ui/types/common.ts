@@ -2,14 +2,14 @@
 //
 // Shared presentation-layer primitives for the Investor UI V2 refonte. These
 // are PRESENTATION types — independent of Prisma, viem/ABI, and the GPU1
-// backend's own `Resolved<T>` wire shape (gpu1-backend/src/domain). They exist
+// backend's own `Resolved<T>` wire shape (hearst-connect-backend/src/domain). They exist
 // so every screen (Dashboard/BTC/Mining/Profile) renders honesty the same
 // way: every block on screen carries its own status, never a fabricated
 // number, never a silent fallback to "LIVE".
 //
 // Mirrors (does not import) the GPU1 DashboardDTO shape documented in
-// gpu1-backend/src/domain/index.ts (~L18-41, ~L300-331) so the day the real
-// endpoint is wired, the field names line up. If gpu1-backend's DataStatus /
+// hearst-connect-backend/src/domain/index.ts (~L18-41, ~L300-331) so the day the real
+// endpoint is wired, the field names line up. If hearst-connect-backend's DataStatus /
 // SourceProvenance ever diverge from this file, this file wins for anything
 // UI-facing — it is allowed a couple of EXTRA statuses ("FIXTURE", "ERROR")
 // that the backend DTO doesn't need because a fixture/error never crosses

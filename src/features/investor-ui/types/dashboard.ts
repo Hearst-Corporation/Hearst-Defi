@@ -1,9 +1,9 @@
 // src/features/investor-ui/types/dashboard.ts
 //
-// Dashboard-screen view models. Field shapes mirror gpu1-backend's DashboardDTO
+// Dashboard-screen view models. Field shapes mirror hearst-connect-backend's DashboardDTO
 // blocks (InvestorIdentity, InvestorPosition, AllocationBreakdown,
 // VaultCapacityBlock, SubscriptionSummary, DistributionSummary, ActivityItem,
-// AlertItem, ProofSummary, RuntimeSummary — gpu1-backend/src/domain/index.ts
+// AlertItem, ProofSummary, RuntimeSummary — hearst-connect-backend/src/domain/index.ts
 // ~L96-227) redeclared locally as UI types, NOT imported cross-repo.
 
 import type { ResolvedViewModel } from "./common";

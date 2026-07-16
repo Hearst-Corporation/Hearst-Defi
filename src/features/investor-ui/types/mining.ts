@@ -1,7 +1,7 @@
 // src/features/investor-ui/types/mining.ts
 //
-// Mining-screen view models. Mirrors gpu1-backend MiningMetrics /
-// ElectricityStatus / MiningEngineStatus (gpu1-backend/src/domain/index.ts
+// Mining-screen view models. Mirrors hearst-connect-backend MiningMetrics /
+// ElectricityStatus / MiningEngineStatus (hearst-connect-backend/src/domain/index.ts
 // ~L231-253) redeclared as UI types.
 
 import type { ResolvedViewModel } from "./common";
