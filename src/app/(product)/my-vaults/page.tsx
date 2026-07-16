@@ -84,7 +84,12 @@ export default async function MyVaultsPage() {
                       : 0;
                   const up = perfPct >= 0;
                   return (
-                    <TableRow key={p.id} href={`/portfolio/${p.id}`} className={ROW}>
+                    <TableRow
+                      key={p.id}
+                      href={`/portfolio/${p.id}`}
+                      title={`Open ${p.vaultName ?? `Vault ${i + 1}`} details`}
+                      className={ROW}
+                    >
                       <TableCell className="pl-5">
                         <div className="flex items-center gap-3">
                           <div
