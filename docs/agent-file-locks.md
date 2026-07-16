@@ -173,6 +173,25 @@ Scope:
 STOP: never touches src/lib/engine/**, stable funding / exit recovery logic, Prisma,
 router/nav/chat guards, package.json scripts, cockpit.css, or DS tokens.
 
+### fix/dashboard-btc-followup-lint
+Owner: Cursor Agent — Follow-up lint fixes for dashboard/btc pixel-perfect merge
+Branch: fix/dashboard-btc-followup-lint
+Worktree: principal (Hearst-Defi)
+Started: 2026-07-16
+Status: active
+
+Goal: fix the CI Lint & Typecheck failure introduced by the merged PR #393
+(pre-existing `require()` in prompt-227 test + unused imports in dashboard
+position panel). No functional change.
+
+Scope:
+- src/app/(product)/__tests__/prompt-227-bitcoin-accumulation.test.tsx
+- src/app/(product)/dashboard/_components/dashboard-position-panel.tsx
+- docs/agent-file-locks.md (this entry)
+
+STOP: no engine, no data layer, no auth/wallet/session, no next.config.ts,
+no package.json, no Prisma/schema/migrations, no CSP.
+
 ### feat/projection-safe-input-preset
 Owner: Claude Opus — MISSION HC-4873 Projection safe input preset
 Branch: feat/projection-safe-input-preset
