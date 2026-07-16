@@ -1,0 +1,17 @@
+import "../../doc-flow.css";
+
+/**
+ * My-vaults layout — loads doc-flow typography + `.product-doc` scope so the
+ * bento/metric classes resolve to the compact scale (root-cause fix, PROMPT 225).
+ */
+export default function MyVaultsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="product-doc product-doc-shell w-full min-w-0">
+      {children}
+    </div>
+  );
+}

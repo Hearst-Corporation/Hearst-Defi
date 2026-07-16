@@ -64,12 +64,14 @@ describe("Product rail intra (fixed column)", () => {
     expect(html).toContain("ct-rail-intra");
     expect(html).toContain("ct-rail-intra__stack");
     expect(html).toContain('aria-label="Dashboard"');
-    // UI V2 rail: Dashboard · BTC · Mining · Proof · Profile. No standalone
+    // UI V2 rail simplified to Dashboard · Proof · Profile (PROMPT 225, see
+    // docs/investor-navigation-decision.md). BTC and Mining left the rail —
+    // their routes stay reachable as Dashboard drill-downs. No standalone
     // "Vault" / "Invest" entry — subscribing starts from a Dashboard CTA.
-    expect(html).toContain('aria-label="BTC"');
-    expect(html).toContain('aria-label="Mining"');
     expect(html).toContain('aria-label="Proof"');
     expect(html).toContain('aria-label="Profile"');
+    expect(html).not.toContain('aria-label="BTC"');
+    expect(html).not.toContain('aria-label="Mining"');
     expect(html).not.toContain('aria-label="Proofs & Documents"');
     expect(html).not.toContain('aria-label="Invest"');
     expect(html).not.toContain('aria-label="Vault"');

@@ -147,7 +147,8 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
       join(ROOT, "src/components/nav/product-nav-items.ts"),
       "utf8",
     );
-    // PRODUCT_NAV (UI V2) = Dashboard · BTC · Mining · Proof · Profile.
+    // PRODUCT_NAV (UI V2, simplified PROMPT 225) = Dashboard · Proof · Profile.
+    // BTC/Mining left the rail (routes preserved as Dashboard drill-downs).
     // Subscribing to the mining note starts from a Dashboard CTA, not a
     // dedicated "Vault" / "Invest" rail entry.
     expect(nav).not.toMatch(/id:\s*"invest"/);

@@ -85,37 +85,38 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         }
       />
 
-      <div className="grid grid-cols-1 gap-[var(--ct-space-5)] lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="flex min-w-0 flex-col gap-[var(--ct-space-5)]">
-          <DashboardHero position={dashboard.position} />
+      {/* Single full-width column. The old layout hardcoded a persistent 320px
+          "AI Experts" grid column that (with the shell chat rail also open)
+          starved the main content to ~520px and read as a second product
+          (PROMPT 225 / A2). AI advisory is now a compact collapsible strip at the
+          foot of the page — the main content spans the full usable width. */}
+      <div className="flex min-w-0 flex-col gap-[var(--ct-space-4)]">
+        <DashboardHero position={dashboard.position} />
 
-          <AllocationCapacityPanel
-            capacity={dashboard.capacity}
-            subscription={dashboard.subscription}
-            position={dashboard.position}
-          />
+        <AllocationCapacityPanel
+          capacity={dashboard.capacity}
+          subscription={dashboard.subscription}
+          position={dashboard.position}
+        />
 
-          <PocketsComposition allocation={dashboard.allocation} mining={mining} />
+        <PocketsComposition allocation={dashboard.allocation} mining={mining} />
 
-          <MiningPulse mining={mining} />
+        <MiningPulse mining={mining} />
 
-          <PerformancePanel btc={btc} />
+        <PerformancePanel btc={btc} />
 
-          <BentoPanel>
-            <div className="flex flex-col gap-[var(--ct-space-4)] p-[var(--ct-space-5)]">
-              <BentoHeader title="Activity, alerts & distributions" subtitle="Recent account activity at a glance" />
-              <ActivityAlertsDistributions
-                activity={dashboard.activity}
-                alerts={dashboard.alerts}
-                distributions={dashboard.distributions}
-              />
-            </div>
-          </BentoPanel>
-        </div>
+        <BentoPanel>
+          <div className="flex flex-col gap-[var(--ct-space-4)] p-[var(--ct-space-5)]">
+            <BentoHeader title="Activity, alerts & distributions" subtitle="Recent account activity at a glance" />
+            <ActivityAlertsDistributions
+              activity={dashboard.activity}
+              alerts={dashboard.alerts}
+              distributions={dashboard.distributions}
+            />
+          </div>
+        </BentoPanel>
 
-        <aside className="flex min-w-0 flex-col gap-[var(--ct-space-4)]">
-          <AiExpertsRail aiExperts={aiExperts} />
-        </aside>
+        <AiExpertsRail aiExperts={aiExperts} />
       </div>
     </BentoPageShell>
   );

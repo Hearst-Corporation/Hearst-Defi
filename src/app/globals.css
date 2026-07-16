@@ -180,7 +180,10 @@ body {
   color: var(--ct-text-primary);
   font-family: var(--font-sans);
   font-size: var(--text-md);
-  line-height: var(--leading-relaxed);
+  /* Dense institutional cockpit: 1.5, not 1.65. The body default is inherited by
+     every element that sets no line-height of its own (incl. unstyled fallbacks);
+     long-form prose keeps 1.65 explicitly via .body-md/.body-lg. (PROMPT 225.) */
+  line-height: var(--ct-leading-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "ss01", "cv11";

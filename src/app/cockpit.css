@@ -3368,9 +3368,13 @@ pre.ct-surface-1.rounded-md {
 /* .h1/.h2/.h3 — canon unique aligné sur doc-flow-typography.css.
    Les overrides :is(.product-doc,.admin-doc) restent identiques → zéro divergence. */
 .h1 {
-  font-size: var(--ct-text-5xl);            /* 24 → 30px fluid */
-  font-weight: var(--ct-font-extrabold);    /* 600 → 800 — plus tranchant */
-  letter-spacing: var(--ct-tracking-tighter);
+  /* Canon page-title = 24px FIXE, aligné à l'identique sur
+     doc-flow-typography.css:14 (`:is(.product-doc,.admin-doc) .h1`). La base
+     était à 30px extrabold — 30/24 = 1,25, la source exacte de l'effet "125%"
+     sur toute page HORS product-doc. Une seule hiérarchie, zéro divergence. */
+  font-size: var(--ct-text-3xl-fixed);      /* 24px fixe — canon */
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tight);
   line-height: var(--ct-leading-tight);
   color: var(--ct-text-strong);
 }

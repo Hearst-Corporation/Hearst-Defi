@@ -28,8 +28,8 @@ export function MiningPageContent({ viewModel }: MiningPageContentProps) {
     mining.status === "UNAVAILABLE" && electricity.status === "UNAVAILABLE";
 
   return (
-    <div className="flex flex-col gap-[var(--ct-space-6)]">
-      <Card contentClassName="flex flex-col gap-[var(--ct-space-5)]">
+    <div className="flex flex-col gap-[var(--ct-space-5)]">
+      <Card contentClassName="flex flex-col gap-[var(--ct-space-4)]">
         <CardHeader>
           <CardTitle>Mining flow</CardTitle>
         </CardHeader>

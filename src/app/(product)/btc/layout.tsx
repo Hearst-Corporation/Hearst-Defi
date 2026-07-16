@@ -1,0 +1,18 @@
+import "../../doc-flow.css";
+
+/**
+ * BTC layout — loads doc-flow typography + `.product-doc` scope so the bento/
+ * metric classes resolve to the compact scale (root-cause fix, PROMPT 225).
+ * Route kept off the primary rail (Dashboard drill-down) but fully styled.
+ */
+export default function BtcLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="product-doc product-doc-shell w-full min-w-0">
+      {children}
+    </div>
+  );
+}

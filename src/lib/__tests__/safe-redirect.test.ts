@@ -18,7 +18,7 @@ describe("safeFrom", () => {
       ["newline control char", "/dashboard\n"],
       ["null byte", "/dashboard\x00"],
     ])("returns fallback for %s", (_label, input) => {
-      expect(safeFrom(input)).toBe("/portfolio");
+      expect(safeFrom(input)).toBe("/dashboard");
     });
 
     it("uses custom fallback when provided", () => {

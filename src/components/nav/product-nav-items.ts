@@ -28,23 +28,25 @@ export type NavItem = {
 /**
  * Investor-facing navigation (UI V2 — investor information architecture).
  *
- * Five rail entries: Dashboard · BTC · Mining · Proof · Profile. There is no
- * standalone "Vault" / "Invest" / "Allocation" menu — subscribing to the
- * mining note is a CTA that starts from the Dashboard, not a dedicated nav
- * destination. The deep subscription flow (`/vaults/[id]/invest`) still
- * exists as a route (reachable via the Dashboard CTA / direct link); it is
- * simply not a rail entry.
+ * Three rail entries: Dashboard · Proof · Profile (simplified from 5 in
+ * PROMPT 225, per the IA decision in `docs/investor-navigation-decision.md`).
+ * BTC and Mining left the rail — both render 100% fixture data today
+ * (`FixtureInvestorUiDataSource`; GPU1 adapter throws, contract undeployed) and
+ * their headline figures already live on the Dashboard (PerformancePanel +
+ * MiningPulse), so neither has the real depth to justify a co-equal primary
+ * seat. Their ROUTES are preserved as Dashboard drill-downs (reachable via the
+ * "Full mining report →" / "BTC accumulation detail →" links and direct URL,
+ * exactly as `/portfolio`, `/my-vaults` and `/vaults/[id]/invest` already sit
+ * off the rail). They return to the rail — or fold into the Dashboard — the
+ * moment real GPU1/contract data backs them.
  *
  * Routing notes:
- *   - "Dashboard" → `/dashboard` (new V2 entry point; the legacy real
- *     financial cockpit still lives at `/portfolio`, reachable by direct URL
- *     for compat, but is off the visible rail).
- *   - "BTC" → `/btc` (BTC-accumulation view, populated by a follow-up pass).
- *   - "Mining" → `/mining` (mining operations view, populated by a follow-up
- *     pass).
- *   - "Proof" → `/proof-center` (route unchanged — only the rail label is
- *     shortened to "Proof"; renaming the physical route was unnecessary).
- *   - "Profile" → `/profile` (unchanged).
+ *   - "Dashboard" → `/dashboard` (V2 entry point; legacy `/portfolio` cockpit
+ *     stays reachable by direct URL, off the rail).
+ *   - "Proof" → `/proof-center` (the only real-data trust surface; kept in the
+ *     rail as a secondary utility — label shortened to "Proof").
+ *   - "Profile" → `/profile` (real DB-backed account home).
+ *   - Off-rail routes (KEEP ROUTE, REMOVE FROM NAV): `/btc`, `/mining`.
  */
 export const PRODUCT_NAV: NavItem[] = [
   {
@@ -52,18 +54,6 @@ export const PRODUCT_NAV: NavItem[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: "LayoutDashboard",
-  },
-  {
-    id: "btc",
-    label: "BTC",
-    href: "/btc",
-    icon: "Bitcoin",
-  },
-  {
-    id: "mining",
-    label: "Mining",
-    href: "/mining",
-    icon: "Pickaxe",
   },
   {
     id: "proof",
