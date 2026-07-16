@@ -119,7 +119,7 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
             {hashrate ?? "—"}
           </span>
         }
-        detail="Reported network hashrate"
+        detail="Reported fleet hashrate"
         footerHref="/mining"
         footerLabel="Explore mining →"
       />

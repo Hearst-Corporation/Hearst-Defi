@@ -46,6 +46,18 @@ const CUSTODY_PROVIDER_LABEL: Record<string, string> = {
   fireblocks: "Fireblocks",
 };
 
+const FULL_MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+] as const;
+
+/** "2026-06" -> "June" — temporal qualifier for the last settled month. */
+function periodMonthName(period: string): string | null {
+  const m = /^\d{4}-(\d{2})$/.exec(period);
+  const idx = m?.[1] != null ? Number(m[1]) - 1 : -1;
+  return FULL_MONTHS[idx] ?? null;
+}
+
 export function BtcOpsRow({
   production,
   events,
@@ -53,14 +65,25 @@ export function BtcOpsRow({
   monthsElapsed,
   monthsTotal,
 }: BtcOpsRowProps) {
-  // ── Sources of Bitcoin (last month's real delta) ──────────────────────
+  // ── Sources of Bitcoin (last month's real mining delta) ───────────────
+  // The production series carries mining credits ONLY (`satsEarned`) — the
+  // strategic sleeve in `totalBtc` is a presentation-modelled ratio, so the
+  // honest figure here is `miningBtc` (it matches the ledger's settlement).
   const accumulationPoints = buildAccumulationSeries(production.value?.monthly);
   const deltas = toMonthlyDeltas(accumulationPoints);
   const lastDelta = deltas.length > 0 ? deltas[deltas.length - 1] : undefined;
+  const lastDeltaMonth = lastDelta != null ? periodMonthName(lastDelta.period) : null;
 
   // ── Bitcoin ledger ────────────────────────────────────────────────────
+  // Movements = balance-changing events only (`deltaSats != null`);
+  // attestations are counted separately in the detail line. Events are
+  // sorted by `occurredAt` desc before picking the most recent one — the
+  // incoming list order is not guaranteed.
   const eventList = events.value ?? [];
-  const lastEvent = eventList.length > 0 ? eventList[0] : undefined;
+  const sortedEvents = [...eventList].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+  const movementCount = sortedEvents.filter((e) => e.deltaSats != null).length;
+  const attestationCount = sortedEvents.length - movementCount;
+  const lastEvent = sortedEvents.length > 0 ? sortedEvents[0] : undefined;
 
   // ── Maturity delivery ─────────────────────────────────────────────────
   const termPct =
@@ -83,12 +106,12 @@ export function BtcOpsRow({
         icon={<AssetIcon variant="mining" size="md" />}
         value={
           <span className="text-[var(--ct-asset-btc)] text-[length:var(--ct-text-2xl)] font-medium tabular">
-            {lastDelta != null ? `${formatBtc4(lastDelta.totalBtc)} BTC` : "—"}
+            {lastDelta != null ? `${formatBtc4(lastDelta.miningBtc)} BTC` : "—"}
           </span>
         }
         detail={
           lastDelta != null
-            ? "Mining credits + reserve acquisitions"
+            ? `Mining credits — ${lastDeltaMonth != null ? `${lastDeltaMonth} production settled` : "last month settled"}`
             : "Production data not configured"
         }
         footerHref="/mining"
@@ -100,15 +123,19 @@ export function BtcOpsRow({
         icon={<AssetIcon variant="btc" size="md" />}
         value={
           <span className="ct-text-strong text-[length:var(--ct-text-2xl)] font-medium tabular">
-            {eventList.length}{" "}
+            {movementCount}{" "}
             <span className="ct-text-muted text-[length:var(--ct-text-base)] font-normal">
-              movements
+              {movementCount === 1 ? "movement" : "movements"}
             </span>
           </span>
         }
         detail={
           lastEvent != null
-            ? `${lastEvent.label} — ${formatIsoDate(lastEvent.occurredAt)}`
+            ? `${lastEvent.label} — ${formatIsoDate(lastEvent.occurredAt)}${
+                attestationCount > 0
+                  ? ` · + ${attestationCount} ${attestationCount === 1 ? "attestation" : "attestations"}`
+                  : ""
+              }`
             : "No movements indexed yet"
         }
         footerHref="/proof-center"
