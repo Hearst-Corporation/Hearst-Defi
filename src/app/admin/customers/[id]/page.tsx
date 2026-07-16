@@ -201,7 +201,7 @@ export default async function CustomerDetailPage({
               <BentoPanel className="p-6">
                 <div className="flex flex-col gap-4">
                   <h3 className="ct-bento-label">Recommended</h3>
-                  <dl className="grid grid-cols-2 gap-x-8 gap-y-2">
+                  <dl className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
                     <AdminDetailItem label="Segments">
                       <span className="text-[var(--ct-accent)]">{persona.segments.join(", ") || "—"}</span>
                     </AdminDetailItem>
@@ -221,7 +221,7 @@ export default async function CustomerDetailPage({
               <div className="flex flex-col gap-4">
                 <h3 className="ct-bento-label">Current</h3>
                 {applied ? (
-                  <dl className="grid grid-cols-2 gap-x-8 gap-y-2">
+                  <dl className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
                     {applied.template && (
                       <AdminDetailItem label="Preset">
                         <span className="text-[var(--ct-accent)]">{applied.template.label}</span>
