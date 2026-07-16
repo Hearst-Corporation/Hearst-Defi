@@ -247,7 +247,7 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                       {sig.decision === "approve" ? "✓" : sig.decision === "reject" ? "✗" : "⊘"}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <span className="mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
+                      <span className="mono break-all text-[length:var(--ct-text-2xs)] text-[var(--ct-text-body)]">
                         {sig.signerAddress}
                       </span>
                       {sig.reason ? (
