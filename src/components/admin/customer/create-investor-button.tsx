@@ -8,12 +8,9 @@ import {
   BentoLabel,
 } from "@/components/catalyst/bento";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { Input } from "@/components/catalyst/input";
+import { Select } from "@/components/catalyst/select";
 import { createInvestor } from "@/app/admin/customers/actions";
-
-// Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
-// (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
-// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[length:var(--ct-text-xs)]).
-const SELECT_INPUT = "ct-select";
 
 /** Admin "create investor" — disclosure form above the directory table. */
 export function CreateInvestorButton() {
@@ -54,29 +51,28 @@ export function CreateInvestorButton() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <label className="flex flex-col gap-2">
               <BentoLabel>Email</BentoLabel>
-              <input
+              <Input
                 name="email"
                 type="email"
                 required
                 placeholder="email@firm.com"
-                className={SELECT_INPUT}
                 autoFocus
               />
             </label>
             <label className="flex flex-col gap-2">
               <BentoLabel>Role</BentoLabel>
-              <select name="role" defaultValue="investor" className={SELECT_INPUT} aria-label="Role">
+              <Select name="role" defaultValue="investor" aria-label="Role">
                 <option value="investor">investor</option>
                 <option value="admin">admin</option>
-              </select>
+              </Select>
             </label>
             <label className="flex flex-col gap-2">
               <BentoLabel>KYC</BentoLabel>
-              <select name="kycStatus" defaultValue="pending" className={SELECT_INPUT} aria-label="KYC">
+              <Select name="kycStatus" defaultValue="pending" aria-label="KYC">
                 <option value="pending">KYC pending</option>
                 <option value="approved">KYC approved</option>
                 <option value="rejected">KYC rejected</option>
-              </select>
+              </Select>
             </label>
           </div>
           <div className="flex flex-wrap items-center gap-3">
