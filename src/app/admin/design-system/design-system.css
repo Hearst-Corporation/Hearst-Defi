@@ -42,6 +42,13 @@
   border-color: var(--ct-border);
 }
 
+.admin-doc .ds-index__link:focus-visible {
+  outline: none;
+  color: var(--ct-text-strong);
+  border-color: var(--ct-border-accent);
+  box-shadow: var(--ct-shadow-focus-ring);
+}
+
 .admin-doc .ds-index__key {
   font-size: var(--ct-text-micro);
   font-weight: var(--ct-font-bold);
