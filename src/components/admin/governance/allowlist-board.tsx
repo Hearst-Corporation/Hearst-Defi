@@ -239,8 +239,11 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                         name="active"
                         value={entry.active ? "true" : "false"}
                       />
-                      <button
+                      <CockpitButton
                         type="submit"
+                        variant={null}
+                        shape={null}
+                        size={null}
                         aria-pressed={entry.active}
                         aria-label={
                           entry.active
@@ -255,7 +258,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                         )}
                       >
                         {entry.active ? "Active" : "Inactive"}
-                      </button>
+                      </CockpitButton>
                     </form>
                   </TableCell>
                   <TableCell className="pr-5">
