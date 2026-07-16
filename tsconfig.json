@@ -52,6 +52,7 @@
     "release/**",
     "scripts/**",
     "figma-investor-deck/**",
-    "hearst-docs-vault/**"
+    "hearst-docs-vault/**",
+    "gpu1-backend/**"
   ]
 }
