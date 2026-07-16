@@ -1,7 +1,9 @@
-// BitcoinOrb — the animated orbital glyph in the corner of the KPI band.
-// Pure SVG, no runtime data. Three concentric rings counter-rotate around a
-// glowing ₿ core, with orbiting satellites. Motion lives in
-// dashboard-signature.css and is disabled under prefers-reduced-motion.
+// BitcoinOrb — the animated orbital glyph in the corner of the KPI bands
+// (SHARED between /dashboard and /btc — P1.2, no more _components
+// cross-import). Pure SVG, no runtime data. Three concentric rings
+// counter-rotate around a glowing ₿ core, with orbiting satellites. Motion
+// lives in dashboard-signature.css (imported by both pages) and is disabled
+// under prefers-reduced-motion.
 //
 // tone: "accent" (green, /dashboard) | "btc" (orange, /btc). The colour is
 // driven by the CSS custom property --orb-color so the same markup serves both

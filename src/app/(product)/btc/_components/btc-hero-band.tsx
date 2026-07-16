@@ -1,23 +1,32 @@
 // BtcHeroBand — /btc cockpit KPI band, the orange sibling of the /dashboard
 // hero (dashboard-hero.tsx is the reference skeleton: 5-column grid, hairline
-// vertical separators, page provenance badge pinned bottom-right, BitcoinOrb
+// vertical separators, page provenance badge pinned top-right, BitcoinOrb
 // integrated at the right edge). Server component, presentation-only: every
 // figure arrives pre-formatted from the page (string | null), no math here.
+// Cells are the SHARED KpiBandCell / ReportingPeriodCell (P1.2) with
+// tone="btc" — no local cell duplication left.
 //
 // Honesty contract:
 //  - "Your attributed BTC" = the investor's economic share, per-holder — it
-//    carries its own attribution provenance badge;
+//    carries its own attribution provenance badge, and its qualifier shows
+//    the last reconciliation date when the page provides it (P1.7);
 //  - "Mining-produced BTC" is fleet production, labelled as such, with the
 //    production block's own provenance;
 //  - null figures render "—" (never a fake number, never a fake badge);
+//  - the page-level badge is DERIVED from the band's source provenances
+//    (all simulated -> "simulated", else the dominant real status — P1.2);
 //  - direction FLAT: no glow, no box-shadow, no halo anywhere in the band.
 
 import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
-import { Figure } from "@/features/investor-ui/components/figure";
-import { BitcoinOrb } from "../../dashboard/_components/bitcoin-orb";
-import type { BtcProvenanceKind } from "@/features/investor-ui/format-btc";
+import {
+  KpiBandCell,
+  ReportingPeriodCell,
+  deriveBandProvenance,
+  type KpiBandCellData,
+} from "@/features/investor-ui/components/kpi-band-cell";
+import { BitcoinOrb } from "@/features/investor-ui/components/bitcoin-orb";
+import { formatIsoDate, type BtcProvenanceKind } from "@/features/investor-ui/format-btc";
 
 export interface BtcHeroBandProps {
   attributedBtc: string | null;
@@ -28,6 +37,10 @@ export interface BtcHeroBandProps {
   monthsTotal: number;
   attributionProvenance: BtcProvenanceKind;
   productionProvenance: BtcProvenanceKind;
+  /** ISO — attribution last reconciled (attribution.lastVerifiedAt). When
+   *  provided, the lead cell's qualifier reads "Reconciled Jul 1, 2026"
+   *  instead of the generic share label (P1.7). */
+  attributionReconciledAt?: string | null;
 }
 
 export function BtcHeroBand({
@@ -39,12 +52,8 @@ export function BtcHeroBand({
   monthsTotal,
   attributionProvenance,
   productionProvenance,
+  attributionReconciledAt,
 }: BtcHeroBandProps) {
-  const termPct =
-    monthsElapsed != null && monthsTotal > 0 ? (monthsElapsed / monthsTotal) * 100 : null;
-  const termPctLabel =
-    termPct != null ? `${termPct.toFixed(1).replace(/\.0$/, "")}% complete` : null;
-
   // Figures arrive pre-formatted "x.xxxx BTC" — split the unit suffix so
   // <Figure> can typeset it (uppercase, tracked, muted, 55%, P0.6). String
   // presentation split only, no math.
@@ -52,15 +61,21 @@ export function BtcHeroBand({
   const reserve = splitBtcUnit(vaultReserveBtc);
   const produced = splitBtcUnit(miningProducedBtc);
 
+  // Reconciliation qualifier (P1.7) — only when the data carries the date.
+  const attributedSub =
+    attributionReconciledAt != null
+      ? `Reconciled ${formatIsoDate(attributionReconciledAt)}`
+      : "Your economic share";
+
   // KPI band cells — same institutional strip as the dashboard hero, orange
   // dominance: the attributed-BTC figure leads in --ct-asset-btc.
-  const cells: KpiCell[] = [
+  const cells: KpiBandCellData[] = [
     {
       label: "Your attributed BTC",
       value: attributed?.value ?? "—",
       unit: attributed?.unit,
-      sub: "Your economic share",
-      tone: "btc-lead",
+      sub: attributedSub,
+      tone: "btc",
       lead: true,
       badge: attributionProvenance,
     },
@@ -85,11 +100,14 @@ export function BtcHeroBand({
     },
   ];
 
+  // Page-level badge — derived from the band's sources, never hardcoded.
+  const pageProvenance = deriveBandProvenance([attributionProvenance, productionProvenance]);
+
   return (
     <Card className="w-full overflow-hidden p-0" contentClassName="relative">
       {/* Page-level provenance badge — top-right of the band. */}
       <span className="absolute right-[var(--ct-space-3)] top-[var(--ct-space-2)] z-10">
-        <ProvenanceBadge kind="simulated" variant="compact" />
+        <ProvenanceBadge kind={pageProvenance} variant="compact" />
       </span>
 
       {/* KPI band — Tailwind Plus "stats with hairline separators" skeleton
@@ -100,37 +118,7 @@ export function BtcHeroBand({
         ))}
 
         {/* Reporting period cell — always rendered, honest fallback. */}
-        <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)]">
-          <dt className="ct-bento-label">Reporting period</dt>
-          {monthsElapsed != null ? (
-            <>
-              <dd className="body-xs ct-text-muted">{termPctLabel}</dd>
-              <dd className="w-full flex-none text-[length:var(--ct-text-2xl)] font-medium tracking-tight leading-none ct-text-strong">
-                Month{" "}
-                <Figure
-                  value={monthsElapsed}
-                  unit={`/ ${monthsTotal}`}
-                  className="text-[var(--ct-asset-btc)]"
-                />
-              </dd>
-              {/* Decorative bar — the "% complete" qualifier above carries the
-                  same info for screen readers (no double announcement). */}
-              <dd aria-hidden="true" className="w-full flex-none">
-                <div className="h-1 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,#ffffff_8%,transparent)]">
-                  <div
-                    className="h-full rounded-full bg-[var(--ct-asset-btc)]"
-                    style={{ width: `${Math.min(100, termPct ?? 0)}%` }}
-                  />
-                </div>
-              </dd>
-            </>
-          ) : (
-            <>
-              <dd className="body-xs ct-text-muted">Term not started</dd>
-              <dd className="w-full flex-none text-[length:var(--ct-text-2xl)] font-medium ct-text-strong">—</dd>
-            </>
-          )}
-        </div>
+        <ReportingPeriodCell currentMonth={monthsElapsed} totalMonths={monthsTotal} tone="btc" />
 
         {/* Orb column — same surface, same rhythm */}
         <div className="hidden xl:flex items-center justify-center bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-4)]">
@@ -141,48 +129,8 @@ export function BtcHeroBand({
   );
 }
 
-interface KpiCell {
-  label: string;
-  value: string;
-  /** Unit suffix typeset by <Figure> ("BTC") — omitted on "—" and $-prefixed figures. */
-  unit?: string;
-  sub: string;
-  /** "btc-lead" = the dominant orange figure; default = neutral. */
-  tone?: "btc-lead" | "default";
-  /** Optical primacy — ONE master figure per band (32px semibold), P0.2. */
-  lead?: boolean;
-  icon?: "mining";
-  badge?: BtcProvenanceKind;
-}
-
 /** "0.5170 BTC" -> { value: "0.5170", unit: "BTC" } — presentation split only. */
 function splitBtcUnit(v: string | null): { value: string; unit?: string } | null {
   if (v == null) return null;
   return v.endsWith(" BTC") ? { value: v.slice(0, -4), unit: "BTC" } : { value: v };
-}
-
-function KpiBandCell({ cell }: { cell: KpiCell }) {
-  const valueClass = cell.tone === "btc-lead" ? "text-[var(--ct-asset-btc)]" : "ct-text-strong";
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)] min-w-0">
-      {/* Micro-label — ONE voice across the page: ct-bento-label (uppercase,
-          tracking-widest, muted), same convention as the Zone 3 cards (P0.6). */}
-      <dt className="flex items-center gap-[var(--ct-space-1_5)] ct-bento-label min-w-0">
-        {cell.icon === "mining" ? <AssetIcon variant="mining" size="sm" label="" /> : null}
-        <span className="truncate">{cell.label}</span>
-        {cell.badge ? <ProvenanceBadge kind={cell.badge} variant="strip" /> : null}
-      </dt>
-      {/* Qualifier — baseline-right, single caption idiom (body-xs muted). */}
-      <dd className="body-xs ct-text-muted">{cell.sub}</dd>
-      {/* Lead cell = the band's master figure (32px semibold); others 22px medium. */}
-      <dd className="w-full flex-none">
-        <Figure
-          value={cell.value}
-          unit={cell.unit}
-          size={cell.lead ? "lead" : "base"}
-          className={valueClass}
-        />
-      </dd>
-    </div>
-  );
 }
