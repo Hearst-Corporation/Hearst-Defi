@@ -1,20 +1,24 @@
 // src/app/(product)/btc/_data/get-btc-page-data.ts
 //
-// Composes A5's `BtcViewModel` (reserve/performance, via
-// `FixtureInvestorUiDataSource`/`InvestorUiDataSource`) with the page-scoped
-// EXTRA blocks (attribution/production/custody/events/proofs/experts —
-// see btc-page-types.ts) into one `BtcPageViewModel` the page renders.
+// Composes the investor-ui data source's `BtcViewModel` (reserve/performance)
+// with the page-scoped EXTRA blocks (attribution/production/custody/events/
+// proofs/experts — see btc-page-types.ts) into one `BtcPageViewModel` the
+// page renders.
 //
-// `?state=` query param drives BOTH halves together so the four preview
-// variants (complete / not-configured / stale / partial) stay coherent — the
-// same convention A4 used for /mining (`getMiningDataSource(previewState)`).
+// DEFAULT PATH: both halves are read from hearst-connect-backend
+// (BackendInvestorUiDataSource) — no fixture, no Prisma, no local repository.
+// A backend failure is NOT caught here: it propagates to the page, which
+// renders an honest unavailable state (see page.tsx).
 //
-// No Prisma/Supabase/RPC access here — only the shared data-source seam +
-// local fixtures.
+// PREVIEW PATH: `?state=` switches to FixtureInvestorUiDataSource + the local
+// fixtures below — explicitly for QA, never the production default. Every
+// fixture value carries status "FIXTURE" (see fixture-data-source.ts) so it
+// can never be mistaken for LIVE in the UI.
 
-import { FixtureInvestorUiDataSource } from "@/features/investor-ui/data-source/fixture-data-source";
+import { getInvestorUiDataSource, getFixtureInvestorUiDataSource, BackendInvestorUiDataSource } from "@/features/investor-ui/data-source";
 import type { BtcViewModel } from "@/features/investor-ui/types/btc";
 import type { BtcPageExtraViewModel } from "./btc-page-types";
+import { mapBtcExtra } from "./btc-page-mapper";
 import {
   btcPageExtraCompleteFixture,
   btcPageExtraNotConfiguredFixture,
@@ -28,7 +32,7 @@ export interface BtcPageViewModel extends BtcViewModel {
   readonly extra: BtcPageExtraViewModel;
 }
 
-function resolvePreviewState(previewState?: string | null): BtcPageState {
+function resolvePreviewState(previewState?: string | null): BtcPageState | null {
   switch (previewState) {
     case "btc-not-configured":
     case "not-configured":
@@ -39,12 +43,15 @@ function resolvePreviewState(previewState?: string | null): BtcPageState {
     case "btc-partial":
     case "partial":
       return "partial";
-    default:
+    case "btc-complete":
+    case "complete":
       return "complete";
+    default:
+      return null; // no explicit preview requested → use the real backend
   }
 }
 
-const EXTRA_BY_STATE: Record<BtcPageState, BtcPageExtraViewModel> = {
+const EXTRA_FIXTURE_BY_STATE: Record<BtcPageState, BtcPageExtraViewModel> = {
   complete: btcPageExtraCompleteFixture,
   "not-configured": btcPageExtraNotConfiguredFixture,
   stale: btcPageExtraStaleFixture,
@@ -52,17 +59,25 @@ const EXTRA_BY_STATE: Record<BtcPageState, BtcPageExtraViewModel> = {
 };
 
 /** Server-side loader — call from the /btc Server Component only. */
-export async function getBtcPageData(
-  previewState?: string | null,
-): Promise<BtcPageViewModel> {
+export async function getBtcPageData(previewState?: string | null): Promise<BtcPageViewModel> {
   const state = resolvePreviewState(previewState);
-  const dataSource = new FixtureInvestorUiDataSource({
-    btc: state === "not-configured" ? "not-configured" : "complete",
-  });
-  const base = await dataSource.getBtc();
 
-  return {
-    ...base,
-    extra: EXTRA_BY_STATE[state],
-  };
+  if (state !== null) {
+    // Explicit QA preview — fixtures only, never the production default.
+    const dataSource = getFixtureInvestorUiDataSource({
+      btc: state === "not-configured" ? "not-configured" : "complete",
+    });
+    const base = await dataSource.getBtc();
+    return { ...base, extra: EXTRA_FIXTURE_BY_STATE[state] };
+  }
+
+  // Default path — real backend, no fixture, no fallback.
+  const dataSource = getInvestorUiDataSource();
+  const base = await dataSource.getBtc();
+  const extra =
+    dataSource instanceof BackendInvestorUiDataSource
+      ? mapBtcExtra(await dataSource.getBtcExtra())
+      : btcPageExtraNotConfiguredFixture; // unreachable in practice (factory always returns Backend today) — kept exhaustive, not a silent live fallback
+
+  return { ...base, extra };
 }

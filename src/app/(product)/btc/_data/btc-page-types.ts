@@ -3,7 +3,7 @@
 // Page-scoped SUPPLEMENTARY view models for the /btc route.
 //
 // A5 owns `src/features/investor-ui/types/btc.ts` (BtcViewModel: `reserve` +
-// `performance` blocks only, mirroring the current gpu1-backend DTO). This
+// `performance` blocks only, mirroring the current hearst-connect-backend DTO). This
 // page needs more blocks than that DTO carries today — attribution (the
 // investor's economic BTC share), production, custody, event ledger, proof
 // links, contextual AI experts — none of which exist yet on the
@@ -17,7 +17,7 @@
 // engine still models take-profit internally (CLAUDE.md #6) but the investor
 // surface never renders it.
 //
-// When gpu1-backend + A5's shared BtcViewModel grow these blocks for real,
+// When hearst-connect-backend + A5's shared BtcViewModel grow these blocks for real,
 // fold them into `features/investor-ui/types/btc.ts` and delete this file —
 // the field names below were chosen to make that a rename, not a redesign.
 

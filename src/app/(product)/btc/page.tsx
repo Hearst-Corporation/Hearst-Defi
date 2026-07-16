@@ -23,8 +23,9 @@
 
 import { BentoPageShell } from "@/components/catalyst/bento";
 import { requireInvestor } from "@/lib/auth/require-investor";
-import { getFixtureInvestorUiDataSource } from "@/features/investor-ui/data-source";
-import { DataNotConfigured } from "@/features/investor-ui/components/states/data-states";
+import { getInvestorUiDataSource, getFixtureInvestorUiDataSource } from "@/features/investor-ui/data-source";
+import { DataNotConfigured, PageErrorState } from "@/features/investor-ui/components/states/data-states";
+import { isBackendError } from "@/lib/backend";
 import { Card } from "@/components/catalyst/card";
 
 import { getBtcPageData } from "./_data/get-btc-page-data";
@@ -57,21 +58,53 @@ export default async function BtcPage({
 }) {
   await requireInvestor("/btc");
   const { state } = await searchParams;
-  const data = await getBtcPageData(state);
 
-  // Propagate the page's ?state= preview to the SHARED sources too (P1.7):
-  // mining (months elapsed) and dashboard (allocation) must degrade with the
-  // same preview variant as the page-scoped blocks, not silently stay
-  // "complete". Unknown values fall back to "complete" inside the factory.
-  const sharedPreview = state?.replace(/^btc-/, "") ?? null;
-  const previewSource = getFixtureInvestorUiDataSource({
-    // Mining has no "not-configured" fixture — "unavailable" is its honest
-    // equivalent (currentMonth resolves to null, matching the page's guard).
-    mining: sharedPreview === "not-configured" ? "unavailable" : sharedPreview,
-    dashboard: sharedPreview,
-  });
-  const mining = await previewSource.getMining();
-  const dashboard = await previewSource.getDashboard();
+  let data;
+  let mining;
+  let dashboard;
+  try {
+    if (state) {
+      // Explicit QA preview — fixtures for every source, coherent across the
+      // page-scoped blocks AND the shared mining/dashboard sources (P1.7):
+      // all must degrade with the same preview variant, never silently stay
+      // "complete" while the page-scoped blocks show a different state.
+      const sharedPreview = state.replace(/^btc-/, "");
+      const previewSource = getFixtureInvestorUiDataSource({
+        // Mining has no "not-configured" fixture — "unavailable" is its
+        // honest equivalent (currentMonth resolves to null).
+        mining: sharedPreview === "not-configured" ? "unavailable" : sharedPreview,
+        dashboard: sharedPreview,
+      });
+      [data, mining, dashboard] = await Promise.all([
+        getBtcPageData(state),
+        previewSource.getMining(),
+        previewSource.getDashboard(),
+      ]);
+    } else {
+      // Default path — real backend for every source, no fixture, no
+      // fallback. mining/dashboard come from the SAME live source as the
+      // page-scoped blocks (previously these silently stayed on fixtures
+      // even outside preview mode — fixed here).
+      const liveSource = getInvestorUiDataSource();
+      [data, mining, dashboard] = await Promise.all([
+        getBtcPageData(null),
+        liveSource.getMining(),
+        liveSource.getDashboard(),
+      ]);
+    }
+  } catch (err) {
+    // Backend down / network / 5xx / timeout — never a page crash, never a
+    // fixture substitution. One honest page-level error, per the mission's
+    // "no fallback fixture, no silent downgrade to LIVE" contract.
+    const detail = isBackendError(err)
+      ? `hearst-connect-backend did not respond (${err.code}${err.status ? `, HTTP ${err.status}` : ""}).`
+      : "The data source failed unexpectedly.";
+    return (
+      <BentoPageShell testId="btc-page">
+        <PageErrorState title="Bitcoin position unavailable" detail={detail} />
+      </BentoPageShell>
+    );
+  }
 
   const reserve = data.reserve;
   const attribution = data.extra.attribution;
