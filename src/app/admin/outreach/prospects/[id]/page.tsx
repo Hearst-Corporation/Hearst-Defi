@@ -128,6 +128,9 @@ export default async function ProspectDetailPage({
   const fullName = [p.firstName, p.lastName].filter(Boolean).join(" ");
   const displayName = fullName || p.email;
   const isApolloSourced = p.source === "apollo" || p.apolloId != null;
+  // Deterministic mock fallback (no APOLLO_API_KEY at sourcing time) — flag it
+  // so this snapshot is never mistaken for a real Apollo enrichment.
+  const isMockApollo = p.apolloData?.mock === true;
   const extraRows = extraApolloRows(p.apolloData);
   const stage = lifecycleFor(p.status);
   // Global sending posture — honest "draft-only / via Resend / not connected".
@@ -206,10 +209,19 @@ export default async function ProspectDetailPage({
         <AdminSectionCard
           ariaLabel="Apollo enrichment"
           title="Apollo enrichment"
-          subtitle="The person/org detail captured from Apollo at source time."
+          subtitle={
+            isMockApollo
+              ? "Mock snapshot — no APOLLO_API_KEY was configured when this prospect was sourced."
+              : "The person/org detail captured from Apollo at source time."
+          }
         >
           {isApolloSourced || p.linkedinUrl || p.companyDomain || p.industry ? (
             <dl className={DETAIL_GRID}>
+              {isMockApollo ? (
+                <AdminDetailItem label="Data source" fullWidth>
+                  <Badge variant="warning">Mock — not a real Apollo response</Badge>
+                </AdminDetailItem>
+              ) : null}
               <AdminDetailItem label="LinkedIn">
                 {p.linkedinUrl ? (
                   <a
