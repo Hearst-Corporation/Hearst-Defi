@@ -166,9 +166,9 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
         <dl className="flex flex-col">
           {/* Transaction */}
-          <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[var(--ct-border-soft)]">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-4 border-b border-[var(--ct-border-soft)]">
             <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">Transaction</dt>
-            <dd className="flex items-center gap-3 min-w-0">
+            <dd className="flex min-w-0 flex-wrap items-center gap-3">
               <span className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)] tabular-nums truncate">
                 {hasHash
                   ? abbreviateAddress(txHash)
@@ -192,9 +192,9 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
           {/* Vault contract — resolved by the adapter, tagged with its mode */}
           {contractTarget ? (
-            <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[var(--ct-border-soft)]">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-4 border-b border-[var(--ct-border-soft)]">
               <dt className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">Vault contract</dt>
-              <dd className="flex items-center gap-3 min-w-0">
+              <dd className="flex min-w-0 flex-wrap items-center gap-3">
                 <span
                   className="text-[length:var(--ct-text-sm)] font-medium text-info tabular-nums truncate"
                   title={contractTarget.address}
