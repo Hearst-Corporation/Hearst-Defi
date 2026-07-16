@@ -5,6 +5,8 @@ import { toast } from "sonner";
 
 import { Modal } from "@/components/catalyst/modal";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { TextField } from "@/components/catalyst/field";
+import { Select } from "@/components/catalyst/select";
 import {
   BENTO_FIELD,
   BENTO_FIELD_LABEL,
@@ -74,7 +76,7 @@ export function IcpForm() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className={BENTO_FIELD} htmlFor="icp-name">
               <span className={BENTO_FIELD_LABEL}>Name</span>
-              <input
+              <TextField
                 id="icp-name"
                 name="name"
                 type="text"
@@ -86,7 +88,7 @@ export function IcpForm() {
             </label>
             <label className={BENTO_FIELD} htmlFor="icp-language">
               <span className={BENTO_FIELD_LABEL}>Email language</span>
-              <select
+              <Select
                 id="icp-language"
                 name="language"
                 defaultValue="en"
@@ -95,14 +97,14 @@ export function IcpForm() {
               >
                 <option value="en">English</option>
                 <option value="fr">French</option>
-              </select>
+              </Select>
             </label>
           </div>
           <label className={BENTO_FIELD} htmlFor="icp-titles">
             <span className={BENTO_FIELD_LABEL}>
               Target titles (comma separated)
             </span>
-            <input
+            <TextField
               id="icp-titles"
               name="titles"
               type="text"
@@ -113,7 +115,7 @@ export function IcpForm() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className={BENTO_FIELD} htmlFor="icp-locations">
               <span className={BENTO_FIELD_LABEL}>Locations</span>
-              <input
+              <TextField
                 id="icp-locations"
                 name="locations"
                 type="text"
@@ -123,7 +125,7 @@ export function IcpForm() {
             </label>
             <label className={BENTO_FIELD} htmlFor="icp-industries">
               <span className={BENTO_FIELD_LABEL}>Industries / keywords</span>
-              <input
+              <TextField
                 id="icp-industries"
                 name="industries"
                 type="text"
