@@ -39,7 +39,7 @@ export default async function ConstructionReportPrintPage() {
     // are invisible on white. Spacing + type are fully tokenized.
     <main className="report-print mx-auto max-w-3xl bg-white p-(--ct-space-10) text-[#11160f]">
       {/* Print affordance — hidden when printing. */}
-      <div className="no-print mb-(--ct-space-6) flex items-center justify-between">
+      <div className="no-print mb-(--ct-space-6) flex flex-wrap items-center justify-between gap-(--ct-space-2)">
         <span className="text-[length:var(--ct-text-xs)] text-[#6b7363]">
           Construction report · read-only draft · not guaranteed
         </span>
