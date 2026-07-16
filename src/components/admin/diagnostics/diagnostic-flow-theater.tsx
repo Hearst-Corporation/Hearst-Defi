@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import "./diagnostic-flow-theater.css";
 
 /* ── verdict → ct token (no hex / no palette) ── */
@@ -350,23 +351,25 @@ export function DiagnosticFlowTheater() {
             const sc = SCEN[id];
             if (!sc) return null;
             return (
-              <button
+              <CockpitButton
                 key={id}
                 type="button"
                 onClick={() => { setAuto(false); select(id, true); }}
                 className={cn(
-                  "rounded-lg border bg-surface-card p-2.5 text-left transition-colors",
+                  "h-auto w-full rounded-lg border bg-surface-card p-2.5 text-left transition-colors items-start justify-start",
                   cur === id && "border-[var(--ct-accent)]",
                   cur !== id && "border-[var(--ct-border)] hover:border-[var(--ct-border-strong)]",
                 )}
               >
-                <div className="flex items-center gap-1.5 text-xs font-bold" style={{ color: sc.col }}>
-                  <span className="inline-block h-2 w-2 rounded-full" style={{ background: sc.col }} />
-                  {sc.tag}
+                <div className="w-full">
+                  <div className="flex items-center gap-1.5 text-xs font-bold" style={{ color: sc.col }}>
+                    <span className="inline-block h-2 w-2 rounded-full" style={{ background: sc.col }} />
+                    {sc.tag}
+                  </div>
+                  <div className="mt-1 text-xs text-[var(--ct-text-strong)]">“{sc.prompt}”</div>
+                  <div className="mt-0.5 mono text-xs text-[var(--ct-text-tertiary)]">{sc.role}</div>
                 </div>
-                <div className="mt-1 text-xs text-[var(--ct-text-strong)]">“{sc.prompt}”</div>
-                <div className="mt-0.5 mono text-xs text-[var(--ct-text-tertiary)]">{sc.role}</div>
-              </button>
+              </CockpitButton>
             );
           })}
         </div>
@@ -375,13 +378,13 @@ export function DiagnosticFlowTheater() {
       {/* stage + controls */}
       <div className="min-w-0 flex-1">
         <div className="mb-3 flex flex-wrap items-center gap-2">
-          <button type="button" className="rounded-md border border-[var(--ct-accent)] bg-[var(--ct-accent)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--ct-accent)]" onClick={() => select(cur, true)} disabled={playing}>▶ Play</button>
-          <button type="button" className="rounded-md border border-[var(--ct-border-strong)] px-3 py-1.5 text-xs font-semibold text-[var(--ct-text-muted)]" onClick={() => playLive(cur)}>⚡ Run live</button>
-          <button type="button" className="rounded-md border border-[var(--ct-border-strong)] px-3 py-1.5 text-xs font-semibold text-[var(--ct-text-muted)]" onClick={() => void runAllLive()}>⏱ Run all suites live</button>
-          <button type="button" className={cn("rounded-md border px-3 py-1.5 text-xs font-semibold", auto && "border-[var(--ct-accent)] text-[var(--ct-accent)]", !auto && "border-[var(--ct-border-strong)] text-[var(--ct-text-muted)]")} onClick={() => { const a = !auto; setAuto(a); if (a) select(cur, true); }}>⏩ Auto</button>
+          <CockpitButton type="button" className="h-auto rounded-md border border-[var(--ct-accent)] bg-[var(--ct-accent)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--ct-accent)]" onClick={() => select(cur, true)} disabled={playing}>▶ Play</CockpitButton>
+          <CockpitButton type="button" className="h-auto rounded-md border border-[var(--ct-border-strong)] px-3 py-1.5 text-xs font-semibold text-[var(--ct-text-muted)]" onClick={() => playLive(cur)}>⚡ Run live</CockpitButton>
+          <CockpitButton type="button" className="h-auto rounded-md border border-[var(--ct-border-strong)] px-3 py-1.5 text-xs font-semibold text-[var(--ct-text-muted)]" onClick={() => void runAllLive()}>⏱ Run all suites live</CockpitButton>
+          <CockpitButton type="button" className={cn("h-auto rounded-md border px-3 py-1.5 text-xs font-semibold", auto && "border-[var(--ct-accent)] text-[var(--ct-accent)]", !auto && "border-[var(--ct-border-strong)] text-[var(--ct-text-muted)]")} onClick={() => { const a = !auto; setAuto(a); if (a) select(cur, true); }}>⏩ Auto</CockpitButton>
           <div className="ml-auto flex overflow-hidden rounded-md border border-[var(--ct-border-strong)]">
             {[["0.5×", 1700], ["1×", 950], ["2×", 520]].map(([l, v]) => (
-              <button key={l as string} type="button" onClick={() => setSpeed(v as number)} className={cn("px-2.5 py-1.5 text-xs", speed === v && "bg-[var(--ct-accent)]/10 text-[var(--ct-accent)]", speed !== v && "text-[var(--ct-text-tertiary)]")}>{l}</button>
+              <CockpitButton key={l as string} type="button" onClick={() => setSpeed(v as number)} className={cn("h-auto rounded-none px-2.5 py-1.5 text-xs", speed === v && "bg-[var(--ct-accent)]/10 text-[var(--ct-accent)]", speed !== v && "text-[var(--ct-text-tertiary)]")}>{l}</CockpitButton>
             ))}
           </div>
         </div>
