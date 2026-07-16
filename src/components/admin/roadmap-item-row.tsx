@@ -113,13 +113,16 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         <div className="flex items-start gap-2 self-end lg:self-start">
           <div className="hidden items-center gap-1.5 sm:flex">
             {STATUSES.map((s) => (
-              <button
+              <CockpitButton
                 key={s}
                 type="button"
+                variant="quiet"
+                shape="rect"
+                size="icon"
                 onClick={() => setStatus(s)}
                 disabled={isPending || item.status === s}
                 className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-md border transition-colors disabled:cursor-default",
+                  "h-7 w-7 rounded-md border transition-colors disabled:cursor-default",
                   item.status === s
                     ? "border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
                     : "border-transparent text-[var(--ct-text-faint)] hover:border-[var(--ct-border)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]",
@@ -134,7 +137,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
                     statusDotClass(s),
                   )}
                 />
-              </button>
+              </CockpitButton>
             ))}
           </div>
 
