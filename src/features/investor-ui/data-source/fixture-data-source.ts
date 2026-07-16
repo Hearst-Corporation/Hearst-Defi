@@ -1,9 +1,9 @@
 // src/features/investor-ui/data-source/fixture-data-source.ts
 //
 // The fixture-backed InvestorUiDataSource. Deterministic, no I/O, safe to use
-// in any environment (dev/preview/tests). This is the DEFAULT implementation
-// today because GPU1's public investor-UI endpoints are not wired yet
-// (Gpu1InvestorUiDataSource is a prepared skeleton, not active).
+// in any environment (dev/preview/tests). Used ONLY for explicit `?state=` QA
+// previews — the runtime default is `BackendInvestorUiDataSource` (see
+// `./index.ts`), reading from hearst-connect-backend over HTTP.
 //
 // Each getter marks its blocks `status: "FIXTURE"` / `provenance: "fixture"`
 // via the shared `fixtureBlock` / `fixtureUnresolved` helpers — never LIVE.

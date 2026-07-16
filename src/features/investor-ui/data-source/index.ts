@@ -7,6 +7,7 @@
 // documented switch.
 
 import { FixtureInvestorUiDataSource } from "./fixture-data-source";
+import { BackendInvestorUiDataSource } from "./backend-data-source";
 import type { InvestorUiDataSource } from "./investor-ui-data-source";
 
 export type { InvestorUiDataSource } from "./investor-ui-data-source";
@@ -18,16 +19,17 @@ export {
   type MiningFixtureState,
   type ProfileFixtureState,
 } from "./fixture-data-source";
-export { Gpu1InvestorUiDataSource } from "./gpu1-data-source";
+export { BackendInvestorUiDataSource } from "./backend-data-source";
 
 /**
  * The single factory every screen should call. Explicit, no silent fallback:
- * returns `FixtureInvestorUiDataSource` today because GPU1's investor-UI
- * endpoints are not wired (see `gpu1-data-source.ts` header). Flip this to
- * `Gpu1InvestorUiDataSource` (or a feature-flagged branch between the two)
- * once a real endpoint exists for at least one screen — do that switch HERE,
- * not by scattering `new Fixture...()` across page components.
+ * returns `BackendInvestorUiDataSource` by default — every business read
+ * goes through hearst-connect-backend (independent repository) over HTTP.
+ * `FixtureInvestorUiDataSource` is used ONLY for explicit `?state=` QA
+ * previews (see each page's preview-state handling) — never as a silent
+ * runtime fallback when the backend errors. Do this switch HERE, not by
+ * scattering `new Backend...()` / `new Fixture...()` across page components.
  */
 export function getInvestorUiDataSource(): InvestorUiDataSource {
-  return new FixtureInvestorUiDataSource();
+  return new BackendInvestorUiDataSource();
 }
