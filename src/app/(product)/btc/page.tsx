@@ -96,15 +96,15 @@ export default async function BtcPage({
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)]">
-            <div className="lg:col-span-12 flex min-w-0">
+            <div className="lg:col-span-12 min-w-0">
               <HeroPanel
                 title="BTC accumulated"
                 mainValue={totalBtc ?? "—"}
                 provenance={toProvenance(reserve.status)}
                 metrics={[
                   { label: "Current value", value: reserve.value.reserveBtcUsd ? `$${Number(reserve.value.reserveBtcUsd).toLocaleString("en-US", { maximumFractionDigits: 0 })}` : "—" },
-                  { label: "Mining-produced", value: miningBtc ?? "—", accent: true },
-                  { label: "Strategic exposure", value: strategicBtc ?? "—" },
+                  { label: "Mining-produced", value: miningBtc ?? "—", accent: "btc" },
+                  { label: "Strategic exposure", value: strategicBtc ?? "—", accent: "mining" },
                 ]}
                 progress={monthsElapsed != null ? {
                   current: monthsElapsed,
@@ -125,15 +125,19 @@ export default async function BtcPage({
         
         <SourcesAccumulationPanel monthlyProduction={sourcesData} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)]">
-          <div className="lg:col-span-7 flex min-w-0 flex-col gap-[var(--ct-space-5)]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ct-space-5)] items-start">
+          <div className="lg:col-span-7 min-w-0 flex flex-col gap-[var(--ct-space-5)]">
             <DashboardStrategyPanel
               pockets={dashboard.allocation.value?.pockets ?? null}
               mining={mining}
             />
           </div>
-          <div className="lg:col-span-5 flex min-w-0 flex-col gap-[var(--ct-space-5)]">
-            <DashboardHealthPanel mining={mining} btc={data} />
+          <div className="lg:col-span-5 min-w-0 flex flex-col gap-[var(--ct-space-5)]">
+            <DashboardHealthPanel
+              mining={mining}
+              btc={data}
+              monthlyProduction={accumulationPoints.map((p) => ({ period: p.period, miningBtc: p.miningBtc }))}
+            />
             {proofItems.length > 0 && <ContextualProofPanel items={proofItems} />}
             <PortfolioInsightPanel aiExperts={aiExperts} variant="bitcoin" />
           </div>

@@ -85,11 +85,11 @@ export function VerifiedActivityPanel({
         </Link>
       </div>
       
-      <div className="flex-1 mt-[var(--ct-space-2)]">
+      <div className="mt-[var(--ct-space-2)]">
         <StepTimeline steps={steps} aria-label="Verified activity timeline" />
       </div>
 
-      <p className="body-xs ct-text-faint m-0 mt-auto pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
+      <p className="body-xs ct-text-faint m-0 pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)]">
         Bitcoin accumulates over the product term and is delivered at maturity — not as periodic payouts.
       </p>
     </Card>

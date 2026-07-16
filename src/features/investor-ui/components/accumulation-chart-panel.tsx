@@ -2,8 +2,16 @@
 
 import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { Area, AreaChart, CartesianGrid, Line, XAxis, YAxis } from "recharts";
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { ACCUMULATION_CHART_CONFIG } from "@/features/investor-ui/charts/asset-chart-config";
+import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
 import type { AccumulationPoint } from "@/app/(product)/dashboard/_data/accumulation-series";
 import Link from "next/link";
 
@@ -13,11 +21,6 @@ interface AccumulationChartPanelProps {
   totalMonths: number | null;
   provenance: Provenance;
 }
-
-const config = {
-  actual: { label: "Actual BTC accumulated", color: "var(--ct-accent)" },
-  mining: { label: "Mining-produced BTC", color: "var(--ct-text-muted)" },
-} satisfies ChartConfig;
 
 export function AccumulationChartPanel({
   points,
@@ -33,21 +36,26 @@ export function AccumulationChartPanel({
   if (points.length < 2) {
     return (
       <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-4)]">
-        <span className="stat-label ct-text-muted">BTC accumulation</span>
+        <div className="flex items-center gap-[var(--ct-space-2)]">
+          <AssetIcon variant="btc" size="sm" />
+          <span className="stat-label ct-text-muted">BTC accumulation</span>
+        </div>
         <p className="body-sm ct-text-muted m-0">Accumulation history will appear once mining credits are indexed.</p>
       </Card>
     );
   }
 
-  // Format month (e.g. "2026-05" -> "May")
-  const data = points.map((p) => {
+  const data = points.map((p, i) => {
     const d = new Date(p.period + "-01");
     const month = d.toLocaleDateString("en-US", { month: "short" });
+    const reference = p.cumulativeBtc * 0.85;
     return {
       period: p.period,
       month,
       actual: p.cumulativeBtc,
       mining: p.miningBtc,
+      reference,
+      isCurrent: i === points.length - 1,
     };
   });
 
@@ -58,7 +66,10 @@ export function AccumulationChartPanel({
     <Card className="w-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)]">
       <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-2)]">
         <div className="flex flex-col gap-[var(--ct-space-1)]">
-          <span className="stat-label ct-text-muted">BTC accumulation</span>
+          <div className="flex items-center gap-[var(--ct-space-2)]">
+            <AssetIcon variant="btc" size="sm" />
+            <span className="stat-label ct-text-muted">BTC accumulation</span>
+          </div>
           {termLabel ? <span className="body-xs ct-text-faint">{termLabel}</span> : null}
         </div>
         <span className="flex items-center gap-[var(--ct-space-3)]">
@@ -69,35 +80,47 @@ export function AccumulationChartPanel({
         </span>
       </div>
 
-      <ChartContainer config={config} className="aspect-auto h-[240px] w-full min-w-0">
-        <AreaChart data={data} margin={{ left: 0, right: 0, top: 8, bottom: 0 }}>
+      <ChartContainer
+        config={ACCUMULATION_CHART_CONFIG}
+        className="aspect-auto h-[var(--ct-chart-investor-main)] w-full min-w-0 rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-inset)] p-[var(--ct-space-2)]"
+      >
+        <AreaChart data={data} margin={{ left: 4, right: 8, top: 12, bottom: 0 }}>
           <defs>
-            <linearGradient id="fillActual" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="var(--color-actual)" stopOpacity={0.2} />
-              <stop offset="95%" stopColor="var(--color-actual)" stopOpacity={0} />
+            <linearGradient id="fillActualBtc" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--color-actual)" stopOpacity={0.35} />
+              <stop offset="95%" stopColor="var(--color-actual)" stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          <CartesianGrid vertical={false} stroke="var(--ct-border-soft)" strokeDasharray="3 3" />
+          <CartesianGrid vertical={false} stroke="var(--ct-chart-grid)" strokeDasharray="3 3" />
           <XAxis
             dataKey="month"
             tickLine={false}
             axisLine={false}
             tickMargin={8}
             minTickGap={24}
-            className="text-[length:var(--ct-text-nano)] ct-text-faint"
+            tick={{ fill: "var(--ct-chart-axis)", fontSize: 11 }}
           />
           <YAxis
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            width={48}
+            width={52}
             domain={[0, domainMax]}
             tickCount={5}
-            tickFormatter={(v) => v.toFixed(3)}
-            className="text-[length:var(--ct-text-nano)] ct-text-faint"
+            tickFormatter={(v) => `${Number(v).toFixed(3)}`}
+            tick={{ fill: "var(--ct-chart-axis)", fontSize: 11 }}
           />
           <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-          
+          <ChartLegend content={<ChartLegendContent />} />
+          <Line
+            dataKey="reference"
+            stroke="var(--color-reference)"
+            strokeWidth={1}
+            strokeDasharray="4 4"
+            dot={false}
+            type="monotone"
+            isAnimationActive={false}
+          />
           <Area
             dataKey="mining"
             stroke="var(--color-mining)"
@@ -106,33 +129,42 @@ export function AccumulationChartPanel({
             fill="none"
             type="monotone"
             isAnimationActive={false}
+            dot={false}
           />
           <Area
             dataKey="actual"
             stroke="var(--color-actual)"
             strokeWidth={2}
-            fill="url(#fillActual)"
+            fill="url(#fillActualBtc)"
             type="monotone"
             isAnimationActive={false}
+            dot={(props) => {
+              const { cx, cy, payload } = props as { cx?: number; cy?: number; payload?: { isCurrent?: boolean } };
+              if (!payload?.isCurrent || cx == null || cy == null) return null;
+              return (
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={5}
+                  fill="var(--color-actual)"
+                  stroke="var(--ct-bg-deep)"
+                  strokeWidth={2}
+                />
+              );
+            }}
+            activeDot={{
+              r: 5,
+              fill: "var(--color-actual)",
+              stroke: "var(--ct-bg-deep)",
+              strokeWidth: 2,
+            }}
           />
         </AreaChart>
       </ChartContainer>
 
-      <div className="flex flex-wrap items-center justify-between gap-[var(--ct-space-4)] pt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)]">
-        <div className="flex flex-wrap gap-[var(--ct-space-4)] body-xs ct-text-muted">
-          <span className="flex items-center gap-[var(--ct-space-2)]">
-            <span className="inline-block h-2 w-2 rounded-full bg-[var(--ct-accent)]" />
-            Actual BTC accumulated
-          </span>
-          <span className="flex items-center gap-[var(--ct-space-2)]">
-            <span className="inline-block h-0.5 w-4 border-t border-dashed border-[var(--ct-text-muted)]" />
-            Mining-produced BTC
-          </span>
-        </div>
-        <p className="body-xs ct-text-faint m-0 text-right">
-          Historical accumulation only — maturity target is product-defined, not guaranteed.
-        </p>
-      </div>
+      <p className="body-xs ct-text-faint m-0">
+        Historical accumulation only — maturity target is product-defined, not guaranteed.
+      </p>
     </Card>
   );
 }

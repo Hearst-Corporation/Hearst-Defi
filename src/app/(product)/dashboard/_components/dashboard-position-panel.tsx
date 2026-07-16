@@ -83,7 +83,7 @@ export function DashboardPositionPanel({
       provenance={provenance}
       metrics={[
         { label: "Capital allocated", value: formatUsdc(value.principal) ?? "—" },
-        { label: "BTC accumulated", value: btcAccumulated != null ? `${btcAccumulated} BTC` : "—", accent: true },
+        { label: "BTC accumulated", value: btcAccumulated != null ? `${btcAccumulated} BTC` : "—", accent: "btc" },
         { label: "Current BTC value", value: formatUsdc(value.accrued) ?? "—" },
       ]}
       progress={currentMonth != null ? {
