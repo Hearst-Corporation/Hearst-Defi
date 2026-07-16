@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
+import { Input } from "@/components/catalyst/input";
+import { Textarea } from "@/components/catalyst/textarea";
 import {
   BENTO_FIELD,
   BENTO_FIELD_LABEL,
@@ -77,7 +79,7 @@ export function DirectSendForm() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <label className={BENTO_FIELD} htmlFor="ds-to">
             <span className={BENTO_FIELD_LABEL}>Recipient email</span>
-            <input
+            <Input
               id="ds-to"
               name="to"
               type="email"
@@ -90,20 +92,20 @@ export function DirectSendForm() {
           </label>
           <label className={BENTO_FIELD} htmlFor="ds-company">
             <span className={BENTO_FIELD_LABEL}>Company (optional — helps the agent)</span>
-            <input id="ds-company" name="company" type="text" placeholder="Acme Capital" className={BENTO_INPUT} />
+            <Input id="ds-company" name="company" type="text" placeholder="Acme Capital" className={BENTO_INPUT} />
           </label>
           <label className={BENTO_FIELD} htmlFor="ds-firstName">
             <span className={BENTO_FIELD_LABEL}>First name (optional)</span>
-            <input id="ds-firstName" name="firstName" type="text" placeholder="Alice" className={BENTO_INPUT} />
+            <Input id="ds-firstName" name="firstName" type="text" placeholder="Alice" className={BENTO_INPUT} />
           </label>
           <label className={BENTO_FIELD} htmlFor="ds-lastName">
             <span className={BENTO_FIELD_LABEL}>Last name (optional)</span>
-            <input id="ds-lastName" name="lastName" type="text" placeholder="Dupont" className={BENTO_INPUT} />
+            <Input id="ds-lastName" name="lastName" type="text" placeholder="Dupont" className={BENTO_INPUT} />
           </label>
         </div>
         <label className={BENTO_FIELD} htmlFor="ds-brief">
           <span className={BENTO_FIELD_LABEL}>Brief for the agent (optional)</span>
-          <textarea
+          <Textarea
             id="ds-brief"
             name="brief"
             rows={2}
@@ -135,7 +137,7 @@ export function DirectSendForm() {
         <input type="hidden" name="to" value={to} />
         <label className={BENTO_FIELD} htmlFor="ds-subject">
           <span className={BENTO_FIELD_LABEL}>Subject</span>
-          <input
+          <Input
             id="ds-subject"
             name="subject"
             type="text"
@@ -148,7 +150,7 @@ export function DirectSendForm() {
         </label>
         <label className={BENTO_FIELD} htmlFor="ds-body">
           <span className={BENTO_FIELD_LABEL}>Body (plain text)</span>
-          <textarea
+          <Textarea
             id="ds-body"
             name="body"
             rows={10}
