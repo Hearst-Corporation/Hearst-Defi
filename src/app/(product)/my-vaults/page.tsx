@@ -99,7 +99,7 @@ export default async function MyVaultsPage() {
                       <TableCell className="text-right">
                         <span className="inline-flex items-baseline justify-end gap-2">
                           <span className="ct-metric-value">{formatUsdFull(p.principalUsdc)}</span>
-                          <ProvenanceBadge kind="estimated" variant="strip" />
+                          <ProvenanceBadge kind="manual" variant="strip" />
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
@@ -116,7 +116,7 @@ export default async function MyVaultsPage() {
                             {up ? "+" : ""}
                             {perfPct.toFixed(1)}%
                           </span>
-                          <ProvenanceBadge kind="estimated" variant="strip" />
+                          <ProvenanceBadge kind="attested" variant="strip" />
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
