@@ -173,25 +173,6 @@ Scope:
 STOP: never touches src/lib/engine/**, stable funding / exit recovery logic, Prisma,
 router/nav/chat guards, package.json scripts, cockpit.css, or DS tokens.
 
-### fix/dashboard-btc-followup-lint
-Owner: Cursor Agent — Follow-up lint fixes for dashboard/btc pixel-perfect merge
-Branch: fix/dashboard-btc-followup-lint
-Worktree: principal (Hearst-Defi)
-Started: 2026-07-16
-Status: active
-
-Goal: fix the CI Lint & Typecheck failure introduced by the merged PR #393
-(pre-existing `require()` in prompt-227 test + unused imports in dashboard
-position panel). No functional change.
-
-Scope:
-- src/app/(product)/__tests__/prompt-227-bitcoin-accumulation.test.tsx
-- src/app/(product)/dashboard/_components/dashboard-position-panel.tsx
-- docs/agent-file-locks.md (this entry)
-
-STOP: no engine, no data layer, no auth/wallet/session, no next.config.ts,
-no package.json, no Prisma/schema/migrations, no CSP.
-
 ### feat/projection-safe-input-preset
 Owner: Claude Opus — MISSION HC-4873 Projection safe input preset
 Branch: feat/projection-safe-input-preset
@@ -234,6 +215,22 @@ chat-nav/cockpit.css/#146. Pure visual.
 ---
 
 ## RELEASED LOCKS
+
+### fix/dashboard-btc-followup-lint
+Owner: Cursor Agent — Follow-up lint fixes for dashboard/btc pixel-perfect merge
+Branch: fix/dashboard-btc-followup-lint
+Merged PR: #395
+Released: 2026-07-16
+Status: merged
+
+Scope:
+- src/app/(product)/__tests__/prompt-227-bitcoin-accumulation.test.tsx
+- src/app/(product)/dashboard/_components/dashboard-position-panel.tsx
+- docs/agent-file-locks.md (this entry)
+
+Result: fixed the CI Lint & Typecheck failure caused by a pre-existing
+`require()` in the prompt-227 test and unused imports in the dashboard position
+panel. Lint now SUCCESS, Vercel SUCCESS.
 
 ### feat/dashboard-btc-pixel-perfect
 Owner: Cursor Agent — Dashboard / BTC UI pixel-perfect polish
