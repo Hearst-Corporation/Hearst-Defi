@@ -3,10 +3,10 @@ import { requireInvestor } from "@/lib/auth/require-investor";
 import { getFixtureInvestorUiDataSource, getInvestorUiDataSource } from "@/features/investor-ui/data-source";
 import { btcPageExtraCompleteFixture } from "@/app/(product)/btc/_data/btc-page-fixtures";
 import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
-import { toProvenance } from "@/features/investor-ui/format-btc";
+import { formatIsoDateTime, toProvenance } from "@/features/investor-ui/format-btc";
 
 import { DashboardHero } from "./_components/dashboard-hero";
-import { StrategyOverviewPanel } from "./_components/strategy-overview-panel";
+import { StrategyOverviewPanel, type StrategySignal } from "./_components/strategy-overview-panel";
 import { OpsRow } from "./_components/ops-row";
 import { AccumulationChartSignature } from "@/features/investor-ui/components/accumulation-chart-signature";
 
@@ -27,6 +27,10 @@ const FIXTURE_VARIANTS = [
   "cap-full",
   "not-eligible",
 ] as const;
+
+/** Mirror of HEALTHY_MONTHS_THRESHOLD in ./_components/ops-row.tsx (module-
+ *  private there) — coverage floor below which the reserve is flagged. */
+const HEALTHY_MONTHS_THRESHOLD = 6;
 
 interface DashboardPageProps {
   searchParams: Promise<{ state?: string | string[] }>;
@@ -71,6 +75,59 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     dashboard.position.value != null &&
     dashboard.position.value.positionsCount > 0;
 
+  // P0.4 — the 4 strategy signals DERIVE from data already resolved on this
+  // page (no new I/O), instead of hardcoded constants. Each maps 1:1 to a
+  // view-model field; an unresolved input renders a neutral "—", never a
+  // fabricated positive. On the complete fixture this reads 3/4 positive
+  // (ring 75%, verdict "Strong") — the end of the permanent "Excellent".
+  const settledMonths = accumulationPoints.length;
+  const currentMonth = miningVal?.currentMonth ?? null;
+  const monthsCovered = btc.reserve.value?.electricityCoveredMonths ?? null;
+  const fleetActive = miningVal?.fleetActive === true;
+  const curtailed = miningVal?.curtailed === true;
+  const lastPoint = accumulationPoints[accumulationPoints.length - 1];
+  const prevPoint = accumulationPoints[accumulationPoints.length - 2];
+  const lastDeltaBtc =
+    lastPoint != null && prevPoint != null ? lastPoint.cumulativeBtc - prevPoint.cumulativeBtc : null;
+
+  const strategySignals: readonly StrategySignal[] = [
+    // Settled production months vs elapsed term month (1 month of reporting
+    // lag is expected — production settles after month close).
+    currentMonth == null
+      ? { label: "DCA discipline", status: "—", tone: "neutral" }
+      : settledMonths >= currentMonth - 1
+        ? { label: "DCA discipline", status: "On track", tone: "positive" }
+        : { label: "DCA discipline", status: `${settledMonths}/${currentMonth} months settled`, tone: "warn" },
+    monthsCovered == null
+      ? { label: "Risk management", status: "—", tone: "neutral" }
+      : monthsCovered >= HEALTHY_MONTHS_THRESHOLD
+        ? { label: "Risk management", status: "Strong", tone: "positive" }
+        : { label: "Risk management", status: "Monitor", tone: "warn" },
+    miningVal == null
+      ? { label: "Execution quality", status: "—", tone: "neutral" }
+      : fleetActive && !curtailed
+        ? { label: "Execution quality", status: "Excellent", tone: "positive" }
+        : curtailed
+          ? { label: "Execution quality", status: "Curtailed", tone: "warn" }
+          : { label: "Execution quality", status: "Idle", tone: "neutral" },
+    lastDeltaBtc == null
+      ? { label: "Accumulation pace", status: "—", tone: "neutral" }
+      : lastDeltaBtc > 0
+        ? { label: "Accumulation pace", status: "Advancing", tone: "positive" }
+        : { label: "Accumulation pace", status: "Flat", tone: "warn" },
+  ];
+
+  const positiveCount = strategySignals.filter((s) => (s.tone ?? "positive") === "positive").length;
+  const verdict =
+    positiveCount === strategySignals.length
+      ? "Excellent"
+      : positiveCount >= 3
+        ? "Strong"
+        : positiveCount >= 2
+          ? "Mixed"
+          : "Monitor";
+  const verdictDetail = `${positiveCount} of ${strategySignals.length} strategy signals in a positive state.`;
+
   return (
     <BentoPageShell testId="dashboard-page">
       {/* No page title — the rail's active state names the page; the KPI band
@@ -102,24 +159,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <div className="flex-[4] min-w-0">
             {hasActivePosition ? (
               <StrategyOverviewPanel
-                signals={[
-                  { label: "Long-term conviction", status: "Aligned", tone: "positive" },
-                  { label: "DCA discipline", status: "On track", tone: "positive" },
-                  { label: "Risk management", status: "Strong", tone: "positive" },
-                  { label: "Execution quality", status: "Excellent", tone: "positive" },
-                ]}
-                verdict="Excellent"
-                verdictDetail="All systems performing within expected parameters."
+                signals={strategySignals}
+                verdict={verdict}
+                verdictDetail={verdictDetail}
               />
             ) : (
               // Honest neutral read-out: no position resolved → no fabricated
               // verdict. Same panel, neutral signals, "—" headline.
               <StrategyOverviewPanel
                 signals={[
-                  { label: "Long-term conviction", status: "—", tone: "neutral" },
                   { label: "DCA discipline", status: "—", tone: "neutral" },
                   { label: "Risk management", status: "—", tone: "neutral" },
                   { label: "Execution quality", status: "—", tone: "neutral" },
+                  { label: "Accumulation pace", status: "—", tone: "neutral" },
                 ]}
                 verdict="—"
                 verdictDetail="Strategy signals will appear once an active position is resolved."
@@ -138,6 +190,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           mining={mining}
           btc={btc}
         />
+
+        {/* Compliance line — unified footer shared with /btc (P0.7) */}
+        <p className="ct-metric-caption m-0 px-[var(--ct-space-1)]">
+          As of {formatIsoDateTime(dashboard.runtime.generatedAt)} · Methodology v3.0 · Accumulated BTC delivered at maturity — not guaranteed
+        </p>
       </div>
     </BentoPageShell>
   );

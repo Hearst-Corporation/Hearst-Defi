@@ -119,6 +119,14 @@ export function StrategyOverviewPanel({ signals, verdict, verdictDetail }: Strat
           </svg>
         </div>
 
+        {/* The ring is a composite indicator, not a measured percentage —
+            labelled as such (header-comment promise, P0.4). */}
+        {hasSignals ? (
+          <span className="ct-metric-caption text-center">
+            Composite of {signals.length} strategy signals — simulated
+          </span>
+        ) : null}
+
         {/* Signals */}
         <ul className="flex-1 min-w-0 flex flex-col gap-[var(--ct-space-3)] m-0 p-0 list-none w-full">
           {signals.map((s) => {

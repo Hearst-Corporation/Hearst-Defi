@@ -34,7 +34,7 @@ import {
   formatBtcAmount,
   satsToBtcString,
   formatUsdCompactAmount,
-  formatIsoDate,
+  formatIsoDateTime,
   toProvenance,
 } from "@/features/investor-ui/format-btc";
 
@@ -201,9 +201,9 @@ export default async function BtcPage({
           monthsTotal={monthsTotal}
         />
 
-        {/* Data freshness — single honest line, replaces the retired header */}
+        {/* Compliance line — unified footer shared with /dashboard (P0.7) */}
         <p className="ct-metric-caption m-0 px-[var(--ct-space-1)]">
-          Data as of {formatIsoDate(data.generatedAt)} — accumulated BTC is delivered at maturity, not guaranteed.
+          As of {formatIsoDateTime(data.generatedAt)} · Methodology v3.0 · Accumulated BTC delivered at maturity — not guaranteed
         </p>
       </div>
     </BentoPageShell>
