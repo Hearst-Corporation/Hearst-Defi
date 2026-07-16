@@ -58,8 +58,20 @@ export default async function BtcPage({
   await requireInvestor("/btc");
   const { state } = await searchParams;
   const data = await getBtcPageData(state);
-  const mining = await getFixtureInvestorUiDataSource().getMining();
-  const dashboard = await getFixtureInvestorUiDataSource().getDashboard();
+
+  // Propagate the page's ?state= preview to the SHARED sources too (P1.7):
+  // mining (months elapsed) and dashboard (allocation) must degrade with the
+  // same preview variant as the page-scoped blocks, not silently stay
+  // "complete". Unknown values fall back to "complete" inside the factory.
+  const sharedPreview = state?.replace(/^btc-/, "") ?? null;
+  const previewSource = getFixtureInvestorUiDataSource({
+    // Mining has no "not-configured" fixture — "unavailable" is its honest
+    // equivalent (currentMonth resolves to null, matching the page's guard).
+    mining: sharedPreview === "not-configured" ? "unavailable" : sharedPreview,
+    dashboard: sharedPreview,
+  });
+  const mining = await previewSource.getMining();
+  const dashboard = await previewSource.getDashboard();
 
   const reserve = data.reserve;
   const attribution = data.extra.attribution;

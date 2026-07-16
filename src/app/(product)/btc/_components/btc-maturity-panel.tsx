@@ -15,7 +15,7 @@ import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-bad
 import { BentoBadge } from "@/components/catalyst/bento-badge";
 import { StepTimeline, type StepTimelineItem } from "@/components/catalyst/step-timeline";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
-import { formatIsoDate } from "@/features/investor-ui/format-btc";
+import { formatIsoDate, formatPeriodMonth } from "@/features/investor-ui/format-btc";
 import type { BitcoinReserveViewModel } from "@/features/investor-ui/types/btc";
 import type { BtcCustodyViewModel } from "../_data/btc-page-types";
 
@@ -24,21 +24,47 @@ interface Row {
   value: React.ReactNode;
 }
 
+/** `asOf` (+ months remaining) -> "Mar 2028" — the estimated maturity month.
+ *  Month precision only: the exact delivery day is a contract detail we do
+ *  not fabricate. Returns null when either input is missing/invalid. */
+function estimatedMaturityLabel(
+  asOf: string | null | undefined,
+  monthsRemaining: number | null,
+): string | null {
+  if (asOf == null || monthsRemaining == null) return null;
+  const d = new Date(asOf);
+  if (Number.isNaN(d.getTime())) return null;
+  const totalMonths = d.getUTCFullYear() * 12 + d.getUTCMonth() + monthsRemaining;
+  const year = Math.floor(totalMonths / 12);
+  const monthIndex = totalMonths % 12;
+  const period = `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
+  return `${formatPeriodMonth(period)} ${year}`;
+}
+
 export function BtcMaturityPanel({
   monthsElapsed,
   monthsTotal,
   custody,
   reserve,
+  asOf = null,
   provenance = "simulated",
 }: {
   monthsElapsed: number | null;
   monthsTotal: number | null;
   custody: BtcCustodyViewModel | null;
   reserve: BitcoinReserveViewModel | null;
+  /** ISO reference date the month count refers to (page `generatedAt`) —
+   *  anchors the estimated maturity date. */
+  asOf?: string | null;
   provenance?: Provenance;
 }) {
   const monthsRemaining =
     monthsElapsed != null && monthsTotal != null ? Math.max(0, monthsTotal - monthsElapsed) : null;
+
+  // P1.7 dedup — the "Month x / 24" term bar lives in the hero (single
+  // occurrence on the surface); this card contributes NEW information
+  // instead: the estimated maturity month.
+  const estimatedMaturity = estimatedMaturityLabel(asOf, monthsRemaining);
 
   const custodyLinked = custody?.provider != null && custody.provider !== "unknown";
   const custodyCurrent = custody?.proofOfReserveAttestedAt != null;
@@ -48,9 +74,15 @@ export function BtcMaturityPanel({
   const rows: Row[] = [
     { label: "Delivery asset", value: <span className="text-[var(--ct-asset-btc)] font-medium">BTC only</span> },
     {
-      label: "Current term",
+      // Dedup (P1.7): the hero owns the "Month x / 24" term bar — this card
+      // shows the estimated maturity month instead (new information).
+      label: "Estimated maturity",
       value:
-        monthsElapsed != null && monthsTotal != null ? `Month ${monthsElapsed} / ${monthsTotal}` : "—",
+        estimatedMaturity != null ? (
+          estimatedMaturity
+        ) : (
+          <span className="ct-text-muted">—</span>
+        ),
     },
     { label: "Months remaining", value: monthsRemaining != null ? String(monthsRemaining) : "—" },
     {
