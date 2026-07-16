@@ -148,7 +148,7 @@ export function RebalancingEventsPanel({
               {/* Top row — rule + status pills, provenance dot */}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded border border-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 font-mono text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-accent)]">
+                  <span className="inline-flex items-center rounded border border-[color-mix(in_srgb,var(--ct-accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2 py-0.5 mono text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-accent)]">
                     {event.ruleId}
                   </span>
                   <span
@@ -177,14 +177,14 @@ export function RebalancingEventsPanel({
               <dl className="grid grid-cols-1 gap-2.5 rounded-lg bg-surface-inset p-4">
                 <div className="flex items-baseline justify-between gap-3">
                   <dt className={microLabel}>Triggered</dt>
-                  <dd className="text-[length:var(--ct-text-2xs)] font-mono text-[var(--ct-text-body)] text-right tabular-nums">
+                  <dd className="text-[length:var(--ct-text-2xs)] mono text-[var(--ct-text-body)] text-right tabular-nums">
                     {dateFmt.format(event.triggeredAt)} UTC
                   </dd>
                 </div>
                 {event.status === "executed" ? (
                   <div className="flex items-baseline justify-between gap-3">
                     <dt className={microLabel}>Executed</dt>
-                    <dd className="text-[length:var(--ct-text-2xs)] font-mono text-[var(--ct-text-body)] text-right tabular-nums">
+                    <dd className="text-[length:var(--ct-text-2xs)] mono text-[var(--ct-text-body)] text-right tabular-nums">
                       {dateFmt.format(event.executedAt)} UTC
                     </dd>
                   </div>
@@ -203,7 +203,7 @@ export function RebalancingEventsPanel({
                         href={`${EXPLORER_TX_BASE}${event.txHash}`}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="inline-flex items-center gap-1 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] transition-colors"
+                        className="inline-flex items-center gap-1 mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] transition-colors"
                         title={event.txHash}
                         aria-label={`View transaction ${event.txHash} on explorer`}
                       >

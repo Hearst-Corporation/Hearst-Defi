@@ -130,7 +130,7 @@ function AllocationDiffTable({
               key={bucket}
               className="border-b border-[var(--ct-border-soft)] last:border-0"
             >
-              <TableCell className="ct-metric-caption truncate px-5 py-3 font-mono capitalize">
+              <TableCell className="ct-metric-caption truncate px-5 py-3 mono capitalize">
                 {bucket.replace(/_/g, " ")}
               </TableCell>
               <TableCell className="ct-metric-caption px-5 py-3 text-right">
@@ -235,7 +235,7 @@ export function RebalanceCard({
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="accent" className="font-mono">
+            <Badge variant="accent" className="mono">
               {event.ruleId}
             </Badge>
             <Badge variant={statusVariant(event.status)}>
@@ -251,7 +251,7 @@ export function RebalanceCard({
             {signerCount}/{requiredSigners} sigs
           </p>
           {event.txHash && (
-            <p className="ct-metric-caption font-mono">
+            <p className="ct-metric-caption mono">
               tx: {abbrWallet(event.txHash)}
             </p>
           )}
@@ -287,7 +287,7 @@ export function RebalanceCard({
           <p className="ct-bento-label">Signers</p>
           <ul className="flex flex-col gap-1">
             {signers.map((w) => (
-              <li key={w} className="ct-metric-caption font-mono">
+              <li key={w} className="ct-metric-caption mono">
                 {abbrWallet(w)}
               </li>
             ))}
@@ -404,7 +404,7 @@ export function RebalanceCard({
               Auto-executed on approval · {formatAdminDateTime(new Date(event.executedAt))}
             </p>
             {event.txHash && (
-              <p className="ct-metric-caption font-mono">
+              <p className="ct-metric-caption mono">
                 tx: {event.txHash}
               </p>
             )}

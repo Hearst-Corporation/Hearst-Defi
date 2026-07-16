@@ -1,40 +1,46 @@
 # Catalyst components — Canonical UI layer
 
-This folder is the canonical UI component layer for Hearst Connect.
+This folder is the **destination** layer for Hearst Connect UI primitives.
 
-Catalyst components must be branded with cockpit tokens:
+## Canonical primitives (PROMPT 232)
 
-- `--ct-accent`
-- `--ct-border`
-- `--ct-border-soft`
-- `--ct-text-strong`
-- `--ct-text-body`
-- `--ct-text-muted`
-- `--ct-status-success`
-- `--ct-status-warning`
-- `--ct-status-danger`
+| Need | Primitive | Path |
+|------|-----------|------|
+| Button | `CockpitButton` | `cockpit-button.tsx` |
+| Card | `Card` (+ `CardHeader`, `CardTitle`, `CardContent`, `CardDescription`) | `card.tsx` |
+| Badge / status chip | `BentoBadge` | `bento-badge.tsx` |
+| Provenance | `ProvenanceBadge` | `provenance-badge.tsx` |
+| Panel status | `PanelStatus` | `panel-status.tsx` |
+| Input (Headless) | `Input` | `input.tsx` |
+| Input (native field) | `TextField` | `field.tsx` |
+| Select | `Select` | `select.tsx` |
+| Textarea | `Textarea` | `textarea.tsx` |
+| Field layout | `Field`, `FieldLabel`, `FieldDescription`, `FieldError` | `field.tsx` |
+| Table | `Table` | `table.tsx` |
+| Tabs / segmented | `SegmentedControl` | `segmented-control.tsx` |
+| Charts | `ChartContainer` (Recharts layer) | `src/components/ui/chart.tsx` |
+| Page shell (admin) | `AdminPageShell` | `src/components/admin/admin-page-shell.tsx` |
+| Page shell (bento) | `BentoPageShell` | `bento.tsx` |
 
-Do not introduce raw Tailwind blue/zinc styling as the visual authority.
-Do not use raw `#A7FB90` outside token definitions.
-Do not create page-local Badge/Button/Table/Input primitives.
+## Deprecated / compatibility only
 
-When a legacy `src/components/ui/*` primitive overlaps with Catalyst, migrate the usage toward Catalyst.
+| Legacy | Replacement | Removal condition |
+|--------|-------------|-------------------|
+| `BENTO_PRIMARY_BTN` / `BENTO_SECONDARY_BTN` | `CockpitButton` `variant` + `shape="rect"` | exports removed from `bento.tsx` when grep-clean |
+| `catalyst/button.tsx` | `CockpitButton` | shim re-exports `Button` alias only |
+| `CATALYST_ACCENT_BTN` | `CockpitButton variant="primary"` | delete `lib/ui/catalyst-accent.ts` |
+| `src/components/ui/card` | `@/components/catalyst/card` | compatibility re-export |
+| `src/components/ui/provenance-badge` | `@/components/catalyst/provenance-badge` | compatibility re-export |
 
-## Scope
+## Rules
 
-This is the **destination** layer. New Button / Badge / Table / Input / Select /
-Card / Dialog / Field surfaces are built or extended here, not in `src/components/ui/`.
-
-The shell, rails, layout contract and `--ct-*` token definitions live in
-`cockpit-shell/` — Catalyst consumes those tokens, it does not redefine them.
-
-## Branding rules
-
-- Focus ring = `--ct-accent` (never `ring-blue` / `focus:ring-blue`).
+- Focus ring = `--ct-accent` (never Tailwind blue).
 - Borders = `var(--ct-border)` / `var(--ct-border-soft)`.
 - Text = `var(--ct-text-*)`.
 - Status = `var(--ct-status-*)`.
-- Green = `var(--ct-accent)` (one green only).
+- Green = `var(--ct-accent)` only.
+- No `font-mono` — use `.mono` / `.tabular`.
+- No `dark:` modifiers in new primitives (dark-only product).
+- No page-local `const FIELD =` / `INPUT_CLASS` — use `field-controls.ts` + Field primitives.
 
-See the repo-root `README_DESIGN_SYSTEM.md` for the full authority statement and
-the migration playbook from `src/components/ui/` into this layer.
+Guards: `src/lib/ds/__tests__/ds-canonicalization-guard.test.ts`

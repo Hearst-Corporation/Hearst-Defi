@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { Badge } from "@/components/catalyst/badge";
 import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
-import { BentoLabel, BENTO_SECONDARY_BTN } from "@/components/catalyst/bento";
+import { BentoLabel } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { cn } from "@/lib/cn";
 import {
   addMemory,
@@ -96,9 +97,15 @@ export function MemoryManager({
             <option value="constraint">constraint</option>
           </select>
         </div>
-        <button type="submit" className={BENTO_SECONDARY_BTN} disabled={isPending}>
+        <CockpitButton
+          type="submit"
+          variant="secondary"
+          shape="rect"
+          size="lg"
+          disabled={isPending}
+        >
           Add
-        </button>
+        </CockpitButton>
       </form>
 
       {memory.length === 0 ? (
@@ -120,7 +127,7 @@ export function MemoryManager({
                   <Badge color={m.active ? "green" : "zinc"} className="uppercase">
                     {m.kind}
                   </Badge>
-                  <span className="ct-metric-caption font-mono">{m.source}</span>
+                  <span className="ct-metric-caption mono">{m.source}</span>
                   <span className="ct-metric-caption tabular-nums">
                     {fmtDate(m.updatedAt)}
                   </span>

@@ -73,7 +73,7 @@ export function DiagnosticResultTable({
                 <TableCell className="text-[var(--ct-text-muted)]">
                   {r.actual}
                 </TableCell>
-                <TableCell className="font-mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-tertiary)]">
+                <TableCell className="mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-tertiary)]">
                   {r.likelyFile}
                   {r.likelyFunction ? ` · ${r.likelyFunction}` : ""}
                 </TableCell>

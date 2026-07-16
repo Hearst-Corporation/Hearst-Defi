@@ -1,11 +1,9 @@
-import Link from "next/link";
-
 import {
-  BENTO_PRIMARY_BTN,
   BentoHeader,
   BentoLabel,
   BentoPanel,
 } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { AdminKpiStripPanel } from "@/components/admin/dashboard/admin-kpi-strip-panel";
 import { cn } from "@/lib/cn";
 import type { HeroKpi } from "@/lib/data/cockpit";
@@ -43,14 +41,16 @@ export function SystemReadinessModule({
       <BentoHeader
         title="System readiness"
         trailing={
-          <Link
+          <CockpitButton
             href="/admin/monitoring"
-            className={BENTO_PRIMARY_BTN}
+            variant="primary"
+            shape="rect"
+            size="lg"
             aria-label="Run readiness check in monitoring"
           >
             Run readiness check
             <span aria-hidden> →</span>
-          </Link>
+          </CockpitButton>
         }
       />
 

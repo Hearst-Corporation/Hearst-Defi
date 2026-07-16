@@ -94,7 +94,7 @@ function Trend({ direction, text }: { direction: "up" | "down" | "flat"; text: s
   return (
     <span
       className={cn(
-        "font-mono text-[length:var(--ct-text-micro)] font-medium tabular-nums",
+        "mono text-[length:var(--ct-text-micro)] font-medium tabular-nums",
         tone,
       )}
     >
@@ -373,7 +373,7 @@ export default async function MarketplacePage() {
                 value={formatUsdCompact(p.tvlUsd)}
                 sub={
                   <span className="flex items-center justify-center gap-2">
-                    <span className="font-mono ct-text-muted">{p.slug}</span>
+                    <span className="mono ct-text-muted">{p.slug}</span>
                     <ProvenanceBadge kind={p.provenance} compact />
                   </span>
                 }

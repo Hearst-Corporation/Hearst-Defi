@@ -4,10 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Modal } from "@/components/catalyst/modal";
-import {
-  BENTO_PRIMARY_BTN,
-  BENTO_SECONDARY_BTN,
-} from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import {
   BENTO_FIELD,
   BENTO_FIELD_LABEL,
@@ -53,9 +50,15 @@ export function IcpForm() {
 
   return (
     <>
-      <button type="button" className={BENTO_PRIMARY_BTN} onClick={() => setOpen(true)}>
+      <CockpitButton
+        type="button"
+        variant="primary"
+        shape="rect"
+        size="lg"
+        onClick={() => setOpen(true)}
+      >
         Define a distributor ICP
-      </button>
+      </CockpitButton>
 
       <Modal
         isOpen={open}
@@ -135,17 +138,25 @@ export function IcpForm() {
             finds, scores, and tiers leads — it never sends.
           </p>
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
+            <CockpitButton
+              type="submit"
+              variant="primary"
+              shape="rect"
+              size="lg"
+              disabled={isPending}
+            >
               {isPending ? "Sourcing…" : "Create & source leads"}
-            </button>
-            <button
+            </CockpitButton>
+            <CockpitButton
               type="button"
-              className={BENTO_SECONDARY_BTN}
+              variant="secondary"
+              shape="rect"
+              size="lg"
               onClick={() => setOpen(false)}
               disabled={isPending}
             >
               Cancel
-            </button>
+            </CockpitButton>
           </div>
         </form>
       </Modal>

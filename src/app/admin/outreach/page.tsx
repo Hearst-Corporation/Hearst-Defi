@@ -12,7 +12,7 @@ import {
   TABLE_WRAP,
   ROW,
 } from "@/components/admin/admin-page-shell";
-import { Button } from "@/components/catalyst/button";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import {
   Table,
   TableBody,
@@ -28,7 +28,6 @@ import { CampaignForm } from "@/components/admin/outreach/campaign-form";
 import { IcpForm } from "@/components/admin/outreach/icp-form";
 import { IcpList } from "@/components/admin/outreach/icp-list";
 import { TierBadge } from "@/components/admin/outreach/tier-badge";
-import { CATALYST_ACCENT_BTN } from "@/lib/ui/catalyst-accent";
 import {
   computeOutreachStats,
   loadProspects,
@@ -60,9 +59,14 @@ export default async function OutreachPage() {
       titleAccent="Console"
       contextLabel="Distribution Engine"
       headerActions={
-        <Button href="/admin/outreach/compose" className={CATALYST_ACCENT_BTN}>
+        <CockpitButton
+          href="/admin/outreach/compose"
+          variant="primary"
+          shape="rect"
+          size="lg"
+        >
           Compose email
-        </Button>
+        </CockpitButton>
       }
     >
         {/* Engagement KPI strip — canon admin (e.g. /admin/customers): an

@@ -108,7 +108,7 @@ export default async function CustomerDetailPage({
               </AdminDetailItem>
               <AdminDetailItem label="Role">{detail.role}</AdminDetailItem>
               <AdminDetailItem label="Wallet">
-                <span className="font-mono text-[var(--ct-text-muted)]">
+                <span className="mono text-[var(--ct-text-muted)]">
                   {detail.walletAddress ?? "—"}
                 </span>
               </AdminDetailItem>
@@ -144,7 +144,7 @@ export default async function CustomerDetailPage({
                 colWidths={["40%", "25%", "20%", "15%"]}
                 renderRow={(p) => (
                   <>
-                    <td className={`${CELL} font-mono text-[var(--ct-text-body)]`}>
+                    <td className={`${CELL} mono text-[var(--ct-text-body)]`}>
                       {p.vaultKey}
                     </td>
                     <td className={CELL}>

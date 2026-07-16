@@ -4,10 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Modal } from "@/components/catalyst/modal";
-import {
-  BENTO_PRIMARY_BTN,
-  BENTO_SECONDARY_BTN,
-} from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import {
   BENTO_FIELD,
   BENTO_FIELD_LABEL,
@@ -47,9 +44,15 @@ export function ProspectImportForm() {
 
   return (
     <>
-      <button type="button" className={BENTO_SECONDARY_BTN} onClick={() => setOpen(true)}>
+      <CockpitButton
+        type="button"
+        variant="secondary"
+        shape="rect"
+        size="lg"
+        onClick={() => setOpen(true)}
+      >
         Import emails
-      </button>
+      </CockpitButton>
 
       <Modal
         isOpen={open}
@@ -80,16 +83,24 @@ export function ProspectImportForm() {
             />
           </label>
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
+            <CockpitButton
+              type="submit"
+              variant="primary"
+              shape="rect"
+              size="lg"
+              disabled={isPending}
+            >
               {isPending ? "Importing…" : "Import"}
-            </button>
-            <button
+            </CockpitButton>
+            <CockpitButton
               type="button"
-              className={BENTO_SECONDARY_BTN}
+              variant="secondary"
+              shape="rect"
+              size="lg"
               onClick={() => setOpen(false)}
             >
               Cancel
-            </button>
+            </CockpitButton>
           </div>
         </form>
       </Modal>

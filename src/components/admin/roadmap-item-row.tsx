@@ -8,7 +8,11 @@ import {
   quickSetStatus,
   updateRoadmapItem,
 } from "@/app/admin/roadmap/actions";
-import { BENTO_PRIMARY_BTN, BentoLabel } from "@/components/catalyst/bento";
+import { BentoLabel } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { TextField } from "@/components/catalyst/field";
+import { Select } from "@/components/catalyst/select";
+import { Textarea } from "@/components/catalyst/textarea";
 import { Modal } from "@/components/catalyst/modal";
 import { cn } from "@/lib/cn";
 import { safeUrl } from "@/lib/safe-url";
@@ -27,11 +31,6 @@ const STATUSES: RoadmapStatus[] = [
   "validated",
 ];
 
-const INPUT_CLASS =
-  "mt-2 w-full rounded-lg border border-[var(--ct-border)] bg-surface-inset px-3 py-2.5 text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)] placeholder:text-[var(--ct-text-faint)] transition-colors focus:border-[color-mix(in_srgb,var(--ct-accent)_40%,transparent)] focus:outline-none";
-
-const GHOST_BTN =
-  "rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] disabled:cursor-not-allowed disabled:opacity-[var(--ct-opacity-50)]";
 
 export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
   const [open, setOpen] = useState(false);
@@ -139,15 +138,17 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
             ))}
           </div>
 
-          <button
+          <CockpitButton
             type="button"
+            variant="secondary"
+            shape="rect"
+            size="sm"
             onClick={() => setOpen((current) => !current)}
             aria-expanded={open}
             aria-controls={formId}
-            className={GHOST_BTN}
           >
             {open ? "Close" : "Details"}
-          </button>
+          </CockpitButton>
         </div>
       </div>
 
@@ -165,7 +166,7 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
         >
           <input type="hidden" name="itemId" value={item.id} />
 
-          <p className="m-0 font-mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
+          <p className="m-0 mono text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
             {item.id}
             {item.spec_ref ? ` · ${item.spec_ref}` : ""}
           </p>
@@ -173,80 +174,88 @@ export function RoadmapItemRow({ item }: { item: RoadmapItemWithState }) {
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <label className="block" htmlFor={`${formId}-status`}>
               <BentoLabel>Status</BentoLabel>
-              <select
+              <Select
                 id={`${formId}-status`}
                 name="status"
                 defaultValue={item.status}
-                className={INPUT_CLASS}
+                className="mt-2"
               >
                 {STATUSES.map((s) => (
                   <option key={s} value={s}>
                     {statusLabel(s)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
 
             <label className="block" htmlFor={`${formId}-validatedBy`}>
               <BentoLabel>Validated by</BentoLabel>
-              <input
+              <TextField
                 id={`${formId}-validatedBy`}
                 name="validatedBy"
                 type="text"
                 defaultValue={item.validatedBy ?? ""}
                 placeholder="Adrien"
-                className={INPUT_CLASS}
+                className="mt-2"
               />
             </label>
           </div>
 
           <label className="block" htmlFor={`${formId}-evidenceUrl`}>
             <BentoLabel>Evidence URL</BentoLabel>
-            <input
+            <TextField
               id={`${formId}-evidenceUrl`}
               name="evidenceUrl"
               type="url"
               defaultValue={item.evidenceUrl ?? ""}
               placeholder="https://… preview, PR, screenshot"
-              className={`${INPUT_CLASS} font-mono`}
+              className="mono mt-2"
             />
           </label>
 
           <label className="block" htmlFor={`${formId}-notes`}>
             <BentoLabel>Notes</BentoLabel>
-            <textarea
+            <Textarea
               id={`${formId}-notes`}
               name="notes"
               rows={2}
               defaultValue={item.notes ?? ""}
-              className={`${INPUT_CLASS} resize-y leading-relaxed`}
+              className="mt-2"
             />
           </label>
 
           <label className="block" htmlFor={`${formId}-blockers`}>
             <BentoLabel>Blockers</BentoLabel>
-            <textarea
+            <Textarea
               id={`${formId}-blockers`}
               name="blockers"
               rows={2}
               defaultValue={item.blockers ?? ""}
               placeholder="What's blocking this?"
-              className={`${INPUT_CLASS} resize-y leading-relaxed`}
+              className="mt-2"
             />
           </label>
 
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setOpen(false)} className={GHOST_BTN}>
+            <CockpitButton
+              type="button"
+              variant="secondary"
+              shape="rect"
+              size="sm"
+              onClick={() => setOpen(false)}
+            >
               Cancel
-            </button>
-            <button
+            </CockpitButton>
+            <CockpitButton
               type="submit"
+              variant="primary"
+              shape="rect"
+              size="lg"
               disabled={isPending}
               aria-busy={isPending}
-              className={BENTO_PRIMARY_BTN}
             >
               {isPending ? "Saving…" : "Save"}
-            </button>
+            </CockpitButton>
           </div>
         </form>
       </Modal>

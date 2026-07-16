@@ -365,7 +365,7 @@ export function DiagnosticFlowTheater() {
                   {sc.tag}
                 </div>
                 <div className="mt-1 text-xs text-[var(--ct-text-strong)]">“{sc.prompt}”</div>
-                <div className="mt-0.5 font-mono text-xs text-[var(--ct-text-tertiary)]">{sc.role}</div>
+                <div className="mt-0.5 mono text-xs text-[var(--ct-text-tertiary)]">{sc.role}</div>
               </button>
             );
           })}
@@ -405,7 +405,7 @@ export function DiagnosticFlowTheater() {
         </div>
 
         {allHealth ? (
-          <div className="mt-3 rounded-lg border border-[var(--ct-border)] bg-surface-card px-3 py-2 font-mono text-xs text-[var(--ct-text-muted)]">{allHealth}</div>
+          <div className="mt-3 rounded-lg border border-[var(--ct-border)] bg-surface-card px-3 py-2 mono text-xs text-[var(--ct-text-muted)]">{allHealth}</div>
         ) : null}
       </div>
 
@@ -415,7 +415,7 @@ export function DiagnosticFlowTheater() {
           {([["Writes", hud.w], ["Sends", hud.s], ["Records", hud.r], ["Gates", hud.g]] as [string, number][]).map(([k, v]) => (
             <div key={k} className="rounded-lg border border-[var(--ct-border)] bg-surface-card p-2 text-center">
               <div className="ct-bento-label">{k}</div>
-              <div className={cn("mt-0.5 font-mono text-lg font-extrabold", v > 0 && "text-[var(--ct-status-unaudited)]", v <= 0 && "text-[var(--ct-accent)]")}>{v}</div>
+              <div className={cn("mt-0.5 mono text-lg font-extrabold", v > 0 && "text-[var(--ct-status-unaudited)]", v <= 0 && "text-[var(--ct-accent)]")}>{v}</div>
             </div>
           ))}
         </div>
@@ -425,7 +425,7 @@ export function DiagnosticFlowTheater() {
             <span className="font-bold" style={{ color: live.status === "live-err" ? "var(--ct-status-danger)" : live.status === "pass" ? "var(--ct-accent)" : "var(--ct-status-info)" }}>
               LIVE RUN ▸ {live.status.toUpperCase()}
             </span>
-            <div className="mt-1 font-mono text-xs text-[var(--ct-text-muted)]">{live.text}</div>
+            <div className="mt-1 mono text-xs text-[var(--ct-text-muted)]">{live.text}</div>
           </div>
         ) : null}
 

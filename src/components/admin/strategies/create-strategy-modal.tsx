@@ -114,7 +114,7 @@ function ViolationList({ violations }: ViolationListProps) {
       <ul className="list-disc list-inside space-y-[var(--ct-space-1)]">
         {violations.map((v) => (
           <li key={v.code} className="text-[length:var(--ct-text-micro)] text-[var(--ct-status-danger)]">
-            <span className="font-mono text-[var(--ct-status-danger)] opacity-80">[{v.code}]</span>{" "}
+            <span className="mono text-[var(--ct-status-danger)] opacity-80">[{v.code}]</span>{" "}
             {v.detail}
           </li>
         ))}
@@ -251,7 +251,7 @@ export function CreateStrategyModal({
           <div className="flex gap-[var(--ct-space-2)]">
             <Input
               type="text"
-              className="font-mono"
+              className="mono"
               value={slug}
               maxLength={60}
               onChange={handleSlugChange}

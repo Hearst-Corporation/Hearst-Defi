@@ -72,7 +72,22 @@ dans `cockpit.css` (pattern établi : Sonner, rails).
   `.tabular` (custom, ajoutent `tabular-nums` + `ss01`). `var(--font-mono)`
   CSS var reste autorisée (alias officiel vers Satoshi).
 
-## 3. Radius / Z / Motion
+### 2.1 Text tiers (cockpit.css extensions)
+
+`--ct-text-secondary` (`#C3D2CA`) et `--ct-text-tertiary` (`#93A39B`) sont des
+extensions projet dans `cockpit.css` pour les surfaces admin denses. Elles
+complètent le canon rgba `--ct-text-body/muted/faint` — ne pas les remplacer par
+des hex ad hoc dans les composants.
+
+### 2.2 Primitives canoniques (PROMPT 232)
+
+Voir `src/components/catalyst/README.md` — `CockpitButton`, `Card`, `BentoBadge`,
+`Field`/`TextField`/`Select`/`Textarea`, `Table`, `SegmentedControl`.
+
+**Chart layer** (exception documentée) : `src/components/ui/chart.tsx` +
+`/admin/chart-gallery` — palette via `--ct-chart-*` / `--ct-cat-*`, tooltips
+tokenisés, états empty honnêtes. Ne pas dupliquer une 2ᵉ couche chart.
+
 
 `--ct-radius-sm .375 / md .5 / lg .75 / xl 1rem / full 9999px`.
 Z : `base 1 · raised 10 · rail 50 · overlay/​tooltip 100 · modal 1000`.

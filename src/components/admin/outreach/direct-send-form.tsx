@@ -4,10 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
-import {
-  BENTO_PRIMARY_BTN,
-  BENTO_SECONDARY_BTN,
-} from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import {
   BENTO_FIELD,
@@ -115,9 +112,15 @@ export function DirectSendForm() {
           />
         </label>
         <div className="flex flex-wrap items-center gap-2">
-          <button type="submit" className={BENTO_SECONDARY_BTN} disabled={isDrafting}>
+          <CockpitButton
+            type="submit"
+            variant="secondary"
+            shape="rect"
+            size="lg"
+            disabled={isDrafting}
+          >
             {isDrafting ? "Drafting…" : "Draft with agent"}
-          </button>
+          </CockpitButton>
         </div>
       </form>
 
@@ -157,15 +160,17 @@ export function DirectSendForm() {
           />
         </label>
         <div className="flex flex-wrap items-center gap-2">
-          <button
+          <CockpitButton
             type="button"
-            className={BENTO_PRIMARY_BTN}
+            variant="primary"
+            shape="rect"
+            size="lg"
             onClick={() => setConfirmOpen(true)}
             disabled={isSending || !to || !subject || !body}
             aria-busy={isSending}
           >
             {isSending ? "Sending…" : "Send now"}
-          </button>
+          </CockpitButton>
           {sentId && <Badge variant="success">Sent · tracked</Badge>}
         </div>
         <p className="ct-metric-caption">
@@ -192,7 +197,7 @@ export function DirectSendForm() {
               <>
                 {" "}
                 with subject{" "}
-                <span className="font-mono">“{subject}”</span>
+                <span className="mono">“{subject}”</span>
               </>
             ) : null}
             . Review the recipient and message before confirming.

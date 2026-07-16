@@ -3,7 +3,7 @@ import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-bad
 import { DataNotConfigured, DataUnavailable } from "@/features/investor-ui/components/states/data-states";
 import type { ResolvedViewModel, InvestorPositionViewModel, MiningViewModel } from "@/features/investor-ui/types";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
-import { Button } from "@/components/catalyst/button";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { investDepositPath } from "@/lib/vaults/invest-routes";
 import Link from "next/link";
 import { HeroPanel } from "@/features/investor-ui/components/widgets/hero-panel";
@@ -62,9 +62,9 @@ export function DashboardPositionPanel({
         <div className="flex flex-col items-center gap-[var(--ct-space-3)] text-center">
           <span className="stat-label ct-text-strong">No active position yet</span>
           <span className="body-sm ct-text-muted">Subscribe to the Hearst Mining Note to start accumulating Bitcoin.</span>
-          <Button href={investDepositPath(VAULT_ID)} color="dark/white" className="mt-[var(--ct-space-2)]">
+          <CockpitButton href={investDepositPath(VAULT_ID)} variant="secondary" shape="rect" size="lg" className="mt-[var(--ct-space-2)]">
             Allocate capital
-          </Button>
+          </CockpitButton>
         </div>
       </Card>
     );

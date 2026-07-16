@@ -127,7 +127,7 @@ function ExplorerLink({
       href={href}
       target="_blank"
       rel="noreferrer noopener"
-      className="inline-flex items-center gap-1 font-mono text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:underline"
+      className="inline-flex items-center gap-1 mono text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:underline"
       title={title}
       aria-label={ariaLabel}
     >
@@ -209,7 +209,7 @@ function PlatformAddressRow({
             ) : (
               <span
                 title={entry.address}
-                className="font-mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)] truncate"
+                className="mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)] truncate"
               >
                 {abbreviateAddress(entry.address)}
               </span>
@@ -259,7 +259,7 @@ function DeployedContractCard({
           )}
         </ProofRow>
         <ProofRow label="Deploy block">
-          <span className="font-mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)]">
+          <span className="mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)]">
             {contract.deployBlock || "Pending"}
           </span>
         </ProofRow>

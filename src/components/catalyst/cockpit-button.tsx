@@ -1,13 +1,8 @@
 /**
- * Catalyst CockpitButton — the canonical Hearst cockpit button.
+ * Catalyst CockpitButton — the canonical Hearst product button.
  *
- * Distinct from the generic Tailwind-Plus `catalyst/button` (rounded-lg, color
- * palette, href discrimination): this is the pill (`rounded-full`), semantic-
- * variant button used across the product/admin cockpit. 100% `--ct-*` tokens
- * (accent fill, token spacing, `ct-focus-ring` = accent — never a raw blue ring).
- *
- * This is the canon; `src/components/ui/button` is a thin compatibility wrapper
- * that re-exports `CockpitButton as Button`. New code should import from here.
+ * 100% `--ct-*` tokens. Distinct from deprecated `catalyst/button` (Tailwind Plus).
+ * Supports optional `href` (Next.js Link) for navigation actions.
  */
 
 import { Slot } from "@radix-ui/react-slot";
@@ -15,56 +10,94 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/cn";
 
+import { Link } from "./link";
+
 export const cockpitButtonVariants = cva(
-  "inline-flex items-center justify-center gap-[var(--ct-space-2)] rounded-full text-sm font-medium ct-transition-base disabled:opacity-[var(--ct-opacity-50)] disabled:cursor-not-allowed focus-visible:outline-none ct-focus-ring ct-press",
+  "inline-flex items-center justify-center gap-[var(--ct-space-2)] text-sm font-medium ct-transition-base disabled:opacity-[var(--ct-opacity-50)] disabled:cursor-not-allowed focus-visible:outline-none ct-focus-ring ct-press",
   {
     variants: {
       variant: {
-        primary: "font-bold ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover",
+        primary:
+          "font-bold ct-bg-accent ct-text-on-accent ct-bg-accent-strong-hover",
         secondary:
           "ct-surface-0 border ct-bc-soft ct-text-primary hover:ct-surface-2 ct-bc-strong-hover hover:ct-text-strong",
-        ghost: "ct-text-muted hover:ct-surface-1 hover:ct-text-strong",
+        quiet:
+          "border-transparent bg-transparent ct-text-muted hover:ct-text-strong hover:ct-surface-1",
+        outline:
+          "border ct-bc-soft bg-transparent ct-text-primary hover:ct-surface-1 hover:ct-text-strong",
+        ghost: "ct-text-muted hover:ct-surface-1 hover:ct-text-strong border-transparent",
         danger:
           "border ct-bc-danger ct-status-danger-bg ct-status-danger hover:ct-status-danger-bg",
+        destructive:
+          "border ct-bc-danger ct-status-danger-bg ct-status-danger hover:ct-status-danger-bg",
+      },
+      shape: {
+        pill: "rounded-full",
+        rect: "rounded-lg",
       },
       size: {
         sm: "h-5 px-[var(--ct-space-2)] ct-text-micro-size",
         md: "h-7 px-[var(--ct-space-3)] ct-text-xs-size",
-        lg: "h-9 px-[var(--ct-space-4)] text-sm",
+        lg: "h-9 px-[var(--ct-space-4)] text-sm px-4 py-2.5",
+        icon: "size-8 p-0",
       },
     },
+    compoundVariants: [
+      { size: "lg", shape: "rect", className: "h-auto min-h-9" },
+    ],
     defaultVariants: {
       variant: "secondary",
+      shape: "pill",
       size: "md",
     },
   },
 );
 
 export interface CockpitButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "color">,
     VariantProps<typeof cockpitButtonVariants> {
   asChild?: boolean;
+  href?: string;
 }
 
 export function CockpitButton({
   className,
   variant,
+  shape,
   size,
   asChild = false,
+  href,
   disabled,
   "aria-disabled": ariaDisabledProp,
+  children,
   ...rest
 }: CockpitButtonProps) {
-  const Comp = asChild ? Slot : "button";
-  // Propagate aria-disabled so AT (NVDA/JAWS/VoiceOver) reliably announce the
-  // disabled state. An explicit aria-disabled from the caller takes precedence.
+  const classes = cn(cockpitButtonVariants({ variant, shape, size }), className);
   const ariaDisabled = ariaDisabledProp ?? (disabled ? true : undefined);
+
+  if (href && !disabled) {
+    const { href: _omitHref, ...linkRest } = rest as React.ComponentPropsWithoutRef<typeof Link>;
+    return (
+      <Link
+        href={href}
+        className={classes}
+        aria-disabled={ariaDisabled}
+        {...linkRest}
+      >
+        {children}
+      </Link>
+    );
+  }
+
+  const Comp = asChild ? Slot : "button";
   return (
     <Comp
-      className={cn(cockpitButtonVariants({ variant, size }), className)}
+      className={classes}
       disabled={disabled}
       aria-disabled={ariaDisabled}
       {...rest}
-    />
+    >
+      {children}
+    </Comp>
   );
 }

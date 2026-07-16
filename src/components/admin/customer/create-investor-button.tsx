@@ -6,9 +6,8 @@ import { toast } from "sonner";
 import { Modal } from "@/components/catalyst/modal";
 import {
   BentoLabel,
-  BENTO_PRIMARY_BTN,
-  BENTO_SECONDARY_BTN,
 } from "@/components/catalyst/bento";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { createInvestor } from "@/app/admin/customers/actions";
 
 // Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
@@ -35,9 +34,15 @@ export function CreateInvestorButton() {
 
   return (
     <>
-      <button type="button" className={BENTO_PRIMARY_BTN} onClick={() => setOpen(true)}>
+      <CockpitButton
+        type="button"
+        variant="primary"
+        shape="rect"
+        size="lg"
+        onClick={() => setOpen(true)}
+      >
         New investor
-      </button>
+      </CockpitButton>
 
       <Modal
         isOpen={open}
@@ -75,12 +80,24 @@ export function CreateInvestorButton() {
             </label>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <button type="submit" className={BENTO_PRIMARY_BTN} disabled={isPending}>
+            <CockpitButton
+              type="submit"
+              variant="primary"
+              shape="rect"
+              size="lg"
+              disabled={isPending}
+            >
               {isPending ? "Creating…" : "Create"}
-            </button>
-            <button type="button" className={BENTO_SECONDARY_BTN} onClick={() => setOpen(false)}>
+            </CockpitButton>
+            <CockpitButton
+              type="button"
+              variant="secondary"
+              shape="rect"
+              size="lg"
+              onClick={() => setOpen(false)}
+            >
               Cancel
-            </button>
+            </CockpitButton>
           </div>
         </form>
       </Modal>

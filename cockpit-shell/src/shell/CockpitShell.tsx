@@ -53,7 +53,7 @@ export function CockpitShell({
       id: "hub",
       name: "Hearst Corporation",
       short: "HC",
-      color: "#A7FB90",
+      color: "var(--ct-accent)",
     };
     return {
       products,

@@ -176,7 +176,7 @@ export default async function ProspectDetailPage({
         >
           <dl className={DETAIL_GRID}>
             <AdminDetailItem label="Email">
-              <span className="break-all font-mono text-[var(--ct-text-strong)]">
+              <span className="break-all mono text-[var(--ct-text-strong)]">
                 <a href={`mailto:${p.email}`} className="hover:underline">
                   {p.email}
                 </a>
@@ -225,7 +225,7 @@ export default async function ProspectDetailPage({
                 )}
               </AdminDetailItem>
               <AdminDetailItem label="Company domain">
-                <span className="font-mono">
+                <span className="mono">
                   {p.companyDomain ? (
                     <a
                       href={`https://${p.companyDomain}`}
@@ -242,7 +242,7 @@ export default async function ProspectDetailPage({
               </AdminDetailItem>
               <AdminDetailItem label="Industry">{p.industry ?? "—"}</AdminDetailItem>
               <AdminDetailItem label="Apollo ID">
-                <span className="break-all font-mono text-[var(--ct-text-body)]">{p.apolloId ?? "—"}</span>
+                <span className="break-all mono text-[var(--ct-text-body)]">{p.apolloId ?? "—"}</span>
               </AdminDetailItem>
               {extraRows.map((r) => (
                 <AdminDetailItem key={r.key} label={r.key}>

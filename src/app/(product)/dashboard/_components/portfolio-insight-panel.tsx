@@ -1,6 +1,6 @@
 import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { Button } from "@/components/catalyst/button";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import type { AiExpertResolvedViewModel } from "@/features/investor-ui/types";
 import { AI_EXPERT_ROLES } from "@/features/investor-ui/fixtures/ai-expert-complete";
 import { DataUnavailable } from "@/features/investor-ui/components/states/data-states";
@@ -47,9 +47,9 @@ export function PortfolioInsightPanel({
           <span className="ct-text-muted">{primary?.role ?? "AI Strategist"}</span>
           <span className="ct-text-faint">Just now</span>
         </div>
-        <Button href="?chat=open" color="zinc" className="w-full justify-center">
+        <CockpitButton href="?chat=open" variant="secondary" shape="rect" size="lg" className="w-full justify-center">
           Ask the strategist
-        </Button>
+        </CockpitButton>
       </div>
     </Card>
   );

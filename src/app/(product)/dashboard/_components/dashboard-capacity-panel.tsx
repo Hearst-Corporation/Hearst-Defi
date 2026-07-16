@@ -1,7 +1,7 @@
 import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 import { Progress } from "@/components/catalyst/progress";
-import { Button } from "@/components/catalyst/button";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { BentoBadge } from "@/components/catalyst/bento-badge";
 import { investDepositPath } from "@/lib/vaults/invest-routes";
 import { DataNotConfigured, DataUnavailable } from "@/features/investor-ui/components/states/data-states";
@@ -111,15 +111,15 @@ export function DashboardCapacityPanel({
             <span className="body-sm ct-text-strong tabular font-medium">{formatUsdc(sub?.minimumDeposit) ?? "—"}</span>
           </div>
           {ctaState === "eligible" ? (
-            <Button href={investDepositPath(VAULT_ID)} color="dark/white">
+            <CockpitButton href={investDepositPath(VAULT_ID)} variant="secondary" shape="rect" size="lg">
               {cta.label}
-            </Button>
+            </CockpitButton>
           ) : (
             <div className="flex items-center gap-[var(--ct-space-2)]">
               <BentoBadge variant="flat">{ctaState.replace(/_/g, " ")}</BentoBadge>
-              <Button disabled color="zinc" className="pointer-events-none">
+              <CockpitButton disabled variant="secondary" shape="rect" size="lg" className="pointer-events-none">
                 {cta.label}
-              </Button>
+              </CockpitButton>
             </div>
           )}
         </div>

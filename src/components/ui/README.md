@@ -1,37 +1,25 @@
-# Legacy UI primitives — deprecated
+# Legacy UI primitives — compatibility layer
 
-This folder is not the Design System authority.
+**Do not add new visual primitives here.**
 
-Do not add new visual primitives here.
+## Canonical authority
 
-Target direction:
-- migrate product/admin usages toward `src/components/catalyst/`
-- keep only temporary compatibility wrappers when needed
-- remove files once consumers are gone
+→ `src/components/catalyst/` (see `README.md` there)
 
-Allowed temporarily:
-- wrappers that delegate to Catalyst
-- non-visual helpers
-- compatibility shims during migration
+## Allowed temporarily
 
-Forbidden:
-- new Badge/Button/Table/Input/Card systems
-- raw visual recipes
-- competing tokens
-- blue/zinc/white hardcoded styling as a local DS
+| File | Role | Migrate to |
+|------|------|------------|
+| `provenance-badge.tsx` | Re-export shim | `@/components/catalyst/provenance-badge` |
+| `card.tsx` | Re-export shim | `@/components/catalyst/card` |
+| `chart.tsx` | **Chart layer** (Recharts + `--ct-*`) — documented exception | stays here |
+| `client-toaster.tsx` | Sonner bridge | stays here |
+| `toaster.tsx` | Sonner wrapper | stays here |
 
-## Why this folder still exists
+## Forbidden
 
-These homegrown primitives are still consumed broadly across product and admin
-surfaces. The migration toward Catalyst is **progressive** — files leave this
-folder only when their consumers have moved. This is a deprecation, not a brutal
-delete: nothing here is removed while it still has call-sites.
+- New Badge/Button/Table/Input/Card systems
+- New `BENTO_*_BTN` string constants
+- Raw hex / zinc / `font-mono` in new code
 
-## Where the authority lives
-
-- Canonical components → `src/components/catalyst/` (see its `README.md`).
-- Shell / layout / tokens → `cockpit-shell/`.
-- Full authority statement + migration playbook → repo-root `README_DESIGN_SYSTEM.md`.
-
-Do not describe Catalyst as the intruder. Catalyst is the destination; this folder
-is the legacy layer being retired.
+Removal: when grep shows zero imports of shims outside compatibility tests.

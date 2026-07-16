@@ -95,7 +95,7 @@ export function DiagnosticCenter({
       {current ? (
         <div className="flex flex-col gap-4">
           {/* safety banner */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-[var(--ct-border)] bg-surface-card px-4 py-2.5 font-mono text-xs text-[var(--ct-text-muted)]">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-[var(--ct-border)] bg-surface-card px-4 py-2.5 mono text-xs text-[var(--ct-text-muted)]">
             <span>
               Mode:{" "}
               <span className="text-[var(--ct-accent)]">{current.mode}</span>
@@ -152,7 +152,7 @@ export function DiagnosticCenter({
                       {f.actual}
                     </span>
                     {f.likelyFile ? (
-                      <span className="block font-mono text-xs text-[var(--ct-text-faint)]">
+                      <span className="block mono text-xs text-[var(--ct-text-faint)]">
                         {f.likelyFile}
                       </span>
                     ) : null}
@@ -183,7 +183,7 @@ export function DiagnosticCenter({
             </button>
           </div>
           {showRaw ? (
-            <pre className="max-h-96 overflow-auto rounded-lg border border-[var(--ct-border)] bg-surface-page p-3 font-mono text-xs text-[var(--ct-text-muted)]">
+            <pre className="max-h-96 overflow-auto rounded-lg border border-[var(--ct-border)] bg-surface-page p-3 mono text-xs text-[var(--ct-text-muted)]">
               {JSON.stringify(current, null, 2)}
             </pre>
           ) : null}

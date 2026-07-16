@@ -14,7 +14,7 @@ import {
   ROW,
 } from "@/components/admin/admin-page-shell";
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { Input } from "@/components/catalyst/input";
 import {
   Table,
@@ -51,7 +51,7 @@ function AuditActionLabel({ action }: { action: string }) {
   const alert = actionIsAlert(action);
 
   return (
-    <Badge color={alert ? "rose" : "zinc"} className="font-mono">
+    <Badge color={alert ? "rose" : "zinc"} className="mono">
       {action}
     </Badge>
   );
@@ -136,7 +136,7 @@ export default async function AuditLogPage({
                 name="actor"
                 defaultValue={actor ?? ""}
                 placeholder="0x…"
-                className="font-mono"
+                className="mono"
               />
             </label>
 
@@ -149,14 +149,14 @@ export default async function AuditLogPage({
               />
             </label>
 
-            <Button type="submit" outline>
+            <CockpitButton type="submit" variant="outline" shape="rect" size="lg">
               Filter
-            </Button>
+            </CockpitButton>
 
             {hasFilters && (
-              <Button href="/admin/audit" plain>
+              <CockpitButton href="/admin/audit" variant="quiet" shape="rect" size="lg">
                 Clear
-              </Button>
+              </CockpitButton>
             )}
           </fieldset>
         </form>
@@ -216,7 +216,7 @@ export default async function AuditLogPage({
               {entries.map((entry) => (
                 <TableRow key={entry.id} className={ROW}>
                   {/* When */}
-                  <TableCell className="ct-metric-caption pl-5 align-top font-mono">
+                  <TableCell className="ct-metric-caption pl-5 align-top mono">
                     {formatAdminAuditTimestamp(entry.occurredAt)}
                   </TableCell>
 
@@ -224,7 +224,7 @@ export default async function AuditLogPage({
                   <TableCell className="align-top">
                     <div className="flex flex-col gap-1">
                       <span
-                        className="ct-metric-caption font-mono text-[var(--ct-text-body)]"
+                        className="ct-metric-caption mono text-[var(--ct-text-body)]"
                         title={entry.actorWallet}
                       >
                         {truncateWallet(entry.actorWallet)}
@@ -246,7 +246,7 @@ export default async function AuditLogPage({
                       <span className="ct-metric-value">
                         {entry.entityType}
                       </span>
-                      <span className="ct-metric-caption font-mono">
+                      <span className="ct-metric-caption mono">
                         {entry.entityId}
                       </span>
                     </div>
@@ -280,7 +280,7 @@ export default async function AuditLogPage({
           <p className="ct-bento-label">Audit retention</p>
           <p className="ct-metric-caption">
             Showing up to 200 entries per query. Entries written by{" "}
-            <code className="font-mono text-[var(--ct-text-body)]">
+            <code className="mono text-[var(--ct-text-body)]">
               recordAdminAudit()
             </code>{" "}
             are append-only — export directly from the database for formal

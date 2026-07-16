@@ -50,7 +50,7 @@ function BentoKpi({
         {value}
       </span>
       {sublabel ? (
-        <span className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide font-mono">
+        <span className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide mono">
           {sublabel}
         </span>
       ) : null}
@@ -69,7 +69,7 @@ function BentoProofRow({
   return (
     <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 last:border-b-0">
       <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">{label}</span>
-      <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] font-mono tabular-nums">
+      <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] mono tabular-nums">
         {children}
       </span>
     </div>
