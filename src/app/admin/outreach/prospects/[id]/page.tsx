@@ -146,7 +146,7 @@ export default async function ProspectDetailPage({
       lead={
         <Link
           href="/admin/outreach"
-          className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
+          className="ct-metric-caption focus-visible:outline-none ct-focus-ring rounded-sm transition-colors hover:text-[var(--ct-text-strong)]"
         >
           ← Outreach
         </Link>
@@ -162,9 +162,10 @@ export default async function ProspectDetailPage({
               href={`https://app-eu1.hubspot.com/contacts/contact/${p.hubspotContactId}`}
               target="_blank"
               rel="noreferrer"
-              className="ct-metric-caption transition-colors hover:text-[var(--ct-text-strong)]"
+              className="ct-metric-caption focus-visible:outline-none ct-focus-ring rounded-sm transition-colors hover:text-[var(--ct-text-strong)]"
             >
-              HubSpot ↗
+              HubSpot <span aria-hidden="true">↗</span>
+              <span className="sr-only"> (opens in new tab)</span>
             </a>
           ) : null}
         </div>
@@ -180,7 +181,10 @@ export default async function ProspectDetailPage({
           <dl className={DETAIL_GRID}>
             <AdminDetailItem label="Email">
               <span className="break-all mono text-[var(--ct-text-strong)]">
-                <a href={`mailto:${p.email}`} className="hover:underline">
+                <a
+                  href={`mailto:${p.email}`}
+                  className="focus-visible:outline-none ct-focus-ring rounded-sm hover:underline"
+                >
                   {p.email}
                 </a>
               </span>
@@ -228,9 +232,10 @@ export default async function ProspectDetailPage({
                     href={p.linkedinUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="break-all text-[var(--ct-accent)] hover:underline"
+                    className="break-all text-[var(--ct-accent)] focus-visible:outline-none ct-focus-ring rounded-sm hover:underline"
                   >
-                    View profile ↗
+                    View profile <span aria-hidden="true">↗</span>
+                    <span className="sr-only"> (opens in new tab)</span>
                   </a>
                 ) : (
                   "—"
@@ -243,9 +248,10 @@ export default async function ProspectDetailPage({
                       href={`https://${p.companyDomain}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="break-all hover:underline"
+                      className="break-all focus-visible:outline-none ct-focus-ring rounded-sm hover:underline"
                     >
                       {p.companyDomain}
+                      <span className="sr-only"> (opens in new tab)</span>
                     </a>
                   ) : (
                     "—"
@@ -343,7 +349,7 @@ export default async function ProspectDetailPage({
                     <TableCell className="pl-5">
                       <Link
                         href={`/admin/outreach/${e.campaignId}`}
-                        className="ct-metric-value min-w-0 truncate hover:underline"
+                        className="ct-metric-value min-w-0 truncate focus-visible:outline-none ct-focus-ring rounded-sm hover:underline"
                       >
                         {e.subject}
                       </Link>
