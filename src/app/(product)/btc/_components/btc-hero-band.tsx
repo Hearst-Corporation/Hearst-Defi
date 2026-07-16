@@ -15,6 +15,7 @@
 import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
+import { Figure } from "@/features/investor-ui/components/figure";
 import { BitcoinOrb } from "../../dashboard/_components/bitcoin-orb";
 import type { BtcProvenanceKind } from "@/features/investor-ui/format-btc";
 
@@ -44,12 +45,20 @@ export function BtcHeroBand({
   const termPctLabel =
     termPct != null ? `${termPct.toFixed(1).replace(/\.0$/, "")}% complete` : null;
 
+  // Figures arrive pre-formatted "x.xxxx BTC" — split the unit suffix so
+  // <Figure> can typeset it (uppercase, tracked, muted, 55%, P0.6). String
+  // presentation split only, no math.
+  const attributed = splitBtcUnit(attributedBtc);
+  const reserve = splitBtcUnit(vaultReserveBtc);
+  const produced = splitBtcUnit(miningProducedBtc);
+
   // KPI band cells — same institutional strip as the dashboard hero, orange
   // dominance: the attributed-BTC figure leads in --ct-asset-btc.
   const cells: KpiCell[] = [
     {
       label: "Your attributed BTC",
-      value: attributedBtc ?? "—",
+      value: attributed?.value ?? "—",
+      unit: attributed?.unit,
       sub: "Your economic share",
       tone: "btc-lead",
       lead: true,
@@ -57,12 +66,14 @@ export function BtcHeroBand({
     },
     {
       label: "Vault BTC reserve",
-      value: vaultReserveBtc ?? "—",
+      value: reserve?.value ?? "—",
+      unit: reserve?.unit,
       sub: "Held in custody",
     },
     {
       label: "Mining-produced BTC",
-      value: miningProducedBtc ?? "—",
+      value: produced?.value ?? "—",
+      unit: produced?.unit,
       sub: "Fleet production",
       icon: "mining",
       badge: productionProvenance,
@@ -90,13 +101,17 @@ export function BtcHeroBand({
 
         {/* Reporting period cell — always rendered, honest fallback. */}
         <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)]">
-          <dt className="body-xs font-medium ct-text-muted">Reporting period</dt>
+          <dt className="ct-bento-label">Reporting period</dt>
           {monthsElapsed != null ? (
             <>
-              <dd className="text-xs font-medium ct-text-muted">{termPctLabel}</dd>
+              <dd className="body-xs ct-text-muted">{termPctLabel}</dd>
               <dd className="w-full flex-none text-[length:var(--ct-text-2xl)] font-medium tracking-tight leading-none ct-text-strong">
-                Month <span className="text-[var(--ct-asset-btc)] tabular">{monthsElapsed}</span>
-                <span className="ct-text-muted text-[length:var(--ct-text-base)] font-normal"> / {monthsTotal}</span>
+                Month{" "}
+                <Figure
+                  value={monthsElapsed}
+                  unit={`/ ${monthsTotal}`}
+                  className="text-[var(--ct-asset-btc)]"
+                />
               </dd>
               {/* Decorative bar — the "% complete" qualifier above carries the
                   same info for screen readers (no double announcement). */}
@@ -111,7 +126,7 @@ export function BtcHeroBand({
             </>
           ) : (
             <>
-              <dd className="text-xs font-medium ct-text-muted">Term not started</dd>
+              <dd className="body-xs ct-text-muted">Term not started</dd>
               <dd className="w-full flex-none text-[length:var(--ct-text-2xl)] font-medium ct-text-strong">—</dd>
             </>
           )}
@@ -129,6 +144,8 @@ export function BtcHeroBand({
 interface KpiCell {
   label: string;
   value: string;
+  /** Unit suffix typeset by <Figure> ("BTC") — omitted on "—" and $-prefixed figures. */
+  unit?: string;
   sub: string;
   /** "btc-lead" = the dominant orange figure; default = neutral. */
   tone?: "btc-lead" | "default";
@@ -138,23 +155,33 @@ interface KpiCell {
   badge?: BtcProvenanceKind;
 }
 
+/** "0.5170 BTC" -> { value: "0.5170", unit: "BTC" } — presentation split only. */
+function splitBtcUnit(v: string | null): { value: string; unit?: string } | null {
+  if (v == null) return null;
+  return v.endsWith(" BTC") ? { value: v.slice(0, -4), unit: "BTC" } : { value: v };
+}
+
 function KpiBandCell({ cell }: { cell: KpiCell }) {
   const valueClass = cell.tone === "btc-lead" ? "text-[var(--ct-asset-btc)]" : "ct-text-strong";
-  // Lead cell = the band's master figure (32px semibold); others stay 22px medium.
-  const sizeClass = cell.lead
-    ? "text-[length:var(--ct-text-display-fixed)] font-semibold"
-    : "text-[length:var(--ct-text-2xl)] font-medium";
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)] min-w-0">
-      <dt className="flex items-center gap-[var(--ct-space-1_5)] body-xs font-medium ct-text-muted min-w-0">
+      {/* Micro-label — ONE voice across the page: ct-bento-label (uppercase,
+          tracking-widest, muted), same convention as the Zone 3 cards (P0.6). */}
+      <dt className="flex items-center gap-[var(--ct-space-1_5)] ct-bento-label min-w-0">
         {cell.icon === "mining" ? <AssetIcon variant="mining" size="sm" label="" /> : null}
         <span className="truncate">{cell.label}</span>
         {cell.badge ? <ProvenanceBadge kind={cell.badge} variant="strip" /> : null}
       </dt>
-      {/* Qualifier — baseline-right, symmetric to the "% complete" of Reporting period. */}
-      <dd className="text-xs font-medium ct-text-muted">{cell.sub}</dd>
-      <dd className={`${valueClass} ${sizeClass} w-full flex-none tabular tracking-tight leading-none`}>
-        {cell.value}
+      {/* Qualifier — baseline-right, single caption idiom (body-xs muted). */}
+      <dd className="body-xs ct-text-muted">{cell.sub}</dd>
+      {/* Lead cell = the band's master figure (32px semibold); others 22px medium. */}
+      <dd className="w-full flex-none">
+        <Figure
+          value={cell.value}
+          unit={cell.unit}
+          size={cell.lead ? "lead" : "base"}
+          className={valueClass}
+        />
       </dd>
     </div>
   );

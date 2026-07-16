@@ -18,6 +18,7 @@ import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
+import { Figure } from "@/features/investor-ui/components/figure";
 import { DataNotConfigured, DataUnavailable } from "@/features/investor-ui/components/states/data-states";
 import { BitcoinOrb } from "./bitcoin-orb";
 import type { ResolvedViewModel, InvestorPositionViewModel, MiningViewModel } from "@/features/investor-ui/types";
@@ -85,7 +86,12 @@ export function DashboardHero({
   const termPctLabel = termPct != null ? `${termPct.toFixed(1).replace(/\.0$/, "")}% complete` : null;
 
   const lastPoint = accumulationPoints[accumulationPoints.length - 1];
-  const btcAccumulated = lastPoint != null ? formatBtcAmount(lastPoint.cumulativeBtc.toFixed(8)) : null;
+  // Digits only — the "BTC" unit is typeset by <Figure> (uppercase, tracked,
+  // muted, 55% baseline-locked), the term-sheet convention (P0.6).
+  const btcAccumulated =
+    lastPoint != null
+      ? formatBtcAmount(lastPoint.cumulativeBtc.toFixed(8)).replace(/ BTC$/, "")
+      : null;
 
   // KPI band cells — the institutional summary strip (design target). Each
   // carries its own tone; separators are hairline verticals between cells.
@@ -109,6 +115,7 @@ export function DashboardHero({
       // "—" (honesty: never a fake number, never a badge on nothing).
       label: "BTC accumulated",
       value: btcAccumulated ?? "—",
+      unit: btcAccumulated != null ? "BTC" : undefined,
       sub: "Program cumulative",
       tone: "btc",
       icon: "btc",
@@ -141,13 +148,12 @@ export function DashboardHero({
         {/* Reporting period cell — always rendered (same skeleton as the /btc
             band) with an honest fallback instead of a phantom empty column. */}
         <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)]">
-          <dt className="body-xs font-medium ct-text-muted">Reporting period</dt>
+          <dt className="ct-bento-label">Reporting period</dt>
           {currentMonth != null ? (
             <>
-              <dd className="text-xs font-medium ct-text-muted">{termPctLabel}</dd>
+              <dd className="body-xs ct-text-muted">{termPctLabel}</dd>
               <dd className="w-full flex-none text-[length:var(--ct-text-2xl)] font-medium tracking-tight leading-none ct-text-strong">
-                Month <span className="ct-text-accent tabular">{currentMonth}</span>
-                <span className="ct-text-muted text-[length:var(--ct-text-base)] font-normal"> / {totalMonths}</span>
+                Month <Figure value={currentMonth} unit={`/ ${totalMonths}`} className="ct-text-accent" />
               </dd>
               {/* Decorative bar — the "% complete" qualifier above carries the
                   same info for screen readers (no double announcement). */}
@@ -162,7 +168,7 @@ export function DashboardHero({
             </>
           ) : (
             <>
-              <dd className="text-xs font-medium ct-text-muted">Term not started</dd>
+              <dd className="body-xs ct-text-muted">Term not started</dd>
               <dd className="w-full flex-none text-[length:var(--ct-text-2xl)] font-medium ct-text-strong">—</dd>
             </>
           )}
@@ -180,6 +186,8 @@ export function DashboardHero({
 interface KpiCell {
   label: string;
   value: string;
+  /** Unit suffix typeset by <Figure> ("BTC") — omitted on "—" and $-prefixed figures. */
+  unit?: string;
   sub: string;
   tone?: "accent" | "btc" | "default";
   /** Optical primacy — ONE master figure per band (32px semibold), P0.2. */
@@ -195,21 +203,25 @@ function KpiBandCell({ cell }: { cell: KpiCell }) {
       : cell.tone === "btc"
         ? "text-[var(--ct-asset-btc)]"
         : "ct-text-strong";
-  // Lead cell = the band's master figure (32px semibold); others stay 22px medium.
-  const sizeClass = cell.lead
-    ? "text-[length:var(--ct-text-display-fixed)] font-semibold"
-    : "text-[length:var(--ct-text-2xl)] font-medium";
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)] min-w-0">
-      <dt className="flex items-center gap-[var(--ct-space-1_5)] body-xs font-medium ct-text-muted min-w-0">
+      {/* Micro-label — ONE voice across the page: ct-bento-label (uppercase,
+          tracking-widest, muted), same convention as the Zone 3 cards (P0.6). */}
+      <dt className="flex items-center gap-[var(--ct-space-1_5)] ct-bento-label min-w-0">
         {cell.icon === "btc" ? <AssetIcon variant="btc" size="sm" label="" /> : null}
         <span className="truncate">{cell.label}</span>
         {cell.badge ? <ProvenanceBadge kind={cell.badge} variant="strip" /> : null}
       </dt>
-      {/* Qualifier — baseline-right, symmetric to the "% complete" of Reporting period. */}
-      <dd className="text-xs font-medium ct-text-muted">{cell.sub}</dd>
-      <dd className={`${valueClass} ${sizeClass} w-full flex-none tabular tracking-tight leading-none`}>
-        {cell.value}
+      {/* Qualifier — baseline-right, single caption idiom (body-xs muted). */}
+      <dd className="body-xs ct-text-muted">{cell.sub}</dd>
+      {/* Lead cell = the band's master figure (32px semibold); others 22px medium. */}
+      <dd className="w-full flex-none">
+        <Figure
+          value={cell.value}
+          unit={cell.unit}
+          size={cell.lead ? "lead" : "base"}
+          className={valueClass}
+        />
       </dd>
     </div>
   );

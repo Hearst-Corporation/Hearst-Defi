@@ -10,6 +10,7 @@
 
 import { OpsStatCard } from "./ops-stat-card";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
+import { Figure } from "@/features/investor-ui/components/figure";
 import { formatUsdCompactAmount } from "@/features/investor-ui/format-btc";
 import { investDepositPath } from "@/lib/vaults/invest-routes";
 import type {
@@ -44,8 +45,9 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
   const isHealthy = monthsCovered != null && monthsCovered >= HEALTHY_MONTHS_THRESHOLD;
 
   // ── Mining pulse ──────────────────────────────────────────────────────
+  // Digits only — the "TH/s" unit is typeset by <Figure> (P0.6).
   const m = mining.mining.value;
-  const hashrate = m?.reportedHashrateTh != null ? `${m.reportedHashrateTh} TH/s` : null;
+  const hashrateTh = m?.reportedHashrateTh ?? null;
 
   // ── Fleet status ──────────────────────────────────────────────────────
   const fleetActive = m?.fleetActive === true;
@@ -63,11 +65,7 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
       <OpsStatCard
         label="Available capacity"
         icon={<AssetIcon variant="usdc" size="md" />}
-        value={
-          <span className="ct-text-strong text-[length:var(--ct-text-2xl)] font-medium tabular">
-            {availableUsd ?? "—"}
-          </span>
-        }
+        value={<Figure value={availableUsd ?? "—"} size="base" className="ct-text-strong" />}
         detail={
           utilizationPct != null
             ? `${utilizationPct.toFixed(1)}% vault utilization`
@@ -115,9 +113,12 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
         label="Mining pulse"
         icon={<AssetIcon variant="mining" size="md" />}
         value={
-          <span className="ct-text-strong text-[length:var(--ct-text-2xl)] font-medium tabular">
-            {hashrate ?? "—"}
-          </span>
+          <Figure
+            value={hashrateTh ?? "—"}
+            unit={hashrateTh != null ? "TH/s" : undefined}
+            size="base"
+            className="ct-text-strong"
+          />
         }
         detail="Reported fleet hashrate"
         footerHref="/mining"

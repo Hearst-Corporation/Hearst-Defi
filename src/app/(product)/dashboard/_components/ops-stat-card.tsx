@@ -68,10 +68,11 @@ export function OpsStatCard({
       <div className="flex-1" aria-hidden />
       <div className="h-5 flex flex-col justify-center">{media ?? null}</div>
 
-      {/* Footer — meta left, "View …" action RIGHT (hierarchy pass) */}
+      {/* Footer — meta left, "View …" action RIGHT (hierarchy pass).
+          Caption idiom unified with the detail line (body-xs muted, P0.6). */}
       <div className="pt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)] flex items-center justify-between gap-[var(--ct-space-2)]">
         {footerMeta ? (
-          <span className="ct-metric-caption truncate">{footerMeta}</span>
+          <span className="body-xs ct-text-muted truncate">{footerMeta}</span>
         ) : (
           <span aria-hidden />
         )}

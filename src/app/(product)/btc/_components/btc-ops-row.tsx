@@ -15,6 +15,7 @@
 
 import { OpsStatCard } from "@/app/(product)/dashboard/_components/ops-stat-card";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
+import { Figure } from "@/features/investor-ui/components/figure";
 import {
   buildAccumulationSeries,
   toMonthlyDeltas,
@@ -105,9 +106,12 @@ export function BtcOpsRow({
         label="Sources of Bitcoin"
         icon={<AssetIcon variant="mining" size="md" />}
         value={
-          <span className="text-[var(--ct-asset-btc)] text-[length:var(--ct-text-2xl)] font-medium tabular">
-            {lastDelta != null ? `${formatBtc4(lastDelta.miningBtc)} BTC` : "—"}
-          </span>
+          <Figure
+            value={lastDelta != null ? formatBtc4(lastDelta.miningBtc) : "—"}
+            unit={lastDelta != null ? "BTC" : undefined}
+            size="base"
+            className="text-[var(--ct-asset-btc)]"
+          />
         }
         detail={
           lastDelta != null
@@ -122,12 +126,12 @@ export function BtcOpsRow({
         label="Bitcoin ledger"
         icon={<AssetIcon variant="btc" size="md" />}
         value={
-          <span className="ct-text-strong text-[length:var(--ct-text-2xl)] font-medium tabular">
-            {movementCount}{" "}
-            <span className="ct-text-muted text-[length:var(--ct-text-base)] font-normal">
-              {movementCount === 1 ? "movement" : "movements"}
-            </span>
-          </span>
+          <Figure
+            value={movementCount}
+            unit={movementCount === 1 ? "movement" : "movements"}
+            size="base"
+            className="ct-text-strong"
+          />
         }
         detail={
           lastEvent != null
@@ -146,14 +150,15 @@ export function BtcOpsRow({
         label="Maturity delivery"
         icon={<AssetIcon variant="btc" size="md" />}
         value={
-          <span className="ct-text-strong text-[length:var(--ct-text-2xl)] font-medium">
+          <span className="ct-text-strong text-[length:var(--ct-text-2xl)] font-medium leading-none">
             {monthsElapsed != null ? (
               <>
                 Month{" "}
-                <span className="text-[var(--ct-asset-btc)] tabular">{monthsElapsed}</span>{" "}
-                <span className="ct-text-muted text-[length:var(--ct-text-base)] font-normal">
-                  / {monthsTotal}
-                </span>
+                <Figure
+                  value={monthsElapsed}
+                  unit={`/ ${monthsTotal}`}
+                  className="text-[var(--ct-asset-btc)]"
+                />
               </>
             ) : (
               "—"
