@@ -79,6 +79,7 @@ export function BtcCompositionPanel({ pockets, totalBtc, provenance }: BtcCompos
     pocket: p.pocket,
     label: p.label || POCKET_FALLBACK_LABEL[p.pocket],
     shownBps: hasActual && p.actualBps != null ? p.actualBps : p.targetBps,
+    targetBps: p.targetBps,
     color: POCKET_COLOR[p.pocket],
   }));
 
@@ -137,16 +138,18 @@ export function BtcCompositionPanel({ pockets, totalBtc, provenance }: BtcCompos
               />
             ))}
           </svg>
-          {/* Center: total accumulated BTC */}
+          {/* Center: total accumulated BTC — labelled "Accumulated BTC" so the
+              centre figure (BTC) is never confused with the ring (capital split). */}
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-[var(--ct-space-1)] pointer-events-none">
-            <span className="text-[length:var(--ct-text-lg)] font-semibold leading-none tabular-nums text-[var(--ct-asset-btc)]">
+            <span className="text-[length:var(--ct-text-2xl)] font-semibold leading-none tabular-nums text-[var(--ct-asset-btc)]">
               {totalBtc ?? "—"}
             </span>
-            <span className="ct-metric-caption">BTC Total</span>
+            <span className="ct-metric-caption">Accumulated BTC</span>
           </div>
         </div>
 
-        {/* Legend — real percentages from the props, XX.X% */}
+        {/* Legend — real percentages from the props. Actual split: XX.X% plus a
+            muted "target XX%" delta reference; target-only: round XX%. */}
         <ul className="w-full m-0 p-0 list-none flex flex-col gap-[var(--ct-space-3)] min-w-0">
           {rows.map((r) => (
             <li key={r.pocket} className="flex items-center gap-[var(--ct-space-2_5)] min-w-0">
@@ -156,8 +159,13 @@ export function BtcCompositionPanel({ pockets, totalBtc, provenance }: BtcCompos
                 style={{ backgroundColor: r.color }}
               />
               <span className="body-xs ct-text-muted flex-1 min-w-0 truncate">{r.label}</span>
-              <span className="body-xs font-medium ct-text-strong tabular-nums">
-                {formatPct(r.shownBps)}
+              {hasActual ? (
+                <span className="body-xs ct-text-muted tabular-nums shrink-0">
+                  target {formatTargetPct(r.targetBps)}
+                </span>
+              ) : null}
+              <span className="body-xs font-medium ct-text-strong tabular-nums shrink-0">
+                {hasActual ? formatPct(r.shownBps) : formatTargetPct(r.shownBps)}
               </span>
             </li>
           ))}
@@ -187,4 +195,10 @@ export function BtcCompositionPanel({ pockets, totalBtc, provenance }: BtcCompos
 
 function formatPct(bps: number): string {
   return `${(bps / 100).toFixed(1)}%`;
+}
+
+// Product targets are round figures (40/27/33) — render them round ("40%",
+// never "40.0%"); a non-integer target keeps its single decimal honestly.
+function formatTargetPct(bps: number): string {
+  return bps % 100 === 0 ? `${bps / 100}%` : `${(bps / 100).toFixed(1)}%`;
 }
