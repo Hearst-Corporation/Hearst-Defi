@@ -9,8 +9,9 @@
 // (vitest.config.ts env "node").
 //
 // Allowed: pure types, `investor-ui/data-source`, `investor-ui/fixtures`, and
-// the future GPU1 adapter (`@/lib/gpu1-client/*`) — that IS the legitimate
-// future transport, not a bypass of this feature's seam.
+// the backend HTTP client (`@/lib/backend`) — that IS the legitimate
+// transport to hearst-connect-backend (independent repository), not a bypass
+// of this feature's seam.
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -69,14 +70,14 @@ const FORBIDDEN_IMPORT_PATTERNS: readonly RegExp[] = [
 ];
 
 /** A bare `fetch(` call to a hardcoded external URL — internal relative
- *  fetches (none expected here) or `gpu1Fetch` wrapper calls are fine. */
+ *  fetches (none expected here) or `backendFetch` wrapper calls are fine. */
 const HARDCODED_EXTERNAL_FETCH = /fetch\(\s*["']https?:\/\//;
 
 /** Paths that ARE allowed even though they might superficially look close to
  *  a forbidden pattern (documents the exception, keeps the regexes tight). */
 function isAllowedException(importLine: string): boolean {
   if (importLine.includes("@/features/investor-ui")) return true;
-  if (importLine.includes("@/lib/gpu1-client")) return true;
+  if (importLine.includes("@/lib/backend")) return true;
   return false;
 }
 
