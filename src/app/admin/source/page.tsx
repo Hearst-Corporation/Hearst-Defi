@@ -205,7 +205,8 @@ export default async function SourcePage({
         title="APY range per vault"
         subtitle={
           <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
-            Mining {apy.miningYieldPct}% · USDC {apy.usdcYieldPct}%
+            Mining {apy.configured ? `${apy.miningYieldPct}%` : "—"} · USDC{" "}
+            {apy.usdcYieldPct}%
             <span className="inline-flex items-center gap-1.5">
               (
               <ProviderLogo project={apy.usdcSource} size={16} />
@@ -218,34 +219,43 @@ export default async function SourcePage({
         ariaLabel="APY range per vault"
       >
         <div className="flex flex-col gap-4 p-5">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {apy.vaults.map((v) => (
-              <Card
-                key={v.id}
-                material="flat"
-                hoverOverlay={false}
-                contentClassName="flex flex-col gap-1"
-              >
-                <div className="ct-panel-title">{v.label}</div>
-                <div className="ct-metric-value mt-1 tabular-nums text-[var(--ct-accent)]">
-                  {v.apyLow}% — {v.apyHigh}%
-                </div>
-                <div className="ct-metric-caption mt-2">
-                  mining {v.allocation.miningPct}% · BTC {v.allocation.btcPct}% ·
-                  USDC {v.allocation.usdcPct}%
-                </div>
-                <div className="ct-metric-caption">
-                  borrow drag −{v.borrowDragPct}%
-                </div>
-              </Card>
-            ))}
-          </div>
-          <ul className="ct-metric-caption flex flex-col gap-1">
-            {apy.assumptions.map((a) => (
-              <li key={a}>• {a}</li>
-            ))}
-          </ul>
-          <p className="ct-metric-caption italic">{apy.disclaimer}</p>
+          {!apy.configured ? (
+            <p className="ct-metric-caption">
+              No machine market data configured — mining yield input is
+              unavailable, so vault ranges below cannot be derived yet.
+            </p>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {apy.vaults.map((v) => (
+                  <Card
+                    key={v.id}
+                    material="flat"
+                    hoverOverlay={false}
+                    contentClassName="flex flex-col gap-1"
+                  >
+                    <div className="ct-panel-title">{v.label}</div>
+                    <div className="ct-metric-value mt-1 tabular-nums text-[var(--ct-accent)]">
+                      {v.apyLow}% — {v.apyHigh}%
+                    </div>
+                    <div className="ct-metric-caption mt-2">
+                      mining {v.allocation.miningPct}% · BTC{" "}
+                      {v.allocation.btcPct}% · USDC {v.allocation.usdcPct}%
+                    </div>
+                    <div className="ct-metric-caption">
+                      borrow drag −{v.borrowDragPct}%
+                    </div>
+                  </Card>
+                ))}
+              </div>
+              <ul className="ct-metric-caption flex flex-col gap-1">
+                {apy.assumptions.map((a) => (
+                  <li key={a}>• {a}</li>
+                ))}
+              </ul>
+              <p className="ct-metric-caption italic">{apy.disclaimer}</p>
+            </>
+          )}
         </div>
       </AdminSectionCard>
     </AdminPageShell>
