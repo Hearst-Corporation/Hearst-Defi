@@ -126,7 +126,10 @@ export default function PortfolioPreviewPage() {
           <MetaChip label="Class" value={ACCESS.shareClass} />
           <MetaChip label="Access" value="B2B · qualified" />
           <span className="ml-auto">
-            <Link href="/portfolio" className="text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-muted transition-colors hover:text-[var(--ct-accent)]">
+            <Link
+              href="/portfolio"
+              className="rounded-sm text-[length:var(--ct-text-nano)] uppercase tracking-widest ct-text-muted transition-colors hover:text-[var(--ct-accent)] focus-visible:outline-none ct-focus-ring"
+            >
               Live portfolio →
             </Link>
           </span>
