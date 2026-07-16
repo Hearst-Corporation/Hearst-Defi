@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
+
 interface CopyAddressButtonProps {
   address: string;
 }
@@ -24,13 +26,15 @@ export function CopyAddressButton({ address }: CopyAddressButtonProps) {
   }
 
   return (
-    <button
+    <CockpitButton
       type="button"
       onClick={handleCopy}
+      variant="outline"
+      shape="rect"
       className="ct-copy-chip"
       aria-label="Copy vault contract address"
     >
       {copied ? "Copied" : "copy"}
-    </button>
+    </CockpitButton>
   );
 }
