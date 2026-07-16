@@ -139,7 +139,7 @@ export default async function OutreachPage() {
                         <TableCell className="pl-5">
                           <Link
                             href={`/admin/outreach/prospects/${p.id}`}
-                            className="ct-metric-value min-w-0 truncate hover:underline"
+                            className="ct-metric-value ct-focus-ring min-w-0 truncate rounded hover:underline"
                           >
                             {p.email}
                           </Link>
@@ -150,7 +150,7 @@ export default async function OutreachPage() {
                         <TableCell className="ct-metric-caption hidden truncate lg:table-cell">
                           <Link
                             href={`/admin/outreach/prospects/${p.id}`}
-                            className="hover:underline"
+                            className="ct-focus-ring rounded hover:underline"
                           >
                             {[p.firstName, p.lastName].filter(Boolean).join(" ") || "View"}
                           </Link>
@@ -217,7 +217,7 @@ export default async function OutreachPage() {
                         <TableCell className="pl-5">
                           <Link
                             href={`/admin/outreach/${c.id}`}
-                            className="ct-metric-value min-w-0 truncate hover:underline"
+                            className="ct-metric-value ct-focus-ring min-w-0 truncate rounded hover:underline"
                           >
                             {c.name}
                           </Link>
