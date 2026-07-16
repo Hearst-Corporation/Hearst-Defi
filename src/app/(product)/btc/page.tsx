@@ -152,10 +152,8 @@ export default async function BtcPage({
           production={production}
           events={data.extra.events}
           custody={custody}
-          reserve={reserve}
           monthsElapsed={ownershipUnavailable ? null : monthsElapsed}
           monthsTotal={monthsTotal}
-          miningStatus={ownershipUnavailable ? "NOT_CONFIGURED" : mining.mining.status}
         />
 
         {/* Data freshness — single honest line, replaces the retired header */}

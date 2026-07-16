@@ -10,13 +10,7 @@
 
 import { OpsStatCard } from "./ops-stat-card";
 import { AssetIcon } from "@/features/investor-ui/components/asset-icon";
-import {
-  toProvenance,
-  formatUsdCompactAmount,
-  formatBtcAmount,
-  satsToBtcString,
-  formatIsoDate,
-} from "@/features/investor-ui/format-btc";
+import { formatUsdCompactAmount } from "@/features/investor-ui/format-btc";
 import { investDepositPath } from "@/lib/vaults/invest-routes";
 import type {
   ResolvedViewModel,
@@ -30,12 +24,6 @@ const VAULT_ID = "hearst-yield-vault";
 /** Coverage floor below which the reserve is flagged for monitoring. */
 const HEALTHY_MONTHS_THRESHOLD = 6;
 
-function parseUsd(s: string | null | undefined): number | null {
-  if (s == null) return null;
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
-}
-
 interface OpsRowProps {
   capacity: ResolvedViewModel<VaultCapacityViewModel>;
   subscription: ResolvedViewModel<SubscriptionViewModel>;
@@ -46,7 +34,6 @@ interface OpsRowProps {
 export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
   // ── Available capacity ────────────────────────────────────────────────
   const cap = capacity.value;
-  const capTotal = parseUsd(cap?.tvlCap);
   const utilizationPct = cap?.utilizationBps != null ? cap.utilizationBps / 100 : null;
   const availableUsd = formatUsdCompactAmount(cap?.availableCapacity);
   const subscriptionOpen = subscription.value?.subscriptionOpen === true;
@@ -55,13 +42,10 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
   const r = btc.reserve.value;
   const monthsCovered = r?.electricityCoveredMonths ?? null;
   const isHealthy = monthsCovered != null && monthsCovered >= HEALTHY_MONTHS_THRESHOLD;
-  const reserveUsd = formatUsdCompactAmount(r?.reserveUsdc);
 
   // ── Mining pulse ──────────────────────────────────────────────────────
   const m = mining.mining.value;
   const hashrate = m?.reportedHashrateTh != null ? `${m.reportedHashrateTh} TH/s` : null;
-  const producedBtc =
-    m?.totalBtcEarnedSats != null ? formatBtcAmount(satsToBtcString(m.totalBtcEarnedSats, 8), 4) : null;
 
   // ── Fleet status ──────────────────────────────────────────────────────
   const fleetActive = m?.fleetActive === true;
@@ -78,8 +62,7 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-[var(--ct-space-5)] items-stretch">
       <OpsStatCard
         label="Available capacity"
-        icon={<AssetIcon variant="usdc" size="sm" />}
-        provenance={toProvenance(capacity.status)}
+        icon={<AssetIcon variant="usdc" size="md" />}
         value={
           <span className="ct-text-strong text-[length:var(--ct-text-2xl)] font-medium tabular">
             {availableUsd ?? "—"}
@@ -107,13 +90,11 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
         }
         footerHref={investDepositPath(VAULT_ID)}
         footerLabel={subscriptionOpen ? "Allocate more capital →" : "View subscription →"}
-        footerMeta={capTotal != null ? `Cap ${formatUsdCompactAmount(cap?.tvlCap) ?? "—"}` : undefined}
       />
 
       <OpsStatCard
         label="Reserve health"
-        icon={<AssetIcon variant="reserve" size="sm" />}
-        provenance={toProvenance(btc.reserve.status)}
+        icon={<AssetIcon variant="reserve" size="md" />}
         value={
           <span
             className={`text-[length:var(--ct-text-2xl)] font-medium ${isHealthy ? "ct-text-accent" : "ct-text-strong"}`}
@@ -126,47 +107,25 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
             ? `${monthsCovered} months of electricity covered`
             : "Coverage unavailable"
         }
-        media={
-          reserveUsd != null ? (
-            <div className="flex items-center justify-between body-xs">
-              <span className="ct-text-muted">Operating reserve</span>
-              <span className="ct-text-strong font-medium tabular">{reserveUsd}</span>
-            </div>
-          ) : undefined
-        }
         footerHref="/proof-center"
         footerLabel="View reserve details →"
       />
 
       <OpsStatCard
         label="Mining pulse"
-        icon={<AssetIcon variant="mining" size="sm" />}
-        provenance={toProvenance(mining.mining.status)}
+        icon={<AssetIcon variant="mining" size="md" />}
         value={
           <span className="ct-text-strong text-[length:var(--ct-text-2xl)] font-medium tabular">
             {hashrate ?? "—"}
           </span>
         }
         detail="Reported network hashrate"
-        media={
-          producedBtc != null ? (
-            <div className="flex items-center justify-between body-xs">
-              <span className="ct-text-muted flex items-center gap-1">
-                <AssetIcon variant="btc" size="sm" label="" />
-                BTC produced
-              </span>
-              <span className="text-[var(--ct-asset-btc)] font-medium tabular">{producedBtc}</span>
-            </div>
-          ) : undefined
-        }
         footerHref="/mining"
         footerLabel="Explore mining →"
-        footerMeta={m?.lastReportTime ? formatIsoDate(m.lastReportTime) : undefined}
       />
 
       <OpsStatCard
         label="Fleet status"
-        provenance={toProvenance(mining.mining.status)}
         value={
           <span className="flex items-center gap-[var(--ct-space-2)]">
             <span
@@ -184,17 +143,8 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
           </span>
         }
         detail={m != null ? fleetDetail : "Fleet telemetry unavailable"}
-        media={
-          hashrate != null ? (
-            <div className="flex items-center justify-between body-xs">
-              <span className="ct-text-muted">Reported</span>
-              <span className="ct-text-strong font-medium tabular">{hashrate}</span>
-            </div>
-          ) : undefined
-        }
         footerHref="/mining"
         footerLabel="View fleet details →"
-        footerMeta={m?.lastReportTime ? formatIsoDate(m.lastReportTime) : undefined}
       />
     </div>
   );

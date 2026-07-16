@@ -122,60 +122,56 @@ export function DashboardHero({
   ];
 
   return (
-    <Card
-      className="w-full overflow-hidden p-0"
-      contentClassName="flex flex-col"
-    >
-      {/* KPI band + orb — one compact row; page-level provenance badge in the
-          top-right corner (the page renders no separate header). */}
-      <div className="relative flex flex-col xl:flex-row items-center gap-[var(--ct-space-3)] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
-        <span className="absolute bottom-[var(--ct-space-2)] right-[var(--ct-space-3)]">
-          <ProvenanceBadge kind="simulated" variant="compact" />
-        </span>
-        <div className="grid w-full flex-1 min-w-0 grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-          {cells.map((c, i) => (
-            <KpiBandCell key={c.label} cell={c} first={i === 0} />
-          ))}
+    <Card className="w-full overflow-hidden p-0" contentClassName="relative">
+      {/* Page-level provenance badge — top-right of the band. */}
+      <span className="absolute right-[var(--ct-space-3)] top-[var(--ct-space-2)] z-10">
+        <ProvenanceBadge kind="simulated" variant="compact" />
+      </span>
 
-          {/* Reporting period cell (5th) — term progress; always rendered
-              (same skeleton as the /btc band) with an honest "Term not
-              started" fallback instead of a phantom empty column. */}
-          <div className="flex min-w-0 flex-col justify-center gap-[var(--ct-space-1)] px-[var(--ct-space-4)] py-[var(--ct-space-1)] border-l border-[var(--ct-border-soft)]">
-            <span className="ct-bento-label truncate">Reporting period</span>
-            {currentMonth != null ? (
-              <>
-                <span className="ct-text-strong text-[length:var(--ct-text-lg)] font-medium leading-tight">
-                  Month <span className="ct-text-accent tabular">{currentMonth}</span>
-                  <span className="ct-text-muted"> / {totalMonths}</span>
-                </span>
-                {/* Decorative bar — the adjacent "% complete" caption carries
-                    the same info for screen readers (no double announcement). */}
-                <div
-                  aria-hidden="true"
-                  className="h-1 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,#ffffff_8%,transparent)]"
-                >
+      {/* KPI band — Tailwind Plus "stats with hairline separators" skeleton
+          rebuilt on tokens: dl grid gap-px on a hairline ground, each cell a
+          full surface. dt = label · dd (small) = qualifier · dd (3xl, full
+          width) = the figure. Orb rides the last column. */}
+      <dl className="grid grid-cols-1 gap-px bg-[var(--ct-border-soft)] sm:grid-cols-2 xl:grid-cols-6">
+        {cells.map((c) => (
+          <KpiBandCell key={c.label} cell={c} />
+        ))}
+
+        {/* Reporting period cell — always rendered (same skeleton as the /btc
+            band) with an honest fallback instead of a phantom empty column. */}
+        <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)]">
+          <dt className="body-xs font-medium ct-text-muted">Reporting period</dt>
+          {currentMonth != null ? (
+            <>
+              <dd className="text-xs font-medium ct-text-muted">{termPctLabel}</dd>
+              <dd className="w-full flex-none text-[length:var(--ct-text-2xl)] font-medium tracking-tight leading-none ct-text-strong">
+                Month <span className="ct-text-accent tabular">{currentMonth}</span>
+                <span className="ct-text-muted text-[length:var(--ct-text-base)] font-normal"> / {totalMonths}</span>
+              </dd>
+              {/* Decorative bar — the "% complete" qualifier above carries the
+                  same info for screen readers (no double announcement). */}
+              <dd aria-hidden="true" className="w-full flex-none">
+                <div className="h-1 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,#ffffff_8%,transparent)]">
                   <div
                     className="h-full rounded-full bg-[var(--ct-accent)]"
                     style={{ width: `${Math.min(100, termPct ?? 0)}%` }}
                   />
                 </div>
-                {termPctLabel ? <span className="ct-metric-caption">{termPctLabel}</span> : null}
-              </>
-            ) : (
-              <>
-                <span className="ct-text-strong text-[length:var(--ct-text-lg)] font-medium leading-tight">
-                  —
-                </span>
-                <span className="ct-metric-caption truncate">Term not started</span>
-              </>
-            )}
-          </div>
+              </dd>
+            </>
+          ) : (
+            <>
+              <dd className="text-xs font-medium ct-text-muted">Term not started</dd>
+              <dd className="w-full flex-none text-[length:var(--ct-text-2xl)] font-medium ct-text-strong">—</dd>
+            </>
+          )}
         </div>
 
-        <div className="hidden xl:flex items-center justify-center px-[var(--ct-space-2)]">
-          <BitcoinOrb tone="accent" size={88} />
+        {/* Orb column — same surface, same rhythm */}
+        <div className="hidden xl:flex items-center justify-center bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-4)]">
+          <BitcoinOrb tone="accent" size={96} />
         </div>
-      </div>
+      </dl>
     </Card>
   );
 }
@@ -189,32 +185,25 @@ interface KpiCell {
   badge?: ReturnType<typeof toProvenance>;
 }
 
-function KpiBandCell({ cell, first }: { cell: KpiCell; first: boolean }) {
+function KpiBandCell({ cell }: { cell: KpiCell }) {
   const valueClass =
     cell.tone === "accent"
       ? "ct-text-accent"
       : cell.tone === "btc"
         ? "text-[var(--ct-asset-btc)]"
         : "ct-text-strong";
-  const valueSize = cell.tone === "accent" ? "var(--ct-text-xl)" : "var(--ct-text-lg)";
   return (
-    <div
-      className={`flex min-w-0 flex-col gap-[var(--ct-space-1)] px-[var(--ct-space-4)] py-[var(--ct-space-1)]${
-        first ? "" : " border-l border-[var(--ct-border-soft)]"
-      }`}
-    >
-      <span className="flex items-center gap-[var(--ct-space-1_5)] min-w-0">
+    <div className="flex flex-wrap items-baseline justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-2)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] py-[var(--ct-space-6)] min-w-0">
+      <dt className="flex items-center gap-[var(--ct-space-1_5)] body-xs font-medium ct-text-muted min-w-0">
         {cell.icon === "btc" ? <AssetIcon variant="btc" size="sm" label="" /> : null}
-        <span className="ct-bento-label truncate">{cell.label}</span>
+        <span className="truncate">{cell.label}</span>
         {cell.badge ? <ProvenanceBadge kind={cell.badge} variant="strip" /> : null}
-      </span>
-      <span
-        className={`${valueClass} font-medium tabular tracking-tight leading-none`}
-        style={{ fontSize: valueSize }}
+      </dt>
+      <dd
+        className={`${valueClass} w-full flex-none text-[length:var(--ct-text-2xl)] font-medium tabular tracking-tight leading-none`}
       >
         {cell.value}
-      </span>
-      <span className="ct-metric-caption truncate">{cell.sub}</span>
+      </dd>
     </div>
   );
 }
