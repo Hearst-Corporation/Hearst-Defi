@@ -83,6 +83,149 @@ export interface VaultUserPosition {
   readonly withdrawals: string | null;
 }
 
+// ── Dashboard blocks (v2.1 — rich investor cockpit view model) ───────────────
+//
+// The dashboard screen shows far more than a bare position. Each block below is
+// wrapped in Resolved<T> at the DTO so the frontend renders provenance/status
+// honestly. Facts split three ways:
+//   • DB-backed (Investor/Position/Distribution/InvestorTransaction) → LIVE/PARTIAL
+//   • product constants (allocation targets, term, APY range, min ticket) → manual · LIVE
+//   • contract-owned (capacity, on-chain reserve/mining/rebalancing, actual bps) → NOT_CONFIGURED
+// No block ever fabricates a number: an unknown field is null with a non-LIVE status.
+
+/** Access / identity facts from the canonical DB (Investor row). */
+export interface InvestorIdentity {
+  readonly kycStatus: string | null; // pending | approved | rejected
+  readonly shareClass: "A" | "B" | null; // DB does not hold this yet → null (honest)
+  readonly whitelisted: boolean | null; // on-chain fact — null until v2 read
+  readonly walletAddress: string | null; // set once a wallet is connected for payment
+  readonly accredited: boolean; // accreditationAttestedAt !== null
+}
+
+/** The investor's on-book position, aggregated from the DB. Enriches
+ *  VaultUserPosition with the accumulation figures the cockpit reads. */
+export interface InvestorPosition {
+  readonly principal: string | null; // sum(principalUsdc), decimal string
+  readonly accrued: string | null; // sum(accruedYieldUsdc) — BTC accumulated (est.)
+  readonly value: string | null; // principal + accrued
+  readonly deposits: string | null; // = principal (on-book deposits)
+  readonly withdrawals: string | null; // sum(distributedUsdc)
+  readonly shares: string | null; // on-chain → null (DB holds no shares)
+  readonly positionsCount: number; // number of held positions (0 = no position)
+  readonly subscribedAt: string | null; // earliest subscribedAt (ISO), lock-up anchor
+  readonly status: string | null; // active | matured | exited (primary position)
+}
+
+/** Vault capacity — tvlCap / totalAssets / availableCapacity. All contract-owned:
+ *  NOT_CONFIGURED until v2 is deployed. availableCapacity, when known, is computed
+ *  in the SERVICE (max(cap - assets, 0)) — never fabricated on the client. */
+export interface VaultCapacityBlock {
+  readonly tvlCap: string | null; // USDC 6dp decimal string
+  readonly totalAssets: string | null;
+  readonly availableCapacity: string | null; // max(cap - assets, 0), computed HERE
+  readonly utilizationBps: number | null;
+}
+
+/** Subscription eligibility — a mix of DB-derivable facts (open, min deposit,
+ *  whitelist-required, user-eligible) and contract-gated ones. minimumDeposit is a
+ *  product constant (manual · LIVE); userEligible is DB-derived (KYC approved). */
+export interface SubscriptionSummary {
+  readonly subscriptionOpen: boolean; // product state (manual · LIVE)
+  readonly minimumDeposit: string | null; // product constant, USDC decimal string
+  readonly whitelistRequired: boolean; // product/regulatory rule (manual · LIVE)
+  readonly userEligible: boolean | null; // DB-derived: KYC approved (null if no investor)
+}
+
+/** A single pocket's allocation. targetBps is a product constant (manual · LIVE);
+ *  actualBps is on-chain (NOT_CONFIGURED until v2). */
+export interface AllocationPocket {
+  readonly pocket: PocketId; // B1 | B2 | B3
+  readonly label: string;
+  readonly targetBps: number; // 4000 | 2700 | 3300 — product constant
+  readonly actualBps: number | null; // on-chain → null until v2
+}
+
+/** Target allocation of the 3 pockets — product constants. */
+export interface AllocationBreakdown {
+  readonly pockets: readonly AllocationPocket[];
+  readonly targetTotalBps: number; // 10000
+}
+
+/** Contract-owned reserve status (B3 USDC reserve). NOT_CONFIGURED until v2. */
+export interface ReserveSummary {
+  readonly reserveUsdc: string | null;
+  readonly reserveBps: number | null;
+  readonly electricityCoveredMonths: number | null;
+}
+
+/** Contract-owned performance figures. NOT_CONFIGURED until v2. */
+export interface PerformanceSummary {
+  readonly navPerShare: string | null;
+  readonly totalReturnBps: number | null;
+  readonly takeProfitProgressBps: number | null;
+}
+
+/** Distribution history for the investor, from the Distribution table. v2 is an
+ *  ACCUMULATION note — there is NO periodic cash distribution, so this is expected
+ *  to be empty/PARTIAL. We report honestly whatever the DB holds. */
+export interface DistributionSummary {
+  readonly count: number; // number of distribution rows seen for this investor
+  readonly totalDistributedUsdc: string | null; // sum(amountUsdc) or null when none
+  readonly lastDistributionAt: string | null; // ISO of the most recent, or null
+  readonly recent: readonly DistributionItem[]; // most-recent-first (bounded)
+}
+
+export interface DistributionItem {
+  readonly period: string; // "2026-04"
+  readonly amountUsdc: string; // decimal string
+  readonly distributedAt: string; // ISO
+  readonly status: string; // pending | executed | …
+}
+
+/** Contract-owned rebalancing signal. NOT_CONFIGURED until v2. */
+export interface RebalancingSummary {
+  readonly lastRebalanceAt: string | null;
+  readonly driftBps: number | null;
+  readonly pending: boolean | null;
+}
+
+/** A single ledger movement for the investor, from InvestorTransaction. */
+export interface ActivityItem {
+  readonly type: string; // deposit | claim | withdraw | distribution
+  readonly amountUsdc: string; // decimal string
+  readonly occurredAt: string; // ISO
+  readonly txHash: string | null;
+}
+
+export type AlertSeverity = "info" | "notice" | "warning";
+
+/** A derived, honest advisory alert (never a promise, never a forbidden word). */
+export interface AlertItem {
+  readonly code: string; // machine code, e.g. "kyc_pending" | "no_position"
+  readonly severity: AlertSeverity;
+  readonly message: string;
+}
+
+/** Proof center summary — what is DB-backed (Proof table counts). */
+export interface ProofSummary {
+  readonly totalProofs: number;
+  readonly latestProofAt: string | null; // ISO of the most recent proof, or null
+  readonly types: readonly string[]; // distinct proofType values seen
+}
+
+/** AI experts advisory block. Contract/agent-owned attested feed is not wired →
+ *  NOT_CONFIGURED. Kept as a first-class block so the client renders its slot. */
+export interface AiExpertsSummary {
+  readonly activeExperts: number | null;
+  readonly lastSignalAt: string | null;
+}
+
+/** Non-Resolved runtime summary carried at the DTO level. */
+export interface RuntimeSummary {
+  readonly contract: ContractRuntimeStatus;
+  readonly generatedAt: string; // ISO — when this DTO was assembled
+}
+
 // ── Mining / electricity / engine ────────────────────────────────────────────
 
 export interface MiningMetrics {
@@ -156,11 +299,33 @@ export interface ContractRuntimeStatus {
 
 export interface DashboardDTO {
   readonly runtime: ContractRuntimeStatus;
-  readonly vault: Resolved<VaultSnapshot>;
-  readonly capacity: Resolved<VaultCapacity>;
-  readonly position: Resolved<VaultUserPosition>;
-  readonly strategies: Resolved<readonly VaultStrategy[]>;
+  readonly meta: RuntimeSummary; // generatedAt + contract, for the client footer
+
+  // ── DB-backed (LIVE / PARTIAL) ─────────────────────────────────────────────
+  readonly identity: Resolved<InvestorIdentity>;
+  readonly position: Resolved<InvestorPosition>;
+  readonly distributions: Resolved<DistributionSummary>;
+  readonly activity: Resolved<readonly ActivityItem[]>;
+  readonly proofs: Resolved<ProofSummary>;
+
+  // ── Product constants (manual · LIVE) ──────────────────────────────────────
+  readonly allocation: Resolved<AllocationBreakdown>;
+  readonly subscription: Resolved<SubscriptionSummary>;
+
+  // ── Derived (honest, never fabricated numbers) ─────────────────────────────
+  readonly alerts: Resolved<readonly AlertItem[]>;
+
+  // ── Contract-owned (NOT_CONFIGURED until v2 deployed + indexed) ─────────────
+  readonly capacity: Resolved<VaultCapacityBlock>;
+  readonly reserve: Resolved<ReserveSummary>;
   readonly mining: Resolved<MiningMetrics>;
+  readonly performance: Resolved<PerformanceSummary>;
+  readonly rebalancing: Resolved<RebalancingSummary>;
   readonly engine: Resolved<MiningEngineStatus>;
+  readonly aiExperts: Resolved<AiExpertsSummary>;
+
+  // ── Retained surfaces (kept so existing consumers keep compiling) ──────────
+  readonly vault: Resolved<VaultSnapshot>;
+  readonly strategies: Resolved<readonly VaultStrategy[]>;
   readonly recentEvents: Resolved<readonly VaultEvent[]>;
 }
