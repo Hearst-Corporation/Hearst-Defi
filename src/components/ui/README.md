@@ -1,6 +1,6 @@
 # Legacy UI primitives — compatibility layer
 
-**Do not add new visual primitives here.**
+**Deprecated.** This folder is not the design system authority — do not add new visual primitives here.
 
 ## Canonical authority
 

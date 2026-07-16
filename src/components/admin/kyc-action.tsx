@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Button } from "@/components/catalyst/button";
+import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import { setInvestorKyc } from "@/app/admin/customers/actions";
 
@@ -21,9 +21,9 @@ export function KycAction({
   if (status === "approved") {
     return (
       <>
-        <Button type="button" variant="quiet" className={BTN} onClick={() => setOpen(true)}>
+        <CockpitButton type="button" variant="quiet" className={BTN} onClick={() => setOpen(true)}>
           Reset
-        </Button>
+        </CockpitButton>
         <ConfirmDialog
           open={open}
           onOpenChange={setOpen}
@@ -46,9 +46,9 @@ export function KycAction({
     <form action={setInvestorKyc} className="inline">
       <input type="hidden" name="investorId" value={investorId} />
       <input type="hidden" name="status" value={next} />
-      <Button type="submit" variant="quiet" className={BTN}>
+      <CockpitButton type="submit" variant="quiet" className={BTN}>
         Approve
-      </Button>
+      </CockpitButton>
     </form>
   );
 }

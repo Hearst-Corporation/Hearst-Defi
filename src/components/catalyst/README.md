@@ -1,6 +1,6 @@
 # Catalyst components — Canonical UI layer
 
-This folder is the **destination** layer for Hearst Connect UI primitives.
+This folder is the canonical UI component layer — the **destination** layer for Hearst Connect UI primitives.
 
 ## Canonical primitives (PROMPT 232)
 
