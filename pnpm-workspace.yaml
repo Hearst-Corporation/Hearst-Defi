@@ -1,6 +1,5 @@
 packages:
   - "packages/*"
-  - "gpu1-backend"
 
 # pnpm 11.5 runs a deps-status check before every `pnpm run` that re-triggers
 # `pnpm install` when builds are ignored — with no TTY it aborts and the dev
@@ -56,4 +55,4 @@ onlyBuiltDependencies:
   - protobufjs
 
 allowBuilds:
-  prisma: set this to true or false
+  prisma: true
