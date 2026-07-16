@@ -16,7 +16,18 @@
 
 import type { InvestorUiDataSource } from "./investor-ui-data-source";
 import type { BtcViewModel, BitcoinReserveViewModel, PerformanceViewModel } from "../types/btc";
-import type { DashboardViewModel } from "../types/dashboard";
+import type {
+  DashboardViewModel,
+  InvestorIdentityViewModel,
+  InvestorPositionViewModel,
+  AllocationBreakdownViewModel,
+  VaultCapacityViewModel,
+  SubscriptionViewModel,
+  DistributionViewModel,
+  ActivityItemViewModel,
+  AlertViewModel,
+  ProofSummaryViewModel,
+} from "../types/dashboard";
 import type { MiningViewModel, MiningSummaryViewModel, ElectricityViewModel } from "../types/mining";
 import type { ProfileViewModel } from "../types/profile";
 import type { AiExpertResolvedViewModel } from "../types/ai-expert";
@@ -25,15 +36,17 @@ import { resolved, type ResolvedViewModel, type DataStatus as UiDataStatus } fro
 import {
   getBtcFromBackend,
   getMiningFromBackend,
+  getDashboardFromBackend,
   isBackendError,
   type DataStatus,
   type Envelope,
   type BtcDTO,
   type MiningDTO,
+  type DashboardDTO,
 } from "@/lib/backend";
 
 const NOT_WIRED_MESSAGE =
-  "BackendInvestorUiDataSource: getDashboard/getProfile/getAiExperts are not wired to hearst-connect-backend yet (only /api/v1/btc and /api/v1/mining are consumed by this UI today) — see docs/backend-integration.md.";
+  "BackendInvestorUiDataSource: getProfile/getAiExperts are not wired to hearst-connect-backend yet (no /api/v1/profile or AI-experts screen endpoint exists) — see docs/backend-integration.md.";
 
 /** Maps the backend's `DataStatus` to the UI's presentation `DataStatus`.
  *  1:1 for the 5 shared values — the UI has no "FIXTURE"/"ERROR" input here
@@ -122,6 +135,39 @@ function mapElectricity(dto: MiningDTO): ResolvedViewModel<ElectricityViewModel>
   });
 }
 
+function mapResolved<TBackend, TUi>(
+  block: { readonly status: DataStatus; readonly value: TBackend | null; readonly provenance: string; readonly freshness: { readonly asOf: string | null; readonly ageSeconds: number | null; readonly stale: boolean }; readonly reason?: string },
+  mapValue: (v: TBackend) => TUi,
+): ResolvedViewModel<TUi> {
+  return resolved<TUi>(toUiStatus(block.status), block.value == null ? null : mapValue(block.value), {
+    provenance: `backend:${block.provenance}`,
+    freshness: toFreshness(block.freshness),
+    error: block.reason ? { code: block.reason, message: block.reason } : null,
+  });
+}
+
+function mapDashboard(dto: DashboardDTO, generatedAt: string): DashboardViewModel {
+  return {
+    runtime: {
+      mode: dto.runtime.mode,
+      chainId: dto.runtime.chainId,
+      contractAddress: dto.runtime.contractAddress,
+      codePresent: dto.runtime.codePresent,
+      indexerLagBlocks: dto.runtime.indexerLagBlocks,
+      generatedAt,
+    },
+    identity: mapResolved<InvestorIdentityViewModel, InvestorIdentityViewModel>(dto.identity, (v) => v),
+    position: mapResolved<InvestorPositionViewModel, InvestorPositionViewModel>(dto.position, (v) => v),
+    allocation: mapResolved<AllocationBreakdownViewModel, AllocationBreakdownViewModel>(dto.allocation, (v) => v),
+    capacity: mapResolved<VaultCapacityViewModel, VaultCapacityViewModel>(dto.capacity, (v) => v),
+    subscription: mapResolved<SubscriptionViewModel, SubscriptionViewModel>(dto.subscription, (v) => v),
+    distributions: mapResolved<DistributionViewModel, DistributionViewModel>(dto.distributions, (v) => v),
+    activity: mapResolved<readonly ActivityItemViewModel[], readonly ActivityItemViewModel[]>(dto.activity, (v) => v),
+    alerts: mapResolved<readonly AlertViewModel[], readonly AlertViewModel[]>(dto.alerts, (v) => v),
+    proofs: mapResolved<ProofSummaryViewModel, ProofSummaryViewModel>(dto.proofs, (v) => v),
+  };
+}
+
 const STATUS_PRECEDENCE: readonly DataStatus[] = [
   "UNAVAILABLE",
   "PERMISSION_DENIED",
@@ -141,7 +187,8 @@ function precedenceWorst(a: DataStatus, b: DataStatus): DataStatus {
  *  thrown BackendError (honest ERROR block, never a fixture substitution). */
 export class BackendInvestorUiDataSource implements InvestorUiDataSource {
   async getDashboard(): Promise<DashboardViewModel> {
-    throw new Error(NOT_WIRED_MESSAGE);
+    const envelope: Envelope<DashboardDTO> = await getDashboardFromBackend();
+    return mapDashboard(envelope.data, envelope.meta.generatedAt);
   }
 
   async getBtc(): Promise<BtcViewModel> {
