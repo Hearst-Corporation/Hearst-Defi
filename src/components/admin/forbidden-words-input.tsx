@@ -3,6 +3,8 @@
 import { useId } from "react";
 import { useForbiddenWords, type ForbiddenMatch } from "@/lib/hooks/use-forbidden-words";
 import { cn } from "@/lib/cn";
+import { Input } from "@/components/catalyst/input";
+import { Textarea } from "@/components/catalyst/textarea";
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -108,9 +110,9 @@ export function ForbiddenWordsInput({
   return (
     <div className="relative w-full">
       {multiline ? (
-        <textarea {...sharedProps} rows={rows ?? 3} />
+        <Textarea {...sharedProps} rows={rows ?? 3} />
       ) : (
-        <input {...sharedProps} />
+        <Input {...sharedProps} />
       )}
 
       {hasViolations && (
