@@ -134,9 +134,10 @@ export default async function ProposePage() {
                 rows={5}
                 required
                 minLength={80}
+                aria-describedby="justification-hint"
                 placeholder="Explain why this action is necessary, what the expected impact is, and any risk mitigations applied…"
               />
-              <FieldDescription>Min 80 characters.</FieldDescription>
+              <FieldDescription id="justification-hint">Min 80 characters.</FieldDescription>
             </Field>
 
             <div className="flex flex-wrap items-center gap-3">
