@@ -95,8 +95,14 @@ describe("formatAdminAuditTimestamp", () => {
 
 describe("formatAdminMonthDay", () => {
   it("formats month and day without year", () => {
-    expect(formatAdminMonthDay(new Date(2026, 5, 12))).toMatch(/Jun 12/);
-    expect(formatAdminMonthDay(new Date(2026, 5, 12))).not.toMatch(/2026/);
+    // formatAdminMonthDay's Intl.DateTimeFormat forces timeZone: "UTC" —
+    // the input must be built with Date.UTC (not the local-timezone Date
+    // constructor) or this test's expected day drifts by one depending on
+    // the machine's local offset (e.g. UTC+4 turns local midnight June 12
+    // into June 11 20:00 UTC).
+    const d = new Date(Date.UTC(2026, 5, 12));
+    expect(formatAdminMonthDay(d)).toMatch(/Jun 12/);
+    expect(formatAdminMonthDay(d)).not.toMatch(/2026/);
   });
 });
 
