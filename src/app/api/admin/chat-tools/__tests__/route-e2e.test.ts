@@ -46,7 +46,6 @@ const {
   mockRunSourcing,
   mockDraftEmailForProspect,
   mockOutreachAutoSendHandler,
-  adminToolRunCreate,
 } = h;
 
 vi.mock("@/app/admin/outreach/actions", () => ({

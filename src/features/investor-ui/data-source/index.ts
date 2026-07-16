@@ -6,7 +6,6 @@
 // individually in page code, so the choice of implementation stays a single
 // documented switch.
 
-import { FixtureInvestorUiDataSource } from "./fixture-data-source";
 import { BackendInvestorUiDataSource } from "./backend-data-source";
 import type { InvestorUiDataSource } from "./investor-ui-data-source";
 

@@ -5,7 +5,6 @@ import { computeMachineStrategy } from "./strategy-model";
 import { composeVaultApy } from "./vault-apy";
 import { parseMachinePriceMessage } from "./parse-machine-price";
 import { getTelegramClient, isTelegramConfigured } from "./client";
-import { fetchHashprice } from "@/lib/data/hashprice";
 import { fetchDefiLlama } from "@/lib/data/defillama";
 import { getProjectionAssumptionsConfig } from "@/lib/projection/assumptions-config";
 import type { DestinationCountry } from "./cost-model";

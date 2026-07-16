@@ -125,7 +125,7 @@ describe("fetchOnChainEvents — pagination", () => {
     getBlockNumberMock.mockResolvedValue(349n); // range [0, 349] over chunk=100 → 4 windows
 
     getContractEventsMock.mockImplementation(
-      async ({ fromBlock, toBlock }: { fromBlock: bigint; toBlock: bigint }) => [
+      async ({ fromBlock, toBlock: _toBlock }: { fromBlock: bigint; toBlock: bigint }) => [
         makeHearstEventLog(fromBlock, fromBlock), // one distinguishing event per window
       ],
     );

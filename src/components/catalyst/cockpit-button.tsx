@@ -76,7 +76,10 @@ export function CockpitButton({
   const ariaDisabled = ariaDisabledProp ?? (disabled ? true : undefined);
 
   if (href && !disabled) {
-    const { href: _omitHref, ...linkRest } = rest as React.ComponentPropsWithoutRef<typeof Link>;
+    // `href` was already destructured out of the props above, so `rest` never
+    // contains it at runtime — this cast just types `rest` as Link props so
+    // the spread below type-checks (Link doesn't accept `disabled`/etc as-is).
+    const linkRest = rest as Omit<React.ComponentPropsWithoutRef<typeof Link>, "href">;
     return (
       <Link
         href={href}

@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   OutreachDraftSchema,
   draftColdEmail,
-  type OutreachAudience,
 } from "../outreach-writer";
 import type { LlmClientLike, LlmParams, LlmResponse } from "@/lib/llm/client";
 

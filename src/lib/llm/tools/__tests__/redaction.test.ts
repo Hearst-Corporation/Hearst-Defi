@@ -16,6 +16,16 @@ function base(
   return { id, title: "T", lines: [], format: "json_object", payload };
 }
 
+/** Narrow an `unknown` projected-payload field to a plain object for dotted-property assertions. */
+function obj(value: unknown): Record<string, unknown> {
+  return value as Record<string, unknown>;
+}
+
+/** Narrow an `unknown` projected-payload field to an array for indexed assertions. */
+function arr(value: unknown): unknown[] {
+  return value as unknown[];
+}
+
 describe("projectAdminReadResultForExternal", () => {
   it("returns the result untouched when the tool has no projection / no payload", () => {
     const r = base("read_market_snapshot", { anything: 1, secret: "x" });
@@ -54,18 +64,19 @@ describe("projectAdminReadResultForExternal", () => {
     });
 
     const out = projectAdminReadResultForExternal(r);
-    const p = out.payload as Record<string, any>;
+    const p = obj(out.payload);
+    const demoPlan0 = obj(arr(p.demoPlan)[0]);
 
     // allowlisted fields survive
-    expect(p.metadata.objective).toBe("Investor demo");
-    expect(p.demoPlan[0].order).toBe(1);
-    expect(p.demoPlan[0].talkingPoints).toEqual(["a"]);
+    expect(obj(p.metadata).objective).toBe("Investor demo");
+    expect(demoPlan0.order).toBe(1);
+    expect(demoPlan0.talkingPoints).toEqual(["a"]);
     expect(p.checklist).toEqual(["x"]);
-    expect(p.provenanceFreshnessSummary.planSource).toBe("doc");
+    expect(obj(p.provenanceFreshnessSummary).planSource).toBe("doc");
 
     // non-allowlisted fields are stripped at every level
     expect(p.metadata).not.toHaveProperty("internalOnly");
-    expect(p.demoPlan[0]).not.toHaveProperty("references");
+    expect(demoPlan0).not.toHaveProperty("references");
     expect(p.provenanceFreshnessSummary).not.toHaveProperty("privateSourceIds");
     expect(p).not.toHaveProperty("secretToken");
   });
@@ -84,12 +95,14 @@ describe("projectAdminReadResultForExternal", () => {
     });
 
     const out = projectAdminReadResultForExternal(r);
-    const p = out.payload as Record<string, any>;
+    const p = obj(out.payload);
+    const chart = obj(p.chart);
+    const provenance0 = obj(arr(chart.provenance)[0]);
 
-    expect(p.chart.title).toBe("APY");
-    expect(p.chart.provenance[0].source).toBe("db");
-    expect(p.chart.provenance[0]).not.toHaveProperty("hidden");
-    expect(p.chart).not.toHaveProperty("rawQuery");
+    expect(chart.title).toBe("APY");
+    expect(provenance0.source).toBe("db");
+    expect(provenance0).not.toHaveProperty("hidden");
+    expect(chart).not.toHaveProperty("rawQuery");
     expect(p).not.toHaveProperty("sideChannel");
   });
 });

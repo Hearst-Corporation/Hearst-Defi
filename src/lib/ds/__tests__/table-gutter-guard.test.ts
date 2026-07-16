@@ -128,7 +128,6 @@ describe("Global Table Gutter Guard (Mission #059)", () => {
     }
     // Not asserted as empty — table-fixed is allowed. Surface it so the count
     // is visible in CI output and reviewers can keep it deliberate.
-    // eslint-disable-next-line no-console
     console.log(`[table-gutter-guard] table-fixed users (${users.length}):`, users);
     expect(Array.isArray(users)).toBe(true);
   });

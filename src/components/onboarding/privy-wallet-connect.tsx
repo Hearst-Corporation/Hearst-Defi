@@ -138,7 +138,7 @@ function PrivyConnectInner({
         router.refresh();
       }
     });
-  }, [connectedWallet?.address]);
+  }, [connectedWallet?.address, router]);
 
   if (!ready) {
     return (

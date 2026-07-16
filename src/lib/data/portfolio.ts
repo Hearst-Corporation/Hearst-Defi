@@ -26,8 +26,6 @@ import {
   loadHourlyValueSnapshots,
   reconstructInvestorNavSeries,
 } from "@/lib/portfolio/investor-nav-snapshot";
-import type { LockMeterProps } from "@/components/portfolio/lock-meter";
-import type { TimeToCashProps } from "@/lib/data/time-to-cash";
 
 export { resolveProvenance };
 
@@ -241,19 +239,6 @@ export function shareClassCodeFromVaultKey(vaultKey: string | null | undefined):
  */
 export function shareClassTermsFromVaultKey(vaultKey: string | null | undefined): ShareClassTerms {
   return shareClassCodeFromVaultKey(vaultKey) === "B" ? SHARE_CLASS_B : SHARE_CLASS_A;
-}
-
-/**
- * Strict variant for investor portfolio surfaces: returns null unless the
- * position key explicitly carries a `:class-A|B` suffix.
- */
-function explicitShareClassTermsFromVaultKey(
-  vaultKey: string | null | undefined,
-): ShareClassTerms | null {
-  if (!vaultKey) return null;
-  const match = /:class-([AB])$/i.exec(vaultKey);
-  if (!match?.[1]) return null;
-  return match[1].toUpperCase() === "B" ? SHARE_CLASS_B : SHARE_CLASS_A;
 }
 
 /**
@@ -481,45 +466,6 @@ export const loadInvestorDistributions = cache(
 // ---------------------------------------------------------------------------
 
 /**
- * Build LockMeterProps from the first active position.
- */
-const loadLockMeterProps = cache(async (): Promise<LockMeterProps & { source: "live" | "stale"; updatedAt?: Date }> => {
-  const now = new Date();
-  const investor = await getInvestor();
-  if (!investor) {
-    return {
-      lockStart: now,
-      softLockupDays: 0,
-      earlyExitPenaltyBps: 0,
-      asOf: now,
-      source: "stale",
-    };
-  }
-
-  const position = await prisma.position.findFirst({
-    where: { investorId: investor.id, status: "active" },
-    orderBy: { subscribedAt: "asc" },
-  });
-
-  if (!position) {
-    return {
-      lockStart: now,
-      softLockupDays: 0,
-      asOf: now,
-      source: "stale",
-    };
-  }
-
-  const terms = explicitShareClassTermsFromVaultKey(position.vaultKey);
-  return {
-    lockStart: position.subscribedAt,
-    softLockupDays: terms?.softLockupDays ?? 0,
-    asOf: now,
-    source: terms ? "live" : "stale",
-  };
-});
-
-/**
  * Build the yield stack data from vault allocation data.
  * Short-cached cross-request: allocation snapshots change at most hourly (custody
  * cron), but a 1h TTL meant a freshly-landed snapshot — or a just-cleared one —
@@ -599,69 +545,6 @@ export const loadAllocationDonutProps = cache(
     };
   },
 );
-
-/**
- * Build TimeToCashProps from the first active position and vault yield.
- */
-const loadTimeToCashProps = cache(async (): Promise<TimeToCashProps & { source: "live" | "stale"; updatedAt?: Date }> => {
-  const now = new Date();
-  const investor = await getInvestor();
-  
-  const cycleStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const cycleDays = 30;
-
-  if (!investor) {
-    return {
-      cycleStart,
-      cycleDays,
-      projectedUsdc: 0,
-      aprLow: 0,
-      aprHigh: 0,
-      asOf: now,
-      source: "stale",
-    };
-  }
-
-  const [position, snapshot] = await Promise.all([
-    prisma.position.findFirst({
-      where: { investorId: investor.id, status: "active" },
-      orderBy: { subscribedAt: "asc" },
-    }),
-    fetchYieldStackData(),
-  ]);
-
-  if (!position || !snapshot) {
-    return {
-      cycleStart,
-      cycleDays,
-      projectedUsdc: 0,
-      aprLow: 0,
-      aprHigh: 0,
-      asOf: now,
-      source: "stale",
-    };
-  }
-
-  const principal = toNumber(position.principalUsdc);
-  const aprLow = toNumber(snapshot.currentApyLow);
-  const aprHigh = toNumber(snapshot.currentApyHigh);
-
-  const avgApr = (aprLow + aprHigh) / 2;
-  const projectedUsdc = (principal * (avgApr / 100)) / 12;
-
-  const hasMeaningfulYield = aprLow + aprHigh > 0 && projectedUsdc > 0;
-
-  return {
-    cycleStart,
-    cycleDays,
-    projectedUsdc,
-    aprLow,
-    aprHigh,
-    asOf: now,
-    source: hasMeaningfulYield ? "live" : "stale",
-    updatedAt: asCachedDate(snapshot.takenAt),
-  };
-});
 
 // ---------------------------------------------------------------------------
 // loadPosition — single position detail for /portfolio/[positionId]

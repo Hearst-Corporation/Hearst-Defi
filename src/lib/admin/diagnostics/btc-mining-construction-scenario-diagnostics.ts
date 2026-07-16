@@ -16,7 +16,6 @@ import {
   buildCanvasEconomics,
   INPUT_PROVENANCE,
   DEFAULT_CANVAS_INPUTS,
-  CANVAS_REGIMES,
   type CanvasInputs,
 } from "@/lib/products/mining-canvas-model";
 import {

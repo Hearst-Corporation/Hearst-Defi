@@ -128,7 +128,12 @@ interface AccessTokenResponse {
  *
  * @returns the WebSDK access token.
  * @throws when Sumsub returns a non-2xx response or the body is malformed.
+ *
+ * Legacy WebSDK launch path, deliberately kept unremoved per the module header
+ * above: the custom no-iframe upload flow is the active integration, but this
+ * stays as the ready-to-wire fallback if a WebSDK launch is ever needed again.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- see JSDoc above: intentionally kept, not dead code.
 async function createAccessToken(
   externalUserId: string,
   levelName: string = sumsubLevelName(),
@@ -433,7 +438,13 @@ export interface ApplicantStatus {
  * GET /resources/applicants/{applicantId}/status — optional status read used by
  * the UI to surface progress. The authoritative approval still flows through the
  * webhook; this is a convenience poll only.
+ *
+ * Optional poll helper for the custom upload flow, not yet wired to a UI
+ * surface; the webhook (src/app/api/sumsub/webhook/route.ts) remains the
+ * authoritative approval path. Kept as ready-to-call API surface, not
+ * dead/orphaned code.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- see JSDoc above: intentionally kept, not dead code.
 async function getApplicantStatus(
   applicantId: string,
 ): Promise<ApplicantStatus> {

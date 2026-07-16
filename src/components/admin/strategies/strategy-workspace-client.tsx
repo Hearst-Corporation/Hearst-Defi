@@ -25,7 +25,6 @@ import { useMemo, useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { AdminSectionCard } from "@/components/admin/admin-page-shell";
-import { BentoKpiStrip } from "@/components/catalyst/bento";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import {
   Table,
@@ -254,7 +253,7 @@ export function StrategyWorkspaceClient({
             active: candidate.key === focusKey,
           };
         }),
-    [candidateRuns, metric, visible, focusKey],
+    [candidateRuns, metric, visible, focusKey, baseCollateral, btcPriceUsd],
   );
 
   const chartBand = useMemo<StudioChartBandPoint[] | undefined>(

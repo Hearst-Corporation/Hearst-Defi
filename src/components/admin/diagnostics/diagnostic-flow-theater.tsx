@@ -226,7 +226,7 @@ export function DiagnosticFlowTheater() {
     tokenRef.current?.classList.remove("show");
   }, []);
 
-  const pulse = (id: string, col: string) => {
+  const pulse = useCallback((id: string, col: string) => {
     const layer = q(".dft-pulses"); if (!layer) return;
     const n = NODES[id]; if (!n) return;
     const p = document.createElement("div");
@@ -235,7 +235,7 @@ export function DiagnosticFlowTheater() {
     layer.appendChild(p);
     requestAnimationFrame(() => p.classList.add("go"));
     window.setTimeout(() => p.remove(), 750);
-  };
+  }, []);
 
   const playAnim = useCallback((id: string) => {
     resetStage();
@@ -270,7 +270,7 @@ export function DiagnosticFlowTheater() {
         }
       }, i * speed + 120));
     });
-  }, [speed, auto, resetStage]);
+  }, [speed, auto, resetStage, pulse]);
 
   const runLive = useCallback(async (id: string) => {
     const sc = SCEN[id];

@@ -6,7 +6,6 @@
  * Pure, deterministic — no I/O, no Date.now, no Math.random.
  */
 
-import { cn } from "@/lib/cn";
 import { bpsToPct, type ScenarioAllocation } from "@/lib/product-strategies";
 import { SLEEVE_COLORS, SLEEVE_LABEL, sleeveOrder } from "@/lib/product-strategies/lab-colors";
 

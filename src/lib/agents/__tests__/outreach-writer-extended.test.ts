@@ -2,66 +2,14 @@
  * Outreach Writer Extended — WhatsApp and LinkedIn templates tests.
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  draftWhatsApp,
-  draftLinkedIn,
   buildEmailFollowUpTemplate,
   buildWhatsAppFollowUpTemplate,
   buildCampaignBriefTemplate,
   WhatsAppDraftSchema,
   LinkedInDraftSchema,
-  type DraftWhatsAppInput,
-  type DraftLinkedInInput,
-  type ColdEmailProspect,
 } from "../outreach-writer-extended";
-
-// -----------------------------------------------------------------------------
-// FIXTURES
-// -----------------------------------------------------------------------------
-
-const mockProspect: ColdEmailProspect = {
-  email: "test@example.com",
-  firstName: "Jean",
-  lastName: "Dupont",
-  company: "Test Capital",
-  title: "Investment Director",
-};
-
-const mockInputWhatsApp: DraftWhatsAppInput = {
-  prospect: mockProspect,
-  brief: "UAE distributors interested in a BTC-accumulation mining note",
-  typeformUrl: "https://app.hearst.io/apply",
-  language: "en",
-  audience: "distributor",
-};
-
-const mockInputLinkedIn: DraftLinkedInInput = {
-  prospect: mockProspect,
-  brief: "Follow-up after conference",
-  typeformUrl: "https://app.hearst.io/apply",
-  language: "en",
-  audience: "subscriber",
-};
-
-// Mock LLM client for tests
-const mockLlmClient = {
-  chat: {
-    completions: {
-      create: vi.fn().mockResolvedValue({
-        choices: [
-          {
-            message: {
-              content: JSON.stringify({
-                body: "Hi Jean, quick note on the Hearst Yield Vault — a structured mining note accumulating BTC over a 24-month term (estimated target 8-15%, not guaranteed). Interested? Apply here: https://app.hearst.io/apply",
-              }),
-            },
-          },
-        ],
-      }),
-    },
-  },
-};
 
 // -----------------------------------------------------------------------------
 // WHATSAPP TESTS

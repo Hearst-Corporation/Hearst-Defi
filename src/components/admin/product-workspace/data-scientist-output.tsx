@@ -30,7 +30,6 @@ import { BTC_MINING_PERFORMANCE_VAULT } from "@/lib/products/btc-mining-performa
 import { Cell, Label, Pie, PieChart } from "recharts";
 import { Card } from "@/components/catalyst/card";
 import { Metric } from "@/components/catalyst/metric";
-import { cn } from "@/lib/cn";
 
 function pctFrac(n: number, digits = 1): string {
   return `${(n * 100).toFixed(digits)}%`;
