@@ -187,7 +187,7 @@ export default async function VaultsPage({ searchParams }: PageProps) {
                     <TableRow key={vault.id} className={ROW}>
                       {/* Identity */}
                       <TableCell className="pl-5 align-top">
-                        <div className="flex flex-col gap-0.5">
+                        <div className="flex min-w-0 max-w-48 flex-col gap-0.5">
                           <span className="ct-metric-value mono">
                             {vault.ticker}
                           </span>
