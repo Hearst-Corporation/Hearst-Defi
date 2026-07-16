@@ -103,7 +103,7 @@ export default async function CustomersPage({
           )}
 
           <div className="flex items-center gap-4 border-b border-[var(--ct-border-soft)] p-5">
-            <div className="flex flex-col gap-1">
+            <div className="flex min-w-0 flex-col gap-1">
               <h2 className="ct-section-title">Investor Directory</h2>
               <p className="ct-metric-caption">All registered accounts</p>
             </div>
