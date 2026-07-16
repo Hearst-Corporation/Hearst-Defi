@@ -5,8 +5,11 @@ import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { Card } from "@/components/catalyst/card";
 import { DashboardPanelHeader } from "@/components/catalyst/dashboard-panel-header";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
+import { TextField } from "@/components/catalyst/field";
 import { DataRow, NestedPanel, ProofRow } from "@/components/catalyst/nested-panel";
 import { PanelStatus } from "@/components/catalyst/panel-status";
+import { Select } from "@/components/catalyst/select";
+import { Textarea } from "@/components/catalyst/textarea";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { Skeleton } from "@/components/catalyst/skeleton";
 
@@ -160,7 +163,7 @@ export function SectionComponents() {
           <div className="admin-doc-form-grid-2">
             <label className="admin-doc-stack--compact">
               <span className="stat-label ct-text-muted">Label</span>
-              <input
+              <TextField
                 className="ct-input"
                 placeholder="Placeholder text"
                 defaultValue=""
@@ -169,16 +172,16 @@ export function SectionComponents() {
             </label>
             <label className="admin-doc-stack--compact">
               <span className="stat-label ct-text-muted">Select</span>
-              <select className="ct-select" defaultValue="yield" aria-label="Example select">
+              <Select className="ct-select" defaultValue="yield" aria-label="Example select">
                 <option value="yield">Yield Vault</option>
                 <option value="defensive">Defensive Vault</option>
                 <option value="btc">BTC Plus</option>
-              </select>
+              </Select>
             </label>
           </div>
           <label className="admin-doc-stack--compact mt-[var(--ct-space-4)]">
             <span className="stat-label ct-text-muted">Textarea</span>
-            <textarea
+            <Textarea
               className="ct-textarea"
               rows={2}
               placeholder="Multi-line input…"
