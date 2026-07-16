@@ -1,4 +1,5 @@
 import "../../doc-flow.css";
+import "@/components/investor-widgets/investor-widgets.css";
 
 /**
  * Mining layout — loads doc-flow typography + `.product-doc` scope so the bento/

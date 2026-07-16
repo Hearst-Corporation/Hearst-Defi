@@ -14,7 +14,7 @@
  *     `grid-cols-[minmax(0,1fr)_<N>px]` column ≥ 280px — that is the persistent
  *     "AI Experts" rail that starved the main content and read as a second
  *     product.
- *  3. Nav stays simplified to Dashboard · Proof · Profile (the IA decision).
+ *  3. Nav stays simplified to Dashboard · Bitcoin · Profile (PROMPT 227).
  */
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -72,13 +72,20 @@ describe("investor UI foundation — no fixed wide right-rail column (root cause
 });
 
 describe("investor UI foundation — simplified nav (IA decision)", () => {
-  it("PRODUCT_NAV is exactly Dashboard · Proof · Profile", () => {
-    expect(PRODUCT_NAV.map((n) => n.id)).toEqual(["dashboard", "proof", "profile"]);
+  it("PRODUCT_NAV is exactly Dashboard · Bitcoin · Profile", () => {
+    expect(PRODUCT_NAV.map((n) => n.id)).toEqual(["dashboard", "bitcoin", "profile"]);
   });
 
-  it("BTC and Mining are off the primary rail (routes preserved, not nav entries)", () => {
+  it("Proof and Mining are off the primary rail", () => {
     const ids = PRODUCT_NAV.map((n) => n.id);
-    expect(ids).not.toContain("btc");
+    expect(ids).not.toContain("proof");
     expect(ids).not.toContain("mining");
+    expect(ids).not.toContain("vault");
+  });
+
+  it("Bitcoin is on the primary rail at /btc", () => {
+    const bitcoin = PRODUCT_NAV.find((n) => n.id === "bitcoin");
+    expect(bitcoin?.label).toBe("Bitcoin");
+    expect(bitcoin?.href).toBe("/btc");
   });
 });
