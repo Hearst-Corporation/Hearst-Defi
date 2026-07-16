@@ -8,6 +8,8 @@ import { ConfirmDialog } from "@/components/catalyst/confirm-dialog";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { BentoLabel } from "@/components/catalyst/bento";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { Input } from "@/components/catalyst/input";
+import { Select } from "@/components/catalyst/select";
 import { cn } from "@/lib/cn";
 import {
   addMemory,
@@ -72,7 +74,7 @@ export function MemoryManager({
         <input type="hidden" name="userId" value={userId} />
         <div className="flex grow flex-col gap-2">
           <BentoLabel htmlFor="memory-content">Durable fact</BentoLabel>
-          <input
+          <Input
             id="memory-content"
             name="content"
             type="text"
@@ -84,7 +86,7 @@ export function MemoryManager({
         </div>
         <div className="flex flex-col gap-2">
           <BentoLabel htmlFor="memory-kind">Kind</BentoLabel>
-          <select
+          <Select
             id="memory-kind"
             name="kind"
             defaultValue="fact"
@@ -95,7 +97,7 @@ export function MemoryManager({
             <option value="preference">preference</option>
             <option value="goal">goal</option>
             <option value="constraint">constraint</option>
-          </select>
+          </Select>
         </div>
         <CockpitButton
           type="submit"
