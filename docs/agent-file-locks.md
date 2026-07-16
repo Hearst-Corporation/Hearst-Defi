@@ -68,6 +68,22 @@ Agents must reserve files here before editing.
 > vivant) étaient **stale** et ont été retirés sur demande owner. `git worktree list`
 > ne connaît que `main` + le worktree d'intégration courant. Aucun agent actif.
 
+### prompt-232-ui-refonte-dashboard-btc
+Owner: orchestrateur session Claude (Adrien) — PROMPT 232, refonte UI-only Dashboard/Bitcoin
+Branch: main (workers séquentiels dans le repo, intégration = commit local, ZÉRO push)
+Started: 2026-07-16
+Status: RELEASED 2026-07-16 — intégré en 2 commits locaux sur main (refonte + lot compliance),
+non poussés (push = deploy prod, sur décision owner). Gates : typecheck ✅, vitest périmètre
+187/187 ✅, build ✅. Audit squad : 24 PASS / 1 FAIL mineur corrigé (wired-chip:84).
+
+Scope:
+- src/app/(product)/dashboard/** (page, _components, _data, tests)
+- src/app/(product)/btc/** (page, _components, _data, tests)
+- src/features/investor-ui/components/** + src/features/investor-ui/charts/** (panels partagés, tests)
+- src/components/catalyst/step-timeline.tsx (fix visibilité nœuds, micro)
+- docs/agent-file-locks.md (cette entrée)
+Interdits pour cette passe : backend, Prisma, API, fixtures/DTO/types data, contrats, next.config, proxy.
+
 ### nexus/loop_mr6t63rz-mr711kr8
 Owner: nexus tester — UI/UX Rebuild Series (`series_ui_hearst-defi_0`) batch 7/8, "QA
 visuelle" (mission metadata calls owner zone "tests visuels/e2e → contracts/test/ (repo
