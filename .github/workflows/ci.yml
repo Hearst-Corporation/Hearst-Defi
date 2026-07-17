@@ -139,6 +139,14 @@ jobs:
       PRISMA_PROVIDER: sqlite
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' && secrets.OPENAI_API_KEY || 'sk-ci-e2e-placeholder' }}
       HF_TOKEN: ${{ secrets.HF_TOKEN != '' && secrets.HF_TOKEN || 'hf-ci-placeholder' }}
+      # src/lib/backend/mint-token.ts fails closed (throws) with no fallback
+      # when this is unset — correct in production (never mint a token
+      # without a real signing key), but E2E needs SOME value to exercise
+      # any page that reaches the backend client. Not a real secret: the
+      # backend this points at isn't reachable from CI anyway, so pages
+      # depending on it degrade to an honest unavailable state — this only
+      # stops the mint step itself from throwing before that point.
+      BACKEND_SESSION_SIGNING_KEY: ci-e2e-placeholder-not-a-secret-16ch
 
     steps:
       - name: Checkout
