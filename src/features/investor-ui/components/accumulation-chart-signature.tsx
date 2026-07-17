@@ -190,7 +190,14 @@ export function AccumulationChartSignature({
       <div className="flex-1 min-h-0 flex flex-col">
         <ChartContainer
           config={SIGNATURE_CONFIGS[tone]}
-          className="aspect-auto h-[var(--ct-chart-investor-main)] w-full min-w-0 flex-1 rounded-[var(--ct-radius-md)] bg-[var(--ct-surface-inset)] p-[var(--ct-space-4)]"
+          className="aspect-auto h-[var(--ct-chart-investor-main)] w-full min-w-0 flex-1 rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] p-[var(--ct-space-4)]"
+          // Pro depth — a subtle top-to-bottom darkening of the inset surface
+          // (FLAT: gradient only, no shadow) so the plot reads like an engraved
+          // instrument panel rather than a flat fill.
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, color-mix(in srgb, var(--ct-surface-inset) 86%, transparent) 0%, var(--ct-surface-inset) 34%, color-mix(in srgb, var(--ct-surface-inset) 55%, var(--ct-bg-deep)) 100%)",
+          }}
         >
           <ComposedChart data={data} margin={{ left: 4, right: 4, top: 12, bottom: 0 }}>
             <defs>
@@ -238,7 +245,44 @@ export function AccumulationChartSignature({
               tickFormatter={(v) => `$${Math.round(Number(v) / 1000)}K`}
               tick={{ fill: "var(--ct-chart-axis)", fontSize: 10 }}
             />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+            <ChartTooltip
+              cursor={{ stroke: "var(--ct-chart-grid)", strokeWidth: 1, strokeDasharray: "3 3" }}
+              content={
+                <ChartTooltipContent
+                  indicator="dot"
+                  // Institutional number formatting — the shared tooltip renders
+                  // raw `value.toLocaleString()` (locale-dependent: "58 137,494",
+                  // "0,989"). Format here: USD with thousands + no decimals, BTC
+                  // with a fixed 3 decimals and its unit, en-US so the decimal
+                  // separator is a dot on every locale.
+                  formatter={(value, _name, item) => {
+                    const key = String((item as { dataKey?: string | number } | undefined)?.dataKey ?? "");
+                    const swatch =
+                      key === "price"
+                        ? "color-mix(in srgb, var(--ct-chart-neutral) 60%, transparent)"
+                        : toneColor;
+                    const num = Number(value);
+                    const formatted =
+                      key === "price"
+                        ? `$${num.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
+                        : `${num.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 })} BTC`;
+                    return (
+                      <>
+                        <span
+                          aria-hidden
+                          className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
+                          style={{ background: swatch }}
+                        />
+                        <div className="flex flex-1 items-center justify-between gap-[var(--ct-space-6)] leading-none">
+                          <span className="ct-text-muted">{SIGNATURE_CONFIGS[tone][key]?.label ?? key}</span>
+                          <span className="mono font-medium tabular-nums ct-text-strong">{formatted}</span>
+                        </div>
+                      </>
+                    );
+                  }}
+                />
+              }
+            />
 
             {/* Market price backdrop (drawn first → sits behind) */}
             <Area

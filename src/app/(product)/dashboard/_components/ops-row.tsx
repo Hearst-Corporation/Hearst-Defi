@@ -67,7 +67,7 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-[var(--ct-space-5)] items-stretch">
       <OpsStatCard
         label="Available capacity"
-        icon={<AssetIcon variant="usdc" size="md" />}
+        icon={<AssetIcon variant="usdc" size="lg" />}
         value={<Figure value={availableUsd ?? "—"} size="base" className="ct-text-strong" />}
         detail={
           utilizationPct != null
@@ -87,7 +87,7 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
 
       <OpsStatCard
         label="Reserve health"
-        icon={<AssetIcon variant="reserve" size="md" />}
+        icon={<AssetIcon variant="reserve" size="lg" />}
         value={
           <span
             className={`text-[length:var(--ct-text-2xl)] font-medium ${isHealthy ? "ct-text-accent" : "ct-text-strong"}`}
@@ -106,7 +106,7 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
 
       <OpsStatCard
         label="Mining pulse"
-        icon={<AssetIcon variant="mining" size="md" />}
+        icon={<AssetIcon variant="mining" size="lg" />}
         value={
           <Figure
             value={hashrateTh ?? "—"}
@@ -123,14 +123,14 @@ export function OpsRow({ capacity, subscription, mining, btc }: OpsRowProps) {
       <OpsStatCard
         label="Fleet status"
         icon={
-          // Same gabarit as the 3 neighbouring AssetIcon chips (md = 20px round
+          // Same gabarit as the 3 neighbouring AssetIcon chips (lg = 28px round
           // soft chip, glyph at 55%) — the last pixel of row uniformity (P1.3).
           <span
             role="img"
             aria-label="Fleet status"
-            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--ct-asset-mining-soft)] text-[var(--ct-asset-mining)]"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--ct-asset-mining-soft)] text-[var(--ct-asset-mining)]"
           >
-            <Cpu size={11} strokeWidth={1.75} aria-hidden />
+            <Cpu size={15} strokeWidth={1.75} aria-hidden />
           </span>
         }
         value={

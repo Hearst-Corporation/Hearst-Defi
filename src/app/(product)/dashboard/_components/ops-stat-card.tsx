@@ -66,28 +66,33 @@ export function OpsStatCard({
         <div className="body-xs ct-text-muted truncate">{detail}</div>
       </div>
 
-      {/* Spacer + fixed-height media slot — every card reserves the SAME
-          space whether it carries a media block or not, so footers align to
-          the pixel across the row (alignment pass 2026-07-16). */}
-      <div className="flex-1" aria-hidden />
-      <div className="h-5 flex flex-col justify-center">{media ?? null}</div>
+      {/* Bottom group — pinned to the card floor (mt-auto). The optional media
+          block sits DIRECTLY above the footer rule so the hairline never floats
+          in the empty middle of a tall card ("ligne trop haute" fix). The
+          footer is the last line of every card, so its rule lands on the same y
+          across the row whether or not a card carries a media block. */}
+      <div className="mt-auto flex flex-col gap-[var(--ct-space-3)]">
+        {media ? (
+          <div className="min-h-5 flex flex-col justify-center">{media}</div>
+        ) : null}
 
-      {/* Footer — meta left, "View …" action RIGHT (hierarchy pass).
-          Caption idiom unified with the detail line (body-xs muted, P0.6). */}
-      <div className="pt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)] flex items-center justify-between gap-[var(--ct-space-2)]">
-        {footerMeta ? (
-          <span className="body-xs ct-text-muted truncate">{footerMeta}</span>
-        ) : (
-          <span aria-hidden />
-        )}
-        <Link
-          href={footerHref}
-          className="body-xs ct-link-accent whitespace-nowrap focus-visible:outline-none ct-focus-ring rounded-sm"
-        >
-          {footerText}
-          <span aria-hidden="true"> →</span>
-          <span className="sr-only"> (View {label} details)</span>
-        </Link>
+        {/* Footer — meta left, "View …" action RIGHT (hierarchy pass).
+            Caption idiom unified with the detail line (body-xs muted, P0.6). */}
+        <div className="pt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)] flex items-center justify-between gap-[var(--ct-space-2)]">
+          {footerMeta ? (
+            <span className="body-xs ct-text-muted truncate">{footerMeta}</span>
+          ) : (
+            <span aria-hidden />
+          )}
+          <Link
+            href={footerHref}
+            className="body-xs ct-link-accent whitespace-nowrap focus-visible:outline-none ct-focus-ring rounded-sm"
+          >
+            {footerText}
+            <span aria-hidden="true"> →</span>
+            <span className="sr-only"> (View {label} details)</span>
+          </Link>
+        </div>
       </div>
     </Card>
   );

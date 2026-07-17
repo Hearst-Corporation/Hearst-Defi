@@ -141,19 +141,15 @@ export function DashboardHero({
   ]);
 
   return (
-    <Card className="w-full overflow-hidden p-0" contentClassName="relative">
-      {/* Instrument identity — numbered-document microline (P2.3), band
-          corner OPPOSITE the provenance badge. */}
-      <span className="dash-instrument-id absolute left-[var(--ct-space-3)] top-[var(--ct-space-2)] z-10">
-        Hearst Mining Note · Series 24-A · Cayman SPV
-      </span>
-
-      {/* Page-level provenance badge — top-right of the band, on an opaque
-          --ct-bg-deep chip so it reads OVER the orb rings instead of
-          colliding with them (P2.3). */}
-      <span className="absolute right-[var(--ct-space-3)] top-[var(--ct-space-2)] z-10 inline-flex items-center rounded-full bg-[var(--ct-bg-deep)] px-[var(--ct-space-1_5)] py-[var(--ct-space-1)]">
+    <Card className="w-full overflow-hidden p-0" contentClassName="relative flex flex-col">
+      {/* Document header strip (P2.3) — instrument identity (left) + page-level
+          provenance (right) on their OWN row above the band, so the microline
+          never crowds the first cell's "CURRENT POSITION" label ("trop collé"
+          fix). Left margin aligned to the cell padding scale (px-space-5). */}
+      <div className="flex items-center justify-between gap-[var(--ct-space-3)] bg-[var(--ct-bg-deep)] px-[var(--ct-space-5)] pt-[var(--ct-space-4)] pb-[var(--ct-space-3)]">
+        <span className="dash-instrument-id">Hearst Mining Note · Series 24-A · Cayman SPV</span>
         <ProvenanceBadge kind={pageProvenance} variant="compact" />
-      </span>
+      </div>
 
       {/* KPI band — Tailwind Plus "stats with hairline separators" skeleton
           rebuilt on tokens: dl grid gap-px on a hairline ground, each cell a

@@ -67,19 +67,21 @@ export function StrategyOverviewPanel({ signals, verdict, verdictDetail }: Strat
   });
 
   return (
-    <Card className="w-full h-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-5)]">
+    <Card className="w-full h-full flex flex-col p-[var(--ct-space-5)] gap-[var(--ct-space-4)]">
       <div className="flex items-center justify-between gap-[var(--ct-space-2)]">
         <span className="ct-bento-label">Strategy overview</span>
         <ProvenanceBadge kind="simulated" variant="compact" />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-[var(--ct-space-3)] min-w-0">
+      <div className="flex-1 flex flex-col items-center justify-center gap-[var(--ct-space-2_5)] min-h-0 min-w-0">
         {/* Concentric ring + shield. --ring-circ feeds the first-paint draw
             (P2.2, dash-ring-draw keyframes): the arc animates from the full
-            circumference to its mounted stroke-dashoffset once, at entry. */}
+            circumference to its mounted stroke-dashoffset once, at entry.
+            Sized to keep the whole panel (ring + signals + verdict) within the
+            cockpit no-scroll height — the verdict must never be clipped. */}
         <div
           className="dash-ring shrink-0"
-          style={{ ["--ring-size" as string]: "150px", ["--ring-circ" as string]: `${C}` }}
+          style={{ ["--ring-size" as string]: "108px", ["--ring-circ" as string]: `${C}` }}
           aria-hidden
         >
           <svg viewBox="0 0 200 200" role="presentation">
@@ -128,7 +130,7 @@ export function StrategyOverviewPanel({ signals, verdict, verdictDetail }: Strat
         ) : null}
 
         {/* Signals */}
-        <ul className="flex-1 min-w-0 flex flex-col gap-[var(--ct-space-3)] m-0 p-0 list-none w-full">
+        <ul className="min-w-0 flex flex-col gap-[var(--ct-space-2)] m-0 p-0 list-none w-full">
           {signals.map((s) => {
             const tone = s.tone ?? "positive";
             return (
@@ -147,7 +149,7 @@ export function StrategyOverviewPanel({ signals, verdict, verdictDetail }: Strat
       </div>
 
       {/* Verdict — honest guard: no verdict without at least one signal. */}
-      <div className="mt-auto pt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)] flex flex-col gap-[var(--ct-space-1)]">
+      <div className="mt-auto pt-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)] flex flex-col gap-[var(--ct-space-1)]">
         <span className="ct-metric-caption">Overall strategy health</span>
         {hasSignals ? (
           <>
