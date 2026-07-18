@@ -85,8 +85,20 @@ const APY_RANGE: readonly string[] = [
 
 /** Neutral prose with no yield/forbidden claim — MUST pass. */
 const NEUTRAL: readonly string[] = [
-  "Hearst distribue de l'USDC chaque mois aux investisseurs.",
   "Le coffre est structuré via une SPV aux îles Caïmans, ticket minimum 250k.",
+];
+
+/**
+ * Monthly / periodic cash-distribution framing — MUST be blocked under Series 1.
+ * Product decision (RC-fix): the retired "monthly USDC distribution" narrative
+ * is NOT neutral prose on a Series 1 surface — Series 1 is a BTC-accumulation
+ * note delivered ONCE at maturity, with NO periodic cash distribution. These
+ * two phrasings were previously (wrongly) in NEUTRAL; the M9 guard correctly
+ * blocks them, so the test contract is aligned to the guard, not the guard
+ * weakened.
+ */
+const MONTHLY_DISTRIBUTION: readonly string[] = [
+  "Hearst distribue de l'USDC chaque mois aux investisseurs.",
   "Monthly USDC distributions are wired to your connected wallet.",
 ];
 
@@ -119,6 +131,16 @@ describe("compliance output guard — stress across phrasings", () => {
     it.each(SINGLE_POINT_APY)("blocks %j", (phrase) => {
       const v = deterministic(phrase);
       expect(v, `single-point APY passed the guard (P0 compliance hole): ${JSON.stringify(phrase)}`).not.toBeNull();
+    });
+  });
+
+  describe("BLOCKS monthly/periodic distribution — Series 1", () => {
+    it.each(MONTHLY_DISTRIBUTION)("blocks %j", (phrase) => {
+      const v = deterministic(phrase);
+      expect(
+        v,
+        `monthly-distribution wording passed the guard (Series 1 compliance hole): ${JSON.stringify(phrase)}`,
+      ).not.toBeNull();
     });
   });
 
