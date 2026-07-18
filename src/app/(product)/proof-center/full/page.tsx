@@ -10,8 +10,9 @@ import { parseFilter } from "@/components/proof/proof-filter-types";
 import { loadProofCenterFullLog } from "@/lib/proof-center/full-log-loader";
 
 export const metadata = {
-  title: "Proof Center — Full log",
-  description: "On-chain event log, off-chain proofs, contracts and governance timelocks",
+  title: "Proof Center — Series 1 full log",
+  description:
+    "Reserve Vault Series 1 institutional proof: on-chain contract events, take-profit / curtailment operations, off-chain proofs, custody & PoR contracts, and governance timelocks. Series 1 accumulates BTC and settles at maturity — no periodic distribution.",
 };
 
 interface ProofCenterFullPageProps {
