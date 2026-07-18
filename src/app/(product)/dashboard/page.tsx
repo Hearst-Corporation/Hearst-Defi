@@ -3,10 +3,19 @@ import { requireInvestor } from "@/lib/auth/require-investor";
 import { getFixtureInvestorUiDataSource, getInvestorUiDataSource } from "@/features/investor-ui/data-source";
 import { btcPageExtraCompleteFixture } from "@/app/(product)/btc/_data/btc-page-fixtures";
 import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
-import { formatIsoDateTime, toProvenance } from "@/features/investor-ui/format-btc";
-
-import { PageErrorState } from "@/features/investor-ui/components/states/data-states";
-import { isBackendError } from "@/lib/backend";
+import { formatIsoDateTime, formatUsdCompactAmount, toProvenance } from "@/features/investor-ui/format-btc";
+import type { DataStatus } from "@/features/investor-ui/types";
+import type { HcSourceStatus } from "@/components/dataviz/his";
+import {
+  CapitalFlowRail,
+  PocketAllocationVisual,
+  BtcAccumulationCurve,
+  SmartContractStateCard,
+  type CapitalFlowPocket,
+  type PocketAllocation,
+  type SmartContractState,
+  type VaultMode,
+} from "@/features/investor-ui/components/reserve-cockpit";
 
 import { DashboardHero } from "./_components/dashboard-hero";
 import { StrategyOverviewPanel, type StrategySignal } from "./_components/strategy-overview-panel";
@@ -14,6 +23,33 @@ import { OpsRow } from "./_components/ops-row";
 import { AccumulationChartSignature } from "@/features/investor-ui/components/accumulation-chart-signature";
 
 import "./dashboard-signature.css";
+
+/**
+ * Map the presentation-level `DataStatus` a block resolves with to the
+ * `HcSourceStatus` provenance the reserve-cockpit blocks badge with. Honest by
+ * construction: an UNAVAILABLE / NOT_CONFIGURED block reads `configured`
+ * (answered honestly with nothing), a FIXTURE block reads `mock` (never
+ * dressed as `live`), an ERROR / STALE block reads `stale`.
+ */
+function dataStatusToSource(status: DataStatus): HcSourceStatus {
+  switch (status) {
+    case "LIVE":
+      return "live";
+    case "STALE":
+      return "stale";
+    case "ERROR":
+      return "stale";
+    case "FIXTURE":
+      return "mock";
+    case "PARTIAL":
+      return "mixed";
+    case "UNAVAILABLE":
+    case "NOT_CONFIGURED":
+      return "configured";
+    default:
+      return "attested";
+  }
+}
 
 export const dynamic = "force-dynamic";
 
@@ -51,46 +87,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ? getFixtureInvestorUiDataSource({ dashboard: previewState })
     : getInvestorUiDataSource();
 
-  // Live load is guarded (mirrors /btc): when the backend source of truth is
-  // down (network / timeout / 5xx / parse), getDashboard() throws a
-  // BackendError — never a page crash, never a fixture substitution, never a
-  // silent downgrade to a fake LIVE. The preview (`?state=`) path uses
-  // fixtures, which do not throw a BackendError, so it stays intact.
-  let dashboard;
-  let mining;
-  let btc;
-  try {
-    [dashboard, mining, btc] = await Promise.all([
-      dataSource.getDashboard(),
-      dataSource.getMining(),
-      dataSource.getBtc(),
-    ]);
-  } catch (err) {
-    if (isBackendError(err)) {
-      // Honest page-level backend-down state — carries the failing path and
-      // the requestId so the failure is traceable, with NO fabricated data,
-      // NO Live badge, NO provenance.
-      const path = err.path ?? "/api/v1/dashboard";
-      return (
-        <BentoPageShell testId="dashboard-page">
-          <PageErrorState
-            title="Backend source of truth unavailable"
-            detail={`${path} unreachable — hearst-connect-backend did not respond (${err.code}${err.status ? `, HTTP ${err.status}` : ""}). Request ${err.requestId}. Nothing is being estimated in its place.`}
-          />
-        </BentoPageShell>
-      );
-    }
-    // Non-BackendError (unexpected) — still an honest page-level error, never
-    // a crash overlay.
-    return (
-      <BentoPageShell testId="dashboard-page">
-        <PageErrorState
-          title="Dashboard unavailable"
-          detail="The data source failed unexpectedly."
-        />
-      </BentoPageShell>
-    );
-  }
+  const [dashboard, mining, btc] = await Promise.all([
+    dataSource.getDashboard(),
+    dataSource.getMining(),
+    dataSource.getBtc(),
+  ]);
 
   const productionBlock = btcPageExtraCompleteFixture.production;
   const productionMonthly =
@@ -166,6 +167,66 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           : "Monitor";
   const verdictDetail = `${positiveCount} of ${strategySignals.length} strategy signals in a positive state.`;
 
+  // ── Reserve-cockpit narrative data (capital → B1/B2/B3 → mining → BTC) ────
+  // Every block derives from data already resolved on this page (no new I/O)
+  // and carries its own honest provenance; a null input renders the block's
+  // own empty / not-configured state, never a fabricated value.
+  const allocation = dashboard.allocation.value;
+  const positionVal = dashboard.position.value;
+  const runtime = dashboard.runtime;
+
+  // Capital flow — the deposit routed across the 3 target pockets (40/27/33).
+  const flowPockets: CapitalFlowPocket[] =
+    allocation?.pockets.map((p) => ({
+      id: p.pocket,
+      label: p.label,
+      weightPct: p.targetBps / 100,
+    })) ?? [];
+  const capitalFlowData =
+    flowPockets.length > 0
+      ? {
+          depositLabel: "USDC",
+          depositAmount: hasActivePosition
+            ? (formatUsdCompactAmount(positionVal?.principal) ?? undefined)
+            : undefined,
+          pockets: flowPockets,
+          ledgerLabel: "BTC Reserve Ledger",
+          deliveryLabel: "Delivery at maturity",
+        }
+      : null;
+
+  // Pocket allocation ring — current on-chain split. `actualBps` is null until
+  // v2 is indexed; falls back to the target split so the ring reads the policy
+  // shape honestly (the block's footnote states shares drift with operations).
+  const pocketAllocations: PocketAllocation[] =
+    allocation?.pockets.map((p) => ({
+      id: p.pocket,
+      label: p.label,
+      value: (p.actualBps ?? p.targetBps) / 100,
+    })) ?? [];
+  const pocketSource: HcSourceStatus =
+    allocation != null && allocation.pockets.some((p) => p.actualBps != null)
+      ? dataStatusToSource(dashboard.allocation.status)
+      : "estimated";
+
+  // BTC accumulation curve — real production series already derived above.
+  const btcCurveData =
+    accumulationPoints.length >= 2 ? { series: accumulationPoints } : null;
+
+  // Smart-contract state — honest read-out of the vault backing Series 1.
+  const contractState: SmartContractState | null =
+    runtime.mode === "not_configured" || runtime.chainId == null
+      ? null
+      : {
+          mode: (runtime.mode === "v2-testnet" || runtime.mode === "v2-mainnet"
+            ? "dynavault"
+            : "legacy") as VaultMode,
+          chainId: runtime.chainId,
+          chainLabel: runtime.chainId === 84532 ? "Base Sepolia" : `Chain ${runtime.chainId}`,
+          address: runtime.contractAddress,
+          codePresent: runtime.codePresent,
+        };
+
   return (
     <BentoPageShell testId="dashboard-page">
       {/* No page title — the rail's active state names the page; the KPI band
@@ -180,6 +241,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           mining={mining}
           accumulationPoints={accumulationPoints}
           accumulationStatus={productionBlock.status}
+        />
+
+        {/* Zone 1b — Capital Flow rail: the Series 1 narrative spine.
+            USDC deposit → B1 Mining Power (40) / B2 BTC Pouch (27) /
+            B3 Reserve USDC (33) → BTC Reserve Ledger → Delivery at maturity. */}
+        <CapitalFlowRail
+          data={capitalFlowData}
+          source={dataStatusToSource(dashboard.allocation.status)}
         />
 
         {/* Zone 2 — signature accumulation chart (dual-axis BTC/USD, planned
@@ -216,6 +285,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               />
             )}
           </div>
+        </div>
+
+        {/* Zone 2b — reserve narrative row: on-chain pocket split · cumulative
+            BTC accumulated over the term · honest contract-state read-out.
+            Reads left→right: how capital is split, what it accumulates, and
+            the vault backing it. */}
+        <div className="grid grid-cols-1 gap-[var(--ct-space-5)] lg:grid-cols-2 xl:grid-cols-3 items-stretch">
+          <PocketAllocationVisual pockets={pocketAllocations} source={pocketSource} />
+          <BtcAccumulationCurve
+            data={btcCurveData}
+            source={accumulationProvenance === "live" ? "live" : "estimated"}
+          />
+          <SmartContractStateCard
+            state={contractState}
+            source={dataStatusToSource(dashboard.runtime.mode === "not_configured" ? "NOT_CONFIGURED" : "LIVE")}
+          />
         </div>
 
         {/* Zone 3 — operational row: ONE uniform stat band (equal-density
