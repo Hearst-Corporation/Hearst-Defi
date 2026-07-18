@@ -37,23 +37,5 @@ export function fixtureUnresolved<T>(
   });
 }
 
-/** A resolved block with a real value but a non-FIXTURE business status
- *  (e.g. "STALE", "PARTIAL") — for fixtures that deliberately exercise a
- *  degraded-but-populated state. Provenance stays "fixture": this is still
- *  fixture data, only the simulated STATUS differs from the happy path. */
-export function fixtureBlockWithStatus<T>(
-  status: Exclude<ResolvedViewModel<T>["status"], "LIVE" | "FIXTURE">,
-  value: T,
-  overrides: Partial<Omit<ResolvedViewModel<T>, "status" | "value">> = {},
-): ResolvedViewModel<T> {
-  return resolved<T>(status, value, {
-    provenance: "fixture",
-    freshness: "fixture data — not live",
-    generatedAt: FIXTURE_GENERATED_AT,
-    error: null,
-    ...overrides,
-  });
-}
-
 /** Fixed instant so fixtures are deterministic across renders/tests. */
 export const FIXTURE_GENERATED_AT = "2026-07-01T12:00:00.000Z";

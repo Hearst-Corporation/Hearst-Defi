@@ -46,9 +46,3 @@ export const MINING_PULSE_CONFIG = {
   value: { label: "BTC produced", color: ASSET_TOKEN.mining },
   inactive: { label: "Inactive", color: ASSET_TOKEN.neutral },
 } satisfies ChartConfig;
-
-/** USDC reserve runway micro-chart. */
-export const RESERVE_RUNWAY_CONFIG = {
-  covered: { label: "Covered months", color: ASSET_TOKEN.usdc },
-  remaining: { label: "Remaining runway", color: ASSET_TOKEN.neutral },
-} satisfies ChartConfig;

@@ -22,7 +22,7 @@ export interface LockMeterCalc {
   isUnlocked: boolean;
 }
 
-export interface LockMeterProps {
+interface LockMeterProps {
   /** Date the lockup started (typically tx confirmation). */
   lockStart: Date;
   /** Soft-lockup duration in days (e.g. 60 for class A). */

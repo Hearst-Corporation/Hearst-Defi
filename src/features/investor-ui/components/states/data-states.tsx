@@ -131,23 +131,3 @@ export function PageErrorState({
     </div>
   );
 }
-
-/** Page-level loading skeleton — generic block-shaped placeholders. */
-export function PageSkeleton({
-  rows = 4,
-  className,
-}: {
-  rows?: number;
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex flex-col gap-[var(--ct-space-4)]", className)} aria-busy="true" aria-label="Loading">
-      <Skeleton className="h-32 w-full rounded-2xl" />
-      <div className="grid grid-cols-1 gap-[var(--ct-space-4)] md:grid-cols-3">
-        {Array.from({ length: rows }).map((_, i) => (
-          <Skeleton key={i} className="h-24 w-full rounded-xl" />
-        ))}
-      </div>
-    </div>
-  );
-}
