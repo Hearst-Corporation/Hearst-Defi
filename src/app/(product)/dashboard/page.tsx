@@ -1,4 +1,6 @@
 import { BentoPageShell } from "@/components/catalyst/bento";
+import { isBackendError } from "@/lib/backend";
+import { BackendDownState } from "@/features/investor-ui/components/states/data-states";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getFixtureInvestorUiDataSource, getInvestorUiDataSource } from "@/features/investor-ui/data-source";
 import { btcPageExtraCompleteFixture } from "@/app/(product)/btc/_data/btc-page-fixtures";
@@ -87,11 +89,23 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ? getFixtureInvestorUiDataSource({ dashboard: previewState })
     : getInvestorUiDataSource();
 
-  const [dashboard, mining, btc] = await Promise.all([
-    dataSource.getDashboard(),
-    dataSource.getMining(),
-    dataSource.getBtc(),
-  ]);
+  let dashboard, mining, btc;
+  try {
+    [dashboard, mining, btc] = await Promise.all([
+      dataSource.getDashboard(),
+      dataSource.getMining(),
+      dataSource.getBtc(),
+    ]);
+  } catch (err) {
+    if (isBackendError(err)) {
+      return (
+        <BentoPageShell testId="dashboard-page">
+          <BackendDownState requestId={err.requestId} path={err.path ?? "/api/v1/dashboard"} mode="backend_down" />
+        </BentoPageShell>
+      );
+    }
+    throw err;
+  }
 
   const productionBlock = btcPageExtraCompleteFixture.production;
   const productionMonthly =
