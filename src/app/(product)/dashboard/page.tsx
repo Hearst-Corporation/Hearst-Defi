@@ -5,6 +5,9 @@ import { btcPageExtraCompleteFixture } from "@/app/(product)/btc/_data/btc-page-
 import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
 import { formatIsoDateTime, toProvenance } from "@/features/investor-ui/format-btc";
 
+import { PageErrorState } from "@/features/investor-ui/components/states/data-states";
+import { isBackendError } from "@/lib/backend";
+
 import { DashboardHero } from "./_components/dashboard-hero";
 import { StrategyOverviewPanel, type StrategySignal } from "./_components/strategy-overview-panel";
 import { OpsRow } from "./_components/ops-row";
@@ -48,11 +51,46 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ? getFixtureInvestorUiDataSource({ dashboard: previewState })
     : getInvestorUiDataSource();
 
-  const [dashboard, mining, btc] = await Promise.all([
-    dataSource.getDashboard(),
-    dataSource.getMining(),
-    dataSource.getBtc(),
-  ]);
+  // Live load is guarded (mirrors /btc): when the backend source of truth is
+  // down (network / timeout / 5xx / parse), getDashboard() throws a
+  // BackendError — never a page crash, never a fixture substitution, never a
+  // silent downgrade to a fake LIVE. The preview (`?state=`) path uses
+  // fixtures, which do not throw a BackendError, so it stays intact.
+  let dashboard;
+  let mining;
+  let btc;
+  try {
+    [dashboard, mining, btc] = await Promise.all([
+      dataSource.getDashboard(),
+      dataSource.getMining(),
+      dataSource.getBtc(),
+    ]);
+  } catch (err) {
+    if (isBackendError(err)) {
+      // Honest page-level backend-down state — carries the failing path and
+      // the requestId so the failure is traceable, with NO fabricated data,
+      // NO Live badge, NO provenance.
+      const path = err.path ?? "/api/v1/dashboard";
+      return (
+        <BentoPageShell testId="dashboard-page">
+          <PageErrorState
+            title="Backend source of truth unavailable"
+            detail={`${path} unreachable — hearst-connect-backend did not respond (${err.code}${err.status ? `, HTTP ${err.status}` : ""}). Request ${err.requestId}. Nothing is being estimated in its place.`}
+          />
+        </BentoPageShell>
+      );
+    }
+    // Non-BackendError (unexpected) — still an honest page-level error, never
+    // a crash overlay.
+    return (
+      <BentoPageShell testId="dashboard-page">
+        <PageErrorState
+          title="Dashboard unavailable"
+          detail="The data source failed unexpectedly."
+        />
+      </BentoPageShell>
+    );
+  }
 
   const productionBlock = btcPageExtraCompleteFixture.production;
   const productionMonthly =
