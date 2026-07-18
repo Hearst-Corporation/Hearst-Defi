@@ -1,25 +1,6 @@
 // time-to-cash.ts — Pure computation helper for the Time-to-Cash widget.
 // Non-negotiable #6: no DB, no fetch, no I/O, no Date.now() — asOf injected.
 
-/** Loader props for projected payout cycle (time-to-cash widget data). */
-export interface TimeToCashProps {
-  /** When the current monthly cycle started (typically 1st of month). */
-  cycleStart: Date;
-  /** Cycle length in days (typically 30). */
-  cycleDays: number;
-  /** Projected USDC amount based on current pool yield. */
-  projectedUsdc: number;
-  /** Pool current APR range for the disclosure. */
-  aprLow: number;
-  /** Pool current APR range for the disclosure. */
-  aprHigh: number;
-  /** As-of timestamp. Defaults to new Date() in renderers. */
-  asOf?: Date;
-  /** Provenance metadata from the loader. */
-  source?: "live" | "stale";
-  updatedAt?: Date;
-}
-
 /** All derived values from the time-to-cash calculation. */
 export interface TimeToCashCalc {
   daysElapsed: number;

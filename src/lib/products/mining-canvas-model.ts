@@ -644,11 +644,4 @@ export function buildCanvasExport(
   };
 }
 
-/** Cast helper used by the diagnostic + tests to assert the regime list. */
-export const CANVAS_REGIMES: readonly Regime[] = [
-  "defensive",
-  "balanced",
-  "opportunistic",
-];
-
 export type { VaultMode };

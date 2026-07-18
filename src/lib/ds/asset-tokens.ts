@@ -21,5 +21,3 @@ export const ASSET_TOKEN = {
   grid: "var(--ct-chart-grid)",
   axis: "var(--ct-chart-axis)",
 } as const;
-
-export type AssetTokenKey = keyof typeof ASSET_TOKEN;

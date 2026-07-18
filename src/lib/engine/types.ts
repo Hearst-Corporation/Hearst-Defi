@@ -137,36 +137,6 @@ export type MonthlyReturn = {
   usdcContrib: number;
 };
 
-export type ScenarioResult = {
-  params: ScenarioParams;
-  monthly: MonthlyReturn[];
-  apyLow: number;
-  apyHigh: number;
-  /**
-   * NEVER LP-facing. Median of the empirical APY distribution kept only for
-   * internal diagnostics (engine snapshot tests, scenario-vs-scenario delta).
-   * Non-negotiable #1 forbids publishing any single-point APY: the headline is
-   * always `{ apyLow, apyHigh }`. Do not serialize this to memos, statements,
-   * agent JSON, or any LP-facing surface.
-   */
-  apyMedianInternal: number;
-  sharpe: number;
-  sortino: number;
-  maxDrawdown: number;
-  var95: number;
-  stressedApy: number;
-  assumptions: string[];
-  disclaimer: string;
-};
-
-export type ScenarioDelta = {
-  /** Internal diagnostic only — see `ScenarioResult.apyMedianInternal`. */
-  apyMedianInternal: number;
-  maxDrawdown: number;
-  sharpe: number;
-  var95: number;
-};
-
 export interface MonthlyPoint {
   month: string;
   valueUsdc: number;

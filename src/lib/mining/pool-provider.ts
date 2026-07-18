@@ -89,10 +89,6 @@ function missingAntpoolVars(): readonly string[] {
   });
 }
 
-export function isAntpoolConfigured(): boolean {
-  return missingAntpoolVars().length === 0;
-}
-
 /**
  * Read live pool metrics.
  *

@@ -8,8 +8,6 @@
  * @see /docs/methodology/v3.0.md
  */
 
-export const METHODOLOGY_VERSION = "v3.0";
-
 /**
  * Methodology anchors used as fallbacks when the DB is empty (Zero-State).
  * These represent the "target" or "paper phase" state.

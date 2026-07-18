@@ -505,47 +505,6 @@ export interface AllocationDonutData {
   aumUsdc?: number;
 }
 
-const BUCKET_ORDER: AllocationBucketSlice["bucket"][] = [
-  "mining",
-  "btc_tactical",
-  "usdc_base",
-  "stable_reserve",
-];
-
-/**
- * Build allocation-by-bucket slices for the portfolio donut from the latest
- * vault snapshot (same source as the yield stack — shares its 1h cache). Always
- * returns vault data when a snapshot exists, regardless of investor position state.
- * The `aumUsdc` field allows the donut centre to show vault AUM instead of "$0 Capital"
- * when the investor has no positions yet.
- */
-export const loadAllocationDonutProps = cache(
-  async (_hasPositions: boolean = true): Promise<AllocationDonutData> => {
-    const snapshot = await fetchYieldStackData();
-
-    if (!snapshot || snapshot.allocations.length === 0) {
-      return { buckets: [], source: "stale" };
-    }
-
-    const slices: AllocationBucketSlice[] = snapshot.allocations
-      .map((alloc) => ({
-        bucket: alloc.bucket as AllocationBucketSlice["bucket"],
-        pct: toNumber(alloc.pct),
-        valueUsdc: toNumber(alloc.valueUsdc),
-      }))
-      .sort(
-        (a, b) => BUCKET_ORDER.indexOf(a.bucket) - BUCKET_ORDER.indexOf(b.bucket),
-      );
-
-    return {
-      buckets: slices,
-      source: "live",
-      updatedAt: asCachedDate(snapshot.takenAt),
-      aumUsdc: toNumber(snapshot.aumUsdc),
-    };
-  },
-);
-
 // ---------------------------------------------------------------------------
 // loadPosition — single position detail for /portfolio/[positionId]
 // ---------------------------------------------------------------------------
