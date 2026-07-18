@@ -21,6 +21,8 @@ import { BentoPageShell } from "@/components/catalyst/bento";
 import { Heading } from "@/components/catalyst/heading";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getFixtureInvestorUiDataSource } from "@/features/investor-ui/data-source";
+import { PageErrorState } from "@/features/investor-ui/components/states/data-states";
+import { isBackendError } from "@/lib/backend";
 import { formatIsoDate, toProvenance } from "@/features/investor-ui/format-btc";
 
 import { getBtcPageData } from "../_data/get-btc-page-data";
@@ -42,15 +44,33 @@ export default async function BtcLedgerPage({
 }) {
   await requireInvestor("/btc/ledger");
   const { state } = await searchParams;
-  const data = await getBtcPageData(state);
 
-  // Same shared-preview propagation as /btc (P1.7): months elapsed must
-  // degrade with the page's preview variant, not silently stay "complete".
-  const sharedPreview = state?.replace(/^btc-/, "") ?? null;
-  const previewSource = getFixtureInvestorUiDataSource({
-    mining: sharedPreview === "not-configured" ? "unavailable" : sharedPreview,
-  });
-  const mining = await previewSource.getMining();
+  let data;
+  let mining;
+  try {
+    // Same shared-preview propagation as /btc (P1.7): months elapsed must
+    // degrade with the page's preview variant, not silently stay "complete".
+    const sharedPreview = state?.replace(/^btc-/, "") ?? null;
+    const previewSource = getFixtureInvestorUiDataSource({
+      mining: sharedPreview === "not-configured" ? "unavailable" : sharedPreview,
+    });
+    [data, mining] = await Promise.all([
+      getBtcPageData(state),
+      previewSource.getMining(),
+    ]);
+  } catch (err) {
+    // Backend down / network / 5xx / timeout — never a page crash, never a
+    // fixture substitution. One honest page-level error, same shell/testId as
+    // the healthy ledger page so the surface stays rendered.
+    const detail = isBackendError(err)
+      ? `hearst-connect-backend did not respond (${err.code}${err.status ? `, HTTP ${err.status}` : ""}).`
+      : "The data source failed unexpectedly.";
+    return (
+      <BentoPageShell testId="btc-ledger-page">
+        <PageErrorState title="Bitcoin ledger unavailable" detail={detail} />
+      </BentoPageShell>
+    );
+  }
 
   const monthsElapsed = mining.mining.value?.currentMonth ?? null;
   const monthsTotal = mining.mining.value?.productDurationMonths ?? 24;
