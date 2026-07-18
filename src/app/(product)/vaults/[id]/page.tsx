@@ -6,9 +6,29 @@ import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { TermSheetPreview } from "@/components/vaults/term-sheet-preview";
 import { VaultChainReadout } from "@/components/vaults/vault-chain-readout";
+import { BtcCompositionPanel } from "@/app/(product)/btc/_components/btc-composition-panel";
+import type { AllocationPocketViewModel } from "@/features/investor-ui/types/dashboard";
 import { vaultStatusLabel } from "@/lib/constants/vault";
 import { cn } from "@/lib/cn";
 import { investDepositPath, INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
+
+// Series 1 pocket allocation (B1/B2/B3) derived from the vault's own target
+// basis points — the three on-chain pockets capital flows into. actualBps stays
+// null: the on-chain split is NOT yet indexed per vault, so the donut shows the
+// product TARGET (labelled as such) and never a fabricated "actual" split.
+// B3 folds the operating/stable reserve legs into the single Reserve USDC pocket.
+function toSeries1Pockets(vault: VaultProduct): readonly AllocationPocketViewModel[] {
+  return [
+    { pocket: "B1", label: "Mining Power", targetBps: vault.targetMiningBps, actualBps: null },
+    { pocket: "B2", label: "BTC Pouch", targetBps: vault.targetBtcTacticalBps, actualBps: null },
+    {
+      pocket: "B3",
+      label: "Reserve USDC",
+      targetBps: vault.targetStableReserveBps + vault.targetUsdcBaseBps,
+      actualBps: null,
+    },
+  ];
+}
 
 export const dynamic = "force-dynamic";
 
@@ -111,6 +131,18 @@ export default async function VaultDetailPage({ params }: PageProps) {
           purpose: the base↔chain gap should not need a scroll to be seen. The
           term sheet below is untouched and keeps its own "estimated" sourcing. */}
       <VaultChainReadout dbAumUsdc={vault.currentAumUsdc} />
+
+      {/* CAPITAL DESTINATION — the three Series 1 pockets (B1 Mining Power /
+          B2 BTC Pouch / B3 Reserve USDC, 40/27/33) capital flows into. Visual
+          companion to the term-sheet allocation LIST below. Shows the product
+          TARGET split (actualBps null → not yet indexed on-chain), covered by a
+          "simulated" provenance badge. No accumulated-BTC figure at product
+          stage → the centre shows an honest em dash. */}
+      <BtcCompositionPanel
+        pockets={toSeries1Pockets(vault)}
+        totalBtc={null}
+        provenance="simulated"
+      />
 
       <TermSheetPreview vault={vault} />
     </InvestFlowShell>
