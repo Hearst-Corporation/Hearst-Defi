@@ -28,13 +28,26 @@ import { huggingface, HF_AVAILABLE, HF_ZEROSHOT_MODEL } from "@/lib/llm/huggingf
  * `server-only`: this module performs network I/O with a secret token.
  */
 
-/** Zero-shot hypotheses describing a non-compliant yield/loss claim (EN+FR). */
+/** Zero-shot hypotheses describing a non-compliant yield/loss claim (EN+FR).
+ *
+ * Extended for the Series 1 mining note (v3.0, ADR-019): the product accumulates
+ * BTC over a 24-month term and delivers it at maturity as a RANGE, not guaranteed
+ * and never a single figure. The keyword guard blocks literal needles; these
+ * hypotheses catch PARAPHRASES the regex misses — the classic tell being a
+ * "you'll get / you will receive" framing paired with a FIXED BTC amount (no
+ * range, no "estimated / not guaranteed"). */
 export const RETURN_PROMISE_HYPOTHESES: readonly string[] = [
   "This text promises or guarantees an investment return.",
   "This text claims the capital cannot lose value or is protected from loss.",
   "This text presents a future yield as certain rather than as a range or estimate.",
   "Ce texte promet ou garantit un rendement.",
   "Ce texte affirme que le capital ne peut pas perdre de valeur.",
+  // Series 1 BTC-accumulation paraphrases (single-point / guaranteed delivery).
+  "This text tells the investor they will receive or accumulate a specific fixed amount of Bitcoin.",
+  "This text guarantees that a specific quantity of Bitcoin will be delivered at maturity.",
+  "This text presents the accumulated Bitcoin as a single fixed figure rather than an estimated range.",
+  "Ce texte affirme que l'investisseur recevra un montant fixe et précis de Bitcoin.",
+  "Ce texte garantit la livraison d'une quantité déterminée de Bitcoin à l'échéance.",
 ] as const;
 
 /** Score above which a hypothesis counts as a semantic compliance hit. */

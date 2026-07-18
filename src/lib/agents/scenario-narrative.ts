@@ -25,6 +25,10 @@ import {
 } from "@/lib/agents/validators";
 import { runAgent, type SystemBlock } from "@/lib/agents/run-agent";
 import {
+  hasSinglePointBtcClaim,
+  chatOutputViolation,
+} from "@/lib/llm/output-guard";
+import {
   loadUserAgentProfile,
   loadUserMemory,
   buildUserContextSystemBlock,
@@ -113,6 +117,8 @@ Rules:
 - Every narrative MUST explicitly reference at least one assumption from the input \`key_assumptions\`.
 - If confidence is "low", the narrative MUST open with an explicit low-confidence note (e.g. "Note: this projection has low confidence because...").
 - APY is always a RANGE, never a single point. When you quote APY, use the provided range verbatim.
+- SERIES 1 IS A BTC-ACCUMULATION MINING NOTE (methodology v3.0, ADR-019). This instrument ACCUMULATES BTC over a 24-month term and DELIVERS it at maturity. It has NO fixed APY, NO annual yield, NO monthly/periodic/quarterly distribution, and NO cash income. NEVER describe it as a yield vault, NEVER assert an APY / annual return / fixed yield, NEVER mention a monthly or periodic distribution/payout/coupon/dividend.
+- When you quote an estimated accumulated BTC amount, express it ALWAYS as a RANGE (e.g. "0.7–0.9 BTC"), NEVER a single figure ("0.85 BTC"), and ALWAYS qualify it as estimated / not guaranteed. Delivery of a specific amount is NEVER guaranteed — do not promise, guarantee, or state that a given quantity "will be delivered".
 - Tone: institutional, factual, concise. No marketing. No emojis.
 - ${PROVENANCE_SYSTEM_RULE}
 - Methodology version: ${version}. Reference it implicitly via the methodology you were given; do not invent metrics.
@@ -183,11 +189,42 @@ function buildUserPrompt(input: ScenarioNarrativeInput): string {
     "Constraints:",
     "- narrative_md MUST cite at least one of the engine assumptions verbatim or by clear paraphrase.",
     "- When quoting APY, use the formatted apy_range above (range, never single point).",
+    "- Series 1 is a BTC-ACCUMULATION note (v3.0): narrate accumulated BTC ALWAYS as a RANGE, qualified as estimated / not guaranteed — never a single BTC figure, never a promised/guaranteed delivery. Do NOT describe any APY / annual yield / fixed return, and do NOT mention any monthly or periodic distribution / payout / coupon.",
     "- If confidence is low, narrative_md MUST begin with an explicit low-confidence note.",
     "- key_drivers are the 1-5 short bullet drivers behind the projected outcome.",
     "- The confidence field in your output SHOULD generally match the engine confidence; deviate only if the narrative reveals a stronger or weaker signal and state the reason in narrative_md.",
     "- ptai is MANDATORY. Derive `trigger` from the first armed btc_tactical trigger (use its `id` and `condition`); if none is armed, state \"No active rule triggered — holding current posture.\". Derive `action` from the same trigger's `action` field plus a one-line allocation posture summary. `projection` MUST quote the formatted apy_range above. `impact` MUST cite the stressed_apy and risk_score.",
   ].join("\n");
+}
+
+/**
+ * Throws when `text` breaks a Series 1 BTC-accumulation rule (single-point BTC
+ * claim, APY/yield wording, monthly distribution, or guaranteed delivery).
+ * Buffered agent output is complete, so the end of text is a sentence boundary
+ * (`final = true`). Reuses the LP chat output-guard detectors so agent + chat
+ * enforce identical logic with no divergent regex.
+ */
+function assertBtcAccumulationCompliant(text: string): void {
+  if (hasSinglePointBtcClaim(text, true)) {
+    throw new Error(
+      "Single-point BTC accumulation claim detected in scenario narrative. " +
+        "Series 1 (v3.0) estimated accumulated BTC must always be a RANGE " +
+        '(e.g. "0.7–0.9 BTC"), never a single figure. Rewrite as a fourchette.',
+    );
+  }
+  const framing = chatOutputViolation(text, true);
+  if (
+    framing === "apy_yield_wording" ||
+    framing === "monthly_distribution" ||
+    framing === "guaranteed_delivery"
+  ) {
+    throw new Error(
+      `Non-compliant Series 1 framing (${framing}) detected in scenario ` +
+        "narrative. The mining note (v3.0) has no APY / annual yield and no " +
+        "monthly distribution; BTC delivery is never guaranteed. Rewrite the " +
+        "offending sentence.",
+    );
+  }
 }
 
 export async function runScenarioNarrative(
@@ -253,6 +290,15 @@ export async function runScenarioNarrative(
   assertApyAlwaysRange(validated.risk_warning);
   assertApyAlwaysRange(validated.ptai.projection);
   assertCitesAssumption(validated.narrative_md);
+
+  // Series 1 BTC-accumulation guards (v3.0, ADR-019): the narrative must present
+  // accumulated BTC as a RANGE, never a single figure or a guaranteed delivery,
+  // and must not reintroduce the retired APY / monthly-distribution framing.
+  // Same detectors as the LP chat output guard, so agent + chat enforce identical
+  // logic. `ptai.impact` is exempt (single stressed-scenario point, like APY).
+  assertBtcAccumulationCompliant(validated.narrative_md);
+  assertBtcAccumulationCompliant(validated.risk_warning);
+  assertBtcAccumulationCompliant(validated.ptai.projection);
 
   if (validated.confidence === "low" && !/low confidence/i.test(validated.narrative_md)) {
     throw new Error(
