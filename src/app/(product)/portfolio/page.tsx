@@ -35,6 +35,11 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HcValueChart } from "@/components/dataviz/his";
+import {
+  CapitalFlowRail,
+  type CapitalFlowPocket,
+  type CapitalFlowRailData,
+} from "@/features/investor-ui/components/reserve-cockpit";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { getSession } from "@/lib/auth/session";
 import { loadPortfolioCockpit } from "@/lib/data/portfolio-cockpit";
@@ -177,6 +182,31 @@ export default async function PortfolioPage() {
           { at: anchorMs - DAY_MS, value: d.deployedValueUsdc },
           { at: anchorMs, value: d.deployedValueUsdc },
         ];
+
+  // ── Capital-flow rail data — the Series 1 narrative (deposit → 3 pockets →
+  //    BTC Reserve Ledger → delivery) that exists nowhere else on this console.
+  //    Pockets carry their deterministic target-allocation weight (POCKET_SPLIT),
+  //    honest even at zero — the block itself labels this a target policy split.
+  //    The deposit amount is only surfaced once funded (never a fabricated $0
+  //    figure presented as a real deposit). Provenance follows the pockets:
+  //    DERIVED / Estimated target allocation.
+  const CAPITAL_FLOW_ID: readonly CapitalFlowPocket["id"][] = ["B1", "B2", "B3"];
+  const capitalFlowPockets: readonly CapitalFlowPocket[] = d.pockets.map((p, i) => ({
+    id: CAPITAL_FLOW_ID[i] ?? "B1",
+    // Strip the "B1 · " prefix — the rail renders the id chip itself.
+    label: p.label.replace(/^B[123]\s*·\s*/, ""),
+    weightPct: p.pct,
+  }));
+  const capitalFlowData: CapitalFlowRailData | null =
+    capitalFlowPockets.length > 0
+      ? {
+          depositLabel: "USDC",
+          depositAmount: zero ? undefined : formatUsdFull(d.pocketTotalUsdc),
+          pockets: capitalFlowPockets,
+          ledgerLabel: "BTC Reserve Ledger",
+          deliveryLabel: "Delivery at maturity",
+        }
+      : null;
 
   const b1Pocket = d.pockets.find((p) => p.label.startsWith("B1")) ?? d.pockets[0];
   const miningAllocationUsdc = b1Pocket?.valueUsdc ?? 0;
@@ -384,6 +414,23 @@ export default async function PortfolioPage() {
             )}
           </div>
         </div>
+
+        {/* ── Act: Capital flow — the Series 1 narrative rail (deposit → B1/B2/B3
+            → BTC Reserve Ledger → delivery at maturity). Not duplicated anywhere
+            else: the donut above reads the split at a glance, this reads the FLOW
+            end-to-end. Provenance is Estimated (target-allocation policy split
+            derived from the deposit, honest even at $0). */}
+        <TitledDivider
+          title="Capital flow"
+          trailing={
+            <ProvenanceBadge
+              kind="estimated"
+              variant="compact"
+              description={DERIVED_ALLOCATION_TIP}
+            />
+          }
+        />
+        <CapitalFlowRail data={capitalFlowData} source="estimated" />
 
         {/* ── Act: Mining engine — fleet-level operational readings. Rates are
             Estimated (fleet telemetry / placeholders, never per-investor); the

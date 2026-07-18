@@ -26,6 +26,15 @@ import {
   TableRow,
 } from "@/components/catalyst/table";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import {
+  CapitalFlowRail,
+  type CapitalFlowRailData,
+} from "@/features/investor-ui/components/reserve-cockpit";
+import {
+  B1_MINING_ALLOCATION_BPS,
+  B2_BTC_ALLOCATION_BPS,
+  B3_USDC_ALLOCATION_BPS,
+} from "@/lib/products/dynavault-factsheet";
 import { ValueTrajectory } from "@/components/portfolio/value-trajectory";
 import { LockArc } from "@/components/portfolio/lock-arc";
 import { CumulativeTargetBullet } from "@/components/portfolio/cumulative-target-bullet";
@@ -211,6 +220,40 @@ export default async function VaultDetailPage({ params }: PageProps) {
       provenance: "estimated",
     },
   ];
+
+  // ── Capital-flow rail — the Series 1 narrative (deposit → B1/B2/B3 → BTC
+  //    Reserve Ledger → delivery at maturity) for THIS position. Weights come
+  //    from the canonical factsheet bps (single source of truth, identical to
+  //    the Strategy allocation panel below); the deposit amount is this
+  //    position's REAL principal. Structural policy split → Estimated. Shown
+  //    only for a funded position (principal > 0) — never a fabricated $0 flow.
+  const BPS_PER_PERCENT = 100;
+  const capitalFlowData: CapitalFlowRailData | null =
+    position.principalUsdc > 0
+      ? {
+          depositLabel: "USDC",
+          depositAmount: formatUsdFull(position.principalUsdc),
+          pockets: [
+            {
+              id: "B1",
+              label: "Mining Power",
+              weightPct: B1_MINING_ALLOCATION_BPS / BPS_PER_PERCENT,
+            },
+            {
+              id: "B2",
+              label: "BTC Pouch",
+              weightPct: B2_BTC_ALLOCATION_BPS / BPS_PER_PERCENT,
+            },
+            {
+              id: "B3",
+              label: "Reserve USDC",
+              weightPct: B3_USDC_ALLOCATION_BPS / BPS_PER_PERCENT,
+            },
+          ],
+          ledgerLabel: "BTC Reserve Ledger",
+          deliveryLabel: "Delivery at maturity",
+        }
+      : null;
 
   return (
     <div className="dark mb-8 flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)]">
@@ -436,6 +479,21 @@ export default async function VaultDetailPage({ params }: PageProps) {
             />
           </div>
         </section>
+
+        {/* ── Act: Capital flow — the Series 1 narrative rail (deposit → B1/B2/B3
+            → BTC Reserve Ledger → delivery at maturity) for this position. Reads
+            the FLOW end-to-end; the Strategy allocation panel below then details
+            each pocket's role. Only rendered for a funded position — a $0 flow is
+            never fabricated. Provenance Estimated (structural policy split). */}
+        {capitalFlowData ? (
+          <>
+            <TitledDivider
+              title="Capital flow"
+              trailing={<ProvenanceBadge kind="estimated" variant="compact" />}
+            />
+            <CapitalFlowRail data={capitalFlowData} source="estimated" />
+          </>
+        ) : null}
 
         {/* ── Act: Strategy & transactions ─────────────────────────────────── */}
         <TitledDivider title="Strategy allocation & transactions" />
