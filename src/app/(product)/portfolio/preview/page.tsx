@@ -1,5 +1,14 @@
 /**
- * /portfolio/preview — SANDBOX, V4 vault-health console, recomposed on the Application UI V4 kit.
+ * /portfolio/preview — SANDBOX / RESEARCH surface, V4 vault-health console.
+ *
+ * ⚠️ NOT A SERIES 1 INVESTOR SURFACE (Option B, release cutover).
+ * This page intentionally exposes the leverage-model vocabulary — borrow / LTV / LLTV /
+ * Morpho / liquidation / collateral loan — which is the SEPARATE research model, NOT the
+ * shipped product. Series 1 (Hearst Mining Note, v3.0) is BTC-accumulation only: no borrow,
+ * no LTV, no liquidation. Those terms are BANNED on any investor-facing Series 1 surface and
+ * are asserted against by `src/lib/guards/wording-series1.ts`. This route stays valid as a
+ * sandbox — DO NOT delete it — but it must never be linked from, or promoted to, an investor
+ * Series 1 surface. It is scoped sandbox: mock data, KYC/B2B-gated, badged "Sandbox · V4".
  *
  * ISOLATED. The live /portfolio is untouched; the design system + --ct-* tokens are NOT modified
  * (this folder only consumes them). Composition follows the kit's master pattern: console header +
