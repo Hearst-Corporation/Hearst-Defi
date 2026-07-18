@@ -2,7 +2,9 @@
  * Local/dev bootstrap for the Zandbank demo account.
  *
  * Creates (or updates) the Zand demo login + investor profile, then seeds the
- * canonical $2M fixture position (idempotent).
+ * canonical $2M SERIES 1 mining-note fixture position (idempotent) — capital
+ * deposited, allocated B1/B2/B3 (40/27/33), accumulating BTC value over a
+ * 24-month term, delivered at maturity. NO periodic distribution, NO APY.
  *
  * Safety:
  * - hard-refused in NODE_ENV=production
@@ -89,9 +91,11 @@ async function main(): Promise<void> {
     console.log(`password              ${DEMO_PASSWORD}`);
     console.log(
       seeded.created
-        ? `fixture               created (${seeded.positionId}, distributed ${fmtUsd(seeded.distributedUsdc)})`
-        : `fixture               already present (${seeded.positionId}, distributed ${fmtUsd(seeded.distributedUsdc)})`,
+        ? `fixture               created (${seeded.positionId}, SERIES 1)`
+        : `fixture               already present (${seeded.positionId}, SERIES 1)`,
     );
+    console.log(`accumulated BTC value ${fmtUsd(seeded.accumulatedBtcValueUsdc)} (Estimated, delivered at maturity)`);
+    console.log(`distributed           ${fmtUsd(seeded.distributedUsdc)} (0 — no periodic distribution)`);
     console.log("────────────────────────────────────────────────────────────");
   } finally {
     await prisma.$disconnect();

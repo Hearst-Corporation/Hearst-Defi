@@ -2,15 +2,15 @@
  * One-shot demo seeder for the Zand institutional demo account
  * (zand.demo@hearstcorporation.io — see src/lib/demo/allowlist.ts).
  *
- * Zand currently has ZERO Position / InvestorTransaction / Distribution rows,
- * so the portfolio data layer (loadPortfolioDashboard, see
- * src/lib/data/portfolio-cockpit.ts — `hasPosition = positions.length > 0`)
- * falls back to the PILOT fixtures, always badged "Simulated". This script
- * plants a real, institutional-sized position + a 12-month distribution
- * ledger so the portfolio flips PILOT → REAL for this account, with numbers
- * shaped like the existing PILOT_DISTRIBUTION_BARS trajectory in
- * src/app/(product)/portfolio/page.tsx (so the visual story stays coherent
- * once real data takes over from the simulated fixture).
+ * Zand currently has ZERO Position / InvestorTransaction rows, so the portfolio
+ * data layer (loadPortfolioDashboard, see src/lib/data/portfolio-cockpit.ts —
+ * `hasPosition = positions.length > 0`) falls back to the PILOT fixtures,
+ * always badged "Simulated". This script plants a real, institutional-sized
+ * SERIES 1 mining-note position (Hearst Mining Note, methodology v3.0,
+ * ADR-019): capital deposited, allocated across the 3 on-chain pockets
+ * B1/B2/B3 (40/27/33), accumulating BTC value over a 24-month term and
+ * delivered at maturity. There is NO periodic cash distribution and NO fixed
+ * APY — the ledger holds a single opening `deposit`, ZERO distribution rows.
  *
  * IDEMPOTENT: re-running this script never duplicates data. Before writing,
  * it looks for the deposit InvestorTransaction already tagged with this
@@ -37,7 +37,8 @@
 import { makePrismaClient } from "../scripts/lib/prisma-cli";
 import {
   seedZandFixturePosition,
-  ZAND_FIXTURE_MONTHLY_DISTRIBUTIONS_USDC,
+  ZAND_FIXTURE_ACCUMULATED_BTC_VALUE_USDC,
+  ZAND_FIXTURE_POCKET_SPLIT,
   ZAND_FIXTURE_PRINCIPAL_USDC,
 } from "../src/lib/demo/zand-fixture";
 
@@ -63,11 +64,14 @@ async function main(): Promise<void> {
       throw new Error(`User "${ZAND_EMAIL}" has no investor profile`);
     }
 
-    console.log("── Zand demo seed ───────────────────────────────────────────");
+    console.log("── Zand demo seed — SERIES 1 mining note (v3.0) ─────────────");
     console.log(`investor              ${ZAND_EMAIL} (investor ${investorId})`);
     console.log(`principal             ${fmtUsd(ZAND_FIXTURE_PRINCIPAL_USDC)}`);
     console.log(
-      `distributions         ${ZAND_FIXTURE_MONTHLY_DISTRIBUTIONS_USDC.length} monthly rows, total ${fmtUsd(ZAND_FIXTURE_MONTHLY_DISTRIBUTIONS_USDC.reduce((sum, v) => sum + v, 0))}`,
+      `pockets               B1 ${ZAND_FIXTURE_POCKET_SPLIT.miningPowerPct}% / B2 ${ZAND_FIXTURE_POCKET_SPLIT.btcPouchPct}% / B3 ${ZAND_FIXTURE_POCKET_SPLIT.reserveUsdcPct}%`,
+    );
+    console.log(
+      `accumulated BTC value ${fmtUsd(ZAND_FIXTURE_ACCUMULATED_BTC_VALUE_USDC)} (Estimated, delivered at maturity — no periodic distribution, no APY)`,
     );
 
     const result = await seedZandFixturePosition(prisma, investorId);
@@ -76,14 +80,16 @@ async function main(): Promise<void> {
     if (!result.created) {
       console.log(`── already applied, skipping ────────────────────────────────`);
       console.log(`position (existing)   ${result.positionId}`);
-      console.log(`total distributed     ${fmtUsd(result.distributedUsdc)}`);
+      console.log(`accumulated BTC value ${fmtUsd(result.accumulatedBtcValueUsdc)} (Estimated)`);
+      console.log(`distributed           ${fmtUsd(result.distributedUsdc)} (0 — BTC accumulated, not distributed)`);
       console.log("");
       console.log("Nothing written. Re-run is safe — this script is idempotent.");
       return;
     }
 
-    console.log(`✓ Created position ${result.positionId}.`);
-    console.log(`  Distributions totalling ${fmtUsd(result.distributedUsdc)}.`);
+    console.log(`✓ Created SERIES 1 position ${result.positionId}.`);
+    console.log(`  Accumulated BTC value ${fmtUsd(result.accumulatedBtcValueUsdc)} (Estimated, delivered at maturity).`);
+    console.log(`  Distributed ${fmtUsd(result.distributedUsdc)} — no periodic cash distribution.`);
     console.log(`  Portfolio will now render REAL data for ${ZAND_EMAIL} (hasPosition=true).`);
   } finally {
     await prisma.$disconnect();

@@ -27,9 +27,21 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 
 // ── Constants (mirrors scripts/demo/timeline.ts) ────────────────────────────
 
-/** Fallback APY range (pct*100 bps) when the position has no linked VaultDeployment row. */
-const FALLBACK_APY_LOW_BPS = 940; // 9.4%
-const FALLBACK_APY_HIGH_BPS = 1280; // 12.8%
+/**
+ * SERIES 1 (mining note v3.0): the demo "time machine" ages a BTC-ACCUMULATION
+ * position — capital deposited, BTC accumulated over the term, delivered at
+ * maturity. There is NO periodic cash distribution and NO fixed APY, so the
+ * timeline no longer synthesizes monthly distribution rows or an APY-driven
+ * payout. Instead it grows the position's CAPITALIZED accumulated BTC value
+ * (Estimated) as the term progresses, and never touches `distributedUsdc`
+ * (which stays 0). The retired FALLBACK_APY_* / monthly-payment math is gone.
+ *
+ * Estimated BTC accumulation rate, expressed as a fraction of principal per
+ * month of term (deterministic, no PRNG). ~0.45%/month ≈ ~5.4%/year of a $2M
+ * ticket accumulated as BTC value — disclosed as accumulated BTC, NOT an APY,
+ * NOT guaranteed, NOT distributed as cash.
+ */
+const BTC_ACCUMULATION_RATE_PER_MONTH = 0.0045;
 
 /**
  * Safety cap — any position aged by this module. Matches `MAX_SUBSCRIBE_USDC`
@@ -54,9 +66,18 @@ export interface AdvanceResult {
   ok: true;
   /** Every position that was aged (all of the investor's active/matured positions). */
   positionIds: string[];
-  /** Sum of distributedUsdc across every aged position (matches the aggregated cockpit total). */
+  /**
+   * Sum of distributedUsdc across every aged position. On a SERIES 1 mining
+   * note this is ALWAYS 0 — BTC is accumulated and delivered at maturity, never
+   * distributed as cash. Kept in the result shape for callers that display a
+   * "distributed" figure (it now reads $0, honestly).
+   */
   distributedUsdc: number;
-  /** Sum of accruedYieldUsdc across every aged position. */
+  /**
+   * Sum of accruedYieldUsdc across every aged position — the ESTIMATED USD
+   * value of BTC accumulated-to-date (capitalized, delivered at maturity), not
+   * realized cash and not a guaranteed return.
+   */
   accruedYieldUsdc: number;
   status: FinalStatus;
 }
@@ -120,20 +141,6 @@ function addMonthsUtc(date: Date, deltaMonths: number): Date {
   return new Date(Date.UTC(ty, tm, clampedDay, h, mi, s));
 }
 
-/** Resolve the mid-APY (pct) + low/high bps for a position, falling back when unlinked. */
-function resolveApyBps(position: {
-  vaultDeployment: { targetApyLowBps: number; targetApyHighBps: number } | null;
-}): {
-  lowBps: number;
-  highBps: number;
-  midApyPct: number;
-} {
-  const lowBps = position.vaultDeployment?.targetApyLowBps ?? FALLBACK_APY_LOW_BPS;
-  const highBps = position.vaultDeployment?.targetApyHighBps ?? FALLBACK_APY_HIGH_BPS;
-  const midApyPct = (lowBps + highBps) / 2 / 100;
-  return { lowBps, highBps, midApyPct };
-}
-
 function assertPrincipalWithinCap(principal: number): void {
   if (principal > MAX_PRINCIPAL_USDC) {
     throw new Error(
@@ -152,7 +159,6 @@ function assertPrincipalWithinCap(principal: number): void {
 async function resolveTargetPositions(prisma: PrismaClient, investorId: string) {
   return prisma.position.findMany({
     where: { investorId, status: { in: ["active", "matured"] } },
-    include: { vaultDeployment: true },
     orderBy: { subscribedAt: "desc" },
   });
 }
@@ -199,23 +205,29 @@ export async function resetInvestorTimeline(
 
 /**
  * Ages EVERY one of the investor's active/matured positions forward by
- * `months`, optionally marking each `matured` at the end. The cockpit
- * aggregates across all of an investor's positions (header total, combined
- * distribution history, combined NAV) — aging only the most-recent position
- * while leaving the others untouched used to desync that aggregate from what
- * the timeline actually produced. Each position is backdated/redistributed
- * independently using its OWN principal and APY, then the per-position NAV
- * contributions are summed into one investor-level snapshot per month, same
- * math as `runAgeStage`'s --execute path in scripts/demo/timeline.ts applied
- * per-position:
+ * `months`, optionally marking each `matured` at the end — under the SERIES 1
+ * mining-note model (v3.0): capital deposited → BTC accumulated over the term →
+ * delivered at maturity. There is NO periodic cash distribution and NO fixed
+ * APY, so this NEVER creates `distribution` rows and NEVER sets a distributed
+ * figure — `distributedUsdc` stays 0 on every aged position. Instead it grows
+ * each position's CAPITALIZED accumulated BTC value (Estimated) monotonically
+ * with the term, and the investor-level NAV snapshots climb from principal
+ * toward principal + accumulated BTC value (an accumulation curve, not a flat
+ * distribute-and-reset sawtooth).
+ *
+ * The cockpit aggregates across all of an investor's positions (header total,
+ * combined NAV), so every active/matured position is aged, and the per-position
+ * NAV contributions are summed into one investor-level snapshot per month:
  *   - backdates `subscribedAt` to now − months (day-of-month clamped)
- *   - deletes then recreates each position's `distribution` transactions
- *     (idempotent — never touches the opening `deposit` row)
+ *   - DELETES any legacy `distribution` rows on these positions (cleanup of the
+ *     retired yield model) and creates NONE (idempotent — never touches the
+ *     opening `deposit` row)
  *   - deletes then upserts this module's own NAV snapshots
  *     (source="demo_timeline" — never a cron "computed" or "dev_seed" row),
- *     one snapshot per month, valued as the SUM across all aged positions
- *   - sets `distributedUsdc` / `accruedYieldUsdc` per position from its own
- *     mid-APY monthly rate
+ *     one snapshot per month, valued as the SUM across all aged positions of
+ *     principal + BTC accumulated by that month
+ *   - sets `accruedYieldUsdc` per position to its accumulated BTC value at the
+ *     end of the aged term; pins `distributedUsdc` to 0
  *   - sets `status`/`maturedAt` on every position when `matured` is requested
  *
  * Throws when the investor has no active/matured position to age (the
@@ -242,53 +254,48 @@ export async function advanceInvestorTimeline(
   const maturedAt = matured ? now : null;
   const newSubscribedAt = addMonthsUtc(now, -months);
 
-  // Distribution months: the last `months` completed 1st-of-month dates —
-  // most recent distribution = the start of the current month; the partial
-  // current-month accrual is what's accrued SINCE that distribution. Shared
-  // across every position (they're all being aged by the same `months`).
+  // Accumulation months: the last `months` completed 1st-of-month dates — one
+  // NAV chart point per month of term. Shared across every position (they're
+  // all aged by the same `months`).
   const nowFirstOfMonth = firstOfMonthUtc(now);
-  const distributionMonths: Date[] = [];
+  const accumulationMonths: Date[] = [];
   for (let monthsAgo = months - 1; monthsAgo >= 0; monthsAgo -= 1) {
-    distributionMonths.push(addMonthsUtc(nowFirstOfMonth, -monthsAgo));
+    accumulationMonths.push(addMonthsUtc(nowFirstOfMonth, -monthsAgo));
   }
-
-  const dayOfMonth = now.getUTCDate();
-  const daysInCurrentMonth = daysInUtcMonth(now.getUTCFullYear(), now.getUTCMonth());
-  // Bounded at 50% so the "in progress" accrual reads as a small pending
-  // amount, never as almost-a-full-month already earned but undistributed.
-  const elapsedFraction = Math.min(dayOfMonth / daysInCurrentMonth, 0.5);
 
   interface PerPositionPlan {
     id: string;
     principal: number;
-    monthlyPayment: number;
-    distributedTotal: number;
-    accruedAfter: number;
+    /** BTC value accumulated per month of term (deterministic, Estimated). */
+    monthlyBtcAccrual: number;
+    /** Total BTC value accumulated over the full aged term (capitalized). */
+    accumulatedBtcValue: number;
   }
 
   const plans: PerPositionPlan[] = targets.map((target) => {
     const principal = toNumber(target.principalUsdc);
     assertPrincipalWithinCap(principal);
-    const { midApyPct } = resolveApyBps(target);
-    const monthlyPayment = round2((principal * (midApyPct / 100)) / 12);
-    const distributedTotal = round2(monthlyPayment * months);
-    const accruedAfter = round2(monthlyPayment * elapsedFraction);
-    return { id: target.id, principal, monthlyPayment, distributedTotal, accruedAfter };
+    const monthlyBtcAccrual = round2(principal * BTC_ACCUMULATION_RATE_PER_MONTH);
+    const accumulatedBtcValue = round2(monthlyBtcAccrual * months);
+    return { id: target.id, principal, monthlyBtcAccrual, accumulatedBtcValue };
   });
 
-  // Investor-level NAV per distribution month — SUM of every aged position's
-  // principal (yield is DISTRIBUTED not capitalized, so each position's
-  // "just distributed" value is flat at its own principal). When `matured`,
-  // append one final snapshot at `now` carrying the SUM of every position's
-  // partial current-month accrual, for a chart point at maturity.
+  // Investor-level NAV per month — SUM across positions of principal + BTC
+  // accumulated THROUGH that month (index i => i+1 months of accrual). BTC is
+  // CAPITALIZED (delivered at maturity), so the curve climbs rather than
+  // resetting after a payout.
   const principalSum = round2(plans.reduce((sum, p) => sum + p.principal, 0));
-  const accruedSum = round2(plans.reduce((sum, p) => sum + p.accruedAfter, 0));
-  const distributedSum = round2(plans.reduce((sum, p) => sum + p.distributedTotal, 0));
+  const accruedSum = round2(plans.reduce((sum, p) => sum + p.accumulatedBtcValue, 0));
 
-  const navSnapshotPlans: { takenAt: Date; valueUsdc: number }[] = distributionMonths.map((m) => ({
-    takenAt: m,
-    valueUsdc: principalSum,
-  }));
+  const navSnapshotPlans: { takenAt: Date; valueUsdc: number }[] = accumulationMonths.map(
+    (m, i) => {
+      const monthsAccrued = i + 1;
+      const btcThroughMonth = round2(
+        plans.reduce((sum, p) => sum + p.monthlyBtcAccrual * monthsAccrued, 0),
+      );
+      return { takenAt: m, valueUsdc: round2(principalSum + btcThroughMonth) };
+    },
+  );
   if (matured) {
     navSnapshotPlans.push({
       takenAt: truncateToUtcHour(now),
@@ -297,7 +304,8 @@ export async function advanceInvestorTimeline(
   }
 
   const ops: Prisma.PrismaPromise<unknown>[] = [
-    // Scoped to THESE positions' distribution rows only — never the opening
+    // Purge ANY legacy `distribution` rows on these positions — the retired
+    // yield model created them; SERIES 1 creates none. Never the opening
     // deposit (type="deposit"), never another investor's rows.
     prisma.investorTransaction.deleteMany({
       where: { positionId: { in: plans.map((p) => p.id) }, type: "distribution" },
@@ -310,25 +318,17 @@ export async function advanceInvestorTimeline(
         where: { id: plan.id },
         data: {
           subscribedAt: newSubscribedAt,
-          accruedYieldUsdc: plan.accruedAfter,
-          distributedUsdc: plan.distributedTotal,
+          // Capitalized accumulated BTC value (Estimated), delivered at maturity.
+          accruedYieldUsdc: plan.accumulatedBtcValue,
+          // SERIES 1 never distributes cash.
+          distributedUsdc: 0,
           status: finalStatus,
           maturedAt,
           exitedAt: null,
         },
       }),
     ),
-    ...plans.map((plan) =>
-      prisma.investorTransaction.createMany({
-        data: distributionMonths.map((occurredAt) => ({
-          investorId,
-          positionId: plan.id,
-          type: "distribution",
-          amountUsdc: plan.monthlyPayment,
-          occurredAt,
-        })),
-      }),
-    ),
+    // No distribution rows are created — BTC is accumulated, not distributed.
     ...navSnapshotPlans.map((snap) =>
       prisma.investorNavSnapshot.upsert({
         where: { investorId_takenAt: { investorId, takenAt: snap.takenAt } },
@@ -343,7 +343,8 @@ export async function advanceInvestorTimeline(
   return {
     ok: true,
     positionIds: plans.map((p) => p.id),
-    distributedUsdc: distributedSum,
+    // SERIES 1 never distributes cash — always 0.
+    distributedUsdc: 0,
     accruedYieldUsdc: accruedSum,
     status: finalStatus,
   };

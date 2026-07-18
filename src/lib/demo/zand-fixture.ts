@@ -7,14 +7,37 @@ import type { PrismaClient } from "@prisma/client";
 
 /**
  * Shared fixture-position builder for the Zand institutional demo account
- * (zand.demo@hearstcorporation.io). The exact same position + deposit +
- * 12-month distribution ledger can be (re)created from TWO callers:
+ * (zand.demo@hearstcorporation.io) — SERIES 1 of the Hearst Mining Note
+ * (methodology v3.0, ADR-019).
+ *
+ * SERIES 1 narrative (this is a BTC-ACCUMULATION instrument, NOT a yield vault):
+ *
+ *   Capital deposited ($2M) → allocated across 3 on-chain pockets
+ *   B1 Mining Power / B2 BTC Pouch / B3 Reserve USDC (40 / 27 / 33) →
+ *   real Bitcoin mining output → reserve operations →
+ *   BTC ACCUMULATED over a 24-month term →
+ *   BTC DELIVERED at maturity → proofs available.
+ *
+ * There is **NO periodic cash distribution and NO fixed APY**. The retired
+ * "yield vault / 12 monthly USDC distributions / ~9-12% APY" framing has been
+ * removed entirely: this fixture creates ZERO `distribution` ledger rows and
+ * reports ZERO distributed USDC. The value the position accrues is the
+ * ESTIMATED USD value of BTC accumulated-to-date, carried on
+ * `Position.accruedYieldUsdc` (capitalized, never distributed) with Manual /
+ * Estimated provenance — it is not realized cash and is not a guaranteed return.
+ *
+ * Schema note: no Prisma schema change is required or permitted here. The
+ * accumulation story maps onto the EXISTING models — `Position`
+ * (principal + accrued, `distributedUsdc` pinned to 0) and a single opening
+ * `deposit` `InvestorTransaction`. No new transaction type / enum / migration.
+ *
+ * The exact same position + opening deposit can be (re)created from TWO callers:
  *
  *   1. `prisma/seed-zand-demo.ts` — the one-shot CLI seeder (keeps its own
  *      prod-write guard, main(), and console narration; only the DB logic
  *      lives here).
  *   2. `demoSeedZandFixture` (portfolio demo-actions) — the in-app
- *      "Seed $2M fixture" lever on the demo timeline control, so the $2M
+ *      "Seed $2M fixture" lever on the demo timeline control, so the SERIES 1
  *      story is recoverable from the browser after a Reset.
  *
  * NOTE — Reset does NOT re-seed: "Reset (0)" wipes to a genuinely empty
@@ -45,10 +68,10 @@ const VAULT_DEPLOYMENT_ID = "hearst-yield-vault";
  * Position.vaultKey default), suffixed `:class-A`. What actually matters is
  * the SUFFIX: the portfolio loader's share-class matcher
  * (src/lib/data/portfolio.ts) reads the `/:class-([AB])$/i` suffix to derive
- * the share-class terms (60-day soft lock-up, distribution cadence, etc.); a
- * non-matching key would make the lock-up meter fall back to "stale".
- * Idempotency is tracked separately, via ZAND_SEED_DEPOSIT_TXHASH below (a
- * unique column), never via this vaultKey.
+ * the share-class terms (60-day soft lock-up, etc.); a non-matching key would
+ * make the lock-up meter fall back to "stale". Idempotency is tracked
+ * separately, via ZAND_SEED_DEPOSIT_TXHASH below (a unique column), never via
+ * this vaultKey.
  */
 export const ZAND_FIXTURE_VAULT_KEY = "hearst_yield_vault:class-A";
 
@@ -64,50 +87,62 @@ export const ZAND_FIXTURE_VAULT_KEY = "hearst_yield_vault:class-A";
 export const ZAND_SEED_DEPOSIT_TXHASH =
   "0xZANDDEMOSEED0000000000000000000000000000000000000000000000000000";
 
-/** Institutional demo ticket size for Zand. */
+/** Institutional demo ticket size for Zand (SERIES 1 subscription). */
 export const ZAND_FIXTURE_PRINCIPAL_USDC = 2_000_000;
 
 /** Fixed, deterministic anchor — 2025-01-01 UTC. No Date.now(), no PRNG. */
 const SUBSCRIBED_AT = new Date(Date.UTC(2025, 0, 1, 0, 0, 0, 0));
 
 /**
- * 12 monthly distributions — a ~9-12% APY trajectory on a $2M ticket, roughly
- * $15k-$21k/month, deterministic. Entry i is the payout FOR month i of 2025
- * (Jan…Dec), PAID on the 1st of the FOLLOWING month (Feb 2025 … Jan 2026,
- * UTC): a subscription dated 2025-01-01 cannot have already paid out on its
- * own subscription day.
+ * SERIES 1 pocket split — B1 Mining Power / B2 BTC Pouch / B3 Reserve USDC.
+ * The 40 / 27 / 33 on-chain allocation of the deposited capital (ADR-019,
+ * v3.0). Deterministic; sums to 100. Exposed so the demo surfaces + the
+ * validator can assert the split matches the note's structure — no APY, no
+ * legacy 4-bucket (mining/tactical/usdc-base/stable-reserve) allocation.
  */
-export const ZAND_FIXTURE_MONTHLY_DISTRIBUTIONS_USDC: readonly number[] = [
-  15_800, // for Jan — paid Feb 1
-  16_500, // for Feb — paid Mar 1
-  17_700, // for Mar — paid Apr 1
-  17_200, // for Apr — paid May 1
-  18_500, // for May — paid Jun 1
-  18_200, // for Jun — paid Jul 1
-  19_200, // for Jul — paid Aug 1
-  18_800, // for Aug — paid Sep 1
-  20_000, // for Sep — paid Oct 1
-  19_500, // for Oct — paid Nov 1
-  20_700, // for Nov — paid Dec 1
-  21_100, // for Dec — paid Jan 1 2026
-];
+export const ZAND_FIXTURE_POCKET_SPLIT = {
+  /** B1 Mining Power. */
+  miningPowerPct: 40,
+  /** B2 BTC Pouch. */
+  btcPouchPct: 27,
+  /** B3 Reserve USDC. */
+  reserveUsdcPct: 33,
+} as const;
 
-/** Paid on the 1st of the month AFTER the earned month (Date.UTC rolls Dec+1 into Jan 2026). */
-function distributionDate(monthIndex0: number): Date {
-  return new Date(Date.UTC(2025, monthIndex0 + 1, 1, 0, 0, 0, 0));
-}
+/**
+ * Estimated USD value of BTC ACCUMULATED to date on the SERIES 1 note, carried
+ * on `Position.accruedYieldUsdc`. This is capitalized (delivered as BTC at
+ * maturity), NEVER distributed as cash — `distributedUsdc` stays 0. It is an
+ * ESTIMATED / Manual figure, not realized cash and not a guaranteed return.
+ * Deterministic, fixed value — no PRNG, no Date.now(). ~5.4% of a $2M ticket
+ * accumulated part-way through the 24-month term, disclosed as accumulated BTC
+ * value, not an APY.
+ */
+export const ZAND_FIXTURE_ACCUMULATED_BTC_VALUE_USDC = 108_400;
+
+/**
+ * Distributed cash on a SERIES 1 note is ALWAYS zero: BTC is accumulated and
+ * delivered at maturity, never paid out periodically. Kept as a named constant
+ * so callers + the validator read the intent explicitly.
+ */
+export const ZAND_FIXTURE_DISTRIBUTED_USDC = 0;
 
 export interface ZandFixtureSeedResult {
   /** True when a new position was created; false when the fixture already existed (idempotent no-op). */
   created: boolean;
   positionId: string;
+  /** Estimated USD value of BTC accumulated-to-date (capitalized, never distributed). */
+  accumulatedBtcValueUsdc: number;
+  /** Always 0 on a SERIES 1 mining note — kept for callers that logged a distributed figure. */
   distributedUsdc: number;
 }
 
 /**
- * (Re-)creates the Zand fixture position — 1 Position ($2M principal), 1
- * deposit InvestorTransaction, and 12 monthly distribution
- * InvestorTransaction rows — for `investorId`, inside a single `$transaction`.
+ * (Re-)creates the Zand SERIES 1 fixture position — 1 Position ($2M principal,
+ * accruing BTC value, 0 distributed) and exactly 1 opening `deposit`
+ * InvestorTransaction — for `investorId`, inside a single `$transaction`.
+ *
+ * ZERO distribution rows are created (BTC accumulation, not cash payout).
  *
  * Idempotent: if a deposit row already carries `ZAND_SEED_DEPOSIT_TXHASH`,
  * this returns immediately with `created: false` and touches nothing.
@@ -130,23 +165,19 @@ export async function seedZandFixturePosition(
   });
 
   if (existingDeposit?.positionId) {
-    const distAgg = await prisma.investorTransaction.aggregate({
-      where: { positionId: existingDeposit.positionId, type: "distribution" },
-      _sum: { amountUsdc: true },
+    const existingPosition = await prisma.position.findUnique({
+      where: { id: existingDeposit.positionId },
+      select: { accruedYieldUsdc: true },
     });
     return {
       created: false,
       positionId: existingDeposit.positionId,
-      distributedUsdc: distAgg._sum.amountUsdc?.toNumber() ?? 0,
+      accumulatedBtcValueUsdc: existingPosition?.accruedYieldUsdc?.toNumber() ?? 0,
+      distributedUsdc: ZAND_FIXTURE_DISTRIBUTED_USDC,
     };
   }
 
   // ── Build the fixture ───────────────────────────────────────────────
-  const totalDistributed = ZAND_FIXTURE_MONTHLY_DISTRIBUTIONS_USDC.reduce(
-    (sum, v) => sum + v,
-    0,
-  );
-
   const vault = await prisma.vaultDeployment.findUnique({
     where: { id: VAULT_DEPLOYMENT_ID },
     select: { id: true },
@@ -160,13 +191,17 @@ export async function seedZandFixturePosition(
         vaultDeploymentId,
         vaultKey: ZAND_FIXTURE_VAULT_KEY,
         principalUsdc: ZAND_FIXTURE_PRINCIPAL_USDC,
-        accruedYieldUsdc: 0,
-        distributedUsdc: totalDistributed,
+        // Estimated USD value of BTC accumulated-to-date (capitalized, delivered
+        // at maturity). NOT distributed cash, NOT a guaranteed return.
+        accruedYieldUsdc: ZAND_FIXTURE_ACCUMULATED_BTC_VALUE_USDC,
+        // A SERIES 1 mining note never distributes cash periodically.
+        distributedUsdc: ZAND_FIXTURE_DISTRIBUTED_USDC,
         status: "active",
         subscribedAt: SUBSCRIBED_AT,
       },
     });
 
+    // The ONLY ledger row: the opening deposit. No distribution rows.
     await tx.investorTransaction.create({
       data: {
         investorId,
@@ -179,22 +214,13 @@ export async function seedZandFixturePosition(
       },
     });
 
-    await tx.investorTransaction.createMany({
-      data: ZAND_FIXTURE_MONTHLY_DISTRIBUTIONS_USDC.map((amountUsdc, i) => ({
-        investorId,
-        positionId: created.id,
-        type: "distribution",
-        amountUsdc,
-        occurredAt: distributionDate(i),
-      })),
-    });
-
     return created;
   });
 
   return {
     created: true,
     positionId: position.id,
-    distributedUsdc: totalDistributed,
+    accumulatedBtcValueUsdc: ZAND_FIXTURE_ACCUMULATED_BTC_VALUE_USDC,
+    distributedUsdc: ZAND_FIXTURE_DISTRIBUTED_USDC,
   };
 }

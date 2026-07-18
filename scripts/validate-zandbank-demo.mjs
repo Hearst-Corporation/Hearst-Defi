@@ -25,7 +25,11 @@ const ZAND_EMAIL = "zand.demo@hearstcorporation.io";
 const EXPECTED_TXHASH =
   "0xZANDDEMOSEED0000000000000000000000000000000000000000000000000000";
 const ALLOWED_POSITION_STATUS = new Set(["active", "matured", "exited"]);
-const ALLOWED_TX_TYPES = new Set(["deposit", "claim", "withdraw", "distribution"]);
+// SERIES 1 (mining note v3.0): the Zand demo accumulates BTC and delivers at
+// maturity — it NEVER distributes cash periodically. `distribution` is no
+// longer a valid transaction type for this demo account; a distribution row
+// here is a regression to the retired yield-vault model.
+const ALLOWED_TX_TYPES = new Set(["deposit", "claim", "withdraw"]);
 
 const failures = [];
 const warnings = [];
@@ -89,6 +93,28 @@ async function checkSourceOfTruth() {
     fail("zand-fixture.ts missing expected seed tx hash marker");
   } else {
     ok("fixture", "Seed tx hash marker is defined");
+  }
+
+  // SERIES 1 narrative markers — the retired yield/APY/monthly-distribution
+  // model must be gone, and the BTC-accumulation constants must be present.
+  if (/MONTHLY_DISTRIBUTIONS/.test(fixture)) {
+    fail(
+      "zand-fixture.ts still exports a MONTHLY_DISTRIBUTIONS constant (retired yield-vault model)",
+    );
+  } else {
+    ok("fixture", "no legacy monthly-distribution schedule");
+  }
+
+  if (!fixture.includes("ZAND_FIXTURE_ACCUMULATED_BTC_VALUE_USDC")) {
+    fail("zand-fixture.ts does not expose the BTC-accumulation constant (SERIES 1)");
+  } else {
+    ok("fixture", "SERIES 1 BTC-accumulation constant is defined");
+  }
+
+  if (!fixture.includes("ZAND_FIXTURE_POCKET_SPLIT")) {
+    fail("zand-fixture.ts does not expose the B1/B2/B3 pocket split (SERIES 1)");
+  } else {
+    ok("fixture", "SERIES 1 pocket split (B1/B2/B3 40/27/33) is defined");
   }
 }
 
@@ -265,7 +291,32 @@ function checkDatabase() {
         `distributed mismatch: positions=${distributedPosSum.toFixed(2)} vs tx=${distributionsTxSum.toFixed(2)}`,
       );
     } else {
-      ok("yield", `distributed sums reconcile (${distributedPosSum.toFixed(2)})`);
+      ok("accumulation", `distributed sums reconcile (${distributedPosSum.toFixed(2)})`);
+    }
+
+    // SERIES 1 (mining note v3.0): BTC is ACCUMULATED and delivered at maturity
+    // — there is NO periodic cash distribution. Every distribution figure must
+    // be exactly zero for the Zand demo. (Any `distribution` tx row would also
+    // have already failed the ALLOWED_TX_TYPES check above.)
+    if (distributionsTxSum !== 0 || distributedPosSum !== 0) {
+      fail(
+        `SERIES 1 must not distribute cash: distributedUsdc=${distributedPosSum.toFixed(2)} distributionTx=${distributionsTxSum.toFixed(2)} (expected 0/0 — BTC accumulated, delivered at maturity)`,
+      );
+    } else if (positions.length > 0) {
+      ok(
+        "accumulation",
+        "0 distribution — BTC accumulated, delivered at maturity (no periodic cash, no APY)",
+      );
+    }
+
+    // The accumulated BTC value is carried as capitalized accrued value on the
+    // position (never distributed). When a funded SERIES 1 position exists it
+    // should be a finite, non-negative Estimated figure.
+    if (positions.length > 0 && accruedSum > 0) {
+      ok(
+        "accumulation",
+        `accumulated BTC value (Estimated) = ${accruedSum.toFixed(2)} (capitalized, delivered at maturity)`,
+      );
     }
 
     if (positions.length > 0 && depositsTxSum <= 0) {
