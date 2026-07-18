@@ -27,6 +27,13 @@ import { getInvestorUiDataSource, getFixtureInvestorUiDataSource } from "@/featu
 import { DataNotConfigured, PageErrorState } from "@/features/investor-ui/components/states/data-states";
 import { isBackendError } from "@/lib/backend";
 import { Card } from "@/components/catalyst/card";
+import type { HcSourceStatus } from "@/components/dataviz/his";
+import type { DataStatus } from "@/features/investor-ui/types/common";
+import {
+  AllInCostVsSpot,
+  ReserveRunwayChart,
+  type ReserveRunwayData,
+} from "@/features/investor-ui/components/reserve-cockpit";
 
 import { getBtcPageData } from "./_data/get-btc-page-data";
 import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
@@ -50,6 +57,32 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Bitcoin · Hearst Connect",
 };
+
+/**
+ * Map a presentation `DataStatus` to the `HcSourceStatus` the reserve-cockpit
+ * blocks badge with. Honest by construction: a block that answered honestly
+ * with nothing (UNAVAILABLE / NOT_CONFIGURED) reads `configured`, a fixture
+ * reads `mock` (never dressed as `live`), an ERROR / STALE block reads `stale`.
+ * Same mapping the dashboard uses — kept in sync intentionally.
+ */
+function dataStatusToSource(status: DataStatus): HcSourceStatus {
+  switch (status) {
+    case "LIVE":
+      return "live";
+    case "STALE":
+    case "ERROR":
+      return "stale";
+    case "FIXTURE":
+      return "mock";
+    case "PARTIAL":
+      return "mixed";
+    case "UNAVAILABLE":
+    case "NOT_CONFIGURED":
+      return "configured";
+    default:
+      return "attested";
+  }
+}
 
 export default async function BtcPage({
   searchParams,
@@ -144,6 +177,30 @@ export default async function BtcPage({
 
   const productionProvenance = toProvenance(production.status);
 
+  // ── Zone 2b — reserve operations (Series 1 narrative) ──────────────────
+  // Reserve runway: the ONLY real figure the backend carries today is the
+  // current electricity-coverage months (B3 reserve). There is no coverage
+  // *history* series yet, so we plot the single real current period rather
+  // than fabricating a trend — honest by construction. Ownership not
+  // configured, or the figure absent → null → the block's own honest
+  // DataUnavailable state (no invented runway).
+  const coverageMonths = reserve.value?.electricityCoveredMonths ?? null;
+  const runwayPeriod =
+    accumulationPoints[accumulationPoints.length - 1]?.period ?? "Current";
+  const runwayData: ReserveRunwayData | null =
+    ownershipUnavailable || coverageMonths == null
+      ? null
+      : { points: [{ period: runwayPeriod, coverageMonths }] };
+  const runwaySource = dataStatusToSource(
+    ownershipUnavailable ? "NOT_CONFIGURED" : reserve.status,
+  );
+
+  // All-in mining cost vs BTC spot: the backend exposes no per-month
+  // cost/spot series yet, so this block reads honestly "not enough history"
+  // (null) — never a fabricated cost curve. Wire real points here the day
+  // the cost/spot source lands.
+  const costSpotPoints = null;
+
   return (
     <BentoPageShell testId="btc-page">
       {/* No page title — the KPI band IS the header (cockpit pass). */}
@@ -190,6 +247,15 @@ export default async function BtcPage({
               )}
             />
           </div>
+        </div>
+
+        {/* Zone 2b — reserve operations: all-in mining cost vs spot +
+            electricity runway funded by the B3 Reserve USDC pocket. Both are
+            reserve-cockpit blocks; each renders its own honest DataUnavailable
+            state when its source hasn't resolved (no fabricated series). */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--ct-space-5)] items-stretch">
+          <AllInCostVsSpot points={costSpotPoints} source="configured" />
+          <ReserveRunwayChart data={runwayData} source={runwaySource} />
         </div>
 
         {/* Zone 3 — uniform ops band: sources · ledger · maturity · custody */}
