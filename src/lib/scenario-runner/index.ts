@@ -19,7 +19,6 @@ export {
   validateCollateralConfig,
   validateRuleSet,
   validateRebalancingRule,
-  assertNoGuaranteedWording,
   type RunnerViolation,
 } from "./validators";
 

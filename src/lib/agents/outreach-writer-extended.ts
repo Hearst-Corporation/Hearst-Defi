@@ -145,36 +145,6 @@ function parseAndGuardWhatsApp(text: string): WhatsAppDraft {
   return { body: ensureCtaInBody(draft.body, "[CTA link]") };
 }
 
-/**
- * Draft a short WhatsApp message (intro or follow-up).
- */
-export async function draftWhatsApp(
-  input: DraftWhatsAppInput,
-  opts: OutreachWriterOptions = {},
-): Promise<WhatsAppDraft> {
-  const language: OutreachLanguage = input.language ?? "en";
-  const audience: OutreachAudience = input.audience ?? "subscriber";
-  const isFollowUp = input.isFollowUp ?? false;
-  const model = opts.model ?? OUTREACH_WRITER_MODEL;
-
-  const { response } = await callLlm(
-    "whatsapp-outreach",
-    {
-      model,
-      max_tokens: 256,
-      system: buildWhatsAppSystem(language, input.typeformUrl, audience, isFollowUp),
-      messages: [{ role: "user", content: buildWhatsAppUserPrompt(input) }],
-    },
-    { client: opts.client, timeoutMs: opts.timeoutMs ?? DEFAULT_TIMEOUT_MS },
-  );
-
-  const text = response.content.find((b) => b.type === "text")?.text ?? "";
-  if (text.length === 0) {
-    throw new Error("WhatsApp agent returned no text");
-  }
-  return parseAndGuardWhatsApp(text);
-}
-
 // ============================================================================
 // LINKEDIN
 // ============================================================================
@@ -283,36 +253,6 @@ function parseAndGuardLinkedIn(text: string): LinkedInDraft {
   // Forbidden words (#5) + APY always a range (#1) — shared send-copy gate.
   assertSendCopyCompliant(draft.body);
   return { body: ensureCtaInBody(draft.body, "[CTA link]") };
-}
-
-/**
- * Draft a LinkedIn connection note or InMail message.
- */
-export async function draftLinkedIn(
-  input: DraftLinkedInInput,
-  opts: OutreachWriterOptions = {},
-): Promise<LinkedInDraft> {
-  const language: OutreachLanguage = input.language ?? "en";
-  const audience: OutreachAudience = input.audience ?? "subscriber";
-  const isConnectionRequest = input.isConnectionRequest ?? false;
-  const model = opts.model ?? OUTREACH_WRITER_MODEL;
-
-  const { response } = await callLlm(
-    "linkedin-outreach",
-    {
-      model,
-      max_tokens: 512,
-      system: buildLinkedInSystem(language, input.typeformUrl, audience, isConnectionRequest),
-      messages: [{ role: "user", content: buildLinkedInUserPrompt(input) }],
-    },
-    { client: opts.client, timeoutMs: opts.timeoutMs ?? DEFAULT_TIMEOUT_MS },
-  );
-
-  const text = response.content.find((b) => b.type === "text")?.text ?? "";
-  if (text.length === 0) {
-    throw new Error("LinkedIn agent returned no text");
-  }
-  return parseAndGuardLinkedIn(text);
 }
 
 // ============================================================================

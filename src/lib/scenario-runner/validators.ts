@@ -14,8 +14,6 @@ export interface RunnerViolation {
   detail: string;
 }
 
-const FORBIDDEN = /(?<!\bnot\s)\b(guarantee|guaranteed|risk-?free|will deliver)\b/i;
-
 export function validateManualProjectionConfig(cfg: ManualProjectionConfig): RunnerViolation[] {
   const out: RunnerViolation[] = [];
   if (cfg.durationMonths !== 24) out.push({ code: "duration", detail: "duration must be 24 months" });
@@ -72,11 +70,4 @@ export function validateRuleSet(rules: RebalancingRule[]): RunnerViolation[] {
     }
   }
   return out;
-}
-
-/** No promise-language in any free text of the config/rules. */
-export function assertNoGuaranteedWording(texts: string[]): RunnerViolation[] {
-  return texts
-    .filter((t) => FORBIDDEN.test(t))
-    .map((t) => ({ code: "forbidden_wording", detail: `forbidden wording: "${t.slice(0, 50)}…"` }));
 }
