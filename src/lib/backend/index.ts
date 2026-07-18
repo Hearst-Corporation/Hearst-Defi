@@ -10,9 +10,8 @@
 // failure surfaces as a BackendError and the caller renders an honest
 // error/unavailable state.
 
-export { backendFetch, backendBaseUrl, type BackendFetchOptions } from "./client";
+export { backendFetch, type BackendFetchOptions } from "./client";
 export { BackendError, isBackendError, type BackendErrorCode, type BackendErrorInit } from "./errors";
-export { hasValue, dataStatusLabel, envelopeStatusLabel } from "./status";
 
 export type {
   Envelope,
@@ -32,7 +31,6 @@ export type {
   MiningDTO,
   ContractRuntimeStatus,
   ContractRuntimeMode,
-  RuntimeReport,
 } from "./contracts";
 
 // Server-side loaders (session-authenticated calls to the backend)

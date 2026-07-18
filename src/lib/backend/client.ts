@@ -155,6 +155,3 @@ export async function backendFetch<T>(path: string, opts: BackendFetchOptions = 
     path,
   });
 }
-
-/** The resolved base URL — exported for diagnostics/health surfaces. */
-export const backendBaseUrl = resolveBaseUrl;

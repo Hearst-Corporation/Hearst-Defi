@@ -393,19 +393,3 @@ export interface MiningDTO {
   readonly operationalTelemetry: Resolved<MiningTelemetryRow>;
 }
 
-// ── Runtime report (GET /api/v1/runtime — not envelope-wrapped) ─────────────
-
-export interface RuntimeReport {
-  readonly serviceVersion: string;
-  readonly commitSha: string | null;
-  readonly environment: string;
-  readonly uptimeSeconds: number;
-  readonly db: { readonly reachable: boolean; readonly latencyMs: number | null };
-  readonly databaseStatus: "ready" | "unreachable";
-  readonly lastSuccessfulDbCheck: string | null;
-  readonly providerMode: "gpu1-supabase";
-  readonly contract: ContractRuntimeStatus;
-  readonly contractStatus: "NOT_CONFIGURED" | "CONFIGURED";
-  readonly indexer: { readonly status: "NOT_CONFIGURED" | "RUNNING" | "STALLED"; readonly lastSyncedAt: string | null };
-  readonly indexerStatus: "NOT_CONFIGURED" | "RUNNING" | "STALLED";
-}
