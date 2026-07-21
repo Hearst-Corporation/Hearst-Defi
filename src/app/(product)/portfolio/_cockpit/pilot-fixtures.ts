@@ -14,9 +14,9 @@
  *   render its mining / agent acts honestly-badged, kept deliberately distinct
  *   and named "pilot" so no reader mistakes it for real position data.
  *
- * The financial truth (deposit, value, accrued, yield, NAV, distributions,
- * pockets split, collateral, take-profit) is built from the signed-in account in
- * portfolio-cockpit.ts — NONE of it lives here.
+ * The position truth (recorded principal and value, NAV, pocket split and
+ * take-profit) is built from the signed-in account in portfolio-cockpit.ts —
+ * NONE of it lives here.
  *
  * A "Data Quality Agent" advisory row (built in the loader) states plainly that
  * this operational feed is sample/estimated and not yet wired to canon.

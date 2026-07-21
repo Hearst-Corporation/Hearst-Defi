@@ -62,6 +62,27 @@ Agents must reserve files here before editing.
 
 ## ACTIVE LOCKS
 
+### fix/hashvault-m14-investor-leak
+Owner: GPT-5.6 Sol — M14 Series 1 investor wording closure
+Branch: fix/hashvault-m14-investor-leak
+Worktree: ../connect-m14-investor-leak
+Started: 2026-07-21
+Status: active
+
+Scope:
+- src/components/portfolio/position-capital-protection.tsx
+- src/components/portfolio/__tests__/position-capital-protection.test.tsx
+- src/lib/guards/wording-series1.ts
+- src/lib/guards/__tests__/wording-series1.test.ts
+- src/app/(product)/portfolio/page.tsx
+- src/app/(product)/portfolio/_cockpit/pilot-fixtures.ts
+- src/app/(product)/portfolio/preview/page.tsx
+- src/app/(product)/portfolio/__tests__/preview-isolation.test.ts
+- docs/agent-file-locks.md
+
+STOP: no Prisma, engine, auth/session, backend contract, M9/rebrand, global nav,
+preview deletion, merge, deployment, or production mutation.
+
 > NOTE 2026-06-28 : tous les locks « actifs » précédents (feat/ds-canon-propagation —
 > mergé dans main ; fix/ds-authority-lock, fix/outreach-draft-continuity,
 > squad/portfolio-premium-foundations, feat/defi-market-data — sans remote ni worktree
