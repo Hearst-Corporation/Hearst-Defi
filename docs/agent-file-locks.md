@@ -108,6 +108,27 @@ Scope:
 STOP: no Prisma/data migration, engine, auth/session, M9/rebrand, global route
 rename, payment action change, full test/build, push, merge, or deployment.
 
+### feat/hashvault-m13-mining-note-data
+Owner: GPT-5.6 Sol — M13 mining-note Prisma extraction
+Branch: feat/hashvault-m13-mining-note-data
+Worktree: ../connect-m14-investor-leak
+Started: 2026-07-21
+Status: active, sequenced after M15 commit `cb059a15`
+
+Scope:
+- prisma/schema.prisma
+- prisma/migrations/20260718091000_add_mining_note_models/migration.sql
+- src/lib/demo/__tests__/zand-fixture-contract.test.ts
+- docs/agent-file-locks.md
+
+Source references (read-only):
+- ../connect-m2-data at `8d8ac17e`
+- ../connect-integration at `1552312d`
+
+STOP: additive schema/migration only; retain Distribution, DistributionLedgerEntry,
+DistributionApproval and Pcap; no DB apply/push/reset, prod write, ingest/backend,
+engine, seed execution, M9, full test/build, push, merge, or deployment.
+
 > NOTE 2026-06-28 : tous les locks « actifs » précédents (feat/ds-canon-propagation —
 > mergé dans main ; fix/ds-authority-lock, fix/outreach-draft-continuity,
 > squad/portfolio-premium-foundations, feat/defi-market-data — sans remote ni worktree
