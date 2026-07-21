@@ -129,6 +129,21 @@ STOP: additive schema/migration only; retain Distribution, DistributionLedgerEnt
 DistributionApproval and Pcap; no DB apply/push/reset, prod write, ingest/backend,
 engine, seed execution, M9, full test/build, push, merge, or deployment.
 
+### docs/hashvault-m16-backend-contract-parity
+Owner: GPT-5.6 Sol — M16 backend contract parity
+Branch: docs/hashvault-m16-backend-contract-parity
+Worktree: ../connect-m14-investor-leak
+Started: 2026-07-22
+Status: active, sequenced after M13 commit `052268b2`
+
+Scope:
+- docs/backend-integration.md
+- docs/agent-file-locks.md
+
+STOP: documentation and existing targeted contract checks only; no external
+backend edit, runtime route migration, Prisma/migration, auth/session change,
+gpu1-backend recreation, M9, full test/build, push, merge, or deployment.
+
 > NOTE 2026-06-28 : tous les locks « actifs » précédents (feat/ds-canon-propagation —
 > mergé dans main ; fix/ds-authority-lock, fix/outreach-draft-continuity,
 > squad/portfolio-premium-foundations, feat/defi-market-data — sans remote ni worktree
