@@ -47,18 +47,18 @@ export function PositionCapitalProtection({
       description: lockupCopy,
     },
     {
-      title: "Collateralised pockets",
+      title: "Three-pocket reserve",
       description:
-        "The deployed base is backed across mining power, wBTC and USDC pockets on a best-effort basis — never a guarantee of value.",
+        "The deployed base is allocated across Mining Power, BTC Pouch and Reserve USDC under the Series 1 policy.",
     },
     {
       title: "Recovery mechanism",
       description:
-        "On underperformance, the waterfall prioritises return of principal ahead of yield. Deterministic in ordering, not guaranteed in outcome.",
+        "At maturity, the contractual waterfall applies the documented settlement order. Ordering is deterministic; outcomes remain conditional.",
     },
   ];
 
-  // Capital-at-work bar: base = principal, accent overlay = accrued yield.
+  // Capital-at-work bar: base = principal, accent overlay = recorded value change.
   // Purely proportional to the two real USDC figures; no invented ratios.
   const base = principalUsdc > 0 ? principalUsdc : 0;
   const accrued = accruedYieldUsdc > 0 ? accruedYieldUsdc : 0;
@@ -71,7 +71,7 @@ export function PositionCapitalProtection({
       ? "Position is active — capital remains deployed."
       : status === "matured"
         ? "Position has matured — safeguards applied through the term."
-        : "Position has exited — capital and yield have been settled.";
+        : "Position has exited — capital and proceeds have been settled.";
 
   return (
     <div className="p-5" aria-label={ariaLabel ?? "Capital protection"}>
@@ -118,7 +118,7 @@ export function PositionCapitalProtection({
         <div
           className="flex h-2 w-full overflow-hidden rounded-lg bg-[var(--ct-border-soft)]"
           role="img"
-          aria-label={`Principal deployed ${formatUsdFull(principalUsdc)}, accrued yield ${formatUsdFull(accruedYieldUsdc)}`}
+          aria-label={`Principal deployed ${formatUsdFull(principalUsdc)}, recorded value change ${formatUsdFull(accruedYieldUsdc)}`}
         >
           <div
             className="h-full bg-[var(--ct-text-faint)]"
@@ -135,7 +135,7 @@ export function PositionCapitalProtection({
             Principal deployed · {formatUsdFull(principalUsdc)}
           </span>
           <span className="ct-metric-caption text-[var(--ct-accent)]">
-            Accrued yield · {formatUsdFull(accruedYieldUsdc)}
+            Recorded value change · {formatUsdFull(accruedYieldUsdc)}
           </span>
           <span className="ct-metric-caption text-[var(--ct-text-muted)]">
             Distributed · {formatUsdFull(distributedUsdc)}

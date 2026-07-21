@@ -1,5 +1,5 @@
 // Dashboard backend-down guard — the live load
-// (`Promise.all([getDashboard, getMining, getBtc])`) is wrapped in try/catch
+// (`Promise.all([getDashboard, getMining, getBtcPageData])`) is wrapped in try/catch
 // (mirrors /btc). When hearst-connect-backend is down, getDashboard() throws a
 // BackendError; the page must render an HONEST page-level error inside the
 // BentoPageShell — NOT crash into the Product Error overlay, NOT substitute a
@@ -31,14 +31,21 @@ vi.mock("@/lib/db", () => ({ prisma: {} }));
 vi.mock("../dashboard-signature.css", () => ({}));
 
 // --- Data source: getDashboard() rejects with a BackendError. ---
-const getDashboard = vi.fn();
-const getMining = vi.fn();
-const getBtc = vi.fn();
+const { getDashboard, getMining, getBtc, getBtcPageData } = vi.hoisted(() => ({
+  getDashboard: vi.fn(),
+  getMining: vi.fn(),
+  getBtc: vi.fn(),
+  getBtcPageData: vi.fn(),
+}));
 
 vi.mock("@/features/investor-ui/data-source", () => ({
   getInvestorUiDataSource: () => ({ getDashboard, getMining, getBtc }),
   // preview path (unused here) — a fixture source factory that would not throw.
   getFixtureInvestorUiDataSource: () => ({ getDashboard, getMining, getBtc }),
+}));
+
+vi.mock("@/app/(product)/btc/_data/get-btc-page-data", () => ({
+  getBtcPageData,
 }));
 
 import DashboardPage from "../page";
@@ -61,10 +68,12 @@ describe("dashboard page — backend down (guarded live load)", () => {
     getDashboard.mockReset();
     getMining.mockReset();
     getBtc.mockReset();
+    getBtcPageData.mockReset();
     getDashboard.mockRejectedValue(BACKEND_ERROR);
     // Even if these resolve, Promise.all rejects on getDashboard first.
     getMining.mockResolvedValue({});
     getBtc.mockResolvedValue({});
+    getBtcPageData.mockResolvedValue({});
   });
 
   it("does not throw — the BackendError is caught, not propagated", async () => {

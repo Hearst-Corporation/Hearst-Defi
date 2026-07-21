@@ -30,7 +30,7 @@ import { INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Deposit Confirmed — Hearst Yield Vault",
+  title: "Deposit Confirmed — Series 1 Reserve Vault",
 };
 
 interface PageProps {

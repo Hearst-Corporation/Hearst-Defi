@@ -1,4 +1,4 @@
-import { REBALANCING_EVENTS_EMPTY } from "@/components/proof/empty-messages";
+import { RESERVE_EVENTS_EMPTY } from "@/components/proof/empty-messages";
 import { RebalancePtaiModalTrigger } from "@/components/proof-center/rebalance-ptai-modal-trigger";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofCenterRebalanceRow } from "@/lib/data/proof-center";
@@ -84,15 +84,15 @@ export function RebalancingEventsPanel({
           <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
             <div className="flex flex-col gap-1.5">
               <h2 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
-                Rebalancing events
+                Reserve events
               </h2>
-              <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">Awaiting first rebalance</p>
+              <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">Awaiting first reserve event</p>
             </div>
           </div>
         )}
         <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
-          <p className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">{REBALANCING_EVENTS_EMPTY.message}</p>
-          <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] max-w-sm">{REBALANCING_EVENTS_EMPTY.detail}</p>
+          <p className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-body)]">{RESERVE_EVENTS_EMPTY.message}</p>
+          <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] max-w-sm">{RESERVE_EVENTS_EMPTY.detail}</p>
         </div>
       </>
     );
@@ -115,12 +115,12 @@ export function RebalancingEventsPanel({
         <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
           <div className="flex flex-col gap-1.5">
             <h2 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
-              {sectionLed ? "Rebalancing events" : "Vault operations"}
+              {sectionLed ? "Reserve events" : "Contract events"}
             </h2>
             <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide">
               {sectionLed
-                ? `Last ${events.length} rule-triggered events (PTAI)`
-                : "Rule-triggered events"}
+                ? `Last ${events.length} reserve events (PTAI)`
+                : "Take-profit, curtailment and reserve events"}
             </p>
           </div>
           <span
@@ -137,7 +137,7 @@ export function RebalancingEventsPanel({
         </div>
       )}
 
-      <ul aria-label="Recent rebalancing events" className="flex flex-col">
+      <ul aria-label="Recent reserve events" className="flex flex-col">
         {events.map((event) => {
           const eventProvenance = rebalanceProvenance(event.status);
           return (

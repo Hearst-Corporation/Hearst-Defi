@@ -28,6 +28,11 @@ export const SERIES1_BANNED_TERMS: readonly string[] = [
   "collateral loan",
   "collateralized loan",
   "collateralised loan",
+  "collateral",
+  "collateralised",
+  "collateralized",
+  "leverage",
+  "leveraged",
 ] as const;
 
 /** One detected banned-term occurrence. */

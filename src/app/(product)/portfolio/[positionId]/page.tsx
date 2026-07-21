@@ -44,12 +44,13 @@ import { PositionInfrastructureProofs } from "@/components/portfolio/position-in
 import { projectValueTrajectory } from "@/lib/engine/value-projection";
 import { explorerTxUrl } from "@/lib/chain/explorer";
 import { loadPosition, POSITION_STATUS_CONFIG } from "@/lib/data/portfolio";
-import { formatApyRange } from "@/lib/format/apy";
 import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
+
+const SERIES1_VAULT_LABEL = "Series 1 Reserve Vault";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Vault" };
+export const metadata = { title: "Position — Series 1 Reserve Vault" };
 
 interface PageProps {
   params: Promise<{ positionId: string }>;
@@ -123,13 +124,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
       : 0;
   const up = perfPct >= 0;
 
-  const hasApy =
+  const hasAccumulationRange =
     position.realizedApyLow !== null && position.realizedApyHigh !== null;
-  const apyLowPct = position.realizedApyLow ?? 0;
-  const apyHighPct = position.realizedApyHigh ?? 0;
-  const apyLabel = hasApy
-    ? formatApyRange({ low: apyLowPct, high: apyHighPct })
-    : "—";
+  const accumulationLowPct = position.realizedApyLow ?? 0;
+  const accumulationHighPct = position.realizedApyHigh ?? 0;
 
   const openTxUrl = position.txHashOpen ? explorerTxUrl(position.txHashOpen) : null;
 
@@ -159,8 +157,8 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const projection = projectValueTrajectory({
     principalUsdc: position.principalUsdc,
     currentValueUsdc: value,
-    realizedApyLowPct: apyLowPct,
-    realizedApyHighPct: apyHighPct,
+    realizedApyLowPct: accumulationLowPct,
+    realizedApyHighPct: accumulationHighPct,
     subscribedAt: position.subscribedAt,
     now,
     maturityAt: effectiveMaturityAt,
@@ -192,8 +190,12 @@ export default async function VaultDetailPage({ params }: PageProps) {
   // Hero edge stat band — the position's four real headline metrics (4-up = a
   // perfectly symmetric rail, StatBand caps at 4 cols). Deposited (Manual) ·
   // Current value (Attested + delta) · Accrued value (Estimated — BTC/value
-  // accumulated, NOT distributed) · Est. yield range (Estimated). Maturity moves
-  // to a header chip. No red anywhere.
+  // accumulated, NOT distributed) · Est. BTC delivery range (Estimated). Maturity
+  // moves to a header chip. No red anywhere.
+  const deliveryRangeLabel = hasAccumulationRange
+    ? `${formatUsdFull(projection.maturityLo)}–${formatUsdFull(projection.maturityHi)}`
+    : "—";
+
   const heroStats: StatCell[] = [
     {
       label: "Deposited",
@@ -215,8 +217,8 @@ export default async function VaultDetailPage({ params }: PageProps) {
       provenance: "estimated",
     },
     {
-      label: "Est. yield",
-      value: apyLabel,
+      label: "Est. BTC delivery",
+      value: deliveryRangeLabel,
       provenance: "estimated",
     },
   ];
@@ -268,7 +270,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           </Link>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1">
-              <h1 className="h1 shrink-0">{position.vaultName ?? "Hearst Yield Vault"}</h1>
+              <h1 className="h1 shrink-0">{position.vaultName ?? SERIES1_VAULT_LABEL}</h1>
               <p className="page-canon-kicker">
                 {position.vaultTicker} · SUBSCRIBED{" "}
                 {formatAdminDate(position.subscribedAt).toUpperCase()}
@@ -298,7 +300,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <div className="relative z-10 flex flex-col">
             <div className="flex flex-wrap items-start justify-between gap-3 px-5 pt-5 lg:px-6 lg:pt-6">
               <div className="flex min-w-0 flex-col gap-1.5">
-                <span className="ct-bento-label">Position overview · realized & projected range</span>
+                <span className="ct-bento-label">Position overview · reserve trajectory to delivery</span>
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <span className="ct-metric-value text-[length:var(--ct-text-2xl)] tabular-nums">
                     {formatUsdFull(value)}
@@ -342,27 +344,24 @@ export default async function VaultDetailPage({ params }: PageProps) {
               )}
             </div>
 
-            {hasApy ? (
+            {hasAccumulationRange ? (
               <ValueTrajectory
                 projection={projection}
-                apyLowPct={apyLowPct}
-                apyHighPct={apyHighPct}
                 nowValueLabel={formatUsdFull(value)}
                 startLabel={formatAdminDate(position.subscribedAt)}
                 endLabel={horizonLabel}
-                aria-label="Position value trajectory: realized to date and projected range"
+                aria-label="Position reserve trajectory: realized to date and estimated BTC delivery range at maturity"
               />
             ) : (
-              // Honest guard: without a known vault yield range, the engine's
-              // forward cone collapses to a fabricated 0-0% band (lo === hi ===
-              // currentValue) — rendering it would present "no data" as a real
-              // zero-width projection. Show the realized value only, no cone.
+              // Honest guard: without a known accumulation range, the engine's
+              // forward cone collapses to a fabricated zero-width band — rendering
+              // it would present "no data" as a real projection. Show realized value only.
               <div className="p-5">
                 <EmptySurface
                   variant="chart"
-                  message="No projection available for this position."
-                  detail="This vault's estimated yield range is not set — the realized value is shown without a forward projection."
-                  ariaLabel="Position value trajectory: no yield range available for projection"
+                  message="No reserve trajectory available for this position."
+                  detail="This note's estimated BTC delivery range is not set — the realized value is shown without a forward projection."
+                  ariaLabel="Position reserve trajectory: no BTC accumulation range available for projection"
                 />
               </div>
             )}
@@ -458,7 +457,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
                     {
                       title: "Capital recovery",
                       description:
-                        "Mining proceeds are prioritised toward restoring principal ahead of new yield. Deterministic in ordering, not guaranteed in outcome.",
+                        "Mining proceeds are prioritised toward restoring principal ahead of new BTC accumulation. Deterministic in ordering, not guaranteed in outcome.",
                     },
                   ]}
                 />
@@ -579,7 +578,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
         {/* single global disclaimer */}
         <p className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
           Projections are conditional ranges, never a commitment — they assume the
-          note&apos;s estimated yield range, simple (non-compounded), net of fees.
+          note&apos;s estimated BTC accumulation range at maturity, net of fees.
           Capital protection is best-effort and structural, never guaranteed.
         </p>
       </div>

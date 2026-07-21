@@ -84,6 +84,65 @@ model MiningMetric {
 }
 
 // =============================================================================
+// SERIES 1 MINING NOTE — additive event history for external backend indexing
+// =============================================================================
+
+/// Executed take-profit tiers from PermissionedDynaVault v2.1.
+/// Append-only evidence: BTC leaves B2 and the received USDC enters B3 Reserve.
+model TakeProfitExecution {
+  id                String          @id @default(uuid())
+  vaultDeploymentId String
+  vaultDeployment   VaultDeployment @relation("VaultTakeProfit", fields: [vaultDeploymentId], references: [id], onDelete: Cascade)
+  tierIndex         Int
+  btcPriceUsd       Decimal
+  btcSoldSats       BigInt
+  usdcReceived      Decimal
+  monthIndex        Int?
+  executedAt        DateTime        @default(now())
+  txHash            String?         @unique
+  blockNumber       BigInt?
+  source            String          @default("onchain") // onchain | manual
+
+  @@index([vaultDeploymentId, executedAt])
+  @@index([tierIndex])
+}
+
+/// Triggered/lifted curtailment history when BTC economics cross the all-in-cost rule.
+model CurtailmentEvent {
+  id                String          @id @default(uuid())
+  vaultDeploymentId String
+  vaultDeployment   VaultDeployment @relation("VaultCurtailment", fields: [vaultDeploymentId], references: [id], onDelete: Cascade)
+  kind              String // triggered | lifted
+  monthIndex        Int
+  btcPriceUsd       Decimal
+  thresholdUsd      Decimal?
+  occurredAt        DateTime        @default(now())
+  txHash            String?         @unique
+  blockNumber       BigInt?
+  source            String          @default("onchain") // onchain | manual
+
+  @@index([vaultDeploymentId, occurredAt])
+  @@index([kind])
+}
+
+/// Reported mining output and cumulative BTC accumulated by the note.
+model BtcAccumulationSnapshot {
+  id                 String          @id @default(uuid())
+  vaultDeploymentId  String
+  vaultDeployment    VaultDeployment @relation("VaultBtcAccumulation", fields: [vaultDeploymentId], references: [id], onDelete: Cascade)
+  monthIndex         Int?
+  hashrateTh         Decimal
+  btcEarnedSats      BigInt
+  totalBtcEarnedSats BigInt
+  reportedAt         DateTime        @default(now())
+  txHash             String?         @unique
+  blockNumber        BigInt?
+  source             String          @default("onchain") // onchain | manual
+
+  @@index([vaultDeploymentId, reportedAt])
+}
+
+// =============================================================================
 // TELEGRAM — machine market snapshots (persisted cache)
 // =============================================================================
 
@@ -204,6 +263,8 @@ model RebalanceEvent {
   @@index([vaultRef])
 }
 
+/// LEGACY RETAINED / NON-SERIES 1.
+/// Read-only historical compatibility; new Series 1 flows must not create rows.
 model Distribution {
   id              String                    @id @default(cuid())
   distributedAt   DateTime
@@ -231,7 +292,8 @@ model Distribution {
 }
 
 /**
- * Pending multisig approvals for a distribution.
+ * LEGACY RETAINED / NON-SERIES 1.
+ * Pending multisig approvals for a historical distribution.
  * Each row represents one signer's confirmation for a given period.
  * The first signer locks in the reference `totalUsdc` amount;
  * subsequent signers must match the same amount.
@@ -533,6 +595,10 @@ model VaultDeployment {
   positions    Position[]
   proposals    GovernanceProposal[]
   shareClasses ShareClass[]
+
+  takeProfits      TakeProfitExecution[]     @relation("VaultTakeProfit")
+  curtailments     CurtailmentEvent[]        @relation("VaultCurtailment")
+  btcAccumulations BtcAccumulationSnapshot[] @relation("VaultBtcAccumulation")
 
   @@index([status])
   @@index([strategy, status])
@@ -1020,7 +1086,7 @@ model Subscription {
 }
 
 // =============================================================================
-// DISTRIBUTION LEDGER — per-LP entries from atomic distribution exec (Carta pattern)
+// LEGACY RETAINED / NON-SERIES 1 — historical distribution audit records
 // =============================================================================
 
 model DistributionLedgerEntry {
@@ -1035,6 +1101,7 @@ model DistributionLedgerEntry {
   @@index([positionId])
 }
 
+/// LEGACY RETAINED / NON-SERIES 1 — historical PCAP document metadata.
 model Pcap {
   id             String   @id @default(cuid())
   distributionId String?

@@ -34,16 +34,16 @@ export const OFF_CHAIN_PROOFS_EMPTY = {
   detail: "Mining attestations and custody snapshots appear here once posted by operations.",
 } as const;
 
-export const RECENT_DISTRIBUTIONS_EMPTY = {
-  message: "No proceeds recorded yet.",
+export const DELIVERY_EVENTS_EMPTY = {
+  message: "No delivery events recorded yet.",
   detail:
-    "This note accumulates Bitcoin across its three pockets and settles at maturity — there is no periodic cash distribution. Proceeds and on-chain settlement events appear here as they are recorded (Methodology v3.0).",
+    "BTC delivery evidence appears here after a maturity settlement is recorded on-chain.",
 } as const;
 
-export const REBALANCING_EVENTS_EMPTY = {
-  message: "No rebalancing events yet.",
+export const RESERVE_EVENTS_EMPTY = {
+  message: "No reserve events yet.",
   detail:
-    "Rule-triggered rebalancing signals will appear here once the first one executes.",
+    "Take-profit, curtailment and reserve events appear after an operation is recorded.",
 } as const;
 
 export const MINING_CASHFLOW_COPY = {

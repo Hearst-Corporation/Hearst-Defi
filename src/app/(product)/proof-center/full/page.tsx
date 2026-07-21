@@ -12,7 +12,7 @@ import { loadProofCenterFullLog } from "@/lib/proof-center/full-log-loader";
 export const metadata = {
   title: "Proof Center — Series 1 full log",
   description:
-    "Reserve Vault Series 1 institutional proof: on-chain contract events, take-profit / curtailment operations, off-chain proofs, custody & PoR contracts, and governance timelocks. Series 1 accumulates BTC and settles at maturity — no periodic distribution.",
+    "Reserve Vault Series 1 institutional proof: on-chain contract, delivery, take-profit, curtailment and reserve events; off-chain mining, custody and PoR evidence; governance timelocks and proof freshness.",
 };
 
 interface ProofCenterFullPageProps {

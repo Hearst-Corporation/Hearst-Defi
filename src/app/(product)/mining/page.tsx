@@ -3,7 +3,10 @@
  */
 import { BentoPageShell } from "@/components/catalyst/bento";
 import { ProductPageHeader } from "@/components/connect/product-page-header";
-import { ProvenanceBadge } from "@/components/catalyst/provenance-badge";
+import {
+  ProvenanceBadge,
+  type Provenance,
+} from "@/components/catalyst/provenance-badge";
 import { PageErrorState } from "@/features/investor-ui/components/states/data-states";
 import { isBackendError } from "@/lib/backend";
 import { requireInvestor } from "@/lib/auth/require-investor";
@@ -12,6 +15,7 @@ import {
   getInvestorUiDataSource,
   type MiningFixtureState,
 } from "@/features/investor-ui/data-source";
+import type { DataStatus } from "@/features/investor-ui/types";
 
 import { MiningPageContent } from "./_components/mining-page-content";
 import "./mining.css";
@@ -30,6 +34,45 @@ const PREVIEW_STATE_MAP: Record<string, MiningFixtureState> = {
 
 interface MiningPageProps {
   searchParams: Promise<{ state?: string | string[] }>;
+}
+
+function miningHeaderProvenance(status: DataStatus): {
+  kind: Provenance;
+  description: string;
+} {
+  switch (status) {
+    case "LIVE":
+      return {
+        kind: "live",
+        description: "Current mining metrics resolved from hearst-connect-backend.",
+      };
+    case "STALE":
+      return {
+        kind: "stale",
+        description: "Backend mining metrics resolved but are awaiting a fresher report.",
+      };
+    case "FIXTURE":
+      return {
+        kind: "simulated",
+        description: "Explicit QA preview data — not a production record.",
+      };
+    case "PARTIAL":
+      return {
+        kind: "partial",
+        description: "Only part of the backend mining report is available.",
+      };
+    case "NOT_CONFIGURED":
+      return {
+        kind: "partial",
+        description: "Backend source pending — mining reporting is not configured.",
+      };
+    case "UNAVAILABLE":
+    case "ERROR":
+      return {
+        kind: "partial",
+        description: "Backend mining source unavailable — no fixture substituted.",
+      };
+  }
 }
 
 export default async function MiningPage({ searchParams }: MiningPageProps) {
@@ -71,19 +114,31 @@ export default async function MiningPage({ searchParams }: MiningPageProps) {
         <ProductPageHeader
           titleLead="Mining"
           contextLabel="CONTRIBUTION"
-          titleRowEnd={<ProvenanceBadge kind="simulated" />}
+          titleRowEnd={
+            <ProvenanceBadge
+              kind="partial"
+              description="Backend mining source unavailable — no fixture substituted."
+            />
+          }
         />
         <PageErrorState title="Mining contribution unavailable" detail={detail} />
       </BentoPageShell>
     );
   }
 
+  const headerProvenance = miningHeaderProvenance(viewModel.mining.status);
+
   return (
     <BentoPageShell testId="mining-page">
       <ProductPageHeader
         titleLead="Mining"
         contextLabel="CONTRIBUTION"
-        titleRowEnd={<ProvenanceBadge kind="simulated" />}
+        titleRowEnd={
+          <ProvenanceBadge
+            kind={headerProvenance.kind}
+            description={headerProvenance.description}
+          />
+        }
       />
       <MiningPageContent viewModel={viewModel} />
     </BentoPageShell>

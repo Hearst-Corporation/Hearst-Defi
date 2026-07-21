@@ -128,7 +128,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     href: "/admin/vaults",
     tabs: [
       { id: "vaults-overview", label: "Overview", href: "/admin/vaults", icon: "Vault" },
-      { id: "distributions", label: "Distributions", href: "/admin/distributions", icon: "FileText" },
+      { id: "distributions", label: "Reserve Events", href: "/admin/distributions", icon: "FileText" },
       { id: "rebalancing", label: "Rebalancing", href: "/admin/signals", icon: "Zap" },
     ],
   },

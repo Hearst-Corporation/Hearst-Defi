@@ -49,6 +49,18 @@ describe("scanSeries1Wording", () => {
     expect(terms.has("collateral loan")).toBe(true);
   });
 
+  it.each([
+    "collateral",
+    "collateralised",
+    "collateralized",
+    "leverage",
+    "leveraged",
+  ])("detects the raw Series 1 term %s", (term) => {
+    const res = scanSeries1Wording(`Investor copy contains ${term}.`);
+    expect(res.ok).toBe(false);
+    expect(res.hits.some((hit) => hit.term === term)).toBe(true);
+  });
+
   it("does not false-positive on substrings (loyalty, salt) ", () => {
     const res = scanSeries1Wording("Loyalty rewards and salt of the earth.");
     expect(res.ok).toBe(true);
@@ -73,5 +85,14 @@ describe("scanSeries1Wording", () => {
     expect(SERIES1_BANNED_TERMS.length).toBeGreaterThan(0);
     expect(SERIES1_BANNED_TERMS).toContain("borrow");
     expect(SERIES1_BANNED_TERMS).toContain("Morpho");
+    expect(SERIES1_BANNED_TERMS).toEqual(
+      expect.arrayContaining([
+        "collateral",
+        "collateralised",
+        "collateralized",
+        "leverage",
+        "leveraged",
+      ]),
+    );
   });
 });

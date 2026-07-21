@@ -17,6 +17,7 @@
  * Chrome budget: ONE shadowed hero, every support surface is a bare hairline. Green (accent) +
  * heartbeat pulse are reserved for the one genuinely-Live value (hashprice). Kit = frames; HIS = charts.
  */
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -64,9 +65,18 @@ import {
   VAULT,
 } from "./_data/mock";
 
-export const metadata = {
-  title: "Vault preview — V4 (sandbox)",
-  description: "Per-client V4 vault-health console. Mock data, B2B/KYC-gated.",
+export const metadata: Metadata = {
+  title: "Research sandbox — legacy V4 model",
+  description:
+    "Research-only console with mock data. Separate from the Series 1 investor product.",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
 };
 
 /** Bare-hairline support surface (no shadow — the chrome budget reserves elevation for the hero). */
@@ -129,7 +139,7 @@ export default function PortfolioPreviewPage() {
             className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[length:var(--ct-text-nano)] font-bold uppercase tracking-widest"
             style={{ borderColor: "var(--ct-status-warning-border)", color: "var(--ct-status-warning)", background: "var(--ct-status-warning-soft)" }}
           >
-            Sandbox · V4
+            Research sandbox · V4
           </span>
           <MetaChip label="KYC" value={ACCESS.kycStatus} />
           <MetaChip label="Class" value={ACCESS.shareClass} />
@@ -142,6 +152,13 @@ export default function PortfolioPreviewPage() {
               Live portfolio →
             </Link>
           </span>
+        </div>
+
+        <div
+          role="note"
+          className="rounded-xl border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] px-4 py-3 text-[length:var(--ct-text-xs)] text-[var(--ct-status-warning)]"
+        >
+          Research-only sandbox with mock data — not a Series 1 investor surface.
         </div>
 
         {/* S1 — HERO: the one dominant band (glow + console header + value chart + edge stat band) */}

@@ -7,9 +7,9 @@
 // no home since the cockpit pass: BtcLedgerTable (full register, month bands,
 // running balance, tx hashes) + BtcMaturityPanel (delivery terms).
 //
-// Same data seams as /btc: getBtcPageData for the page-scoped blocks, the
-// shared fixture source for months elapsed — and the SAME `?state=` preview
-// propagation so QA variants degrade coherently across both pages.
+// Same data seams as /btc: getBtcPageData for the page-scoped blocks and the
+// shared backend source for months elapsed. Explicit `?state=` previews remain
+// fixture-backed and degrade coherently across both pages.
 //
 // Honesty contract unchanged: provenance from block statuses, "—" without an
 // anchor, no fabricated balances (buildBtcLedgerRows only folds when the
@@ -20,7 +20,10 @@ import Link from "next/link";
 import { BentoPageShell } from "@/components/catalyst/bento";
 import { Heading } from "@/components/catalyst/heading";
 import { requireInvestor } from "@/lib/auth/require-investor";
-import { getFixtureInvestorUiDataSource } from "@/features/investor-ui/data-source";
+import {
+  getFixtureInvestorUiDataSource,
+  getInvestorUiDataSource,
+} from "@/features/investor-ui/data-source";
 import { PageErrorState } from "@/features/investor-ui/components/states/data-states";
 import { isBackendError } from "@/lib/backend";
 import { formatIsoDate, toProvenance } from "@/features/investor-ui/format-btc";
@@ -37,6 +40,17 @@ export const metadata = {
   description: "Full register of BTC movements and attestations, with maturity delivery terms",
 };
 
+const PREVIEW_STATES = new Set([
+  "complete",
+  "not-configured",
+  "stale",
+  "partial",
+  "btc-complete",
+  "btc-not-configured",
+  "btc-stale",
+  "btc-partial",
+]);
+
 export default async function BtcLedgerPage({
   searchParams,
 }: {
@@ -48,15 +62,21 @@ export default async function BtcLedgerPage({
   let data;
   let mining;
   try {
-    // Same shared-preview propagation as /btc (P1.7): months elapsed must
-    // degrade with the page's preview variant, not silently stay "complete".
-    const sharedPreview = state?.replace(/^btc-/, "") ?? null;
-    const previewSource = getFixtureInvestorUiDataSource({
-      mining: sharedPreview === "not-configured" ? "unavailable" : sharedPreview,
-    });
+    const sharedPreview =
+      state != null && PREVIEW_STATES.has(state)
+        ? state.replace(/^btc-/, "")
+        : null;
+    const miningSource = sharedPreview
+      ? getFixtureInvestorUiDataSource({
+          mining:
+            sharedPreview === "complete" || sharedPreview === "stale"
+              ? sharedPreview
+              : "unavailable",
+        })
+      : getInvestorUiDataSource();
     [data, mining] = await Promise.all([
       getBtcPageData(state),
-      previewSource.getMining(),
+      miningSource.getMining(),
     ]);
   } catch (err) {
     // Backend down / network / 5xx / timeout — never a page crash, never a

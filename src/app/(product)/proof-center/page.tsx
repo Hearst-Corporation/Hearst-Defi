@@ -1,21 +1,17 @@
 // Investor-facing Proof Center — Reserve Vault Series 1 institutional proof.
 // The (product) layout already enforces requireInvestor().
 //
-// Series 1 = BTC accumulation (mining note v3.0): no periodic cash distribution,
-// BTC delivered at maturity. The proof rail therefore leads with institutional
+// Series 1 = BTC accumulation (mining note v3.0), with BTC delivered at maturity.
+// The proof rail leads with institutional
 // proof blocks — proof of mining, proof of reserves (B1/B2/B3 + PoR registry),
 // proof of custody, proof of delivery, contract events, take-profit/curtailment,
 // and a proof-freshness timeline — each with strict per-block provenance and an
 // honest empty state when the underlying evidence is absent (never fake live).
 //
-// "Latest distributions" is de-prioritized (Series 1 has no periodic
-// distribution); the underlying data is retained but kept out of the primary
-// rail. Unbounded content (event log, proofs grid, contracts, timelocks)
-// → /proof-center/full.
+// Legacy records stay outside the primary proof rail. Unbounded content (event
+// log, proofs grid, contracts, timelocks) → /proof-center/full.
 
 export const dynamic = "force-dynamic";
-
-import Link from "next/link";
 
 import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge } from "@/components/catalyst/provenance-badge";
@@ -126,7 +122,7 @@ function ProofFreshnessTimeline({ entries }: { entries: ProofFreshnessEntry[] })
 
 export default async function ProductProofCenterPage() {
   const hubData = await loadProofCenterHubData(false);
-  const { series1Proof, proofFreshness, coldEmpty, distributionsCount } = hubData;
+  const { series1Proof, proofFreshness, coldEmpty } = hubData;
 
   return (
     <div className="flex flex-col gap-(--ct-space-6)">
@@ -154,13 +150,10 @@ export default async function ProductProofCenterPage() {
           </div>
           <p className="mt-(--ct-space-5) text-[length:var(--ct-text-2xs)] leading-relaxed text-[var(--ct-text-faint)]">
             Series 1 accumulates Bitcoin over a 24-month term and settles at
-            maturity — there is no periodic cash distribution. Estimated
-            accumulation is disclosed as a range and is not guaranteed. Each
-            proof block above shows its own source provenance; blocks read
-            &ldquo;Not yet available&rdquo; until the vault operates on-chain
-            {distributionsCount > 0
-              ? " (settlement events, not recurring payouts, appear in the full log)."
-              : "."}
+            maturity. Delivery evidence appears after a maturity settlement is
+            recorded. Estimated accumulation is disclosed as a range and is not
+            guaranteed. Each proof block above shows its own source provenance;
+            blocks read &ldquo;Not yet available&rdquo; until a source is recorded.
           </p>
         </section>
       )}

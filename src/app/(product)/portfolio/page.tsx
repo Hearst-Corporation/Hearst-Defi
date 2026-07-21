@@ -111,8 +111,8 @@ function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }
  * Deterministic, newest first. There are deliberately few (rebalancings are
  * rare, deterministic events); the footer shows the latest and a scrollable
  * "History" of the rest. ALWAYS badged Simulated — advisory, held for multisig,
- * never auto-executed. v2 language: BTC accumulation / take-profit / reserve —
- * no Morpho safety-margin mechanics.
+ * never auto-executed. Series 1 scope: BTC accumulation, take-profit and reserve
+ * events only.
  */
 const PILOT_REBALANCINGS: readonly RebalancingEvent[] = [
   { id: "rb-6", at: "Dec 2025", summary: "BTC pouch trimmed 2% into the USDC reserve ahead of the electricity draw.", tone: "done" },
@@ -326,14 +326,13 @@ export default async function PortfolioPage() {
         />
         <div className={SUPPORT}>
           <StatBand items={healthStats} />
-          {/* v2 is a BTC-accumulation mining note: no periodic cash
-              distribution, no Morpho collateral / debt / liquidation. One honest
-              note per state describing the accumulation term + take-profit. */}
+          {/* Series 1 accumulation note: one honest state description covering
+              the 24-month term, reserve ledger, take-profit and maturity delivery. */}
           <div className="border-t border-[var(--ct-border-soft)] p-5">
             <span className="ct-metric-caption text-[length:var(--ct-text-nano)] leading-snug">
               {zero
-                ? "Not funded yet — after your first subscription this vault accumulates BTC over a 24-month term, with rule-based take-profit toward +24%. There is no periodic cash distribution; the accumulated BTC is delivered at maturity."
-                : "This vault accumulates BTC over a 24-month term, with rule-based take-profit toward +24%. There is no periodic cash distribution; the accumulated BTC is delivered at maturity."}
+                ? "Not funded yet — after your first subscription this vault accumulates BTC over a 24-month term, with rule-based take-profit toward +24%. Accumulated BTC remains in the reserve ledger and is delivered at maturity."
+                : "This vault accumulates BTC over a 24-month term, with rule-based take-profit toward +24%. Accumulated BTC remains in the reserve ledger and is delivered at maturity."}
             </span>
           </div>
 

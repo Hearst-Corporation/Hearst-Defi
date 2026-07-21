@@ -16,7 +16,7 @@ import type { SessionUser } from "@/lib/auth/session";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Allocate capital — Hearst Yield Vault",
+  title: "Allocate capital — Series 1 Reserve Vault",
 };
 
 interface PageProps {
@@ -108,8 +108,8 @@ export default async function InvestDepositPage({ params }: PageProps) {
           <span className="ct-bento-label text-[var(--ct-text-muted)]">Where your capital goes</span>
           <p className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">
             Your USDC is deployed across three on-chain pockets to accumulate Bitcoin over
-            the 24-month term. Estimated return is a range, in accumulated BTC — not
-            guaranteed, not a fixed APY.
+            the 24-month term. Estimated return is disclosed as an accumulated BTC delivery
+            range at maturity — not guaranteed.
           </p>
         </div>
         <BtcCompositionPanel

@@ -19,7 +19,7 @@ describe("zand fixture contract (SERIES 1 mining note, v3.0)", () => {
   it("uses a deterministic non-zero principal", () => {
     expect(ZAND_FIXTURE_PRINCIPAL_USDC).toBe(2_000_000);
     expect(Number.isFinite(ZAND_FIXTURE_PRINCIPAL_USDC)).toBe(true);
-    expect(ZAND_FIXTURE_PRINCIPAL_USDC).toBeGreaterThan(0);
+    expect(ZAND_FIXTURE_PRINCIPAL_USDC).toBeGreaterThanOrEqual(250_000);
   });
 
   it("allocates capital across the 3 SERIES 1 pockets B1/B2/B3 = 40/27/33", () => {
