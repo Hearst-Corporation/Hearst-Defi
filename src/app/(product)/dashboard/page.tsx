@@ -4,6 +4,7 @@ import { BackendDownState } from "@/features/investor-ui/components/states/data-
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getFixtureInvestorUiDataSource, getInvestorUiDataSource } from "@/features/investor-ui/data-source";
 import { btcPageExtraCompleteFixture } from "@/app/(product)/btc/_data/btc-page-fixtures";
+import { getBtcPageData } from "@/app/(product)/btc/_data/get-btc-page-data";
 import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
 import { formatIsoDateTime, formatUsdCompactAmount, toProvenance } from "@/features/investor-ui/format-btc";
 import type { DataStatus } from "@/features/investor-ui/types";
@@ -77,6 +78,36 @@ interface DashboardPageProps {
   searchParams: Promise<{ state?: string | string[] }>;
 }
 
+async function loadDashboardPageData(previewState?: string) {
+  if (previewState) {
+    const source = getFixtureInvestorUiDataSource({ dashboard: previewState });
+    const [dashboard, mining, btc] = await Promise.all([
+      source.getDashboard(),
+      source.getMining(),
+      source.getBtc(),
+    ]);
+    return {
+      dashboard,
+      mining,
+      btc,
+      productionBlock: btcPageExtraCompleteFixture.production,
+    };
+  }
+
+  const source = getInvestorUiDataSource();
+  const [dashboard, mining, btc] = await Promise.all([
+    source.getDashboard(),
+    source.getMining(),
+    getBtcPageData(null),
+  ]);
+  return {
+    dashboard,
+    mining,
+    btc,
+    productionBlock: btc.extra.production,
+  };
+}
+
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   await requireInvestor("/dashboard");
 
@@ -85,17 +116,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const previewState =
     rawState != null && (FIXTURE_VARIANTS as readonly string[]).includes(rawState) ? rawState : undefined;
 
-  const dataSource = previewState
-    ? getFixtureInvestorUiDataSource({ dashboard: previewState })
-    : getInvestorUiDataSource();
-
-  let dashboard, mining, btc;
+  let pageData;
   try {
-    [dashboard, mining, btc] = await Promise.all([
-      dataSource.getDashboard(),
-      dataSource.getMining(),
-      dataSource.getBtc(),
-    ]);
+    pageData = await loadDashboardPageData(previewState);
   } catch (err) {
     if (isBackendError(err)) {
       return (
@@ -107,7 +130,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     throw err;
   }
 
-  const productionBlock = btcPageExtraCompleteFixture.production;
+  const { dashboard, mining, btc, productionBlock } = pageData;
   const productionMonthly =
     previewState === "not-configured" || previewState === "unavailable"
       ? null
@@ -309,7 +332,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <PocketAllocationVisual pockets={pocketAllocations} source={pocketSource} />
           <BtcAccumulationCurve
             data={btcCurveData}
-            source={accumulationProvenance === "live" ? "live" : "estimated"}
+            source={dataStatusToSource(productionBlock.status)}
           />
           <SmartContractStateCard
             state={contractState}

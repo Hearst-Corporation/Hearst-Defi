@@ -144,6 +144,25 @@ STOP: documentation and existing targeted contract checks only; no external
 backend edit, runtime route migration, Prisma/migration, auth/session change,
 gpu1-backend recreation, M9, full test/build, push, merge, or deployment.
 
+### fix/hashvault-m17-visual-qa
+Owner: GPT-5.6 Sol — M17 visual QA provenance gaps
+Branch: fix/hashvault-m17-visual-qa
+Worktree: ../connect-m14-investor-leak
+Started: 2026-07-22
+Status: active, sequenced after M16 commit `c4e53b10`
+
+Scope:
+- src/app/(product)/dashboard/page.tsx
+- src/app/(product)/dashboard/__tests__/backend-down.test.tsx
+- src/app/(product)/btc/ledger/page.tsx
+- src/app/(product)/mining/page.tsx
+- src/features/investor-ui/__tests__/phase-a-provenance.test.ts
+- docs/agent-file-locks.md
+
+STOP: provenance and honest-state fixes only; no CSS/DS redesign, backend,
+Prisma/migration/DB write, auth/session, engine, M9, full test/build, push,
+merge, or deployment.
+
 > NOTE 2026-06-28 : tous les locks « actifs » précédents (feat/ds-canon-propagation —
 > mergé dans main ; fix/ds-authority-lock, fix/outreach-draft-continuity,
 > squad/portfolio-premium-foundations, feat/defi-market-data — sans remote ni worktree
