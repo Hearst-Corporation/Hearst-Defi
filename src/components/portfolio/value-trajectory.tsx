@@ -3,9 +3,9 @@
  *
  * One instrument, one shared time axis. LEFT of the "Today" divider: the
  * REALIZED value path (solid accent, Attested). RIGHT: a graphite PROJECTION
- * cone bounded by the vault's real yield range (low ↔ high), midline muted-dashed
- * — never accent, never green-as-guaranteed. The y-axis is scaled to the data
- * EXTENT (HcFanChart convention) so the cone is legible — every tick is labelled
+ * cone bounded by the note's estimated BTC accumulation range (low ↔ high),
+ * midline muted-dashed — never accent, never green-as-guaranteed. The y-axis is
+ * scaled to the data extent (HcFanChart convention) so the cone is legible — every tick is labelled
  * with its real value and the footer stamps assumptions + "not guaranteed", so
  * the zoom never reads as hype. A summary line states Now → Projected-at-maturity
  * as an explicit RANGE. Pure render (server component); numbers arrive
@@ -28,8 +28,6 @@ function compactUsd(n: number): string {
 
 export function ValueTrajectory({
   projection,
-  apyLowPct,
-  apyHighPct,
   nowValueLabel,
   startLabel,
   endLabel,
@@ -37,8 +35,6 @@ export function ValueTrajectory({
   height = 240,
 }: {
   projection: ValueProjection;
-  apyLowPct: number;
-  apyHighPct: number;
   /** Precise "now" value string for the summary (e.g. $998,010). */
   nowValueLabel: string;
   /** X-axis start label (subscription date). */
@@ -113,7 +109,7 @@ export function ValueTrajectory({
     <div className="flex flex-col gap-3 p-5">
       {/* Legend */}
       <div className="flex items-center justify-between gap-3">
-        <span className="ct-bento-label">Value trajectory</span>
+        <span className="ct-bento-label">Reserve trajectory</span>
         <div className="flex items-center gap-4">
           <span className="ct-metric-caption inline-flex items-center gap-1.5">
             <span aria-hidden="true" className="size-2 rounded-full bg-[var(--ct-accent)]" />
@@ -310,7 +306,7 @@ export function ValueTrajectory({
               className="size-2 rounded-full"
               style={{ background: "var(--ct-chart-band-stroke)" }}
             />
-            Projected at maturity{" "}
+            Projected at delivery{" "}
             <span
               style={{
                 fontWeight: 700,
@@ -326,8 +322,8 @@ export function ValueTrajectory({
 
       {/* Assumptions footer */}
       <p className="ct-metric-caption">
-        Projection assumes the note&apos;s estimated yield range {apyLowPct}–{apyHighPct}%, simple
-        (non-compounded), net of fees.{" "}
+        Projection assumes an estimated BTC accumulation range of{" "}
+        {compactUsd(maturityLo)}–{compactUsd(maturityHi)} at maturity, net of fees.{" "}
         <span style={{ color: "var(--ct-text-muted)" }}>Not guaranteed.</span>
       </p>
     </div>

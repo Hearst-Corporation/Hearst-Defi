@@ -6,7 +6,7 @@ import { ProductSelectCard } from "@/components/vaults/product-select-card";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Select a Product — Hearst Yield Vault",
+  title: "Select a Product — Series 1 Reserve Vault",
 };
 
 export default async function VaultsPage() {

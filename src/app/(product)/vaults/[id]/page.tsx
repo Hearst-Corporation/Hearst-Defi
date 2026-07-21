@@ -33,7 +33,7 @@ function toSeries1Pockets(vault: VaultProduct): readonly AllocationPocketViewMod
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Term Sheet — Hearst Yield Vault",
+  title: "Term Sheet — Series 1 Reserve Vault",
 };
 
 interface PageProps {
