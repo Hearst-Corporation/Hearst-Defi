@@ -1,12 +1,10 @@
-// Grey opaque bento skeleton for the admin distributions console — header +
-// action, a summary band, then a table of runs. The opaque grey shell masks the
-// ambient halo during load.
-export default function DistributionsLoading() {
+// Grey opaque bento skeleton for the retired historical-records archive.
+export default function HistoricalRecordsLoading() {
   return (
     <div
       className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8"
       aria-busy="true"
-      aria-label="Loading distributions"
+      aria-label="Loading retired historical records"
     >
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
 

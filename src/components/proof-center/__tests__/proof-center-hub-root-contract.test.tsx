@@ -106,5 +106,9 @@ describe("Proof Center — product hub root contract", () => {
     // `bare` suppresses the inner PorSummary eyebrow, so the label appears only
     // as the card title — proving no title-vs-eyebrow duplication.
     expect(occ(html, "Proof of Reserves")).toBe(1);
+    expect(html).toContain("Delivery events");
+    expect(html).toContain("Reserve events");
+    expect(html).not.toContain("Latest proceeds");
+    expect(html).not.toContain("periodic cash distribution");
   });
 });

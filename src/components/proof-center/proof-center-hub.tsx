@@ -16,7 +16,7 @@ import { PorSummary } from "@/components/proof-center/por-summary";
 import { ProofCenterColdShell } from "@/components/proof-center/proof-center-cold-shell";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
-import { RecentDistributions } from "@/components/proof-center/recent-distributions";
+import { DeliveryEvents } from "@/components/proof-center/recent-distributions";
 import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 import type { OnChainAttestation } from "@/lib/chain/por-registry";
@@ -201,20 +201,20 @@ export function ProofCenterHub({
             <div className="dashboard-cockpit-row dashboard-cockpit-row--proof-bot">
               <div className="dashboard-cockpit-cell">
                 <ProofHubCard
-                  eyebrow="Proceeds history"
-                  title="Latest proceeds"
-                  provenance="manual"
+                  eyebrow="Maturity evidence"
+                  title="Delivery events"
+                  provenance={recentDistributions.length > 0 ? "manual" : undefined}
                   href={fullHref}
                   variant={variant}
                 >
                   {recentDistributions.length === 0 ? (
                     <EmptySurface
-                      message="No proceeds yet"
-                      detail="This note accumulates Bitcoin and settles at maturity — no periodic cash distribution. Proceeds and on-chain settlement events appear here once the vault operates."
+                      message="No delivery events yet"
+                      detail="BTC delivery evidence appears after a maturity settlement is recorded on-chain."
                     />
                   ) : (
-                    <RecentDistributions
-                      distributions={recentDistributions}
+                    <DeliveryEvents
+                      events={recentDistributions}
                       bare
                     />
                   )}
@@ -223,16 +223,16 @@ export function ProofCenterHub({
 
               <div className="dashboard-cockpit-cell">
                 <ProofHubCard
-                  eyebrow="Vault operations"
-                  title="Rebalancing events"
-                  provenance="manual"
+                  eyebrow="Contract events"
+                  title="Reserve events"
+                  provenance={recentRebalances.length > 0 ? "manual" : undefined}
                   href={fullHref}
                   variant={variant}
                 >
                   {recentRebalances.length === 0 ? (
                     <EmptySurface
-                      message="No rebalancing events yet"
-                      detail="Rebalancing activity will appear once the vault operates."
+                      message="No reserve events yet"
+                      detail="Take-profit, curtailment and reserve events appear after an operation is recorded."
                     />
                   ) : (
                     <RebalancingEventsPanel

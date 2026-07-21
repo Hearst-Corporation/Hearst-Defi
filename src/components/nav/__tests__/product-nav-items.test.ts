@@ -51,6 +51,17 @@ describe("strategy sub-nav — retired scenario/projection routes", () => {
   });
 });
 
+describe("vault admin sub-nav — Series 1 reserve evidence", () => {
+  it("labels the retained historical route as Reserve Events", () => {
+    const vaults = ADMIN_SECTIONS.find((section) => section.id === "vaults");
+    const retainedRoute = vaults?.tabs.find(
+      (tab) => tab.href === "/admin/distributions",
+    );
+
+    expect(retainedRoute?.label).toBe("Reserve Events");
+  });
+});
+
 describe("adminSectionToNavItem", () => {
   it("derives the admin rail entry shape from a section", () => {
     const strategy = ADMIN_SECTIONS.find((section) => section.id === "strategy");

@@ -83,6 +83,31 @@ Scope:
 STOP: no Prisma, engine, auth/session, backend contract, M9/rebrand, global nav,
 preview deletion, merge, deployment, or production mutation.
 
+### fix/hashvault-m15-proof-center
+Owner: GPT-5.6 Sol — M15 Series 1 Proof Center convergence
+Branch: fix/hashvault-m15-proof-center
+Worktree: ../connect-m14-investor-leak
+Started: 2026-07-21
+Status: active, sequenced after M14 commit `1506954d`
+
+Scope:
+- src/app/(product)/proof-center/page.tsx
+- src/app/(product)/proof-center/full/page.tsx
+- src/components/proof-center/proof-center-hub.tsx
+- src/components/proof-center/recent-distributions.tsx
+- src/components/proof-center/rebalancing-events-panel.tsx
+- src/components/proof-center/__tests__/recent-sections.test.tsx
+- src/components/proof-center/__tests__/proof-center-hub-root-contract.test.tsx
+- src/components/proof/empty-messages.ts
+- src/components/nav/product-nav-items.ts
+- src/components/nav/__tests__/product-nav-items.test.ts
+- src/app/admin/distributions/page.tsx
+- src/app/admin/distributions/loading.tsx
+- docs/agent-file-locks.md
+
+STOP: no Prisma/data migration, engine, auth/session, M9/rebrand, global route
+rename, payment action change, full test/build, push, merge, or deployment.
+
 > NOTE 2026-06-28 : tous les locks « actifs » précédents (feat/ds-canon-propagation —
 > mergé dans main ; fix/ds-authority-lock, fix/outreach-draft-continuity,
 > squad/portfolio-premium-foundations, feat/defi-market-data — sans remote ni worktree

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { RECENT_DISTRIBUTIONS_EMPTY } from "@/components/proof/empty-messages";
+import { DELIVERY_EVENTS_EMPTY } from "@/components/proof/empty-messages";
 import { EXPLORER_TX_BASE } from "@/lib/chain/client";
 import type { ProofCenterDistributionRow } from "@/lib/data/proof-center";
 import { distributionProvenance } from "@/lib/proof-center/distribution-provenance";
@@ -45,29 +45,29 @@ function MicroLabel({ children }: { children: ReactNode }) {
   );
 }
 
-interface RecentDistributionsProps extends ProofCenterSectionLedProps {
-  distributions: ReadonlyArray<ProofCenterDistributionRow>;
+interface DeliveryEventsProps extends ProofCenterSectionLedProps {
+  events: ReadonlyArray<ProofCenterDistributionRow>;
 }
 
-export function RecentDistributions({
-  distributions,
+export function DeliveryEvents({
+  events,
   sectionLed = false,
   bare = false,
-}: RecentDistributionsProps) {
-  if (distributions.length === 0) {
+}: DeliveryEventsProps) {
+  if (events.length === 0) {
     const empty = (
       <>
         {!bare && (
           <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
             <div className="flex flex-col gap-1.5">
-              <MicroLabel>Latest proceeds</MicroLabel>
+              <MicroLabel>Delivery evidence</MicroLabel>
               <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
-                Awaiting first proceeds
+                Awaiting first delivery event
               </h3>
             </div>
           </div>
         )}
-        <EmptySurface live {...RECENT_DISTRIBUTIONS_EMPTY} />
+        <EmptySurface {...DELIVERY_EVENTS_EMPTY} />
       </>
     );
     return bare ? (
@@ -80,7 +80,7 @@ export function RecentDistributions({
   }
 
   const panelProvenance = weakestProvenance(
-    distributions.map((d) => distributionProvenance(d.txHash)),
+    events.map((event) => distributionProvenance(event.txHash)),
   );
 
   const inner = (
@@ -89,12 +89,12 @@ export function RecentDistributions({
         <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
           <div className="flex flex-col gap-1.5">
             <MicroLabel>
-              {sectionLed ? "Latest proceeds" : "Proceeds history"}
+              {sectionLed ? "Delivery evidence" : "Maturity settlement"}
             </MicroLabel>
             <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
               {sectionLed
-                ? `Last ${distributions.length} settlement events`
-                : "On-chain settlement events"}
+                ? `Last ${events.length} delivery events`
+                : "On-chain delivery events"}
             </h3>
           </div>
           <div className="flex shrink-0 items-center gap-2 pb-0.5">
@@ -105,25 +105,25 @@ export function RecentDistributions({
 
       <ul
         className="flex flex-col px-5"
-        aria-label="Recent on-chain settlement events"
+        aria-label="Recent on-chain delivery events"
       >
-        {distributions.map((d) => {
-          const provenance = distributionProvenance(d.txHash);
+        {events.map((event) => {
+          const provenance = distributionProvenance(event.txHash);
           return (
             <li
-              key={d.id}
+              key={event.id}
               className="flex flex-col gap-2.5 py-4 border-b border-[var(--ct-border-soft)] last:border-b-0"
             >
               {/* Period + amount headline row */}
               <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)]">
-                    Period {d.period}
+                    Event period {event.period}
                   </span>
                   <ProvenanceBadge variant="strip" kind={provenance} />
                 </div>
                 <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-accent)] tabular-nums">
-                  {formatUsdCompact(d.amountUsdc)}
+                  {formatUsdCompact(event.amountUsdc)}
                 </span>
               </div>
 
@@ -132,31 +132,31 @@ export function RecentDistributions({
                 <div className="flex flex-col gap-1">
                   <MicroLabel>Recipients</MicroLabel>
                   <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] tabular-nums">
-                    {d.recipientsCount.toString()}
+                    {event.recipientsCount.toString()}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
                   <MicroLabel>Settled</MicroLabel>
                   <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] tabular-nums">
-                    {dateFmt.format(d.distributedAt)} UTC
+                    {dateFmt.format(event.distributedAt)} UTC
                   </span>
                 </div>
                 <div className="flex min-w-0 flex-col gap-1">
                   <MicroLabel>Tx hash</MicroLabel>
-                  {d.txHash && !d.txHash.toLowerCase().startsWith("0xmock") ? (
+                  {event.txHash && !event.txHash.toLowerCase().startsWith("0xmock") ? (
                     <a
-                      href={`${EXPLORER_TX_BASE}${d.txHash}`}
+                      href={`${EXPLORER_TX_BASE}${event.txHash}`}
                       target="_blank"
                       rel="noreferrer noopener"
                       className={cn(
                         "inline-flex items-center gap-1 text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-accent)] transition-colors duration-150 hover:text-[color-mix(in_srgb,var(--ct-accent)_80%,transparent)]",
                       )}
-                      title={d.txHash}
-                      aria-label={`View transaction ${d.txHash} on explorer`}
+                      title={event.txHash}
+                      aria-label={`View transaction ${event.txHash} on explorer`}
                     >
-                      <span className="truncate">{abbreviateAddress(d.txHash)}</span>
+                      <span className="truncate">{abbreviateAddress(event.txHash)}</span>
                     </a>
-                  ) : d.txHash ? (
+                  ) : event.txHash ? (
                     <span className="truncate text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">
                       Simulated (testnet fixture)
                     </span>

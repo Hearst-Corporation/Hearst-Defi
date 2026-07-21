@@ -1,20 +1,21 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { RecentDistributions } from "@/components/proof-center/recent-distributions";
+import { DeliveryEvents } from "@/components/proof-center/recent-distributions";
 import { ContractsAuditTrail } from "@/components/proof-center/contracts-audit-trail";
 
-describe("RecentDistributions", () => {
+describe("DeliveryEvents", () => {
   it("renders empty state when no rows", () => {
-    const html = renderToStaticMarkup(<RecentDistributions distributions={[]} />);
-    expect(html).toContain("No proceeds recorded yet.");
+    const html = renderToStaticMarkup(<DeliveryEvents events={[]} />);
+    expect(html).toContain("No delivery events recorded yet.");
     expect(html).toContain("ct-empty-surface--widget");
+    expect(html).not.toContain(">Live<");
   });
 
-  it("renders distribution rows with provenance badges", () => {
+  it("renders delivery events with provenance badges", () => {
     const html = renderToStaticMarkup(
-      <RecentDistributions
-        distributions={[
+      <DeliveryEvents
+        events={[
           {
             id: "d1",
             period: "2026-05",
@@ -26,7 +27,8 @@ describe("RecentDistributions", () => {
         ]}
       />,
     );
-    expect(html).toContain("Period 2026-05");
+    expect(html).toContain("Event period 2026-05");
+    expect(html).toContain("On-chain delivery events");
     expect(html).toContain(">Attested</span>");
   });
 });
