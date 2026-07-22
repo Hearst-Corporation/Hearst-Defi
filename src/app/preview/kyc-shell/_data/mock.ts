@@ -1,96 +1,104 @@
-/** Static placeholder data — preview only, no backend. */
+/**
+ * Static placeholder data for the KYC shell preview.
+ *
+ * Shapes mirror the real dashboard view-model so the ported KYC composition
+ * renders identically without any data source. No fetch, no Prisma, no RPC.
+ */
+
+import type { AccumulationPoint } from "@/features/investor-ui/charts/accumulation-series";
+import type { MiningInterval } from "@/features/investor-ui/components/reserve-cockpit";
 
 export const SERIES1 = {
-  fullName: "Hearst Bitcoin Reserve Vault — Series 1",
-  tagline: "Smart-contract governed Bitcoin reserve construction",
-  ticker: "HBRS1",
-  methodology: "Methodology v3.0",
+  fullName: "Reserve Vault Overview",
+  meta: "As of 12 Jun 2026, 09:00 UTC · Methodology v3.0",
+  description:
+    "A single investor register for capital deployment, accumulated Bitcoin, reserve coverage, mining operations and proof readiness.",
 } as const;
 
-export const HERO_STATUSES = [
-  { label: "Permissioned", tone: "accent" as const },
-  { label: "No leverage", tone: "zinc" as const },
-  { label: "BTC delivery", tone: "accent" as const },
-  { label: "Proof pending", tone: "amber" as const },
-] as const;
+/** Hero + KPI band — same 1 hero + 6 metrics rhythm as the real dashboard. */
+export const HERO = {
+  label: "BTC accumulated",
+  value: "12.482310 BTC",
+  hint: "Attributed accumulation across the current Series 1 term",
+} as const;
 
 export const KPI_METRICS = [
-  {
-    label: "Target BTC reserve",
-    value: "42.50 BTC",
-    hint: "Contractual delivery target at maturity",
-  },
-  {
-    label: "B1 mining power",
-    value: "18.4 PH/s",
-    hint: "Attributed hashrate — preview",
-  },
-  {
-    label: "B2 reserve balance",
-    value: "$12.4M",
-    hint: "BTC reserve construction sleeve",
-  },
-  {
-    label: "B3 runway",
-    value: "14.2 mo",
-    hint: "Operating reserve coverage",
-  },
-  {
-    label: "Proof status",
-    value: "Pending",
-    hint: "On-chain attestation queue",
-  },
+  { label: "Capital deployed", value: "$21.8M", hint: "Investor position" },
+  { label: "Reserve runway", value: "14.2 mo", hint: "B3 Reserve USDC coverage" },
+  { label: "Mining state", value: "Active", hint: "Current reporting window" },
+  { label: "Term progress", value: "11/24", hint: "Months elapsed" },
+  { label: "Contract", value: "Read", hint: "Base Sepolia" },
+  { label: "Proof status", value: "Reported", hint: "Source provenance below" },
 ] as const;
 
+/** Position summary rows — the 4 strategy signals of the real dashboard. */
+export const STRATEGY_SIGNALS = [
+  ["DCA discipline", "On track"],
+  ["Reserve management", "Strong"],
+  ["Execution quality", "Excellent"],
+  ["Accumulation pace", "Advancing"],
+] as const;
+
+export const VERDICT_DETAIL = "4 of 4 strategy signals in a positive state.";
+
+/** Policy allocation — Series 1 canon 40 / 27 / 33. */
 export const ALLOCATION_POCKETS = [
-  { code: "B1", label: "B1 Mining Power", target: "40%", amount: "$8.7M", note: "Hashrate procurement" },
-  { code: "B2", label: "B2 BTC Reserve", target: "27%", amount: "$5.9M", note: "Reserve construction" },
-  { code: "B3", label: "B3 Operating Reserve", target: "33%", amount: "$7.2M", note: "Reserve runway" },
+  { pocket: "B1", label: "Mining Power", pct: 40 },
+  { pocket: "B2", label: "BTC Pouch", pct: 27 },
+  { pocket: "B3", label: "Reserve USDC", pct: 33 },
 ] as const;
 
-export const CONSTRUCTION_STEPS = [
-  { phase: "Phase 1", label: "Capital formation", status: "Complete", detail: "Permissioned intake closed" },
-  { phase: "Phase 2", label: "Mining power deployment", status: "Active", detail: "B1 hashrate ramp" },
-  { phase: "Phase 3", label: "BTC accumulation", status: "Active", detail: "Credits indexed to reserve" },
-  { phase: "Phase 4", label: "Maturity delivery", status: "Scheduled", detail: "BTC delivery at term" },
+/** Capital flow rail — same 4 ordered steps as the real dashboard. */
+export const CAPITAL_FLOW_STEPS = [
+  "USDC subscription",
+  "B1 / B2 / B3 allocation",
+  "BTC reserve ledger",
+  "BTC delivery at maturity",
 ] as const;
 
-export const MATURITY_ROWS = [
-  { label: "Maturity date", value: "Jun 2028" },
-  { label: "Delivery instrument", value: "BTC on-chain" },
-  { label: "Smart contract receipt", value: "0x71a4…9f2e" },
-  { label: "Governance", value: "Permissioned vault" },
+/** Accumulation series feeding the real AccumulationChartSignature. */
+export const ACCUMULATION_POINTS: readonly AccumulationPoint[] = [
+  { period: "2025-08", cumulativeBtc: 1.021, miningBtc: 0.729 },
+  { period: "2025-09", cumulativeBtc: 2.184, miningBtc: 1.56 },
+  { period: "2025-10", cumulativeBtc: 3.402, miningBtc: 2.43 },
+  { period: "2025-11", cumulativeBtc: 4.735, miningBtc: 3.382 },
+  { period: "2025-12", cumulativeBtc: 6.011, miningBtc: 4.294 },
+  { period: "2026-01", cumulativeBtc: 7.268, miningBtc: 5.191 },
+  { period: "2026-02", cumulativeBtc: 8.44, miningBtc: 6.029 },
+  { period: "2026-03", cumulativeBtc: 9.617, miningBtc: 6.869 },
+  { period: "2026-04", cumulativeBtc: 10.72, miningBtc: 7.657 },
+  { period: "2026-05", cumulativeBtc: 11.63, miningBtc: 8.307 },
+  { period: "2026-06", cumulativeBtc: 12.4823, miningBtc: 8.916 },
 ] as const;
 
-export const RECEIPT_ROWS = [
-  { label: "Vault address", value: "0x8c2f…a41b" },
-  { label: "Series", value: "Series 1" },
-  { label: "Receipt hash", value: "0xd91e…7c03" },
-  { label: "Last attestation", value: "Pending" },
-] as const;
+export const TERM = { currentMonth: 11, totalMonths: 24 } as const;
 
-export const RIGHT_RAIL = {
-  proof: [
-    "Mining attribution records — preview",
-    "Reserve balance attestation — pending",
-    "Smart contract receipt — indexed",
+/** Reserve runway — feeds the real ReserveRunwayChart. */
+export const RUNWAY_DATA = {
+  points: [
+    { period: "2026-02", coverageMonths: 11.4 },
+    { period: "2026-03", coverageMonths: 12.1 },
+    { period: "2026-04", coverageMonths: 13.0 },
+    { period: "2026-05", coverageMonths: 13.6 },
+    { period: "2026-06", coverageMonths: 14.2 },
   ],
-  risk: [
-    "No leverage — structural",
-    "Permissioned investor set",
-    "BTC delivery at maturity only",
-  ],
-  operator: [
-    "Shell preview — no live positions",
-    "Charts are stylized placeholders",
-    "Operator review surface only",
-  ],
+  floorMonths: 6,
 } as const;
 
-export const LINE_CHART_POINTS = [12, 18, 16, 22, 28, 26, 34, 38, 36, 42, 45, 48] as const;
-
-export const MATURITY_TIMELINE = [
-  { year: "2026", label: "Formation", done: true },
-  { year: "2027", label: "Construction", done: true },
-  { year: "2028", label: "Delivery", done: false },
+/** Mining intervals — feeds the real MiningActivityTimeline. */
+export const MINING_INTERVALS: readonly MiningInterval[] = [
+  { label: "Feb — Apr - active", state: "active", durationWeight: 3 },
+  { label: "May - curtailed", state: "curtailed", durationWeight: 1 },
+  { label: "Jun - active", state: "active", durationWeight: 1.4 },
 ] as const;
+
+/** Proof & contract status rows — same 4 rows as the real dashboard. */
+export const PROOF_ROWS = [
+  ["Network", "Base Sepolia"],
+  ["Contract code", "Present"],
+  ["Allocation source", "LIVE"],
+  ["Delivery evidence", "At maturity"],
+] as const;
+
+export const FOOTER_NOTE =
+  "Accumulated BTC is delivered at maturity. Allocation, reserve and mining figures carry their own provenance; estimates and forward-looking outcomes are not guaranteed.";
