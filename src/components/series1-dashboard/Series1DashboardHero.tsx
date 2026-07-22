@@ -60,7 +60,7 @@ export function Series1DashboardHero({
   trailing?: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)] shadow-[var(--ct-shadow-soft)] ring-1 ring-[var(--ct-border)]">
+    <section className="overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)] shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]">
       {/* Programme line — above the band, on the card's own ground. */}
       <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)] pb-[var(--ct-space-4)]">
         <p
@@ -92,12 +92,15 @@ export function Series1DashboardHero({
           </p>
           {/* An unresolved hero renders its STATE in words, not a 40px em dash
               — a lone giant hyphen is what made this cell look empty while the
-              secondary "12.00 USDC" dominated the band. The dominant figure
-              must stay dominant, including when it has no value yet. */}
+              secondary "12.00 USDC" dominated the band. But the words drop to
+              the LABEL tier, same as every other muted cell on the page: at
+              24px semibold it was as loud as a real hero figure and competed
+              with resolved values elsewhere on the screen instead of reading
+              as an absence. */}
           {muted ? (
             <p
-              className="m-0 mt-[var(--ct-space-3)] font-semibold tracking-tight text-[var(--ct-text-faint)]"
-              style={{ fontSize: "var(--ct-text-3xl-fixed)", lineHeight: 1.1 }}
+              className="m-0 mt-[var(--ct-space-3)] font-medium text-[var(--ct-text-faint)]"
+              style={{ fontSize: "var(--ct-text-2xs)" }}
             >
               Not yet reported
             </p>
@@ -119,11 +122,15 @@ export function Series1DashboardHero({
         </div>
 
         {/* Secondary cells — DIRECT children of the 12-col grid, 4 columns
-            each, so they share the hero's row tracks and the hairlines line up. */}
+            each, so they share the hero's row tracks and the hairlines line up.
+            Vertical padding is tighter than the hero's: the hero cell breathes
+            (py-6) while these sit closer together (py-3) so the band reads as
+            one dominant instrument with six subordinate readouts, not seven
+            equal table cells. */}
         {context.map((item) => (
             <div
               key={item.label}
-              className="min-w-0 bg-[var(--ct-surface-raised)] px-[var(--ct-space-5)] py-[var(--ct-space-4)] lg:col-span-4"
+              className="min-w-0 bg-[var(--ct-surface-raised)] px-[var(--ct-space-5)] py-[var(--ct-space-3)] lg:col-span-4"
             >
               <p
                 className="m-0 font-medium text-[var(--ct-text-muted)]"

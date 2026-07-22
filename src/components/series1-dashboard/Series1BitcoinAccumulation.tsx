@@ -28,7 +28,7 @@ export function Series1BitcoinAccumulation({
     <section
       className={
         className ??
-        "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)] shadow-[var(--ct-shadow-soft)] ring-1 ring-[var(--ct-border)]"
+        "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)] shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]"
       }
     >
       {/* DS chart header: title + description + hairline rule. */}
@@ -61,10 +61,14 @@ export function Series1BitcoinAccumulation({
  * The plot ground. Recessed below the card (DS surfaceSunken), sized like a
  * real chart slot (the DS pins CostRevenueChart at 260px) so the empty state
  * occupies a plotting surface rather than an arbitrary black rectangle.
+ *
+ * No ring here: `Series1DashboardInset` recedes by FILL alone. A ring on top
+ * of the outer card's own ring drew two nested borders at the same corner
+ * radius — the "cage-in-cage" a sunken well must never produce (DS D5).
  */
 function PlotWell({ children }: { children: ReactNode }) {
   return (
-    <div className="m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_55%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] ring-1 ring-[var(--ct-border-soft)]">
+    <div className="m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_55%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)]">
       {children}
     </div>
   );

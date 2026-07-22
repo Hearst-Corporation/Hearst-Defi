@@ -36,7 +36,7 @@ export function Series1MetricDeck({
     <div
       className={cn(
         "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)]",
-        "shadow-[var(--ct-shadow-soft)] ring-1 ring-[var(--ct-border)]",
+        "shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]",
         className,
       )}
     >

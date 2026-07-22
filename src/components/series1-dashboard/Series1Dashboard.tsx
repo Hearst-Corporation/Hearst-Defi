@@ -111,6 +111,7 @@ export function Series1Dashboard({
   const btcEarned = selectWired(mining, (m) => m.totalBtcEarnedSats);
   const totalAssets = selectWired(core, (c) => c.totalAssets);
   const currentMonth = selectWired(ops, (o) => o.currentMonth);
+  const contractCell = vaultModeCell(mode);
 
   const termValue = (() => {
     if (currentMonth.status !== "wired") return "—";
@@ -164,8 +165,8 @@ export function Series1Dashboard({
           },
           {
             label: "Contract",
-            value: vaultModeCell(mode).value,
-            hint: vaultModeCell(mode).hint,
+            value: contractCell.value,
+            hint: contractCell.hint,
           },
           {
             label: "Reported hashrate",

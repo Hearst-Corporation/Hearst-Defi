@@ -109,7 +109,7 @@ export function Series1DashboardCard({
       className={cn(
         "flex min-w-0 flex-col overflow-hidden rounded-[var(--ct-radius-xl)]",
         "bg-[var(--ct-surface-raised)] ring-1 ring-[var(--ct-border)]",
-        "shadow-[var(--ct-shadow-soft)]",
+        "shadow-[var(--ct-shadow-elevated)]",
         className,
       )}
     >
