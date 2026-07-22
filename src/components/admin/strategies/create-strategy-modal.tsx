@@ -9,8 +9,8 @@
  * defaults so the draft passes `validateStrategy` immediately.
  *
  * Local state only (useState). No fetch, no DB, no Date.now(), no Math.random().
- * Timestamps come from the `now` prop. All tokens are --ct-* vars; text sizes
- * via text-[length:var(--ct-text-*)]; spacing via var(--ct-space-*). No forbidden words.
+ * Timestamps come from the `now` prop. All tokens are --ct-* vars; text sizes via the
+ * ct-text scale, spacing via the ct-space scale. No forbidden words.
  */
 
 import { useCallback, useMemo, useState, type ChangeEvent } from "react";
