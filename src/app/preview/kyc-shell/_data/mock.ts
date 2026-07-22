@@ -8,9 +8,9 @@ export const SERIES1 = {
 } as const;
 
 export const HERO_STATUSES = [
-  { label: "Permissioned", tone: "emerald" as const },
+  { label: "Permissioned", tone: "accent" as const },
   { label: "No leverage", tone: "zinc" as const },
-  { label: "BTC delivery", tone: "emerald" as const },
+  { label: "BTC delivery", tone: "accent" as const },
   { label: "Proof pending", tone: "amber" as const },
 ] as const;
 

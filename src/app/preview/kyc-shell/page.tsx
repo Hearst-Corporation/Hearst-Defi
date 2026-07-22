@@ -166,10 +166,10 @@ export default function KycShellPreviewPage() {
             <div className="flex flex-col gap-5 xl:sticky xl:top-6">
               <KycPanel>
                 <PanelHeader title="Proof & provenance" meta="Preview" />
-                <ul className="space-y-3 px-5 py-4 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                <ul className="space-y-3 px-5 py-4 text-sm leading-6 text-(--shell-muted)">
                   {RIGHT_RAIL.proof.map((item) => (
                     <li key={item} className="flex gap-2">
-                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden />
+                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-(--shell-accent)" aria-hidden />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -178,10 +178,10 @@ export default function KycShellPreviewPage() {
 
               <KycPanel>
                 <PanelHeader title="Risk controls" />
-                <ul className="space-y-3 px-5 py-4 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                <ul className="space-y-3 px-5 py-4 text-sm leading-6 text-(--shell-muted)">
                   {RIGHT_RAIL.risk.map((item) => (
                     <li key={item} className="flex gap-2">
-                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-zinc-400" aria-hidden />
+                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-(--shell-muted)" aria-hidden />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -190,21 +190,21 @@ export default function KycShellPreviewPage() {
 
               <KycPanel>
                 <PanelHeader title="Operator notes" />
-                <ul className="space-y-3 px-5 py-4 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                <ul className="space-y-3 px-5 py-4 text-sm leading-6 text-(--shell-muted)">
                   {RIGHT_RAIL.operator.map((item) => (
                     <li key={item} className="flex gap-2">
-                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
+                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-(--shell-warning)" aria-hidden />
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </KycPanel>
 
-              <KycPanel className="border-emerald-500/20 bg-emerald-500/5 p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              <KycPanel className="border-(--shell-accent-line) bg-(--shell-accent-soft) p-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-(--shell-accent-ink)">
                   Product guardrails
                 </p>
-                <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-200">
+                <p className="mt-2 text-sm leading-6 text-(--shell-text)">
                   No periodic distribution. BTC reserve construction with delivery at maturity only.
                   This shell preview carries no live positions or operator data.
                 </p>
