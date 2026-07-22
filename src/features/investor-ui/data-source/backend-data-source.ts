@@ -37,28 +37,27 @@ import {
   getBtcFromBackend,
   getMiningFromBackend,
   getDashboardFromBackend,
+  getProfileFromBackend,
   isBackendError,
   type DataStatus,
   type Envelope,
   type BtcDTO,
   type MiningDTO,
   type DashboardDTO,
+  type ProfileDTO,
 } from "@/lib/backend";
 
 /**
- * These two throw because the ENDPOINT does not exist, not because the wiring
- * was forgotten. `hearst-connect-backend` serves no `/api/v1/profile` and no
- * AI-experts route (verified 2026-07-22), so there is nothing to call.
+ * `getAiExperts` still throws: no AI-experts route exists on the backend
+ * (verified 2026-07-22), so there is nothing to call, and throwing keeps the
+ * gap visible instead of papering over it with a fabricated block.
  *
- * The fix is a backend one. It must NOT be worked around here by adding a
- * frontend `/api/profile` route: `/profile` and `/portfolio` are Server
- * Components that read their loaders directly, so such a route would have no
- * caller — the exact shape of the 11 dead routes this codebase just removed.
- * Throwing keeps the gap visible instead of papering over it with a second
- * read path.
+ * `getProfile` no longer belongs in this message — `/api/v1/profile` shipped
+ * with backend 7cf84d9 (deployed and verified live 2026-07-22) and is wired
+ * below.
  */
 const NOT_WIRED_MESSAGE =
-  "BackendInvestorUiDataSource: getProfile/getAiExperts are not wired to hearst-connect-backend yet (no /api/v1/profile or AI-experts screen endpoint exists) — see docs/backend-integration.md.";
+  "BackendInvestorUiDataSource: getAiExperts is not wired to hearst-connect-backend yet (no AI-experts screen endpoint exists) — see docs/backend-integration.md.";
 
 /** Maps the backend's `DataStatus` to the UI's presentation `DataStatus`.
  *  1:1 for the 5 shared values — the UI has no "FIXTURE"/"ERROR" input here
@@ -227,8 +226,54 @@ export class BackendInvestorUiDataSource implements InvestorUiDataSource {
     };
   }
 
+  /**
+   * Wired to `GET /api/v1/profile` (backend 7cf84d9). The backend's profile is
+   * IDENTITY-ONLY by design — position/distributions live on /api/v1/dashboard,
+   * and duplicating them here would recreate the dual read path this codebase
+   * removed. So exactly ONE of the nine blocks maps from the response; the
+   * other eight resolve NOT_CONFIGURED with the honest motive ("no backend
+   * endpoint serves this yet"), never a fabricated empty value:
+   * a preferences block invented as all-false would state choices the user
+   * never made, and an empty documents list would state "no documents" as a
+   * fact nobody checked.
+   *
+   * The identity block carries the backend's own status through `toUiStatus`:
+   * LIVE stays LIVE; PARTIAL ("no_investor_record" — a brand-new account, a
+   * product state) stays PARTIAL with its reason attached; UNAVAILABLE
+   * ("db_error") stays UNAVAILABLE. A transport failure (including a 404 from
+   * an older backend without the route) is NOT caught here — it propagates as
+   * a BackendError per this file's header, and the page renders an honest
+   * ERROR block, never a fake profile.
+   */
   async getProfile(): Promise<ProfileViewModel> {
-    throw new Error(NOT_WIRED_MESSAGE);
+    const envelope: Envelope<ProfileDTO> = await getProfileFromBackend();
+    const identity = envelope.data.identity;
+
+    const notServed = <T,>(what: string): ResolvedViewModel<T> =>
+      resolved<T>("NOT_CONFIGURED", null, {
+        provenance: "backend:none",
+        freshness: "unavailable",
+        error: {
+          code: "no_backend_endpoint",
+          message: `No backend endpoint serves ${what} yet — /api/v1/profile is identity-only.`,
+        },
+      });
+
+    return {
+      generatedAt: envelope.meta.generatedAt,
+      identity: mapResolved<InvestorIdentityViewModel, InvestorIdentityViewModel>(
+        identity,
+        (v) => v,
+      ),
+      contact: notServed("contact details"),
+      kyc: notServed("detailed KYC state"),
+      investorStatus: notServed("investor standing"),
+      security: notServed("security posture"),
+      preferences: notServed("notification preferences"),
+      documents: notServed("documents"),
+      subscriptionHistory: notServed("subscription history"),
+      activity: notServed("profile activity"),
+    };
   }
 
   async getAiExperts(): Promise<AiExpertResolvedViewModel> {

@@ -114,22 +114,19 @@ export interface VaultCapacityBlock {
 export interface SubscriptionSummary {
   readonly subscriptionOpen: boolean;
   /**
-   * ⚠ UNIT DIVERGENCE — verified against the deployed service 2026-07-22.
-   *
-   * This field arrives from `/api/v1/dashboard` as WHOLE USDC ("250000"),
-   * while `FactsheetTerms.minimumDepositUsdc` on `/api/v1/product/factsheet`
-   * carries the SAME fact at 6 decimals ("250000000000"). Both are typed
-   * `string`, so nothing catches the 10^6 gap: one formatter over both prints
-   * "$0.25" and "$250,000".
-   *
-   * The bug is in hearst-connect-backend (`src/application/dashboard.ts`
-   * declares "USDC, 6dp decimal string" above a value that is not), and the
-   * fix belongs to that repo — patching it here would double-correct once the
-   * service is fixed. No frontend surface reads this field today; `/vaults`
-   * deliberately reads the factsheet's 6dp value instead. If you ever wire
-   * this one up, confirm the unit first.
+   * @deprecated WHOLE USDC ("250000" = $250,000) — kept by the backend for
+   * wire compatibility only. Use `minimumDepositAtomic` for token-unit
+   * comparisons; this field must never be interpreted at 6dp (that reads
+   * $250,000 as $0.25 — the divergence the backend fix at 7cf84d9 closed).
    */
   readonly minimumDeposit: string | null;
+  /**
+   * Minimum ticket in atomic units (USDC 6dp decimal string) — the canonical
+   * field, byte-identical to `FactsheetTerms.minimumDepositUsdc` (invariant
+   * verified live 2026-07-22: atomic === factsheet, atomic = whole × 10^6).
+   * Never multiply/divide `minimumDeposit` in components: read this field.
+   */
+  readonly minimumDepositAtomic: string | null;
   readonly whitelistRequired: boolean;
   readonly userEligible: boolean | null;
 }
@@ -510,6 +507,16 @@ export interface ProductFactsheetDTO {
   readonly terms: Resolved<FactsheetTerms>;
   readonly tvlCap: Resolved<string>;
   readonly vendingCurve: Resolved<readonly VendingCurvePoint[]>;
+}
+
+/** `GET /api/v1/profile` — identity-only profile surface (live since backend
+ *  7cf84d9, verified 2026-07-22). Deliberately NOT position/distributions:
+ *  those live on `/api/v1/dashboard`, and duplicating them here would recreate
+ *  the dual-read-path this codebase just finished removing. The identity block
+ *  resolves LIVE (Investor row), PARTIAL/"no_investor_record" (brand-new
+ *  account — a product state, not an error), or UNAVAILABLE/"db_error". */
+export interface ProfileDTO {
+  readonly identity: Resolved<InvestorIdentity>;
 }
 
 export interface BacktestRunSummary {

@@ -7,6 +7,7 @@ import { BackendError } from "./errors";
 import { mintBackendToken } from "./mint-token";
 import type {
   BacktestHistoricalDTO,
+  ProfileDTO,
   BtcDTO,
   DashboardDTO,
   MiningDTO,
@@ -163,4 +164,19 @@ export async function getProductFactsheetFromBackend(): Promise<Envelope<Product
 /** GET /api/v1/backtest/historical — the caller's own BacktestRun rows. */
 export async function getBacktestHistoricalFromBackend(): Promise<Envelope<BacktestHistoricalDTO>> {
   return getEnveloped<BacktestHistoricalDTO>("/api/v1/backtest/historical");
+}
+
+/**
+ * GET /api/v1/profile — identity-only profile (live since backend 7cf84d9).
+ *
+ * Same discipline as every getter above: the envelope is returned untouched so
+ * the mapper sees the honesty metadata intact. PARTIAL/"no_investor_record" is
+ * a PRODUCT state (brand-new account), not an error — it arrives as a 200 with
+ * that status inside the Resolved block, so nothing here needs to special-case
+ * it. A 404 (route missing — e.g. an older backend) throws a BackendError like
+ * any other HTTP failure: an absent endpoint is an outage of this read, never
+ * a reason to fabricate an empty profile.
+ */
+export async function getProfileFromBackend(): Promise<Envelope<ProfileDTO>> {
+  return getEnveloped<ProfileDTO>("/api/v1/profile");
 }

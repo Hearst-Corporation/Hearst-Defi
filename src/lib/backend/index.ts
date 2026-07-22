@@ -51,6 +51,7 @@ export type {
   ProductFactsheetDTO,
   BacktestRunSummary,
   BacktestHistoricalDTO,
+  ProfileDTO,
 } from "./contracts";
 
 // Server-side loaders (session-authenticated calls to the backend)
@@ -68,4 +69,5 @@ export {
   getMiningElectricityFromBackend,
   getProductFactsheetFromBackend,
   getBacktestHistoricalFromBackend,
+  getProfileFromBackend,
 } from "./server-client";
