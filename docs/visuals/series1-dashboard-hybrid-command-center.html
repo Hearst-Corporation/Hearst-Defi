@@ -20,8 +20,9 @@
     --hairline: rgba(255, 255, 255, 0.08);
     --hairline-faint: rgba(255, 255, 255, 0.04);
     
-    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    --font-sans: 'Satoshi Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* Catalyst project rule: No separate mono font. Use Satoshi + tabular-nums */
+    --font-numeric: 'Satoshi Variable', ui-sans-serif, system-ui, sans-serif;
     
     --radius: 12px;
   }
@@ -143,9 +144,10 @@
   }
   .dp-group { display: flex; flex-direction: column; gap: 8px; }
   .dp-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-faint); }
-  .dp-val { font-family: var(--font-mono); font-size: 32px; color: var(--fg-strong); line-height: 1; }
+  .dp-val { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; font-size: 32px; color: var(--fg-strong); line-height: 1; letter-spacing: -0.02em; }
   .dp-val.muted { color: var(--fg-faint); font-size: 24px; }
   .dp-hint { font-size: 11px; color: var(--fg-muted); }
+  .unit { font-size: 55%; font-weight: 600; color: var(--fg-faint); margin-left: 4px; vertical-align: baseline; }
 
   /* Hero Center */
   .hero-center {
@@ -172,7 +174,7 @@
   }
   .rail-row:last-child { border-bottom: none; }
   .rail-lbl { color: var(--fg-muted); }
-  .rail-v { font-family: var(--font-mono); color: var(--fg-strong); }
+  .rail-v { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; color: var(--fg-strong); font-weight: 500; }
 
   /* 3. Data Rail (Organic Asymmetric Flex) */
   .data-rail {
@@ -196,8 +198,19 @@
   .rail-cell.monetary { flex: 1.5 0 auto; min-width: 140px; }
   .rail-cell.status { flex: 1 0 auto; min-width: 100px; }
   .rc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); }
-  .rc-val { font-family: var(--font-mono); font-size: 14px; color: var(--fg-strong); }
+  .rc-val { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; font-weight: 500; font-size: 15px; color: var(--fg-strong); }
   .rc-hint { font-size: 10px; color: var(--fg-muted); }
+
+  /* Responsive Grid Fixes */
+  @media (max-width: 1100px) {
+    .hero-panel { grid-template-columns: 1fr; min-height: auto; }
+    .hero-left { border-right: none; border-bottom: 1px solid var(--hairline); flex-direction: row; flex-wrap: wrap; gap: 24px; }
+    .hero-right { border-left: none; border-top: 1px solid var(--hairline); flex-direction: row; flex-wrap: wrap; gap: 24px; }
+    .hero-center { min-height: 200px; }
+    .second-level { grid-template-columns: 1fr; }
+    .timeline { flex-wrap: wrap; gap: 24px; padding: 24px; justify-content: center; }
+    .timeline::before { display: none; }
+  }
 
   /* 4. Second Level Grid */
   .second-level {
@@ -215,13 +228,30 @@
   }
   .module-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-muted); }
 
-  /* Trajectory Chart Placeholder */
+  /* Trajectory Chart Placeholder (Radar calibration state) */
   .chart-empty {
     flex: 1; min-height: 200px;
-    border: 1px dashed var(--hairline);
+    border: 1px solid var(--hairline-faint);
     border-radius: 8px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-    background: color-mix(in srgb, var(--bg-deep) 40%, transparent);
+    background-image: 
+      linear-gradient(to right, var(--hairline-faint) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--hairline-faint) 1px, transparent 1px);
+    background-size: 20px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .chart-empty::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--accent) 4%, transparent) 0%, transparent 60%);
+    animation: radar-pulse 4s infinite ease-in-out;
+  }
+  @keyframes radar-pulse {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0; }
   }
 
   /* Operations Timeline */
@@ -284,7 +314,7 @@
     <div class="hero-left">
       <div class="dp-group">
         <div class="dp-label" style="color: var(--accent);">Bitcoin Inventory</div>
-        <div class="dp-val muted">— BTC</div>
+        <div class="dp-val muted">—<span class="unit">BTC</span></div>
         <div class="status-badge" style="width: fit-content; margin-top: 4px;"><div class="dot"></div> Not yet reported</div>
         <div class="dp-hint" style="margin-top: 8px;">Delivered at maturity. Not a coupon.</div>
       </div>
@@ -292,11 +322,11 @@
       <div style="display: flex; flex-direction: column; gap: 16px;">
         <div>
           <div class="dp-label">Capital Deployed</div>
-          <div class="dp-val" style="font-size: 20px; margin-top: 4px;">— USDC</div>
+          <div class="dp-val" style="font-size: 20px; margin-top: 4px;">—<span class="unit">USDC</span></div>
         </div>
         <div>
           <div class="dp-label">Term</div>
-          <div class="dp-val" style="font-size: 20px; margin-top: 4px;">— / 24 <span style="font-size: 12px; color: var(--fg-faint);">mo</span></div>
+          <div class="dp-val" style="font-size: 20px; margin-top: 4px;">— / 24<span class="unit">MO</span></div>
         </div>
       </div>
     </div>
@@ -305,7 +335,7 @@
     <div class="hero-center">
       <svg viewBox="0 0 600 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
         <!-- Input -->
-        <text x="0" y="153" fill="#a1a1aa" font-family="monospace" font-size="10">CAPITAL</text>
+        <text x="0" y="153" fill="#a1a1aa" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" font-size="9" letter-spacing="0.5">CAPITAL</text>
         <path d="M 55 150 L 120 150" stroke="#52525b" stroke-width="1.5" stroke-dasharray="2 2" />
         
         <!-- Splitting -->
@@ -317,24 +347,24 @@
         <circle cx="120" cy="150" r="3" fill="#52525b" />
         
         <!-- Labels -->
-        <text x="180" y="70" fill="#a1a1aa" font-family="monospace" font-size="10">B1 MINING (40%)</text>
-        <text x="180" y="140" fill="#A7FB90" font-family="monospace" font-size="10">B2 BTC RESERVE (27%)</text>
-        <text x="180" y="210" fill="#a1a1aa" font-family="monospace" font-size="10">B3 OPERATING (33%)</text>
+        <text x="180" y="70" fill="#a1a1aa" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" font-size="9" letter-spacing="0.5">B1 MINING (40%)</text>
+        <text x="180" y="140" fill="#A7FB90" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" font-size="9" letter-spacing="0.5">B2 BTC RESERVE (27%)</text>
+        <text x="180" y="210" fill="#a1a1aa" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" font-size="9" letter-spacing="0.5">B3 OPERATING (33%)</text>
         
         <!-- Values -->
-        <text x="310" y="83" fill="#ffffff" font-family="monospace" font-size="10">— TH/s</text>
-        <text x="310" y="223" fill="#ffffff" font-family="monospace" font-size="10">— USDC</text>
+        <text x="310" y="83" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10">— <tspan font-size="8" fill="#a1a1aa">TH/s</tspan></text>
+        <text x="310" y="223" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10">— <tspan font-size="8" fill="#a1a1aa">USDC</tspan></text>
         
         <!-- Mining Converging -->
         <path d="M 350 80 C 400 80, 400 150, 450 150" stroke="#52525b" stroke-width="1.5" stroke-dasharray="2 4"/>
         
         <!-- Accumulation Curve -->
-        <path d="M 310 150 L 450 150" stroke="#A7FB90" stroke-width="2" />
+        <path d="M 310 150 L 450 150" stroke="#A7FB90" stroke-width="2" id="path-b2" style="transition: all 0.3s; cursor: pointer;" />
         <path d="M 450 150 C 500 150, 520 100, 580 80" stroke="#A7FB90" stroke-width="3"/>
         <circle cx="580" cy="80" r="5" fill="#A7FB90" />
         
         <!-- Output -->
-        <text x="510" y="65" fill="#ffffff" font-family="monospace" font-size="11">MATURITY</text>
+        <text x="510" y="65" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" font-size="10" letter-spacing="0.5">MATURITY</text>
       </svg>
     </div>
 
@@ -347,15 +377,15 @@
           <div style="width: 27%; background: #A7FB90;"></div>
           <div style="width: 33%; background: #3f3f46;"></div>
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 10px; font-family: var(--font-mono); color: var(--fg-faint); margin-top: 4px;">
-          <span>40%</span><span>27%</span><span>33%</span>
-        </div>
+      <div style="display: flex; justify-content: space-between; font-size: 10px; font-family: var(--font-numeric); font-variant-numeric: tabular-nums; font-weight: 500; color: var(--fg-faint); margin-top: 4px;">
+        <span>40%</span><span>27%</span><span>33%</span>
+      </div>
       </div>
 
       <div class="rail-block">
         <div class="dp-label" style="margin-bottom: 8px;">Mining Register</div>
         <div class="rail-row"><span class="rail-lbl">Mining state</span><span class="rail-v">—</span></div>
-        <div class="rail-row"><span class="rail-lbl">Reported hashrate</span><span class="rail-v">— TH/s</span></div>
+        <div class="rail-row"><span class="rail-lbl">Reported hashrate</span><span class="rail-v">—<span class="unit">TH/s</span></span></div>
         <div class="rail-row"><span class="rail-lbl">Last report</span><span class="rail-v">—</span></div>
       </div>
 
@@ -369,10 +399,10 @@
 
   <!-- 3. Data Rail Horizontal Strip -->
   <div class="data-rail">
-    <div class="rail-cell monetary"><span class="rc-label">Deployed</span><span class="rc-val">— USDC</span></div>
+    <div class="rail-cell monetary"><span class="rc-label">Deployed</span><span class="rc-val">—<span class="unit">USDC</span></span></div>
     <div class="rail-cell monetary"><span class="rc-label">Total Shares</span><span class="rc-val">—</span></div>
-    <div class="rail-cell monetary"><span class="rc-label">NAV / Share</span><span class="rc-val">— USDC</span><span class="rc-hint">Est.</span></div>
-    <div class="rail-cell status"><span class="rc-label">Term</span><span class="rc-val">— / 24</span></div>
+    <div class="rail-cell monetary"><span class="rc-label">NAV / Share</span><span class="rc-val">—<span class="unit">USDC</span></span><span class="rc-hint">Est.</span></div>
+    <div class="rail-cell status"><span class="rc-label">Term</span><span class="rc-val">— / 24<span class="unit">MO</span></span></div>
     <div class="rail-cell status"><span class="rc-label">Mining State</span><span class="rc-val">—</span></div>
     <div class="rail-cell status"><span class="rc-label">Last Report</span><span class="rc-val">—</span></div>
     <div class="rail-cell status"><span class="rc-label">Proof</span><span class="rc-val" style="color: var(--fg-faint);">Unavailable</span></div>
@@ -389,8 +419,8 @@
         <span class="status-badge accent"><div class="dot"></div> Delivery at maturity</span>
       </div>
       <div class="chart-empty">
-        <div style="color: var(--fg-faint); font-family: var(--font-mono); font-size: 11px;">[ ACCUMULATION CURVE TBD ]</div>
-        <div style="font-size: 11px; color: var(--fg-muted);">Awaiting v2.1 deployment & mining reports</div>
+        <div style="position: relative; z-index: 1; color: var(--fg-muted); font-family: var(--font-numeric); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;">[ AWAITING ON-CHAIN TELEMETRY ]</div>
+        <div style="position: relative; z-index: 1; font-size: 11px; color: var(--fg-faint);">V2.1 deployment & mining reports pending</div>
       </div>
     </div>
 
@@ -442,5 +472,19 @@
 
 </div>
 
+<script>
+  // Simple interaction for the monolith SVG
+  const pathB2 = document.getElementById('path-b2');
+  if (pathB2) {
+    pathB2.addEventListener('mouseenter', () => {
+      pathB2.style.strokeWidth = '3';
+      pathB2.style.filter = 'drop-shadow(0 0 4px var(--accent))';
+    });
+    pathB2.addEventListener('mouseleave', () => {
+      pathB2.style.strokeWidth = '2';
+      pathB2.style.filter = 'none';
+    });
+  }
+</script>
 </body>
 </html>
