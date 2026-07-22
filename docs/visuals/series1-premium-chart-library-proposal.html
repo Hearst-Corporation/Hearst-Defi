@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Series 1 — Premium Chart Library · 3 Visual Directions</title>
+<style>
+  /* ── Hearst tokens (mirrored from cockpit.css — reference values only) ── */
+  :root {
+    --ct-bg-deep: #060708;
+    --ct-surface-page: #18181b;
+    --ct-accent: #A7FB90;
+    --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, #ffffff);
+    --ct-border: rgba(255,255,255,0.10);
+    --ct-border-soft: rgba(255,255,255,0.05);
+    --ct-border-accent: color-mix(in srgb, var(--ct-accent) 28%, transparent);
+    --ct-text-strong: rgba(255,255,255,0.94);
+    --ct-text-muted: rgba(245,245,245,0.66);
+    --ct-text-faint: rgba(245,245,245,0.62);
+    --ct-status-warning: #fbbf24; /* BTC amber */
+    --ct-status-info: #60a5fa;    /* USDC blue */
+    --panel: color-mix(in srgb, var(--ct-bg-deep) 65%, var(--ct-surface-page));
+    --panel-2: color-mix(in srgb, var(--ct-bg-deep) 75%, var(--ct-surface-page));
+    --inset: color-mix(in srgb, var(--ct-bg-deep) 90%, var(--ct-surface-page));
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--ct-bg-deep); color: var(--ct-text-strong);
+    font: 14px/1.5 -apple-system, "SF Pro Text", Inter, sans-serif; padding: 48px 40px 120px; }
+  .num { font-variant-numeric: tabular-nums; font-feature-settings: "ss01"; }
+  h1 { font-size: 24px; letter-spacing: -0.02em; }
+  h2 { font-size: 15px; margin: 72px 0 6px; color: var(--ct-text-strong); }
+  h2 .dir { color: var(--ct-accent); margin-right: 10px; }
+  .sub { color: var(--ct-text-muted); font-size: 12px; max-width: 70ch; }
+  .panel { background: var(--panel); border: 1px solid var(--ct-border);
+    border-radius: 20px; overflow: hidden; }
+  .panel-2 { background: var(--panel-2); border: 1px solid var(--ct-border-soft); border-radius: 20px; overflow: hidden; }
+  .ph { display:flex; justify-content:space-between; align-items:baseline;
+    padding: 14px 20px; border-bottom: 1px solid var(--ct-border-soft); }
+  .ph .t { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ct-text-muted); }
+  .ph .p { font-size: 10px; color: var(--ct-text-faint); }
+  .tag { display:inline-flex; align-items:center; gap:6px; font-size:10px; color: var(--ct-accent-strong);
+    border:1px solid var(--ct-border-accent); border-radius: 999px; padding: 2px 9px; }
+  .tag.b { color: var(--ct-status-warning); border-color: color-mix(in srgb, var(--ct-status-warning) 30%, transparent); }
+  .tag.u { color: var(--ct-status-info); border-color: color-mix(in srgb, var(--ct-status-info) 30%, transparent); }
+  .grid { display:grid; gap: 20px; }
+  .note { font-size: 11px; color: var(--ct-text-faint); margin-top: 10px; }
+  svg text { font: 10px -apple-system, Inter, sans-serif; fill: var(--ct-text-faint); }
+  svg .strong { fill: var(--ct-text-strong); font-size: 12px; font-weight: 600; }
+  .legend { display:flex; gap:18px; padding: 10px 20px; border-top:1px solid var(--ct-border-soft); font-size:10px; color:var(--ct-text-muted);}
+  .sw { display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+  /* Motion — subtle, one idea per direction */
+  @keyframes dash { to { stroke-dashoffset: 0; } }
+  @keyframes flowdot { 0% { offset-distance: 0%; opacity:0 } 8% {opacity:1} 92% {opacity:1} 100% { offset-distance: 100%; opacity:0 } }
+  @keyframes pulse { 0%,100% { opacity: .5 } 50% { opacity: 1 } }
+  .draw { stroke-dasharray: 1200; stroke-dashoffset: 1200; animation: dash 2.2s ease-out forwards; }
+  .stepper { display:flex; flex-direction:column; }
+  .step { display:grid; grid-template-columns: 44px 1fr auto; gap: 0 16px; padding: 0 20px; }
+  .snode { display:flex; flex-direction:column; align-items:center; }
+  .sdot { width: 30px; height:30px; border-radius: 10px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--ct-border-accent); color: var(--ct-accent-strong); font-size: 13px; background: var(--inset); }
+  .sdot.off { border-color: var(--ct-border-soft); color: var(--ct-text-faint); }
+  .sline { width:1px; flex:1; background: linear-gradient(var(--ct-border-accent), var(--ct-border-soft)); min-height: 26px; }
+  .sbody { padding: 4px 0 26px; }
+  .sbody .l { font-size: 13px; font-weight:600; }
+  .sbody .d { font-size: 11px; color: var(--ct-text-muted); margin-top:2px; max-width: 52ch; }
+  .smeta { font-size: 10px; color: var(--ct-text-faint); padding-top: 8px; text-align:right; }
+</style>
+</head>
+<body>
+
+<h1>Series 1 — Premium Data Visual Language</h1>
+<p class="sub">Three directions, same token grammar (--ct-*), same honesty rules (no fake series —
+every curve below is labelled as an illustration of SHAPE, not data). Pure HTML/SVG/CSS: this file
+decides direction, an engine renders it later. BTC = amber, USDC = blue, Hearst = the one green.</p>
+
+<!-- ══════════════ DIRECTION A ══════════════ -->
+<h2><span class="dir">A</span>Ledger Horizon — one instrument, drawn large</h2>
+<p class="sub">Family-office statement energy. One dominant reserve chart owns the route; everything
+else is quiet. Annotations sit ON the chart (deposit, halving, maturity), not in side-cards.
+Engine fit: lightweight-charts or ECharts under a Hearst wrapper.</p>
+
+<div class="grid" style="grid-template-columns: 2.2fr 1fr; margin-top:18px;">
+  <div class="panel">
+    <div class="ph"><span class="t">BTC Reserve Trajectory</span><span class="tag">Indexed · preprod fork</span></div>
+    <svg viewBox="0 0 720 300" style="display:block; width:100%;">
+      <!-- axis ghost -->
+      <g stroke="var(--ct-border-soft)"><line x1="56" y1="40" x2="56" y2="248"/><line x1="56" y1="248" x2="690" y2="248"/>
+      <line x1="56" y1="92" x2="690" y2="92" stroke-dasharray="2 6"/><line x1="56" y1="170" x2="690" y2="170" stroke-dasharray="2 6"/></g>
+      <text x="46" y="95" text-anchor="end">6.0</text><text x="46" y="173" text-anchor="end">3.0</text><text x="46" y="251" text-anchor="end">0</text>
+      <text x="56" y="266">M0</text><text x="360" y="266">M12 · halving</text><text x="660" y="266">M24</text>
+      <!-- halving band -->
+      <rect x="352" y="40" width="18" height="208" fill="color-mix(in srgb, var(--ct-status-warning) 8%, transparent)"/>
+      <line x1="361" y1="40" x2="361" y2="248" stroke="color-mix(in srgb, var(--ct-status-warning) 40%, transparent)" stroke-dasharray="3 4"/>
+      <!-- area + curve (SHAPE ONLY) -->
+      <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="var(--ct-accent)" stop-opacity="0.22"/><stop offset="1" stop-color="var(--ct-accent)" stop-opacity="0"/></linearGradient></defs>
+      <path d="M56,244 C160,236 240,220 330,196 C420,172 500,132 610,84 L648,72 L648,248 L56,248 Z" fill="url(#ga)"/>
+      <path class="draw" d="M56,244 C160,236 240,220 330,196 C420,172 500,132 610,84 L648,72" fill="none" stroke="var(--ct-accent)" stroke-width="2"/>
+      <!-- annotation: deposit -->
+      <circle cx="150" cy="237" r="3.5" fill="var(--ct-status-info)"/>
+      <text x="150" y="222" text-anchor="middle">Deposit 100k USDC</text>
+      <!-- maturity marker -->
+      <g><circle cx="648" cy="72" r="5" fill="none" stroke="var(--ct-accent-strong)" stroke-width="1.5" style="animation: pulse 2.4s infinite"/>
+      <text class="strong" x="640" y="58" text-anchor="end">Maturity · BTC delivery</text></g>
+      <text x="66" y="52" style="fill:var(--ct-text-faint)">Illustrative shape — real series comes from the indexer</text>
+    </svg>
+    <div class="legend"><span><span class="sw" style="background:var(--ct-accent)"></span>Accumulated BTC</span>
+      <span><span class="sw" style="background:var(--ct-status-warning)"></span>Halving window</span>
+      <span><span class="sw" style="background:var(--ct-status-info)"></span>Capital event</span></div>
+  </div>
+  <div class="grid" style="grid-template-rows: auto 1fr;">
+    <div class="panel-2" style="padding: 18px 20px;">
+      <div style="font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ct-text-muted)">Reserve to date</div>
+      <div class="num" style="font-size: 34px; font-weight: 650; letter-spacing:-0.02em; margin-top:6px;">— <span style="font-size:13px; color:var(--ct-text-faint)">BTC</span></div>
+      <div style="font-size:10px; color:var(--ct-text-faint); margin-top:4px;">Not yet reported — honest absent state, desaturated</div>
+    </div>
+    <div class="panel-2" style="padding: 18px 20px;">
+      <div style="font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ct-text-muted)">Capital deployed</div>
+      <div class="num" style="font-size: 26px; font-weight:650; margin-top:6px;">$127,000 <span style="font-size:12px;color:var(--ct-text-faint)">USDC</span></div>
+      <div class="tag" style="margin-top:10px;">On-chain · live</div>
+    </div>
+  </div>
+</div>
+<p class="note">Direction A keeps KPI cells subordinate — the chart IS the page. Delta chips and provenance ride inside the panels, never as extra cards.</p>
+
+<!-- ══════════════ DIRECTION B ══════════════ -->
+<h2><span class="dir">B</span>Capital Machine — the flow is the story</h2>
+<p class="sub">Custody-desk energy. A Sankey-style capital flow makes B1/B2/B3 legible as a MACHINE:
+USDC enters, splits by policy, mining production feeds the BTC reserve. Animated dots trace the
+flow (one motion idea, subtle). Engine fit: D3-sankey or ECharts sankey inside a Hearst wrapper;
+dots via CSS offset-path.</p>
+
+<div class="panel" style="margin-top:18px;">
+  <div class="ph"><span class="t">Capital Flow — Policy 40 / 27 / 33</span><span class="tag">Configured target · not a live allocation</span></div>
+  <svg viewBox="0 0 900 320" style="display:block;width:100%;">
+    <defs>
+      <linearGradient id="fb1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ct-status-info)" stop-opacity=".28"/><stop offset="1" stop-color="var(--ct-accent)" stop-opacity=".20"/></linearGradient>
+      <linearGradient id="fb2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ct-status-info)" stop-opacity=".22"/><stop offset="1" stop-color="var(--ct-status-warning)" stop-opacity=".18"/></linearGradient>
+      <linearGradient id="fb3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ct-status-info)" stop-opacity=".18"/><stop offset="1" stop-color="var(--ct-status-info)" stop-opacity=".12"/></linearGradient>
+    </defs>
+    <!-- source node -->
+    <rect x="40" y="110" width="14" height="100" rx="4" fill="var(--ct-status-info)"/>
+    <text x="40" y="100">Subscriptions · USDC</text>
+    <!-- ribbons -->
+    <path d="M54,118 C240,118 300,74 470,74 L470,114 C300,114 240,158 54,158 Z" fill="url(#fb1)"/>
+    <path d="M54,160 C240,160 300,168 470,168 L470,196 C300,196 240,188 54,188 Z" fill="url(#fb2)"/>
+    <path d="M54,190 C240,190 300,224 470,224 L470,258 C300,258 240,210 54,210 Z" fill="url(#fb3)"/>
+    <!-- pocket nodes -->
+    <rect x="470" y="72" width="14" height="44" rx="4" fill="var(--ct-accent)"/>
+    <rect x="470" y="166" width="14" height="32" rx="4" fill="var(--ct-status-warning)"/>
+    <rect x="470" y="222" width="14" height="38" rx="4" fill="var(--ct-status-info)"/>
+    <text x="496" y="86">B1 · Mining power</text><text class="strong num" x="496" y="102">40%</text>
+    <text x="496" y="180">B2 · BTC pouch</text><text class="strong num" x="496" y="196">27%</text>
+    <text x="496" y="236">B3 · USDC reserve</text><text class="strong num" x="496" y="252">33%</text>
+    <!-- production ribbon to reserve -->
+    <path d="M484,80 C640,80 680,120 810,120 L810,150 C680,150 640,110 484,110 Z" fill="color-mix(in srgb, var(--ct-status-warning) 16%, transparent)"/>
+    <rect x="810" y="112" width="14" height="44" rx="4" fill="var(--ct-status-warning)"/>
+    <text x="806" y="102" text-anchor="start">BTC reserve</text>
+    <text x="806" y="176">Delivered at maturity</text>
+    <!-- flow dot -->
+    <circle r="3" fill="var(--ct-accent-strong)" style="offset-path: path('M54,138 C240,138 300,94 470,94 C640,95 680,135 810,135'); animation: flowdot 4.5s linear infinite;"/>
+  </svg>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--ct-accent)"></span>B1 Mining</span>
+    <span><span class="sw" style="background:var(--ct-status-warning)"></span>B2 BTC</span>
+    <span><span class="sw" style="background:var(--ct-status-info)"></span>B3 USDC</span>
+    <span style="margin-left:auto">Ribbon widths = policy targets · animated trace = direction of capital, not volume</span>
+  </div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1fr 1fr; margin-top:20px;">
+  <div class="panel-2">
+    <div class="ph"><span class="t">Allocation — target vs on-chain</span><span class="tag u">Comparative</span></div>
+    <svg viewBox="0 0 420 150" style="display:block;width:100%;">
+      <text x="24" y="34">Target</text>
+      <rect x="90" y="22" width="128" height="16" rx="3" fill="var(--ct-accent)" opacity=".85"/>
+      <rect x="218" y="22" width="86" height="16" rx="3" fill="var(--ct-status-warning)" opacity=".85"/>
+      <rect x="304" y="22" width="92" height="16" rx="3" fill="var(--ct-status-info)" opacity=".85"/>
+      <text x="24" y="76">On-chain</text>
+      <rect x="90" y="64" width="306" height="16" rx="3" fill="none" stroke="var(--ct-border)" stroke-dasharray="3 4"/>
+      <text x="243" y="76" text-anchor="middle" style="fill:var(--ct-text-faint)">Not yet indexed per pocket</text>
+      <text x="90" y="116" style="fill:var(--ct-text-faint)">Stacked pair beats a donut: target and reality sit on the same axis, the gap IS the information.</text>
+    </svg>
+  </div>
+  <div class="panel-2">
+    <div class="ph"><span class="t">Contract state</span><span class="tag">v2.1 · fork 31337</span></div>
+    <svg viewBox="0 0 420 150" style="display:block;width:100%;">
+      <g>
+        <circle cx="80" cy="70" r="20" fill="var(--inset)" stroke="var(--ct-border-accent)"/>
+        <text x="80" y="74" text-anchor="middle" style="fill:var(--ct-accent-strong)">V</text>
+        <text x="80" y="110" text-anchor="middle">Vault</text>
+        <line x1="102" y1="70" x2="168" y2="70" stroke="var(--ct-border)"/>
+        <circle cx="190" cy="70" r="20" fill="var(--inset)" stroke="var(--ct-border-soft)"/>
+        <text x="190" y="74" text-anchor="middle">B1</text>
+        <line x1="212" y1="70" x2="278" y2="70" stroke="var(--ct-border-soft)" stroke-dasharray="3 4"/>
+        <circle cx="300" cy="70" r="20" fill="var(--inset)" stroke="var(--ct-border-soft)"/>
+        <text x="300" y="74" text-anchor="middle">B2/3</text>
+        <text x="190" y="110" text-anchor="middle">Strategies · 3 added</text>
+        <text x="300" y="110" text-anchor="middle">Events · 6 indexed</text>
+      </g>
+    </svg>
+  </div>
+</div>
+<p class="note">Direction B risks "diagram soup" if overused — the Sankey earns its place ONLY on the vault detail / proof surfaces, never repeated as decoration.</p>
+
+<!-- ══════════════ DIRECTION C ══════════════ -->
+<h2><span class="dir">C</span>Evidence Register — proof reads like a legal timeline</h2>
+<p class="sub">Private-banking gravitas. The proof/evidence surface is a premium stepper: every step
+carries icon, label, status, description, connector (doctrine §9 — five elements). Chain events
+dock into their step. Engine fit: pure DS components + Motion for staged reveal; no chart lib needed.</p>
+
+<div class="grid" style="grid-template-columns: 1.4fr 1fr; margin-top:18px;">
+  <div class="panel">
+    <div class="ph"><span class="t">Evidence timeline — Series 1</span><span class="tag">6 events · indexed on fork — not mainnet</span></div>
+    <div class="stepper" style="padding-top:20px;">
+      <div class="step">
+        <div class="snode"><div class="sdot">◆</div><div class="sline"></div></div>
+        <div class="sbody"><div class="l">Contract deployed</div>
+          <div class="d">PermissionedDynaVault v2.1 · 0xA783…B146 — governance verified, guardian separated from owner.</div>
+          <div class="tag" style="margin-top:8px;">Verified on-chain</div></div>
+        <div class="smeta num">block 48,965,889</div>
+      </div>
+      <div class="step">
+        <div class="snode"><div class="sdot">⧉</div><div class="sline"></div></div>
+        <div class="sbody"><div class="l">Pockets configured</div>
+          <div class="d">3 × StrategyAdded — B1 mining power, B2 BTC pouch, B3 USDC reserve.</div>
+          <div class="tag" style="margin-top:8px;">3 events indexed</div></div>
+        <div class="smeta num">tx 0x9d2b…7028</div>
+      </div>
+      <div class="step">
+        <div class="snode"><div class="sdot">$</div><div class="sline"></div></div>
+        <div class="sbody"><div class="l">First subscription settled</div>
+          <div class="d">Deposit — 100,000 USDC. Share receipts minted to subscriber wallet.</div>
+          <div class="tag u" style="margin-top:8px;">Capital event</div></div>
+        <div class="smeta num">100,000 USDC</div>
+      </div>
+      <div class="step">
+        <div class="snode"><div class="sdot off">◇</div></div>
+        <div class="sbody"><div class="l" style="color:var(--ct-text-muted)">First mining attestation</div>
+          <div class="d">MiningMetricsReported — awaiting production reporting cadence.</div>
+          <div class="tag b" style="margin-top:8px;">Reported · pending review</div></div>
+        <div class="smeta num">—</div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-2">
+    <div class="ph"><span class="t">Maturity timeline</span><span class="tag">24-month term</span></div>
+    <svg viewBox="0 0 380 260" style="display:block;width:100%;">
+      <line x1="60" y1="30" x2="60" y2="230" stroke="var(--ct-border)"/>
+      <circle cx="60" cy="46" r="5" fill="var(--ct-accent)"/>
+      <text class="strong" x="80" y="50">Subscription · M0</text>
+      <circle cx="60" cy="106" r="4" fill="none" stroke="var(--ct-border-accent)"/>
+      <text x="80" y="110">Soft lock-up ends · M2</text>
+      <circle cx="60" cy="152" r="4" fill="none" stroke="color-mix(in srgb, var(--ct-status-warning) 50%, transparent)"/>
+      <text x="80" y="156">Halving window · ~M12</text>
+      <circle cx="60" cy="214" r="6" fill="none" stroke="var(--ct-accent-strong)" stroke-width="1.5" style="animation:pulse 2.4s infinite"/>
+      <text class="strong" x="80" y="212">Maturity · M24</text>
+      <text x="80" y="226" style="fill:var(--ct-text-faint)">Accumulated BTC delivered</text>
+    </svg>
+  </div>
+</div>
+<p class="note">Direction C is the cheapest to ship (zero chart-engine dependency) and directly closes doctrine §9 + §12 (evidence stepper listed as missing).</p>
+
+<h2 style="margin-top:80px;">How to read this file</h2>
+<p class="sub">The three directions COMPOSE — they are not rivals: A owns /dashboard (one big reserve
+chart), B owns /vaults/[id] (capital machine), C owns /proof-center (evidence register). One motion
+idea each: draw-in (A), flow trace (B), staged reveal (C). Everything above uses only --ct-* token
+values, the single green, BTC amber, USDC blue — no bordeaux, no foreign identity.</p>
+
+</body>
+</html>
