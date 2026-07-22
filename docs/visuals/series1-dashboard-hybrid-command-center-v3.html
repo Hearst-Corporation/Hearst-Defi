@@ -1,0 +1,1152 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Series 1 Hybrid Command Center V3 — Hearst Connect</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --ct-accent: #a7fb90;
+    --ct-accent-strong: color-mix(in srgb, var(--ct-accent) 82%, white);
+    --ct-accent-soft: color-mix(in srgb, var(--ct-accent) 12%, transparent);
+    --ct-accent-line: color-mix(in srgb, var(--ct-accent) 38%, transparent);
+    --ct-btc: #f7931a;
+    --ct-btc-strong: color-mix(in srgb, var(--ct-btc) 82%, white);
+    --ct-btc-soft: color-mix(in srgb, var(--ct-btc) 12%, transparent);
+    --ct-usdc: #7aa2ff;
+    --ct-usdc-soft: color-mix(in srgb, var(--ct-usdc) 10%, transparent);
+    --ct-bg-deep: #07080a;
+    --ct-bg-page: #0a0b0e;
+    --ct-surface: #111318;
+    --ct-surface-raised: #15171d;
+    --ct-surface-inset: #0c0e12;
+    --ct-text-strong: #f7f7f8;
+    --ct-text-body: #c7c8ce;
+    --ct-text-muted: #898c96;
+    --ct-text-faint: #555963;
+    --ct-border: color-mix(in srgb, white 9%, transparent);
+    --ct-border-soft: color-mix(in srgb, white 5%, transparent);
+    --ct-shadow-panel: 0 18px 70px color-mix(in srgb, black 56%, transparent);
+    --ct-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--ct-accent) 22%, transparent);
+    --ct-radius-panel: 18px;
+    --ct-radius-surface: 13px;
+    --ct-radius-field: 9px;
+    --ct-space-1: 4px;
+    --ct-space-2: 8px;
+    --ct-space-3: 12px;
+    --ct-space-4: 16px;
+    --ct-space-5: 20px;
+    --ct-space-6: 24px;
+    --ct-space-8: 32px;
+    --ct-space-10: 40px;
+    --ct-space-12: 48px;
+    --font-sans: "Satoshi Variable", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--ct-bg-deep); }
+  body {
+    min-width: 0;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+    background:
+      radial-gradient(ellipse 70% 48% at 52% -10%, color-mix(in srgb, var(--ct-accent) 7%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--ct-bg-deep), var(--ct-bg-page) 35%, var(--ct-bg-deep));
+    color: var(--ct-text-body);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button, a { font: inherit; }
+  button:focus-visible, a:focus-visible {
+    outline: none;
+    box-shadow: var(--ct-shadow-focus);
+  }
+  svg { display: block; }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .page {
+    position: relative;
+    width: min(100%, 1488px);
+    margin-inline: auto;
+    padding: var(--ct-space-6);
+  }
+  .page::before {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(var(--ct-border-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ct-border-soft) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(to bottom, color-mix(in srgb, black 28%, transparent), transparent 72%);
+    content: "";
+    opacity: .38;
+    pointer-events: none;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    gap: var(--ct-space-5);
+    padding: var(--ct-space-2) var(--ct-space-1) var(--ct-space-6);
+  }
+  .brand-lockup, .topbar-actions, .status-cluster, .asset-label, .section-heading,
+  .panel-heading, .provenance-item, .step-status, .chip, .button {
+    display: flex;
+    align-items: center;
+  }
+  .brand-lockup { min-width: 0; gap: var(--ct-space-3); }
+  .brand-mark {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid var(--ct-accent-line);
+    border-radius: 11px;
+    background: linear-gradient(145deg, var(--ct-accent), color-mix(in srgb, var(--ct-accent) 66%, var(--ct-bg-deep)));
+    color: var(--ct-bg-deep);
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--ct-accent) 12%, transparent);
+  }
+  .brand-mark svg { width: 19px; height: 19px; }
+  .eyebrow, .metric-label, .chart-axis, .step-kicker, .provenance-label {
+    text-transform: uppercase;
+    letter-spacing: .12em;
+  }
+  .eyebrow {
+    margin: 0 0 3px;
+    color: var(--ct-text-faint);
+    font-size: 10px;
+    font-weight: 700;
+  }
+  h1 {
+    margin: 0;
+    overflow: hidden;
+    color: var(--ct-text-strong);
+    font-size: clamp(17px, 1.6vw, 23px);
+    line-height: 1.1;
+    letter-spacing: -.025em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .topbar-actions { flex: 0 0 auto; gap: var(--ct-space-3); }
+  .status-cluster { gap: var(--ct-space-2); }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 26px;
+    padding: 4px 10px;
+    border: 1px solid var(--ct-border);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ct-surface-raised) 76%, transparent);
+    color: var(--ct-text-muted);
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .badge--accent {
+    border-color: var(--ct-accent-line);
+    background: var(--ct-accent-soft);
+    color: var(--ct-accent-strong);
+  }
+  .badge--btc {
+    border-color: color-mix(in srgb, var(--ct-btc) 28%, transparent);
+    background: var(--ct-btc-soft);
+    color: var(--ct-btc-strong);
+  }
+  .button {
+    justify-content: center;
+    gap: var(--ct-space-2);
+    min-height: 36px;
+    padding: 7px 13px;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-field);
+    background: var(--ct-surface-raised);
+    color: var(--ct-text-strong);
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: border-color .18s ease, background .18s ease, color .18s ease;
+  }
+  .button:hover {
+    border-color: color-mix(in srgb, var(--ct-accent) 28%, var(--ct-border));
+    background: color-mix(in srgb, var(--ct-surface-raised) 88%, var(--ct-accent));
+  }
+  .button svg { width: 15px; height: 15px; }
+
+  .command-center {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-panel);
+    background:
+      radial-gradient(circle at 49% 42%, color-mix(in srgb, var(--ct-accent) 6%, transparent), transparent 36%),
+      linear-gradient(145deg, color-mix(in srgb, var(--ct-surface-raised) 86%, transparent), var(--ct-surface));
+    box-shadow: var(--ct-shadow-panel);
+  }
+  .command-center::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 1px color-mix(in srgb, white 4%, transparent);
+    content: "";
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(220px, 272px) minmax(470px, 1fr) minmax(250px, 310px);
+    min-height: 468px;
+  }
+  .hero-grid::before {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--ct-border-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ct-border-soft) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: radial-gradient(circle at center, black, transparent 76%);
+    content: "";
+    opacity: .42;
+    pointer-events: none;
+  }
+  .hero-side, .flow-stage { position: relative; z-index: 1; min-width: 0; }
+  .hero-side { padding: var(--ct-space-8); }
+  .hero-side--left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid var(--ct-border-soft);
+  }
+  .hero-side--right {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-6);
+    border-left: 1px solid var(--ct-border-soft);
+  }
+  .asset-label { gap: var(--ct-space-2); }
+  .asset-icon {
+    display: grid;
+    width: 27px;
+    height: 27px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid var(--ct-border);
+    border-radius: 50%;
+    background: var(--ct-surface-inset);
+    color: var(--ct-text-muted);
+  }
+  .asset-icon svg { width: 15px; height: 15px; }
+  .asset-icon--btc {
+    border-color: color-mix(in srgb, var(--ct-btc) 30%, transparent);
+    background: var(--ct-btc-soft);
+    color: var(--ct-btc);
+  }
+  .asset-icon--usdc {
+    border-color: color-mix(in srgb, var(--ct-usdc) 24%, transparent);
+    background: var(--ct-usdc-soft);
+    color: var(--ct-usdc);
+  }
+  .metric-label {
+    margin: 0;
+    color: var(--ct-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .hero-value {
+    margin: var(--ct-space-4) 0 var(--ct-space-2);
+    color: var(--ct-text-faint);
+    font-size: clamp(34px, 3.8vw, 58px);
+    font-weight: 650;
+    line-height: .95;
+    letter-spacing: -.055em;
+  }
+  .hero-value small {
+    margin-left: 7px;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: .04em;
+  }
+  .metric-detail {
+    max-width: 25ch;
+    margin: var(--ct-space-4) 0 0;
+    color: var(--ct-text-muted);
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .context-stack { display: grid; gap: var(--ct-space-5); }
+  .context-metric {
+    padding-top: var(--ct-space-4);
+    border-top: 1px solid var(--ct-border-soft);
+  }
+  .context-metric:first-child { padding-top: 0; border-top: 0; }
+  .context-value {
+    margin: 5px 0 0;
+    color: var(--ct-text-muted);
+    font-size: 18px;
+    font-weight: 620;
+    letter-spacing: -.02em;
+  }
+  .context-hint { margin: 4px 0 0; color: var(--ct-text-faint); font-size: 10px; }
+
+  .flow-stage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--ct-space-5) var(--ct-space-4);
+  }
+  .flow-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--ct-space-4);
+    padding: 0 var(--ct-space-3) var(--ct-space-2);
+  }
+  .flow-header h2, .section-heading h2, .panel-heading h3 {
+    margin: 0;
+    color: var(--ct-text-strong);
+    font-weight: 620;
+    letter-spacing: -.02em;
+  }
+  .flow-header h2 { font-size: 15px; }
+  .flow-header p { margin: 4px 0 0; color: var(--ct-text-faint); font-size: 10px; }
+  .flow-canvas { width: 100%; height: auto; min-height: 330px; overflow: visible; }
+  .flow-canvas text { font-family: var(--font-sans); }
+  .flow-route {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .flow-route--ghost { stroke: var(--ct-border); stroke-width: 8; }
+  .flow-route--accent { stroke: url(#flowGreen); stroke-width: 2.5; }
+  .flow-route--btc { stroke: url(#flowOrange); stroke-width: 3; }
+  .flow-route--neutral { stroke: url(#flowNeutral); stroke-width: 2; }
+  .flow-route--pending { stroke-dasharray: 3 7; }
+  .flow-node {
+    transition: filter .2s ease, transform .2s ease;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .flow-node:hover { filter: drop-shadow(0 0 10px color-mix(in srgb, var(--ct-accent) 28%, transparent)); transform: scale(1.025); }
+  .flow-node--btc:hover { filter: drop-shadow(0 0 10px color-mix(in srgb, var(--ct-btc) 28%, transparent)); }
+  .flow-kicker { fill: var(--ct-text-faint); font-size: 8px; font-weight: 750; letter-spacing: 1.2px; }
+  .flow-title { fill: var(--ct-text-strong); font-size: 11px; font-weight: 650; }
+  .flow-status { fill: var(--ct-text-muted); font-size: 8px; font-weight: 550; }
+  .flow-percent { fill: var(--ct-text-strong); font-size: 14px; font-weight: 700; }
+  .flow-end-label { fill: var(--ct-btc-strong); font-size: 9px; font-weight: 750; letter-spacing: 1px; }
+  .flow-mobile { display: none; }
+
+  .allocation { display: grid; gap: var(--ct-space-4); }
+  .panel-heading { justify-content: space-between; gap: var(--ct-space-3); }
+  .panel-heading h3 { font-size: 13px; }
+  .panel-heading p { margin: 4px 0 0; color: var(--ct-text-faint); font-size: 10px; }
+  .allocation-rail {
+    position: relative;
+    display: grid;
+    grid-template-columns: 40fr 27fr 33fr;
+    height: 14px;
+    overflow: hidden;
+    gap: 2px;
+    border: 1px solid var(--ct-border);
+    border-radius: 999px;
+    background: var(--ct-surface-inset);
+    padding: 2px;
+  }
+  .allocation-segment { border-radius: 999px; }
+  .allocation-segment--b1 { background: linear-gradient(90deg, color-mix(in srgb, var(--ct-accent) 66%, var(--ct-surface)), var(--ct-accent)); }
+  .allocation-segment--b2 { background: linear-gradient(90deg, color-mix(in srgb, var(--ct-btc) 60%, var(--ct-surface)), var(--ct-btc)); }
+  .allocation-segment--b3 { background: linear-gradient(90deg, var(--ct-text-faint), color-mix(in srgb, var(--ct-text-muted) 75%, var(--ct-surface))); }
+  .pocket-list { display: grid; gap: var(--ct-space-2); }
+  .pocket-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--ct-space-3);
+    min-width: 0;
+    padding: 7px 0;
+  }
+  .pocket-id {
+    display: grid;
+    width: 27px;
+    height: 27px;
+    place-items: center;
+    border: 1px solid var(--ct-border);
+    border-radius: 8px;
+    background: var(--ct-surface-inset);
+    color: var(--ct-text-body);
+    font-size: 9px;
+    font-weight: 750;
+  }
+  .pocket-copy { min-width: 0; }
+  .pocket-copy strong { display: block; overflow: hidden; color: var(--ct-text-body); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+  .pocket-copy span { color: var(--ct-text-faint); font-size: 9px; }
+  .pocket-percent { color: var(--ct-text-strong); font-size: 12px; font-weight: 700; }
+  .mining-register {
+    display: grid;
+    gap: var(--ct-space-3);
+    padding-top: var(--ct-space-5);
+    border-top: 1px solid var(--ct-border-soft);
+  }
+  .proof-orbit {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr);
+    align-items: center;
+    gap: var(--ct-space-3);
+    padding: var(--ct-space-3);
+    border: 1px solid var(--ct-border-soft);
+    border-radius: var(--ct-radius-surface);
+    background: var(--ct-surface-inset);
+  }
+  .orbit {
+    position: relative;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid var(--ct-accent-line);
+    border-radius: 50%;
+    color: var(--ct-accent);
+  }
+  .orbit::before, .orbit::after {
+    position: absolute;
+    border: 1px solid var(--ct-border);
+    border-radius: inherit;
+    content: "";
+  }
+  .orbit::before { inset: 5px; }
+  .orbit::after { width: 4px; height: 4px; border: 0; background: currentColor; box-shadow: 0 0 9px currentColor; }
+  .proof-orbit strong { display: block; color: var(--ct-text-body); font-size: 11px; }
+  .proof-orbit span { color: var(--ct-text-faint); font-size: 9px; line-height: 1.45; }
+
+  .data-band {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    margin-top: var(--ct-space-5);
+    overflow: hidden;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-panel);
+    background: var(--ct-surface);
+    box-shadow: 0 10px 36px color-mix(in srgb, black 30%, transparent);
+  }
+  .data-metric {
+    grid-column: span 2;
+    min-width: 0;
+    padding: var(--ct-space-4) var(--ct-space-5);
+    border-left: 1px solid var(--ct-border-soft);
+  }
+  .data-metric:first-child { border-left: 0; }
+  .data-metric--primary { grid-column: span 3; }
+  .data-metric--secondary { grid-column: span 2; }
+  .data-metric .metric-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .mini-dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: var(--ct-text-faint); }
+  .mini-dot--usdc { background: var(--ct-usdc); }
+  .mini-dot--accent { background: var(--ct-accent); }
+  .mini-dot--btc { background: var(--ct-btc); }
+  .data-value {
+    margin: var(--ct-space-2) 0 0;
+    color: var(--ct-text-muted);
+    font-size: 17px;
+    font-weight: 650;
+    letter-spacing: -.025em;
+  }
+  .data-metric--primary .data-value { font-size: 23px; }
+  .data-hint { margin: 3px 0 0; color: var(--ct-text-faint); font-size: 9px; }
+
+  .section { margin-top: var(--ct-space-6); }
+  .section-heading {
+    justify-content: space-between;
+    gap: var(--ct-space-4);
+    margin-bottom: var(--ct-space-4);
+    padding-inline: var(--ct-space-1);
+  }
+  .section-heading h2 { font-size: 16px; }
+  .section-heading p { margin: 5px 0 0; color: var(--ct-text-faint); font-size: 11px; }
+  .instrument-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(380px, .65fr); gap: var(--ct-space-5); }
+  .panel {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-panel);
+    background: var(--ct-surface);
+    box-shadow: 0 14px 46px color-mix(in srgb, black 28%, transparent);
+  }
+  .panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--ct-space-4);
+    padding: var(--ct-space-5) var(--ct-space-6);
+    border-bottom: 1px solid var(--ct-border-soft);
+  }
+  .panel-body { padding: var(--ct-space-5) var(--ct-space-6) var(--ct-space-6); }
+
+  .reserve-chart {
+    position: relative;
+    min-height: 310px;
+    overflow: hidden;
+    border-radius: var(--ct-radius-surface);
+    background:
+      linear-gradient(var(--ct-border-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ct-border-soft) 1px, transparent 1px),
+      radial-gradient(circle at 83% 35%, var(--ct-btc-soft), transparent 30%),
+      var(--ct-surface-inset);
+    background-size: 100% 25%, 12.5% 100%, auto, auto;
+  }
+  .reserve-chart::before {
+    position: absolute;
+    right: 9%;
+    top: 50%;
+    color: color-mix(in srgb, var(--ct-btc) 5%, transparent);
+    content: "₿";
+    font-size: 148px;
+    font-weight: 750;
+    line-height: 1;
+    transform: translateY(-50%);
+  }
+  .reserve-chart svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .baseline { fill: none; stroke: var(--ct-border); stroke-width: 1.4; stroke-dasharray: 4 7; }
+  .maturity-line { stroke: color-mix(in srgb, var(--ct-btc) 42%, transparent); stroke-width: 1; stroke-dasharray: 3 4; }
+  .chart-axis { fill: var(--ct-text-faint); font-size: 8px; font-weight: 650; }
+  .empty-copy {
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    width: min(78%, 390px);
+    text-align: center;
+    transform: translate(-50%, -50%);
+  }
+  .empty-symbol {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    margin: 0 auto var(--ct-space-3);
+    place-items: center;
+    border: 1px solid var(--ct-border);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--ct-surface-raised) 76%, transparent);
+    color: var(--ct-btc);
+  }
+  .empty-symbol svg { position: static; width: 18px; height: 18px; }
+  .empty-copy strong { display: block; color: var(--ct-text-body); font-size: 12px; }
+  .empty-copy span { display: block; margin-top: 5px; color: var(--ct-text-faint); font-size: 10px; line-height: 1.5; }
+  .chart-provenance {
+    position: absolute;
+    right: var(--ct-space-3);
+    bottom: var(--ct-space-3);
+    color: var(--ct-text-faint);
+    font-size: 8px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .status-chart { display: grid; gap: var(--ct-space-4); }
+  .status-lane {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--ct-space-3);
+  }
+  .status-lane strong { color: var(--ct-text-body); font-size: 10px; }
+  .status-track {
+    position: relative;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--ct-surface-inset);
+    box-shadow: inset 0 0 0 1px var(--ct-border-soft);
+  }
+  .status-track::after {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0 17px, var(--ct-border) 18px 19px);
+    content: "";
+  }
+  .status-lane small { color: var(--ct-text-faint); font-size: 9px; }
+  .status-note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--ct-space-3);
+    margin-top: var(--ct-space-2);
+    padding: var(--ct-space-4);
+    border-left: 2px solid var(--ct-accent);
+    background: linear-gradient(90deg, var(--ct-accent-soft), transparent);
+  }
+  .status-note svg { width: 16px; height: 16px; flex: 0 0 auto; color: var(--ct-accent); }
+  .status-note strong { display: block; color: var(--ct-text-body); font-size: 11px; }
+  .status-note span { display: block; margin-top: 3px; color: var(--ct-text-faint); font-size: 9px; line-height: 1.5; }
+
+  .evidence-panel .panel-body { padding-top: var(--ct-space-6); }
+  .stepper {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .step {
+    position: relative;
+    min-width: 0;
+    padding-right: var(--ct-space-4);
+  }
+  .step:last-child { padding-right: 0; }
+  .step::after {
+    position: absolute;
+    left: 42px;
+    right: 0;
+    top: 21px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--ct-border), var(--ct-border-soft));
+    content: "";
+  }
+  .step:last-child::after { display: none; }
+  .step-icon {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid var(--ct-border);
+    border-radius: 12px;
+    background: var(--ct-surface-inset);
+    color: var(--ct-text-faint);
+    transition: border-color .18s ease, color .18s ease, transform .18s ease;
+  }
+  .step:hover .step-icon { border-color: var(--ct-accent-line); color: var(--ct-accent); transform: translateY(-2px); }
+  .step-icon svg { width: 17px; height: 17px; }
+  .step--active .step-icon {
+    border-color: var(--ct-accent-line);
+    background: var(--ct-accent-soft);
+    color: var(--ct-accent);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--ct-accent) 9%, transparent);
+  }
+  .step--btc .step-icon {
+    border-color: color-mix(in srgb, var(--ct-btc) 25%, transparent);
+    color: color-mix(in srgb, var(--ct-btc) 70%, var(--ct-text-faint));
+  }
+  .step-copy { padding: var(--ct-space-3) var(--ct-space-3) 0 0; }
+  .step-kicker { display: block; color: var(--ct-text-faint); font-size: 8px; font-weight: 700; }
+  .step-title { display: block; margin-top: 4px; color: var(--ct-text-body); font-size: 11px; font-weight: 650; }
+  .step-description { display: block; min-height: 30px; margin-top: 5px; color: var(--ct-text-faint); font-size: 9px; line-height: 1.45; }
+  .step-status { gap: 6px; margin-top: var(--ct-space-3); color: var(--ct-text-muted); font-size: 9px; font-weight: 650; }
+  .step-status .badge-dot { color: var(--ct-text-faint); }
+  .step--active .step-status { color: var(--ct-accent-strong); }
+  .step--active .step-status .badge-dot { color: var(--ct-accent); box-shadow: 0 0 8px var(--ct-accent); }
+
+  .provenance {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--ct-space-4);
+    margin-top: var(--ct-space-6);
+    padding: var(--ct-space-4) var(--ct-space-1) 0;
+    border-top: 1px solid var(--ct-border-soft);
+  }
+  .provenance-item { min-width: 0; gap: var(--ct-space-3); }
+  .provenance-glyph {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid var(--ct-border-soft);
+    border-radius: 8px;
+    color: var(--ct-text-faint);
+  }
+  .provenance-glyph svg { width: 13px; height: 13px; }
+  .provenance-label { display: block; color: var(--ct-text-faint); font-size: 8px; font-weight: 700; }
+  .provenance-value {
+    display: block;
+    margin-top: 3px;
+    overflow: hidden;
+    color: var(--ct-text-muted);
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1279px) {
+    .page { padding: var(--ct-space-5); }
+    .hero-grid { grid-template-columns: 228px minmax(440px, 1fr) 270px; }
+    .hero-side { padding: var(--ct-space-6); }
+    .data-metric { padding-inline: var(--ct-space-4); }
+    .instrument-grid { grid-template-columns: minmax(0, 1.25fr) minmax(340px, .75fr); }
+  }
+
+  @media (max-width: 1099px) {
+    .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(260px, 330px); }
+    .hero-side--left {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(260px, 1.1fr) repeat(2, minmax(150px, .45fr));
+      align-items: end;
+      gap: var(--ct-space-6);
+      border-right: 0;
+      border-bottom: 1px solid var(--ct-border-soft);
+    }
+    .hero-side--left .context-stack { display: contents; }
+    .hero-side--left .context-metric { border-top: 0; padding-top: 0; }
+    .hero-side--left .metric-detail { max-width: 46ch; }
+    .flow-stage { min-height: 420px; }
+    .hero-side--right { border-left: 1px solid var(--ct-border-soft); }
+    .data-band { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .data-metric { grid-column: span 2; border-top: 1px solid var(--ct-border-soft); }
+    .data-metric:nth-child(-n+2) { grid-column: span 3; border-top: 0; }
+    .data-metric:nth-child(3) { border-left: 0; }
+    .instrument-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 767px) {
+    .page { padding: var(--ct-space-4); }
+    .topbar { align-items: flex-start; }
+    .status-cluster { display: none; }
+    .button span { display: none; }
+    .button { width: 36px; padding: 0; }
+    .hero-grid { display: flex; flex-direction: column; }
+    .hero-side--left {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--ct-space-5);
+      padding: var(--ct-space-6);
+    }
+    .inventory { grid-column: 1 / -1; }
+    .hero-value { font-size: 44px; }
+    .flow-stage {
+      order: 2;
+      min-height: 0;
+      padding: var(--ct-space-6) var(--ct-space-3);
+      border-bottom: 1px solid var(--ct-border-soft);
+    }
+    .flow-header { padding-inline: var(--ct-space-2); }
+    .flow-desktop { display: none; }
+    .flow-mobile { display: block; }
+    .flow-canvas { min-height: 430px; }
+    .hero-side--right {
+      order: 3;
+      border-left: 0;
+      padding: var(--ct-space-6);
+    }
+    .allocation { gap: var(--ct-space-3); }
+    .mining-register { margin-top: var(--ct-space-2); }
+    .data-band {
+      display: flex;
+      margin-inline: calc(var(--ct-space-4) * -1);
+      padding-inline: var(--ct-space-4);
+      overflow-x: auto;
+      border-inline: 0;
+      border-radius: 0;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .data-band::-webkit-scrollbar { display: none; }
+    .data-metric, .data-metric--primary, .data-metric--secondary {
+      width: 170px;
+      min-width: 170px;
+      flex: 0 0 170px;
+      border-top: 0;
+      scroll-snap-align: start;
+    }
+    .section-heading { align-items: flex-start; }
+    .section-heading .badge { display: none; }
+    .panel-header { padding: var(--ct-space-5); }
+    .panel-body { padding: var(--ct-space-4) var(--ct-space-5) var(--ct-space-5); }
+    .reserve-chart { min-height: 270px; }
+    .status-lane { grid-template-columns: 92px minmax(0, 1fr); }
+    .status-lane small { grid-column: 2; margin-top: -8px; }
+    .stepper { display: flex; flex-direction: column; }
+    .step {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: var(--ct-space-4);
+      padding: 0 0 var(--ct-space-5);
+    }
+    .step:last-child { padding-bottom: 0; }
+    .step::after {
+      left: 21px;
+      right: auto;
+      top: 42px;
+      bottom: 0;
+      width: 1px;
+      height: auto;
+      background: linear-gradient(var(--ct-border), var(--ct-border-soft));
+    }
+    .step-copy { padding: 1px 0 0; }
+    .step-description { min-height: 0; }
+    .step-status { margin-top: var(--ct-space-2); }
+    .provenance { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 419px) {
+    .page { padding-inline: var(--ct-space-3); }
+    .brand-mark { width: 32px; height: 32px; }
+    h1 { max-width: 235px; font-size: 16px; }
+    .hero-side--left, .hero-side--right { padding: var(--ct-space-5); }
+    .hero-value { font-size: 40px; }
+    .command-center, .panel { border-radius: 15px; }
+    .data-band { margin-inline: calc(var(--ct-space-3) * -1); padding-inline: var(--ct-space-3); }
+    .flow-canvas { min-height: 410px; }
+    .provenance { padding-inline: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<svg aria-hidden="true" class="sr-only">
+  <symbol id="i-hearst" viewBox="0 0 24 24"><path d="M7 5h3v5h4V5h3v14h-3v-6h-4v6H7V5Z" fill="currentColor"/></symbol>
+  <symbol id="i-btc" viewBox="0 0 24 24"><path d="M15.9 10.1c.4-2.4-1.5-3.1-4.1-3.6l.5-2-1.3-.3-.5 2-1-.2.5-2-1.3-.3-.5 2-2.6-.6-.3 1.4s1 .2 1 .2c.6.1.7.5.7.8l-1.3 5.2c-.1.2-.3.5-.7.4 0 0-1-.2-1-.2l-.7 1.5 2.5.6-.5 2 1.3.3.5-2 1 .3-.5 2 1.3.3.5-2c3 .6 5.2.3 5.8-2.4.5-2.1-.8-3-2-3.3 1-.2 1.8-.8 2-2.1Zm-3.5 3.5c-.4 1.7-3.4.8-4.3.6l.7-2.7c.9.2 4 .5 3.6 2.1Zm.4-3.9c-.4 1.5-2.9.7-3.7.5l.6-2.4c.8.2 3.5.4 3.1 1.9Z" fill="currentColor"/></symbol>
+  <symbol id="i-usdc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13.8 8.4c-.4-.4-1-.7-1.8-.7-1.2 0-2.2.7-2.2 1.8 0 2.7 4.5 1.2 4.5 3.9 0 1.2-1 2-2.4 2-.8 0-1.6-.3-2.1-.8M12 6.1v11.8M6.2 7.4a7.3 7.3 0 0 0 0 9.2M17.8 7.4a7.3 7.3 0 0 1 0 9.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 21s7-3.7 7-9.3V5.5L12 3 5 5.5v6.2C5 17.3 12 21 12 21Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-split" viewBox="0 0 24 24"><path d="M5 5v4c0 2 1 3 3 3h8M12 8l4 4-4 4M5 19v-4c0-2 1-3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-mining" viewBox="0 0 24 24"><path d="m5 17 8-8M10 5l4 4M4 16l4 4M15 7l2-2 2 2-2 2M13 19h7M16.5 15.5V19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-proof" viewBox="0 0 24 24"><path d="M9.5 14.5 7 17a3 3 0 0 1-4.2-4.2l3-3A3 3 0 0 1 10 9M14.5 9.5 17 7a3 3 0 0 1 4.2 4.2l-3 3A3 3 0 0 1 14 15M8.5 12h7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-delivery" viewBox="0 0 24 24"><path d="M4 6h10v11H4zM14 10h3l3 3v4h-6zM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-network" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="5" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="19" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="19" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m7 7.5 3 2.7m4 0 3-2.7m-3 6.3 3 2.7" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="i-contract" viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7zM15 3v5h4M10 12h6M10 16h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<main class="page">
+  <header class="topbar">
+    <div class="brand-lockup">
+      <span class="brand-mark"><svg aria-hidden="true"><use href="#i-hearst"/></svg></span>
+      <div>
+        <p class="eyebrow">Hearst Connect · Series 1</p>
+        <h1>Bitcoin Reserve Vault Command Center</h1>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="status-cluster" aria-label="Deployment status">
+        <span class="badge"><span class="badge-dot"></span>Legacy mode</span>
+        <span class="badge"><span class="badge-dot"></span>v2.1 address pending</span>
+      </div>
+      <button class="button" type="button" aria-label="View proof status">
+        <svg aria-hidden="true"><use href="#i-shield"/></svg><span>View proof status</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="command-center" aria-labelledby="flow-title">
+    <div class="hero-grid">
+      <aside class="hero-side hero-side--left" aria-label="Reserve inventory">
+        <div class="inventory">
+          <div class="asset-label">
+            <span class="asset-icon asset-icon--btc"><svg aria-hidden="true"><use href="#i-btc"/></svg></span>
+            <p class="metric-label">Bitcoin inventory</p>
+          </div>
+          <p class="hero-value tabular">Not reported<small>BTC</small></p>
+          <span class="badge"><span class="badge-dot"></span>Awaiting telemetry</span>
+          <p class="metric-detail">Accumulated Bitcoin is delivered at maturity. No reserve quantity is shown before a reported source exists.</p>
+        </div>
+        <div class="context-stack">
+          <div class="context-metric">
+            <div class="asset-label">
+              <span class="asset-icon asset-icon--usdc"><svg aria-hidden="true"><use href="#i-usdc"/></svg></span>
+              <p class="metric-label">Capital deployed</p>
+            </div>
+            <p class="context-value tabular">Awaiting v2.1</p>
+            <p class="context-hint">USDC subscribed · not reported</p>
+          </div>
+          <div class="context-metric">
+            <p class="metric-label">Term progress</p>
+            <p class="context-value tabular">Pending / 24 mo</p>
+            <p class="context-hint">Elapsed month unavailable</p>
+          </div>
+        </div>
+      </aside>
+
+      <div class="flow-stage">
+        <div class="flow-header">
+          <div>
+            <h2 id="flow-title">Capital architecture</h2>
+            <p>USDC subscription → policy pockets → Bitcoin reserve → maturity</p>
+          </div>
+          <span class="badge badge--accent"><span class="badge-dot"></span>Policy configured</span>
+        </div>
+
+        <svg class="flow-canvas flow-desktop" viewBox="0 0 700 380" role="img" aria-label="Capital flow from USDC input through B1 mining, B2 BTC reserve and B3 operating reserve to Bitcoin delivery at maturity">
+          <defs>
+            <linearGradient id="flowGreen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ct-usdc)"/><stop offset=".35" stop-color="var(--ct-accent)"/><stop offset="1" stop-color="var(--ct-accent-strong)"/></linearGradient>
+            <linearGradient id="flowOrange" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="color-mix(in srgb,var(--ct-btc) 45%,var(--ct-text-faint))"/><stop offset="1" stop-color="var(--ct-btc)"/></linearGradient>
+            <linearGradient id="flowNeutral" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ct-text-faint)"/><stop offset="1" stop-color="color-mix(in srgb,var(--ct-text-muted) 50%,transparent)"/></linearGradient>
+            <radialGradient id="nodeGreen"><stop offset="0" stop-color="var(--ct-accent)" stop-opacity=".24"/><stop offset="1" stop-color="var(--ct-surface-inset)"/></radialGradient>
+            <radialGradient id="nodeOrange"><stop offset="0" stop-color="var(--ct-btc)" stop-opacity=".23"/><stop offset="1" stop-color="var(--ct-surface-inset)"/></radialGradient>
+            <filter id="softGlow"><feGaussianBlur stdDeviation="5"/></filter>
+          </defs>
+
+          <path class="flow-route flow-route--ghost" d="M68 190H135"/>
+          <path class="flow-route flow-route--ghost" d="M157 190C190 190 184 82 232 82H378"/>
+          <path class="flow-route flow-route--ghost" d="M157 190H378"/>
+          <path class="flow-route flow-route--ghost" d="M157 190C190 190 184 298 232 298H378"/>
+          <path class="flow-route flow-route--ghost" d="M414 82C468 82 457 164 506 164"/>
+          <path class="flow-route flow-route--ghost" d="M414 190H506"/>
+          <path class="flow-route flow-route--ghost" d="M538 164C595 164 597 105 648 92"/>
+
+          <path class="flow-route flow-route--accent flow-route--pending" d="M68 190H135"/>
+          <path class="flow-route flow-route--accent" d="M157 190C190 190 184 82 232 82H378"/>
+          <path class="flow-route flow-route--btc" d="M157 190H378"/>
+          <path class="flow-route flow-route--neutral" d="M157 190C190 190 184 298 232 298H378"/>
+          <path class="flow-route flow-route--accent flow-route--pending" d="M414 82C468 82 457 164 506 164"/>
+          <path class="flow-route flow-route--btc" d="M414 190H506"/>
+          <path class="flow-route flow-route--btc flow-route--pending" d="M538 164C595 164 597 105 648 92"/>
+
+          <g transform="translate(20 158)">
+            <circle cx="24" cy="32" r="23" fill="var(--ct-usdc-soft)" stroke="color-mix(in srgb,var(--ct-usdc) 35%,transparent)"/>
+            <text x="24" y="29" text-anchor="middle" class="flow-kicker" fill="var(--ct-usdc)">USDC</text>
+            <text x="24" y="41" text-anchor="middle" class="flow-status">PENDING</text>
+          </g>
+          <g class="flow-node" transform="translate(134 167)">
+            <circle cx="22" cy="23" r="22" fill="url(#nodeGreen)" stroke="var(--ct-accent-line)"/>
+            <path d="M14 23h16M22 15l8 8-8 8" fill="none" stroke="var(--ct-accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+
+          <g class="flow-node" transform="translate(228 50)">
+            <rect width="190" height="64" rx="14" fill="var(--ct-surface-inset)" stroke="var(--ct-accent-line)"/>
+            <text x="18" y="20" class="flow-kicker">B1 · MINING POWER</text>
+            <text x="18" y="43" class="flow-percent">40%</text>
+            <text x="66" y="41" class="flow-status">HASHRATE</text>
+            <text x="66" y="53" class="flow-status">AWAITING REPORT</text>
+            <circle cx="170" cy="32" r="12" fill="var(--ct-accent-soft)" stroke="var(--ct-accent-line)"/>
+            <path d="m164 36 8-8m-4-4 4 4m-10 6 4 4" fill="none" stroke="var(--ct-accent)" stroke-width="1.2" stroke-linecap="round"/>
+          </g>
+          <g class="flow-node flow-node--btc" transform="translate(228 158)">
+            <rect width="190" height="64" rx="14" fill="var(--ct-surface-inset)" stroke="color-mix(in srgb,var(--ct-btc) 32%,transparent)"/>
+            <text x="18" y="20" class="flow-kicker">B2 · BTC RESERVE</text>
+            <text x="18" y="43" class="flow-percent">27%</text>
+            <text x="66" y="41" class="flow-status">DIRECT RESERVE</text>
+            <text x="66" y="53" class="flow-status">NOT REPORTED</text>
+            <circle cx="170" cy="32" r="12" fill="var(--ct-btc-soft)" stroke="color-mix(in srgb,var(--ct-btc) 32%,transparent)"/>
+            <text x="170" y="37" text-anchor="middle" fill="var(--ct-btc)" font-size="14" font-weight="700">₿</text>
+          </g>
+          <g class="flow-node" transform="translate(228 266)">
+            <rect width="190" height="64" rx="14" fill="var(--ct-surface-inset)" stroke="var(--ct-border)"/>
+            <text x="18" y="20" class="flow-kicker">B3 · OPERATING RESERVE</text>
+            <text x="18" y="43" class="flow-percent">33%</text>
+            <text x="66" y="41" class="flow-status">ELECTRICITY</text>
+            <text x="66" y="53" class="flow-status">AWAITING REPORT</text>
+            <circle cx="170" cy="32" r="12" fill="color-mix(in srgb,var(--ct-text-muted) 8%,transparent)" stroke="var(--ct-border)"/>
+            <path d="m172 22-8 11h7l-2 9 8-12h-7z" fill="none" stroke="var(--ct-text-muted)" stroke-width="1.1" stroke-linejoin="round"/>
+          </g>
+
+          <g class="flow-node flow-node--btc" transform="translate(500 132)">
+            <circle cx="23" cy="32" r="26" fill="url(#nodeOrange)" stroke="color-mix(in srgb,var(--ct-btc) 38%,transparent)"/>
+            <text x="23" y="28" text-anchor="middle" fill="var(--ct-btc)" font-size="16" font-weight="750">₿</text>
+            <text x="23" y="42" text-anchor="middle" class="flow-status">RESERVE</text>
+          </g>
+          <g class="flow-node flow-node--btc" transform="translate(619 51)">
+            <circle cx="29" cy="40" r="28" fill="url(#nodeOrange)" stroke="color-mix(in srgb,var(--ct-btc) 45%,transparent)"/>
+            <circle cx="29" cy="40" r="36" fill="none" stroke="color-mix(in srgb,var(--ct-btc) 12%,transparent)"/>
+            <path d="M29 24v16l10 7" fill="none" stroke="var(--ct-btc)" stroke-width="1.5" stroke-linecap="round"/>
+            <text x="29" y="84" text-anchor="middle" class="flow-end-label">MATURITY</text>
+            <text x="29" y="98" text-anchor="middle" class="flow-status">DELIVERY</text>
+          </g>
+        </svg>
+
+        <svg class="flow-canvas flow-mobile" viewBox="0 0 340 430" role="img" aria-label="Simplified vertical capital flow on mobile">
+          <defs>
+            <linearGradient id="mobileFlow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--ct-usdc)"/><stop offset=".4" stop-color="var(--ct-accent)"/><stop offset="1" stop-color="var(--ct-btc)"/></linearGradient>
+          </defs>
+          <path d="M170 45V375" fill="none" stroke="var(--ct-border)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M170 45V375" fill="none" stroke="url(#mobileFlow)" stroke-width="2.5" stroke-dasharray="4 7" stroke-linecap="round"/>
+          <g transform="translate(117 16)"><rect width="106" height="54" rx="13" fill="var(--ct-surface-inset)" stroke="color-mix(in srgb,var(--ct-usdc) 32%,transparent)"/><text x="53" y="23" text-anchor="middle" class="flow-kicker">USDC IN</text><text x="53" y="39" text-anchor="middle" class="flow-status">AWAITING V2.1</text></g>
+          <g transform="translate(32 100)"><rect width="276" height="62" rx="14" fill="var(--ct-surface-inset)" stroke="var(--ct-accent-line)"/><text x="16" y="23" class="flow-kicker">B1 · MINING POWER</text><text x="16" y="46" class="flow-percent">40%</text><text x="72" y="44" class="flow-status">AWAITING REPORT</text></g>
+          <g transform="translate(32 184)"><rect width="276" height="62" rx="14" fill="var(--ct-surface-inset)" stroke="color-mix(in srgb,var(--ct-btc) 32%,transparent)"/><text x="16" y="23" class="flow-kicker">B2 · BTC RESERVE</text><text x="16" y="46" class="flow-percent">27%</text><text x="72" y="44" class="flow-status">NOT REPORTED</text></g>
+          <g transform="translate(32 268)"><rect width="276" height="62" rx="14" fill="var(--ct-surface-inset)" stroke="var(--ct-border)"/><text x="16" y="23" class="flow-kicker">B3 · OPERATING RESERVE</text><text x="16" y="46" class="flow-percent">33%</text><text x="72" y="44" class="flow-status">AWAITING REPORT</text></g>
+          <g transform="translate(117 358)"><rect width="106" height="54" rx="13" fill="var(--ct-btc-soft)" stroke="color-mix(in srgb,var(--ct-btc) 38%,transparent)"/><text x="53" y="23" text-anchor="middle" class="flow-end-label">MATURITY</text><text x="53" y="39" text-anchor="middle" class="flow-status">BTC DELIVERY</text></g>
+        </svg>
+      </div>
+
+      <aside class="hero-side hero-side--right" aria-label="Allocation and mining register">
+        <div class="allocation">
+          <div class="panel-heading">
+            <div><h3>Policy allocation</h3><p>Configured architecture · not measured</p></div>
+            <span class="badge badge--accent">40 / 27 / 33</span>
+          </div>
+          <div class="allocation-rail" aria-label="Allocation: B1 40 percent, B2 27 percent, B3 33 percent">
+            <span class="allocation-segment allocation-segment--b1"></span>
+            <span class="allocation-segment allocation-segment--b2"></span>
+            <span class="allocation-segment allocation-segment--b3"></span>
+          </div>
+          <div class="pocket-list">
+            <div class="pocket-row"><span class="pocket-id">B1</span><span class="pocket-copy"><strong>Mining power</strong><span>Hashrate acquisition</span></span><span class="pocket-percent tabular">40%</span></div>
+            <div class="pocket-row"><span class="pocket-id">B2</span><span class="pocket-copy"><strong>BTC reserve</strong><span>Direct reserve pocket</span></span><span class="pocket-percent tabular">27%</span></div>
+            <div class="pocket-row"><span class="pocket-id">B3</span><span class="pocket-copy"><strong>Operating reserve</strong><span>Electricity coverage</span></span><span class="pocket-percent tabular">33%</span></div>
+          </div>
+        </div>
+        <div class="mining-register">
+          <div class="panel-heading">
+            <div><h3>Mining & proof register</h3><p>Keeper and indexer state</p></div>
+          </div>
+          <div class="proof-orbit">
+            <span class="orbit"><svg aria-hidden="true" width="16" height="16"><use href="#i-mining"/></svg></span>
+            <span><strong>Awaiting first mining report</strong><span>No hashrate, reserve quantity or timestamp has been published.</span></span>
+          </div>
+          <div class="proof-orbit">
+            <span class="orbit"><svg aria-hidden="true" width="16" height="16"><use href="#i-proof"/></svg></span>
+            <span><strong>Proof not indexed</strong><span>Evidence trail remains pending until v2.1 deployment.</span></span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="data-band" aria-label="Series 1 key data">
+    <div class="data-metric data-metric--primary">
+      <p class="metric-label"><span class="mini-dot mini-dot--usdc"></span>Capital deployed</p>
+      <p class="data-value tabular">Awaiting v2.1</p>
+      <p class="data-hint">USDC · not reported</p>
+    </div>
+    <div class="data-metric data-metric--primary">
+      <p class="metric-label"><span class="mini-dot mini-dot--btc"></span>Bitcoin accumulated</p>
+      <p class="data-value tabular">Not reported</p>
+      <p class="data-hint">BTC · awaiting telemetry</p>
+    </div>
+    <div class="data-metric data-metric--secondary">
+      <p class="metric-label"><span class="mini-dot mini-dot--accent"></span>Mining state</p>
+      <p class="data-value">Pending</p>
+      <p class="data-hint">No keeper report</p>
+    </div>
+    <div class="data-metric data-metric--secondary">
+      <p class="metric-label"><span class="mini-dot"></span>Term</p>
+      <p class="data-value tabular">Pending / 24 mo</p>
+      <p class="data-hint">Elapsed month unavailable</p>
+    </div>
+    <div class="data-metric data-metric--secondary">
+      <p class="metric-label"><span class="mini-dot"></span>Proof</p>
+      <p class="data-value">Not indexed</p>
+      <p class="data-hint">Awaiting v2.1</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="instruments-title">
+    <div class="section-heading">
+      <div><h2 id="instruments-title">Reserve instruments</h2><p>Telemetry surfaces remain truthful when no measurements exist.</p></div>
+      <span class="badge"><span class="badge-dot"></span>No live series</span>
+    </div>
+    <div class="instrument-grid">
+      <article class="panel">
+        <header class="panel-header">
+          <div class="panel-heading"><div><h3>Reserve trajectory</h3><p>Accumulated BTC over the Series 1 term</p></div></div>
+          <span class="badge badge--btc"><span class="badge-dot"></span>Delivery at maturity</span>
+        </header>
+        <div class="panel-body">
+          <div class="reserve-chart">
+            <svg viewBox="0 0 760 310" preserveAspectRatio="none" aria-hidden="true">
+              <path class="baseline" d="M40 250 C150 250 235 246 335 247 C450 248 560 242 720 242"/>
+              <line class="maturity-line" x1="650" y1="20" x2="650" y2="272"/>
+              <text class="chart-axis" x="40" y="291">INCEPTION</text>
+              <text class="chart-axis" x="650" y="291" text-anchor="middle">MATURITY</text>
+              <text class="chart-axis" x="720" y="291" text-anchor="end">DELIVERY</text>
+            </svg>
+            <div class="empty-copy">
+              <span class="empty-symbol"><svg aria-hidden="true"><use href="#i-chart"/></svg></span>
+              <strong>Awaiting on-chain telemetry</strong>
+              <span>No trajectory is drawn until the v2.1 contract and mining reports provide a real reserve series.</span>
+            </div>
+            <span class="chart-provenance">Source · v2.1 mining reports pending</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <header class="panel-header">
+          <div class="panel-heading"><div><h3>Mining & proof status</h3><p>Readiness by evidence source</p></div></div>
+          <span class="badge">Awaiting reports</span>
+        </header>
+        <div class="panel-body status-chart">
+          <div class="status-lane"><strong>Contract</strong><span class="status-track"></span><small>v2.1 address pending</small></div>
+          <div class="status-lane"><strong>Mining keeper</strong><span class="status-track"></span><small>Not reported</small></div>
+          <div class="status-lane"><strong>BTC reserve</strong><span class="status-track"></span><small>Not reported</small></div>
+          <div class="status-lane"><strong>Proof indexer</strong><span class="status-track"></span><small>Not indexed</small></div>
+          <div class="status-note">
+            <svg aria-hidden="true"><use href="#i-shield"/></svg>
+            <span><strong>Evidence gate is explicit</strong><span>Tracks show system stages only. They do not encode completion or a fabricated percentage.</span></span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="evidence-title">
+    <div class="section-heading">
+      <div><h2 id="evidence-title">Operations & evidence ledger</h2><p>Every capital transition carries a visible state and source expectation.</p></div>
+      <span class="badge"><span class="badge-dot"></span>Pipeline pending</span>
+    </div>
+    <article class="panel evidence-panel">
+      <div class="panel-body">
+        <ol class="stepper">
+          <li class="step step--active">
+            <span class="step-icon"><svg aria-hidden="true"><use href="#i-usdc"/></svg></span>
+            <span class="step-copy"><span class="step-kicker">Step 01</span><span class="step-title">USDC In</span><span class="step-description">Subscription capital enters the vault.</span><span class="step-status"><span class="badge-dot"></span>Awaiting v2.1</span></span>
+          </li>
+          <li class="step">
+            <span class="step-icon"><svg aria-hidden="true"><use href="#i-split"/></svg></span>
+            <span class="step-copy"><span class="step-kicker">Step 02</span><span class="step-title">Allocate</span><span class="step-description">Apply the configured B1 / B2 / B3 policy.</span><span class="step-status"><span class="badge-dot"></span>Policy configured</span></span>
+          </li>
+          <li class="step">
+            <span class="step-icon"><svg aria-hidden="true"><use href="#i-mining"/></svg></span>
+            <span class="step-copy"><span class="step-kicker">Step 03</span><span class="step-title">Mining</span><span class="step-description">Keeper reports operational hashrate.</span><span class="step-status"><span class="badge-dot"></span>Waiting</span></span>
+          </li>
+          <li class="step step--btc">
+            <span class="step-icon"><svg aria-hidden="true"><use href="#i-btc"/></svg></span>
+            <span class="step-copy"><span class="step-kicker">Step 04</span><span class="step-title">BTC Reserve</span><span class="step-description">Accumulated Bitcoin enters the reserve.</span><span class="step-status"><span class="badge-dot"></span>Not reported</span></span>
+          </li>
+          <li class="step">
+            <span class="step-icon"><svg aria-hidden="true"><use href="#i-proof"/></svg></span>
+            <span class="step-copy"><span class="step-kicker">Step 05</span><span class="step-title">Proof</span><span class="step-description">Indexer links reports and reserve evidence.</span><span class="step-status"><span class="badge-dot"></span>Not indexed</span></span>
+          </li>
+          <li class="step step--btc">
+            <span class="step-icon"><svg aria-hidden="true"><use href="#i-delivery"/></svg></span>
+            <span class="step-copy"><span class="step-kicker">Step 06</span><span class="step-title">Delivery</span><span class="step-description">Bitcoin reserve delivered at maturity.</span><span class="step-status"><span class="badge-dot"></span>Term pending</span></span>
+          </li>
+        </ol>
+      </div>
+    </article>
+  </section>
+
+  <footer class="provenance" aria-label="Data provenance">
+    <div class="provenance-item">
+      <span class="provenance-glyph"><svg aria-hidden="true"><use href="#i-network"/></svg></span>
+      <span><span class="provenance-label">Network context</span><span class="provenance-value">Base Sepolia · Chain ID 84532</span></span>
+    </div>
+    <div class="provenance-item">
+      <span class="provenance-glyph"><svg aria-hidden="true"><use href="#i-contract"/></svg></span>
+      <span><span class="provenance-label">Contract source</span><span class="provenance-value">Legacy vault · v2.1 address pending</span></span>
+    </div>
+    <div class="provenance-item">
+      <span class="provenance-glyph"><svg aria-hidden="true"><use href="#i-proof"/></svg></span>
+      <span><span class="provenance-label">Evidence pipeline</span><span class="provenance-value">Not indexed · awaiting deployment telemetry</span></span>
+    </div>
+  </footer>
+</main>
+</body>
+</html>

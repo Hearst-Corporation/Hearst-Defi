@@ -413,6 +413,11 @@ Journal DS : [`docs/DESIGN_SYSTEM.md §11`](docs/DESIGN_SYSTEM.md).
   être recalibrés directement dans les fichiers partagés tant que les garde-fous
   produit (APY range, provenance, no fake-live, disclaimers) restent respectés.
 - **Proposition layout Series 1 (HTML first)** :
+  [`docs/visuals/series1-dashboard-hybrid-command-center-v3.html`](docs/visuals/series1-dashboard-hybrid-command-center-v3.html)
+  — Hybrid Command Center V3, qualité graphique renforcée et alignée Catalyst
+  (flow spine, allocation, reserve trajectory, evidence stepper, responsive 390–1440) ;
+  prototype HTML uniquement, sans implémentation React.
+- **Explorations layout antérieures** :
   [`docs/visuals/series1-layout-proposal-composer25.html`](docs/visuals/series1-layout-proposal-composer25.html)
   — 3 directions cockpit (A Integrated · B Reserve Story · C Command Center) ;
   plan détaillé dans
