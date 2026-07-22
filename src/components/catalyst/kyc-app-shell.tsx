@@ -14,8 +14,6 @@ import {
   Menu,
   Pickaxe,
   PieChart,
-  Settings,
-  ShieldCheck,
   Vault,
   X,
 } from "lucide-react";
@@ -119,28 +117,20 @@ function Sidebar({
             <NavLink key={item.id} item={item} pathname={pathname} onNavigate={onNavigate} />
           ))}
         </div>
-        {!admin ? (
-          <div className="mt-8 flex flex-col gap-0.5">
-            <p className="px-3 pb-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">Account</p>
-            <NavLink
-              item={{ id: "profile", label: "Profile & settings", href: "/profile", icon: "Settings" }}
-              pathname={pathname}
-              onNavigate={onNavigate}
-            />
-          </div>
-        ) : null}
       </div>
 
-      <div className="border-t border-zinc-950/8 p-4 dark:border-white/8">
-        <Link
-          href={admin ? "/dashboard" : "/proof-center"}
-          onClick={onNavigate}
-          className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-950/4 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
-        >
-          <ShieldCheck className="size-5" />
-          {admin ? "Investor view" : "Proof Center"}
-        </Link>
-      </div>
+      {admin ? (
+        <div className="border-t border-zinc-950/8 p-4 dark:border-white/8">
+          <Link
+            href="/dashboard"
+            onClick={onNavigate}
+            className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-950/4 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
+          >
+            <LayoutDashboard className="size-5" />
+            Investor view
+          </Link>
+        </div>
+      ) : null}
     </nav>
   );
 }
@@ -200,9 +190,9 @@ export function KycAppShell({ children }: { children: ReactNode }) {
           background: color-mix(in srgb, var(--ct-bg-deep) 14%, white) !important;
         }
         .kyc-cockpit-shell {
-          --kyc-cockpit-canvas: color-mix(in srgb, var(--ct-bg-deep) 14%, white);
-          --kyc-cockpit-frame: color-mix(in srgb, var(--ct-bg-deep) 7%, white);
-          --kyc-cockpit-panel: color-mix(in srgb, var(--ct-bg-deep) 5%, white);
+          --kyc-cockpit-canvas: color-mix(in srgb, var(--ct-bg-deep) 18%, white);
+          --kyc-cockpit-frame: color-mix(in srgb, var(--ct-bg-deep) 4%, white);
+          --kyc-cockpit-panel: color-mix(in srgb, var(--ct-bg-deep) 8%, white);
           --kyc-cockpit-inset: color-mix(in srgb, var(--ct-bg-deep) 9%, white);
           --kyc-cockpit-line: color-mix(in srgb, var(--ct-bg-deep) 16%, transparent);
           --kyc-cockpit-accent: color-mix(in srgb, var(--ct-accent) 48%, var(--ct-bg-deep));
@@ -221,9 +211,13 @@ export function KycAppShell({ children }: { children: ReactNode }) {
           box-shadow: var(--ct-shadow-soft);
           border-color: var(--kyc-cockpit-line);
         }
-        .kyc-cockpit-shell .kyc-cockpit-page-title,
         .kyc-cockpit-shell .kyc-cockpit-section {
           border-color: var(--kyc-cockpit-line);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-frame {
+          box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 80%, transparent),
+            0 18px 48px -28px color-mix(in srgb, var(--ct-bg-deep) 42%, transparent);
         }
         .kyc-cockpit-shell .kyc-cockpit-panel,
         .kyc-cockpit-shell .kyc-cockpit-chart,

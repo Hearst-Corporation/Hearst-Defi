@@ -44,7 +44,7 @@ export function KycSection({
 }) {
   const headed = Boolean(index || title || description || actions);
   return (
-    <section className={cn("kyc-cockpit-section", headed && "pt-8", className)}>
+    <section className={cn("kyc-cockpit-section", headed && "border-t pt-8", className)}>
       {headed ? (
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
           <div>
