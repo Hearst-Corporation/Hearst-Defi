@@ -36,7 +36,7 @@ Détail + STOP conditions : [`docs/AGENT_WORKFLOW.md`](docs/AGENT_WORKFLOW.md).
 Mise à jour autorisée **in place** si les tokens/breakpoints CSS changent. Suppression / rename = **bloqué**.
 
 ## À éviter (ne pas charger sauf nécessité directe)
-- `README.md` (511 l.) et `CLAUDE.md` (197 l.) en entier — pour les règles, ce fichier suffit.
+- `README.md` (511 l.) et `CLAUDE.md` (135 l.) en entier — pour les règles, ce fichier suffit.
 - Les 3 CSS géants en entier — passer par `docs/CSS_INDEX.md` (plage de lignes).
 - Le contexte d'un autre domaine (pas de CSS pour une tâche backend, pas de data pour une tâche UI).
 - `docs/audit/*.html` (rapports datés, non normatifs).
