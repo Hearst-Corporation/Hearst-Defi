@@ -16,6 +16,7 @@ describe("navigate-tool whitelist", () => {
       expect(d.route).not.toContain("[");
     }
     expect(LP_NAV_DESTINATIONS.map((d) => d.route)).toEqual([
+      "/dashboard",
       "/portfolio",
       "/vaults",
       "/proof-center",

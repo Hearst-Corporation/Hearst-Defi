@@ -23,6 +23,7 @@ import {
   formatBps,
   formatBtcFromSats,
   formatHashrateTh,
+  formatNavPerShare,
   formatShareAmount,
   formatUsdcAmount,
   selectWired,
@@ -38,7 +39,8 @@ import {
   Series1WiredRow,
 } from "@/components/series1-shell/Series1Wired";
 import { Series1Timeline } from "@/components/series1-shell/Series1Timeline";
-import { POCKET_LABELS, vaultModeLabel, wiredMetric } from "./_view";
+import { HcCompositionRing } from "@/components/dataviz/his";
+import { placeholderStatus, POCKET_LABELS, POLICY_TARGET_BPS, vaultModeLabel, wiredMetric } from "./_view";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +62,6 @@ export default async function DashboardPage() {
 
   const mode = getVaultMode();
   const totalAssets = selectWired(core, (c) => c.totalAssets);
-  const totalShares = selectWired(core, (c) => c.totalShares);
 
   return (
     <Series1Page>
@@ -79,8 +80,11 @@ export default async function DashboardPage() {
         metrics={[
           {
             label: "Total shares",
-            value: wiredMetric(totalShares, (v) =>
-              formatShareAmount(v, core.status === "wired" ? core.data.shareDecimals : 6),
+            // One envelope carries value + its own decimals, so the formatter
+            // can never pair a wired value with a guessed precision.
+            value: wiredMetric(
+              selectWired(core, (c) => ({ shares: c.totalShares, decimals: c.shareDecimals })),
+              (v) => formatShareAmount(v.shares, v.decimals),
             ),
             hint: "Shares in circulation",
           },
@@ -137,7 +141,7 @@ export default async function DashboardPage() {
             className="lg:col-span-8"
             title="Accumulated BTC through the term"
             description="Mining credits indexed from the program ledger."
-            status={mining.status === "wired" ? "live" : "configured"}
+            status={placeholderStatus(mining)}
             label="Accumulation history is not available yet"
             detail="The contract reports a cumulative total, not a per-month series. A curve appears once the ledger indexes monthly credits."
           />
@@ -189,27 +193,23 @@ export default async function DashboardPage() {
                     <div key={s.index}>
                       <div className="flex items-baseline justify-between gap-4">
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold">
+                          <p className="text-sm font-semibold text-zinc-950 dark:text-white">
                             {pocket ? `${pocket.id} · ${pocket.label}` : `Strategy ${s.index}`}
                           </p>
-                          <p className="mt-0.5 text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
+                          <p className="mt-0.5 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
                             {s.isIdle ? "Idle — held as vault balance" : "Adapter-deployed"}
                             {s.enabled ? "" : " · inactive"}
                           </p>
                         </div>
-                        <span className="shrink-0 text-lg font-semibold tabular-nums">{formatBps(s.allocationBps)}</span>
+                        <span className="shrink-0 text-lg font-semibold text-zinc-950 tabular-nums dark:text-white">
+                          {formatBps(s.allocationBps)}
+                        </span>
                       </div>
-                      <div
-                        className="mt-2 h-2 overflow-hidden rounded-full"
-                        style={{ background: "var(--s1-inset)", boxShadow: "var(--s1-shadow-inset)" }}
-                      >
+                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-white/5">
+                        {/* Accent fills the bar because the bar IS the datum. */}
                         <div
-                          className="h-full rounded-full"
-                          style={{
-                            width: `${Math.min(100, pct)}%`,
-                            background:
-                              "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0)), var(--s1-accent)",
-                          }}
+                          className="h-full rounded-full bg-[#a7fb90]"
+                          style={{ width: `${Math.min(100, pct)}%` }}
                         />
                       </div>
                     </div>
@@ -217,7 +217,25 @@ export default async function DashboardPage() {
                 })}
               </div>
             ) : (
-              <Series1Unavailable reason={strategies.reason} detail={strategies.detail} />
+              <div className="flex flex-col items-center gap-4 p-6">
+                {/* The POLICY target is a spec constant (40/27/33), honestly
+                    renderable while the live strategies() read is unavailable —
+                    labeled as the configured target, never as a measurement. */}
+                <HcCompositionRing
+                  aria-label="Series 1 policy allocation target: B1 40%, B2 27%, B3 33%"
+                  palette="categorical"
+                  centerLabel="Policy target"
+                  centerValue="40 / 27 / 33"
+                  segments={POLICY_TARGET_BPS.map((bps, i) => ({
+                    label: `${POCKET_LABELS[i]?.id ?? `S${i}`} · ${POCKET_LABELS[i]?.label ?? "Strategy"}`,
+                    value: bps / 100,
+                  }))}
+                />
+                <p className="text-center text-[10px] text-zinc-500 dark:text-zinc-400">
+                  Configured policy split — not a live allocation.
+                </p>
+                <Series1Unavailable reason={strategies.reason} detail={strategies.detail} />
+              </div>
             )}
           </Series1Panel>
           <Series1Panel className="lg:col-span-5">
@@ -279,6 +297,18 @@ export default async function DashboardPage() {
             <Series1RowList>
               <Series1Row label="Vault mode" value={vaultModeLabel(mode)} />
               <Series1WiredRow
+                label="NAV per share"
+                read={selectWired(core, (c) => c.navPerShare)}
+                render={(v) => formatNavPerShare(v)}
+                hint="convertToAssets(1 share)"
+              />
+              <Series1WiredRow
+                label="Contract state"
+                read={selectWired(core, (c) => c.paused)}
+                render={(p) => (p ? "Paused" : "Active")}
+                hint="paused() — Pausable read"
+              />
+              <Series1WiredRow
                 label="Mining Note mode"
                 read={selectWired(ops, (o) => o.miningNoteMode)}
                 render={(m) => (m ? "Enforced" : "Advisory")}
@@ -290,13 +320,13 @@ export default async function DashboardPage() {
                 render={(a) => `${a.slice(0, 6)}…${a.slice(-4)}`}
                 hint="Read from the contract"
               />
-              <Series1Row label="Delivery evidence" value="At maturity" />
+              <Series1Row label="Delivery evidence" value="At maturity" hint="Contractual term, not a chain read" />
             </Series1RowList>
           </Series1Panel>
         </div>
       </Series1Section>
 
-      <p className="text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
+      <p className="text-xs leading-5 text-zinc-500 dark:text-zinc-400">
         Accumulated BTC is delivered at maturity. Allocation, reserve and mining figures carry their own provenance;
         estimates and forward-looking outcomes are not guaranteed.
       </p>

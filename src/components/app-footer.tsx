@@ -4,30 +4,22 @@ import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { SERIES1_NAME } from "@/lib/vaults/series1";
 
 /**
- * Unified institutional footer — one component, two densities.
+ * Institutional footer — the public "socle plein" used on /legal/* (mounted by
+ * AppChrome's bare branch): four columns (Identity / Platform / Legal / Status)
+ * over a hairline sub-footer. The old `compact` variant died with the no-scroll
+ * cockpit shell — no call site ever passed it.
  *
- * - `variant="full"` — the public "socle plein" used on "/" surfaces and
- *   /legal/*: four columns (Identity / Platform / Legal / Status) over a
- *   hairline sub-footer.
- * - `variant="compact"` — a single ~40px line pinned at the bottom of every
- *   authenticated Cockpit surface, preserving the no-scroll layout.
- *
- * Mounted once in AppChrome (compact on cockpit surfaces, full under the bare
- * branch for "/" and /legal/*). It also absorbs the old LegalLayout footer.
- *
- * Styling note — this is Tailwind-bento markup (canon Portfolio), BUT the
- * structural hooks `app-footer`, `app-footer--compact`, `app-footer--full`,
- * `app-footer__links`, `app-footer__brand`, `app-footer__diamond` are kept:
- * `cockpit.css` targets them for shell layout (footer pinning, grid aligned on
- * the rail columns, the dissolve `::before`, the bottom-bar offset). Only the
- * presentation (color/typography) moved from the legacy `ct-*` classes to
- * Tailwind utilities here.
+ * Styling note — Tailwind-bento markup, but the structural hooks `app-footer`,
+ * `app-footer--full`, `app-footer__*` are kept: `cockpit.css` targets them for
+ * shell layout.
  */
 
+// One link per live investor surface — the folded routes (/btc, /mining,
+// /my-vaults) are redirect stubs and must not be advertised.
 const PLATFORM_LINKS = [
-  { href: "/dashboard" as const, label: "Dashboard" },
-  { href: "/btc" as const, label: "BTC" },
-  { href: "/mining" as const, label: "Mining" },
+  { href: "/dashboard" as const, label: "Overview" },
+  { href: "/vaults" as const, label: "Series 1 Vault" },
+  { href: "/portfolio" as const, label: "My Position" },
   { href: "/proof-center" as const, label: "Proof" },
 ] as const;
 
@@ -43,50 +35,7 @@ const LEGAL_LINKS = [
 // states the delivery term instead of any rate label.
 const TERM_LABEL = "24-month term · delivered in BTC";
 
-interface AppFooterProps {
-  variant?: "full" | "compact";
-}
-
-export function AppFooter({ variant = "full" }: AppFooterProps) {
-  if (variant === "compact") {
-    return (
-      <footer
-        className="app-footer app-footer--compact border-t border-[var(--ct-border-soft)]"
-        aria-label="Legal"
-      >
-        <nav
-          className="app-footer__links text-[length:var(--ct-text-2xs)]"
-          aria-label="Legal links"
-        >
-          {LEGAL_LINKS.slice(0, 3).map((link, i) => (
-            <span
-              key={`${link.href}-${i}`}
-              className="inline-flex items-center gap-2"
-            >
-              {i > 0 ? (
-                <span className="text-[var(--ct-text-faint)]" aria-hidden>
-                  ·
-                </span>
-              ) : null}
-              <Link
-                href={link.href}
-                className="text-[var(--ct-text-faint)] transition-colors hover:text-[var(--ct-text-body)]"
-              >
-                {link.label}
-              </Link>
-            </span>
-          ))}
-        </nav>
-        <span className="app-footer__brand text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
-          <span aria-hidden className="app-footer__diamond text-[var(--ct-accent)]">
-            ◆
-          </span>
-          {SERIES1_NAME}
-        </span>
-      </footer>
-    );
-  }
-
+export function AppFooter({ variant: _variant = "full" }: { variant?: "full" }) {
   return (
     <footer
       className="app-footer app-footer--full border-t border-[var(--ct-border-soft)]"

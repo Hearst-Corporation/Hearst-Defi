@@ -10,5 +10,6 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 export default function PositionsPage() {
-  redirect("/my-vaults");
+  // /my-vaults is itself a redirect stub now — go straight to the destination.
+  redirect("/portfolio");
 }

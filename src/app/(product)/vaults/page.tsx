@@ -13,7 +13,14 @@ import {
   readStrategies,
   readVaultCore,
 } from "@/lib/chain/dynavault";
-import { formatBps, formatShareAmount, formatUsdcAmount, selectWired } from "@/lib/chain/wired-view";
+import {
+  formatBps,
+  formatNavPerShare,
+  formatShareAmount,
+  formatUsdcAmount,
+  selectExposed,
+  selectWired,
+} from "@/lib/chain/wired-view";
 
 import { Series1KpiBand } from "@/components/series1-shell/Series1KpiBand";
 import { Series1Page, Series1PageTitle, Series1Section } from "@/components/series1-shell/Series1Page";
@@ -24,7 +31,8 @@ import {
   Series1WiredRow,
 } from "@/components/series1-shell/Series1Wired";
 import { Series1Timeline } from "@/components/series1-shell/Series1Timeline";
-import { POCKET_LABELS, vaultModeLabel, wiredMetric } from "../dashboard/_view";
+import { HcCompositionRing } from "@/components/dataviz/his";
+import { POCKET_LABELS, POLICY_TARGET_BPS, vaultModeLabel, wiredMetric } from "../dashboard/_view";
 
 export const dynamic = "force-dynamic";
 
@@ -46,8 +54,7 @@ export default async function VaultsPage() {
         actions={
           <Link
             href="/proof-center"
-            className="inline-flex min-h-10 items-center rounded-lg px-4 text-sm font-medium"
-            style={{ background: "var(--s1-accent)", color: "#08130a" }}
+            className="inline-flex min-h-10 items-center rounded-lg bg-zinc-800 px-4 text-sm font-medium text-(--ct-accent) ring-1 ring-(--ct-accent)/30 transition-colors hover:bg-zinc-700"
           >
             View proof status
           </Link>
@@ -67,16 +74,18 @@ export default async function VaultsPage() {
           {
             label: "Total shares",
             value: wiredMetric(
-              selectWired(core, (c) => c.totalShares),
-              (v) => formatShareAmount(v, core.status === "wired" ? core.data.shareDecimals : 6),
+              selectWired(core, (c) => ({ shares: c.totalShares, decimals: c.shareDecimals })),
+              (v) => formatShareAmount(v.shares, v.decimals),
             ),
             hint: "Share receipts issued",
           },
           {
             label: "TVL cap",
+            // selectExposed: a null cap becomes a proper unavailable envelope
+            // (not_exposed_by_contract) instead of a string posing as a value.
             value: wiredMetric(
-              selectWired(core, (c) => c.tvlCap),
-              (cap) => (cap === null ? "Not exposed" : formatUsdcAmount(cap)),
+              selectExposed(core, (c) => c.tvlCap),
+              (cap) => formatUsdcAmount(cap),
             ),
             hint: "Maximum capital accepted",
           },
@@ -84,7 +93,7 @@ export default async function VaultsPage() {
             label: "NAV per share",
             value: wiredMetric(
               selectWired(core, (c) => c.navPerShare),
-              (n) => formatUsdcAmount(n),
+              (n) => formatNavPerShare(n),
             ),
             hint: "convertToAssets(1 share)",
           },
@@ -119,7 +128,25 @@ export default async function VaultsPage() {
               })}
             </Series1RowList>
           ) : (
-            <Series1Unavailable reason={strategies.reason} detail={strategies.detail} />
+            <div className="flex flex-col items-center gap-4 p-6">
+              {/* Spec constant (40/27/33) shown as the configured target while
+                  the live strategies() read is unavailable — labeled policy,
+                  never a measurement. */}
+              <HcCompositionRing
+                aria-label="Series 1 policy allocation target: B1 40%, B2 27%, B3 33%"
+                palette="categorical"
+                centerLabel="Policy target"
+                centerValue="40 / 27 / 33"
+                segments={POLICY_TARGET_BPS.map((bps, i) => ({
+                  label: `${POCKET_LABELS[i]?.id ?? `S${i}`} · ${POCKET_LABELS[i]?.label ?? "Strategy"}`,
+                  value: bps / 100,
+                }))}
+              />
+              <p className="text-center text-[10px] text-zinc-500 dark:text-zinc-400">
+                Configured policy split — not a live allocation.
+              </p>
+              <Series1Unavailable reason={strategies.reason} detail={strategies.detail} />
+            </div>
           )}
         </Series1Panel>
       </Series1Section>
@@ -174,7 +201,6 @@ export default async function VaultsPage() {
                 hint="Share receipt precision"
               />
               <Series1Row label="SPV jurisdiction" value="Cayman" />
-              <Series1Row label="Proof status" value="Proof Center" hint="Attestations and on-chain evidence" />
             </Series1RowList>
           </Series1Panel>
 
@@ -194,7 +220,7 @@ export default async function VaultsPage() {
         </div>
       </Series1Section>
 
-      <p className="text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
+      <p className="text-xs leading-5 text-zinc-500 dark:text-zinc-400">
         Subscription is arranged off-platform: this surface reports vault state and does not execute contract calls.
         The note carries no fixed rate and no guaranteed return. Estimated outcomes are disclosed as a range and are
         not guaranteed.

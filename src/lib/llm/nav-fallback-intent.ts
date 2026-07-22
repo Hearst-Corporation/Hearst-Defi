@@ -33,7 +33,13 @@ const LP_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   // reach the LLM, not navigate. With a verb they go through the derived path.
   {
     key: "portfolio",
-    re: /^\s*(?:portofolio|dashbord)\s*$/i,
+    re: /^\s*portofolio\s*$/i,
+  },
+  // "dashbord" (distinctive typo) is a command for the actual dashboard —
+  // /dashboard Overview exists as its own surface now.
+  {
+    key: "overview",
+    re: /^\s*dashbord\s*$/i,
   },
   // Possessive dashboard ("mon dashboard", "my dashboard", "ma page") — an
   // explicit ownership phrase, navigational without a verb. A BARE "dashboard"
@@ -41,7 +47,7 @@ const LP_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   // command above or, with a verb, the derived path) so "le dashboard est cassé"
   // never navigates.
   {
-    key: "portfolio",
+    key: "overview",
     re: /\b(?:my dashboard|mon dashboard|my page|ma page|mon tableau de bord)\b/i,
   },
   {
@@ -197,7 +203,10 @@ const ADMIN_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
  */
 export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   // LP
-  portfolio: ["portefeuille", "portfolio", "portofolio", "allocation", "tableau de bord", "dashboard", "dashbord", "my dashboard", "mon dashboard", "ma page", "my page"],
+  // "dashboard"-family keywords moved to `overview` when /dashboard became its
+  // own surface (Series 1 rebuild); portfolio keeps the position vocabulary.
+  portfolio: ["portefeuille", "portfolio", "portofolio", "allocation", "my position", "ma position"],
+  overview: ["overview", "dashboard", "dashbord", "tableau de bord", "my dashboard", "mon dashboard", "vue d'ensemble", "ma page", "my page"],
   // Portfolio sub-leaves (positions / activity / distributions / yield / tax) are
   // intentionally NOT chat-navigable: the leaf pages are unwired stubs and the chat
   // must not route investors to blank surfaces. Removed from the LP whitelist +

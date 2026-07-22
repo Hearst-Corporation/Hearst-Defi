@@ -67,6 +67,7 @@ const EXPECTED_ROUTES = [
   "/admin/design-system",
   "/admin/diagnostics",
   "/admin/distributions",
+  "/admin/document-vault",
   "/admin/feedback",
   "/admin/governance",
   "/admin/governance/allowlist",

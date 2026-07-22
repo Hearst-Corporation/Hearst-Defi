@@ -142,16 +142,23 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
     expect(cockpit).not.toMatch(/--ct-cat-[a-z]+:\s*#/);
   });
 
-  it("the investor rail has no standalone Vault/Invest entry", () => {
+  it("the investor rail has no standalone Invest/Holdings entry", () => {
+    // The investor rail now lives in Series1Nav (PRODUCT_NAV was deleted with
+    // product-rail-intra): five surfaces, folded routes are redirects.
     const nav = readFileSync(
-      join(ROOT, "src/components/nav/product-nav-items.ts"),
+      join(ROOT, "src/components/series1-shell/Series1Nav.tsx"),
       "utf8",
     );
-    // PRODUCT_NAV (PROMPT 227) = Dashboard · Bitcoin · Profile.
     expect(nav).not.toMatch(/id:\s*"invest"/);
     expect(nav).not.toMatch(/id:\s*"holdings"/);
-    expect(nav).not.toMatch(/id:\s*"proof"/);
-    expect(nav).toMatch(/id:\s*"bitcoin"/);
-    expect(nav).toMatch(/id:\s*"dashboard"/);
+    expect(nav).toMatch(/id:\s*"overview"/);
+    expect(nav).toMatch(/id:\s*"vaults"/);
+    expect(nav).toMatch(/id:\s*"portfolio"/);
+    expect(nav).toMatch(/id:\s*"proof-center"/);
+    expect(nav).toMatch(/id:\s*"documents-kyc"/);
+    // Folded destinations must not resurface as rail entries.
+    expect(nav).not.toMatch(/href:\s*"\/btc"/);
+    expect(nav).not.toMatch(/href:\s*"\/mining"/);
+    expect(nav).not.toMatch(/href:\s*"\/my-vaults"/);
   });
 });

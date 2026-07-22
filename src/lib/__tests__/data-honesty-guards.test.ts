@@ -123,7 +123,7 @@ describe("POINT 2 — sentinel tx hashes are filtered before any explorer link",
       // recent-distributions inlines the 0xmock check (B4 convention) rather
       // than the shared helper — still a real gate, asserted on its own form.
       file: "src/components/proof-center/recent-distributions.tsx",
-      gate: /!d\.txHash\.toLowerCase\(\)\.startsWith\("0xmock"\)/,
+      gate: /!\w+\.txHash\.toLowerCase\(\)\.startsWith\("0xmock"\)/,
     },
   ];
 

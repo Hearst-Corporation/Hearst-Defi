@@ -72,8 +72,7 @@ export default async function PortfolioPage() {
           !hasPosition ? (
             <Link
               href="/vaults"
-              className="inline-flex min-h-10 items-center rounded-lg px-4 text-sm font-medium"
-              style={{ background: "var(--s1-accent)", color: "#08130a" }}
+              className="inline-flex min-h-10 items-center rounded-lg bg-zinc-800 px-4 text-sm font-medium text-[#a7fb90] ring-1 ring-[#a7fb90]/30 transition-colors hover:bg-zinc-700"
             >
               View Series 1 →
             </Link>
@@ -94,10 +93,12 @@ export default async function PortfolioPage() {
           {
             label: "Share receipts",
             value: wiredMetric(
-              selectWired(shares, (s) => s.shares),
-              (s) => formatShareAmount(s, shares.status === "wired" ? shares.data.shareDecimals : 6),
+              selectWired(shares, (s) => ({ raw: s.shares, decimals: s.shareDecimals })),
+              (s) => formatShareAmount(s.raw, s.decimals),
             ),
-            hint: "shares(address)",
+            // Legacy reads balanceOf(); v2 reads shares(). Name neither so the
+            // hint can not misstate the on-chain function for the active mode.
+            hint: "Per-wallet share balance",
           },
           {
             label: "Subscription",
@@ -128,9 +129,9 @@ export default async function PortfolioPage() {
             <Series1RowList>
               <Series1WiredRow
                 label="Share receipts"
-                read={selectWired(shares, (s) => s.shares)}
-                render={(s) => formatShareAmount(s, shares.status === "wired" ? shares.data.shareDecimals : 6)}
-                hint="shares(address user)"
+                read={selectWired(shares, (s) => ({ raw: s.shares, decimals: s.shareDecimals }))}
+                render={(s) => formatShareAmount(s.raw, s.decimals)}
+                hint="Per-wallet share balance"
               />
               <Series1WiredRow
                 label="Current value"
@@ -194,7 +195,7 @@ export default async function PortfolioPage() {
         </Series1Panel>
       </Series1Section>
 
-      <p className="text-xs leading-6" style={{ color: "var(--s1-muted)" }}>
+      <p className="text-xs leading-6 text-zinc-500 dark:text-zinc-400">
         Financial figures reflect your own account only and carry their own provenance. This is a mining note: it
         accumulates BTC over a 24-month term with no periodic cash distribution — accumulated BTC is delivered at
         maturity. Forward figures are projections shown as a range under stated assumptions, not guaranteed.

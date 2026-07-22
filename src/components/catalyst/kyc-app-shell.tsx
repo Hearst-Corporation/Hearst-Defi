@@ -23,7 +23,6 @@ import {
 import { cn } from "@/lib/cn";
 import {
   ADMIN_SECTIONS,
-  PRODUCT_NAV,
   matchesNavPath,
   type NavItem,
 } from "@/components/nav/product-nav-items";
@@ -85,20 +84,19 @@ function Sidebar({
   pathname: string;
   onNavigate?: () => void;
 }) {
-  const admin = pathname.startsWith("/admin");
-  const items = admin
-    ? ADMIN_SECTIONS.map((section) => ({
-        id: section.id,
-        label: section.label,
-        href: section.href,
-        icon: section.icon,
-      }))
-    : PRODUCT_NAV;
+  // This shell is admin-only: ConnectShell routes every non-/admin path to
+  // Series1Shell, so the old PRODUCT_NAV branch was unreachable and is gone.
+  const items = ADMIN_SECTIONS.map((section) => ({
+    id: section.id,
+    label: section.label,
+    href: section.href,
+    icon: section.icon,
+  }));
 
   return (
-    <nav className="flex h-full min-h-0 flex-col" aria-label={admin ? "Admin navigation" : "Investor navigation"}>
+    <nav className="flex h-full min-h-0 flex-col" aria-label="Admin navigation">
       <div className="border-b border-zinc-950/8 p-5 dark:border-white/8">
-        <Link href={admin ? "/admin/dashboard" : "/dashboard"} className="flex items-center gap-3">
+        <Link href="/admin/dashboard" className="flex items-center gap-3">
           <span className="flex size-9 items-center justify-center rounded-lg bg-emerald-400 text-sm font-bold text-zinc-950">
             H
           </span>
@@ -121,18 +119,16 @@ function Sidebar({
         </div>
       </div>
 
-      {admin ? (
-        <div className="border-t border-zinc-950/8 p-4 dark:border-white/8">
-          <Link
-            href="/dashboard"
-            onClick={onNavigate}
-            className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-950/4 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
-          >
-            <LayoutDashboard className="size-5" />
-            Investor view
-          </Link>
-        </div>
-      ) : null}
+      <div className="border-t border-zinc-950/8 p-4 dark:border-white/8">
+        <Link
+          href="/dashboard"
+          onClick={onNavigate}
+          className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-950/4 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
+        >
+          <LayoutDashboard className="size-5" />
+          Investor view
+        </Link>
+      </div>
     </nav>
   );
 }
@@ -171,10 +167,8 @@ export function KycAppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
-  const admin = pathname.startsWith("/admin");
-  const label = admin
-    ? ADMIN_SECTIONS.find((section) => isActive(pathname, section.href))?.label ?? "Admin"
-    : PRODUCT_NAV.find((item) => isActive(pathname, item.href))?.label ?? "Overview";
+  const label =
+    ADMIN_SECTIONS.find((section) => isActive(pathname, section.href))?.label ?? "Admin";
 
   // Explicit scroll lock while the mobile drawer is open — Headless UI's own
   // lock is not enough here because .kyc-cockpit-shell sets its own overflow

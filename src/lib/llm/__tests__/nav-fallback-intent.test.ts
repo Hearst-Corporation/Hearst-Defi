@@ -34,7 +34,8 @@ describe("nav-fallback-intent", () => {
       expect(resolveLpNavDestinationKey("show portfolio")).toBe("portfolio");
       expect(resolveLpNavDestinationKey("show vaults")).toBe("vaults");
       expect(resolveLpNavDestinationKey("open proof center")).toBe("proof-center");
-      expect(resolveLpNavDestinationKey("open my dashboard")).toBe("portfolio");
+      // /dashboard (Overview) is its own destination since the Series 1 rebuild.
+      expect(resolveLpNavDestinationKey("open my dashboard")).toBe("overview");
       // Portfolio sub-leaves were removed from the chat whitelist (unwired stubs):
       // an explicit nav phrase for them now resolves nothing (no blank-page routing).
       expect(resolveLpNavDestinationKey("open activity")).toBeNull();

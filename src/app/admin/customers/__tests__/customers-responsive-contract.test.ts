@@ -79,13 +79,16 @@ describe("chat rail collapse contract — collapse fully closes (no leftover han
     );
   });
 
-  it("ships an external open/close control (ChatRailToggle) so there is no in-rail handle", () => {
-    const toggle = read("cockpit-shell/src/shell/ChatRailToggle.tsx");
-    expect(toggle).toMatch(/Open assistant/);
-    expect(toggle).toMatch(/Close assistant/);
-    // It must be mounted in the admin dock, next to search + notifications.
+  it("ships an external open/close assistant control so there is no in-rail handle", () => {
+    // The cockpit-shell ChatRailToggle mount was retired with the three-panel
+    // cockpit (ADR-017): the admin shell is KycAppShell, which owns the
+    // assistant dock and its explicit open/close controls.
+    const shell = read("src/components/catalyst/kyc-app-shell.tsx");
+    expect(shell).toMatch(/aria-label="Open assistant"/);
+    expect(shell).toMatch(/aria-label="Close assistant"/);
+    // The retired toggle must NOT come back in the admin layout.
     const layout = read("src/app/admin/layout.tsx");
-    expect(layout).toMatch(/<ChatRailToggle\s*\/>/);
+    expect(layout).not.toMatch(/<ChatRailToggle\s*\/>/);
   });
 });
 

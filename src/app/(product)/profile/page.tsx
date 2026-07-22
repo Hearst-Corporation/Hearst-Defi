@@ -7,6 +7,7 @@
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { requireInvestor } from "@/lib/auth/require-investor";
+import { readInvestorKycStatus, type InvestorKycStatus } from "@/lib/data/kyc-status";
 import { readWhitelist, type Wired, type WhitelistStatus } from "@/lib/chain/dynavault";
 import { selectWired } from "@/lib/chain/wired-view";
 import { abbreviateAddress } from "@/lib/onchain";
@@ -29,14 +30,39 @@ const NO_WALLET: Wired<never> = {
   detail: "Link a wallet to check subscription eligibility on the vault contract.",
 };
 
+/** DB-read status → investor-facing copy. Every state is a real read result. */
+const KYC_COPY: Record<InvestorKycStatus, { label: string; detail: string }> = {
+  approved: {
+    label: "Approved",
+    detail: "Identity verified. Subscription eligibility itself is enforced by the vault contract.",
+  },
+  in_review: {
+    label: "In review",
+    detail: "Your submission has been received and is being reviewed.",
+  },
+  not_started: {
+    label: "Not yet started",
+    detail: "Complete identity verification to become eligible to subscribe to Series 1.",
+  },
+  rejected: {
+    label: "Rejected",
+    detail: "Verification was not accepted. Contact Hearst to resolve and resubmit.",
+  },
+  unavailable: {
+    label: "Status unavailable",
+    detail: "The verification record could not be read right now — this is a read failure, not a decision.",
+  },
+};
+
 export default async function ProfilePage() {
   const session = await requireInvestor("/profile");
-  const displayName = session.email.split("@")[0];
+  const displayName = session.email.split("@")[0] ?? session.email;
   const wallet = session.walletAddress;
 
-  const whitelist: Wired<WhitelistStatus> = wallet
-    ? await readWhitelist(wallet as `0x${string}`)
-    : NO_WALLET;
+  const [whitelist, kycStatus]: [Wired<WhitelistStatus>, InvestorKycStatus] = await Promise.all([
+    wallet ? readWhitelist(wallet as `0x${string}`) : Promise.resolve(NO_WALLET),
+    readInvestorKycStatus(session.userId),
+  ]);
 
   return (
     <Series1Page>
@@ -98,9 +124,11 @@ export default async function ProfilePage() {
         <Series1Panel>
           <Series1PanelHeader title="KYC status" />
           <div className="p-5">
-            <p className="text-sm font-medium">Not yet started</p>
-            <p className="mt-1 text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
-              Complete identity verification to become eligible to subscribe to Series 1.
+            <p className="text-sm font-medium text-zinc-950 dark:text-white">
+              {KYC_COPY[kycStatus].label}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+              {KYC_COPY[kycStatus].detail}
             </p>
           </div>
         </Series1Panel>
@@ -109,9 +137,13 @@ export default async function ProfilePage() {
       <Series1Section index="04" title="Documents" description="Subscription agreement, KYC and accreditation letters.">
         <Series1Panel>
           <div className="flex flex-col items-center gap-1 p-8 text-center">
-            <p className="text-sm font-medium">No documents on file</p>
-            <p className="max-w-sm text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
-              Documents appear here once submitted as part of onboarding.
+            {/* Feature-state copy, not a data claim: the document vault is not
+                wired to this surface yet, so the page must not assert an empty
+                file list it never queried. */}
+            <p className="text-sm font-medium text-zinc-950 dark:text-white">Document space not yet available</p>
+            <p className="max-w-sm text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+              Subscription agreement, KYC and accreditation letters will appear here once document delivery is wired
+              to this space.
             </p>
           </div>
         </Series1Panel>

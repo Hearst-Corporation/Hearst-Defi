@@ -9,7 +9,7 @@
 // catalogue below is the v2.1 interface (VAULT_SPEC_V2.1.md §4) — it states
 // what WILL be evidenced, never that a record exists.
 
-import { CHAIN_ID, getVaultMode, readGovernance, readOpsState } from "@/lib/chain/dynavault";
+import { CHAIN_ID, getVaultAddress, getVaultMode, readGovernance, readOpsState } from "@/lib/chain/dynavault";
 import { selectWired } from "@/lib/chain/wired-view";
 
 import { Series1Page, Series1PageTitle, Series1Section } from "@/components/series1-shell/Series1Page";
@@ -45,7 +45,11 @@ const PROOF_EVENTS = [
 export default async function ProductProofCenterPage() {
   const [governance, ops] = await Promise.all([readGovernance(), readOpsState()]);
   const mode = getVaultMode();
-  const deployed = mode !== "not_configured";
+  // The proof register catalogues v2.1 events — only a v2 deployment can emit
+  // them. "legacy configured" must NOT read as "v2.1 deployed" (the old flag
+  // conflated the two and the page contradicted itself).
+  const v2Deployed = mode === "v2";
+  const vaultAddress = getVaultAddress();
 
   return (
     <Series1Page>
@@ -72,8 +76,14 @@ export default async function ProductProofCenterPage() {
               />
               <Series1Row
                 label="Vault address"
-                value={deployed ? "Configured" : "TBD"}
-                hint={deployed ? "Resolved from deployment config" : "v2.1 address has not been posted"}
+                value={vaultAddress ? `${vaultAddress.slice(0, 6)}…${vaultAddress.slice(-4)}` : "TBD"}
+                hint={
+                  vaultAddress
+                    ? v2Deployed
+                      ? "PermissionedDynaVault v2.1 deployment"
+                      : "Legacy deployment — the v2.1 address has not been posted"
+                    : "No vault address configured"
+                }
               />
               <Series1WiredRow
                 label="Keeper"
@@ -126,32 +136,24 @@ export default async function ProductProofCenterPage() {
             <Series1Panel key={block.id} className="p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-col gap-1">
-                  <span
-                    className="text-xs font-semibold tracking-[0.1em] uppercase"
-                    style={{ color: "var(--s1-muted)" }}
-                  >
+                  <span className="text-xs font-semibold tracking-[0.1em] text-zinc-500 uppercase dark:text-zinc-400">
                     {block.eyebrow}
                   </span>
-                  <h3 className="text-sm font-semibold">{block.title}</h3>
+                  <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">{block.title}</h3>
                 </div>
-                <Series1ProvenanceTag status={deployed ? "configured" : "unavailable"} />
+                <Series1ProvenanceTag status="configured" />
               </div>
-              <div
-                className="mt-4 flex items-center justify-between gap-3 border-t pt-3"
-                style={{ borderColor: "var(--s1-line)" }}
-              >
-                <span className="font-mono text-[10px]" style={{ color: "var(--s1-muted)" }}>
-                  {block.event}
-                </span>
-                <span className="text-[10px]" style={{ color: "var(--s1-muted)" }}>
-                  {deployed ? "No record indexed yet" : "Awaiting deployment"}
+              <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-950/5 pt-3 dark:border-white/10">
+                <span className="text-[10px] tracking-tight text-zinc-500 dark:text-zinc-400">{block.event}</span>
+                <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                  {v2Deployed ? "No record indexed yet" : "Awaiting v2.1 deployment"}
                 </span>
               </div>
             </Series1Panel>
           ))}
         </div>
 
-        <p className="mt-5 text-xs leading-6" style={{ color: "var(--s1-muted)" }}>
+        <p className="mt-5 text-xs leading-6 text-zinc-500 dark:text-zinc-400">
           An absent record means the evidence has not been produced yet — it is not a claim that the underlying event
           did not occur. Series 1 accumulates Bitcoin over a 24-month term and settles at maturity; delivery evidence
           appears after a maturity settlement is recorded. Estimated accumulation is disclosed as a range and is not

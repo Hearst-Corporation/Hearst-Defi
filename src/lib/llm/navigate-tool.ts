@@ -38,6 +38,14 @@ export interface NavDestination {
  */
 export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
   {
+    key: "overview",
+    profile: "lp",
+    route: "/dashboard",
+    label: "Overview",
+    description:
+      "Reserve Vault overview — the investor landing page: total assets, mining register, capital architecture and vault status.",
+  },
+  {
     key: "portfolio",
     profile: "lp",
     route: "/portfolio",

@@ -14,7 +14,7 @@ import {
 } from "@/components/catalyst/sidebar";
 import { matchesNavPath } from "@/components/nav/product-nav-items";
 
-export type Series1NavItem = {
+type Series1NavItem = {
   id: string;
   label: string;
   href: string;
@@ -26,20 +26,22 @@ export type Series1NavItem = {
  * were folded in: their routes now redirect (see each route's page.tsx) rather
  * than standing as separate destinations, so the rail carries one entry per
  * real surface instead of a menu of near-duplicates.
+ *
+ * Module-local: the arrays are rendered here and nowhere else.
  */
-export const SERIES1_NAV: Series1NavItem[] = [
+const SERIES1_NAV: Series1NavItem[] = [
   { id: "overview", label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { id: "vaults", label: "Series 1 Vault", href: "/vaults", icon: Landmark },
   { id: "portfolio", label: "My Position", href: "/portfolio", icon: PieChart },
 ];
 
 /** Compliance surfaces — proof and paperwork, grouped away from the product. */
-export const SERIES1_RECORDS_NAV: Series1NavItem[] = [
+const SERIES1_RECORDS_NAV: Series1NavItem[] = [
   { id: "proof-center", label: "Proof Center", href: "/proof-center", icon: ShieldCheck },
   { id: "documents-kyc", label: "Documents & KYC", href: "/profile", icon: FileText },
 ];
 
-export function Series1Nav({ pathname }: { pathname: string; onNavigate?: () => void }) {
+export function Series1Nav({ pathname }: { pathname: string }) {
   const renderItem = (item: Series1NavItem) => {
     const Icon = item.icon;
     return (

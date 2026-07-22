@@ -59,14 +59,14 @@ export function reasonLabel(reason: string): string {
 export function Series1Provenance({ read }: { read: Series1Wired<unknown> }) {
   if (read.status === "unavailable") {
     return (
-      <span className="text-[10px]" style={{ color: "var(--s1-muted)" }}>
+      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
         {reasonLabel(read.reason)}
       </span>
     );
   }
   const label = read.source === "v2" ? "PermissionedDynaVault v2.1" : "Legacy vault";
   return (
-    <span className="text-[10px]" style={{ color: "var(--s1-muted)" }}>
+    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
       {label} · read {new Date(read.readAt).toISOString().slice(11, 16)} UTC
     </span>
   );
@@ -93,17 +93,17 @@ export function Series1WiredRow<T>({
   const ok = read.status === "wired";
   return (
     <div className="flex items-start justify-between gap-4 px-5 py-4">
-      <span className="text-sm" style={{ color: "var(--s1-muted)" }}>
-        {label}
-      </span>
+      <span className="text-sm text-zinc-500 dark:text-zinc-400">{label}</span>
       <span className="min-w-0 text-right">
         <span
-          className={cn("block text-sm font-semibold tabular-nums")}
-          style={{ color: ok ? "var(--s1-text)" : "var(--s1-muted)" }}
+          className={cn(
+            "block text-sm font-semibold tabular-nums",
+            ok ? "text-zinc-950 dark:text-white" : "text-zinc-500 dark:text-zinc-400",
+          )}
         >
           {ok ? render(read.data) : "—"}
         </span>
-        <span className="mt-0.5 block text-[10px] font-normal" style={{ color: "var(--s1-muted)" }}>
+        <span className="mt-0.5 block text-[10px] font-normal text-zinc-500 dark:text-zinc-400">
           {ok ? hint : reasonLabel(read.reason)}
         </span>
       </span>
@@ -125,13 +125,9 @@ export function Series1Unavailable({
 }) {
   return (
     <div className="flex flex-col items-center gap-1 px-6 py-8 text-center">
-      <p className="text-sm font-medium" style={{ color: "var(--s1-muted)" }}>
-        {reasonLabel(reason)}
-      </p>
+      <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{reasonLabel(reason)}</p>
       {detail ? (
-        <p className="max-w-sm text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
-          {detail}
-        </p>
+        <p className="max-w-sm text-xs leading-5 text-zinc-500 dark:text-zinc-400">{detail}</p>
       ) : null}
     </div>
   );

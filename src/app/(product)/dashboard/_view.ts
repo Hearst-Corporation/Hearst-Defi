@@ -32,6 +32,28 @@ export const POCKET_LABELS: Record<number, { id: "B1" | "B2" | "B3"; label: stri
 };
 
 /**
+ * The Series 1 POLICY allocation, in bps by strategy index — a spec constant
+ * (VAULT_SPEC_V2.1.md §6, 40/27/33), NOT a chain read. Surfaces may show it as
+ * the configured target while the live `strategies()` read is unavailable, as
+ * long as it is labeled policy/configured — never as a measured allocation.
+ */
+export const POLICY_TARGET_BPS: readonly number[] = [4000, 2700, 3300];
+
+/**
+ * Provenance tag for a chart fed by a wired read. Maps the adapter's motive
+ * vocabulary instead of collapsing everything to "configured": an RPC outage
+ * is an availability problem, not a configuration state.
+ */
+export function placeholderStatus(
+  read: Series1Wired<unknown>,
+): "live" | "configured" | "unavailable" {
+  if (read.status === "wired") return "live";
+  return read.reason === "rpc_error" || read.reason === "revert" || read.reason === "decode_error"
+    ? "unavailable"
+    : "configured";
+}
+
+/**
  * A KPI cell value. On `unavailable` it returns the MOTIVE, never a dash alone
  * and never a fabricated zero — the band stays readable while staying honest.
  */

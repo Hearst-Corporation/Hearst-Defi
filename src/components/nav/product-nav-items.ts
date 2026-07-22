@@ -1,15 +1,16 @@
 /**
  * product-nav-items.ts
  *
- * Source de vérité pour la navigation intra-app de Hearst Connect.
+ * Source de vérité pour la navigation ADMIN de Hearst Connect.
  * Consommé par :
- *   - product-rail-intra.tsx → InvestorRailIntra (PRODUCT_NAV) + AdminRailIntra
- *     (une entrée rail par section de ADMIN_SECTIONS + séparateur + retour app).
- *   - admin-sub-nav.tsx      → AdminSubNav (sous-onglets de la section active).
+ *   - kyc-app-shell.tsx  → rail admin (une entrée par section de ADMIN_SECTIONS).
+ *   - admin-sub-nav.tsx  → AdminSubNav (sous-onglets de la section active).
+ *   - Series1Nav.tsx     → matchesNavPath uniquement (le rail investisseur vit
+ *     dans src/components/series1-shell/Series1Nav.tsx, pas ici).
  *
- * NOTE : Le RailLeft de @hearst/cockpit-shell ne supporte PAS de prop nav
- * intra-app (API v0.1.0). La nav intra est composée dans les layouts au-dessus
- * du spacer du rail, en utilisant usePathname() côté client.
+ * L'ancien PRODUCT_NAV investisseur (7 entrées, /btc, /mining…) et le rail
+ * intra product-rail-intra.tsx ont été supprimés : les routes pliées sont des
+ * redirects et le rail investisseur est SERIES1_NAV.
  */
 
 export type NavItem = {
@@ -24,60 +25,6 @@ export type NavItem = {
   /** Hide from horizontal sub-nav; route stays reachable (operator / dev tools). */
   hideFromSubNav?: boolean;
 };
-
-/**
- * Investor-facing navigation for Bitcoin Reserve Vault — Series 1.
- *
- * Every core investor surface is directly reachable from the KYC shell sidebar.
- * Documents & KYC resolves to /profile (account, verification, documents).
- */
-export const PRODUCT_NAV: NavItem[] = [
-  {
-    id: "overview",
-    label: "Overview",
-    href: "/dashboard",
-    icon: "LayoutDashboard",
-  },
-  {
-    id: "bitcoin-reserve",
-    label: "Bitcoin Reserve",
-    railLabel: "Bitcoin",
-    href: "/btc",
-    icon: "Bitcoin",
-  },
-  {
-    id: "portfolio",
-    label: "Portfolio",
-    href: "/portfolio",
-    icon: "PieChart",
-  },
-  {
-    id: "vaults",
-    label: "Vaults",
-    href: "/vaults",
-    icon: "Vault",
-  },
-  {
-    id: "proof-center",
-    label: "Proof Center",
-    railLabel: "Proofs",
-    href: "/proof-center",
-    icon: "ShieldCheck",
-  },
-  {
-    id: "mining",
-    label: "Mining",
-    href: "/mining",
-    icon: "Pickaxe",
-  },
-  {
-    id: "documents-kyc",
-    label: "Documents & KYC",
-    railLabel: "Documents",
-    href: "/profile",
-    icon: "FileText",
-  },
-];
 
 /**
  * Admin sections — the 5 top-level groups shown in the admin rail. Each owns a
@@ -197,32 +144,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
 export function matchesNavPath(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
-
-/** Shared shape for rail entries derived from the admin section catalog. */
-export function adminSectionToNavItem(
-  section: AdminSection,
-  labelOverride?: string,
-): NavItem {
-  return {
-    id: section.id,
-    label: labelOverride ?? section.label,
-    href: section.href,
-    icon: section.icon,
-  };
-}
-
-const dashboardSection = ADMIN_SECTIONS.find((section) => section.id === "dashboard");
-
-export const ADMIN_JUMP_NAV = dashboardSection
-  ? adminSectionToNavItem(dashboardSection, "Admin")
-  : null;
-
-export const INVESTOR_VIEW_NAV: NavItem = {
-  id: "back-to-app",
-  label: "Investor view",
-  href: "/dashboard",
-  icon: "ArrowLeft",
-};
 
 /** Tabs shown in <AdminSubNav> (operator-only routes may stay out of the strip). */
 export function visibleSubNavTabs(tabs: NavItem[]): NavItem[] {

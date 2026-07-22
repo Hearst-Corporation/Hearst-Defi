@@ -134,12 +134,12 @@ describe("nav-fallback resolver — depth-priority / hand-tuned / accent / verb-
   // does not (covered above).
   describe("explicit navigation intents still resolve (LP)", () => {
     const lpNav: Array<[string, string]> = [
-      ["ouvre dashboard", "portfolio"],
-      ["amène-moi au dashboard", "portfolio"],
+      ["ouvre dashboard", "overview"],
+      ["amène-moi au dashboard", "overview"],
       ["open my portfolio", "portfolio"],
       ["va sur proof center", "proof-center"],
       ["portofolio", "portfolio"], // typo command
-      ["dashbord", "portfolio"], // typo command
+      ["dashbord", "overview"], // typo command
     ];
     for (const [phrase, key] of lpNav) {
       it(`"${phrase}" → ${key}`, () => {

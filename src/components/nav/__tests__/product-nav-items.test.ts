@@ -1,33 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  ADMIN_JUMP_NAV,
   ADMIN_SECTIONS,
-  INVESTOR_VIEW_NAV,
-  PRODUCT_NAV,
-  adminSectionToNavItem,
   matchesNavPath,
   visibleSubNavTabs,
 } from "@/components/nav/product-nav-items";
-
-const UNWIRED_PORTFOLIO_LEAVES = [
-  "/portfolio/positions",
-  "/portfolio/activity",
-  "/portfolio/distributions",
-  "/portfolio/yield",
-  "/portfolio/tax",
-] as const;
-
-describe("PRODUCT_NAV — unwired portfolio leaves", () => {
-  it("does not expose blank portfolio sub-leaves in the investor rail", () => {
-    for (const item of PRODUCT_NAV) {
-      for (const leaf of UNWIRED_PORTFOLIO_LEAVES) {
-        expect(item.href).not.toBe(leaf);
-        expect(item.href.startsWith(`${leaf}/`)).toBe(false);
-      }
-    }
-  });
-});
 
 describe("matchesNavPath", () => {
   it("matches exact and nested admin routes only", () => {
@@ -59,36 +36,6 @@ describe("vault admin sub-nav — Series 1 reserve evidence", () => {
     );
 
     expect(retainedRoute?.label).toBe("Reserve Events");
-  });
-});
-
-describe("adminSectionToNavItem", () => {
-  it("derives the admin rail entry shape from a section", () => {
-    const strategy = ADMIN_SECTIONS.find((section) => section.id === "strategy");
-    expect(strategy).toBeDefined();
-    expect(adminSectionToNavItem(strategy!)).toEqual({
-      id: "strategy",
-      label: "Strategy",
-      href: "/admin/product-workspace",
-      icon: "FlaskConical",
-    });
-  });
-});
-
-describe("cross-zone rail entries", () => {
-  it("keeps the investor-to-admin jump distinct from dashboard wording", () => {
-    expect(ADMIN_JUMP_NAV).toBeTruthy();
-    expect(ADMIN_JUMP_NAV?.label).toBe("Admin");
-    expect(ADMIN_JUMP_NAV?.href).toBe("/admin/dashboard");
-  });
-
-  it("keeps the admin back link pinned to the investor cockpit", () => {
-    expect(INVESTOR_VIEW_NAV).toEqual({
-      id: "back-to-app",
-      label: "Investor view",
-      href: "/dashboard",
-      icon: "ArrowLeft",
-    });
   });
 });
 

@@ -194,10 +194,10 @@
   --ct-row-hover-glow-strong: rgba(255, 255, 255, 0.06);
 
   /* ── Gamme d'encres nommée (P1.1) — LA source des gris blancs du cockpit.
-     Remplace les color-mix(#ffffff X%) inline dispersés dans les héros, les
-     ops-rows et dashboard-signature.css : la température des gris se pilote
-     d'un point. hairline = tracks/filets · etch = bordure au hover (gravure)
-     · muted = encre secondaire · strong = encre pleine. */
+     Remplace les color-mix(#ffffff X%) inline dispersés dans les héros et les
+     ops-rows (dashboard-signature.css a été retiré) : la température des gris
+     se pilote d'un point. hairline = tracks/filets · etch = bordure au hover
+     (gravure) · muted = encre secondaire · strong = encre pleine. */
   --ink-hairline: color-mix(in srgb, #ffffff 6%, transparent);
   --ink-etch: color-mix(in srgb, #ffffff 10%, transparent);
   --ink-muted: color-mix(in srgb, #ffffff 55%, transparent);

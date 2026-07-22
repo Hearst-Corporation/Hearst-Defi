@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
-/** Alias route — nav label is "Bitcoin", canonical path is /btc. */
+/** Alias route. /btc itself is now a redirect stub, so this points straight at
+ *  the real destination instead of chaining two redirects. */
 export default function BitcoinAliasPage() {
-  redirect("/btc");
+  redirect("/dashboard");
 }

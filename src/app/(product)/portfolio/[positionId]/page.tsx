@@ -267,10 +267,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
         {/* HEADER */}
         <header className="flex flex-col gap-3 pb-1">
           <Link
-            href="/my-vaults"
+            href="/portfolio"
             className="ct-metric-caption w-fit transition-colors hover:text-[var(--ct-text-strong)]"
           >
-            ← Vaults
+            ← My Position
           </Link>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1">

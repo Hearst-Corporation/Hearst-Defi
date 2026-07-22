@@ -5,8 +5,8 @@ import { resolveNavFallbackDestinationKey } from "@/lib/llm/nav-fallback-intent"
 describe("global deterministic nav hardening", () => {
   it("routes LP destinations across FR/EN/mixed/typos", () => {
     const lpCases: Array<[string, string]> = [
-      ["amène-moi au dashboard", "portfolio"],
-      ["open my dashboard", "portfolio"],
+      ["amène-moi au dashboard", "overview"],
+      ["open my dashboard", "overview"],
       ["va sur portfolio", "portfolio"],
       ["show my portfolio", "portfolio"],
       ["open portefeuille", "portfolio"],
@@ -16,7 +16,7 @@ describe("global deterministic nav hardening", () => {
       // Portfolio sub-leaves (positions / activity / distributions / yield) were
       // removed from the chat whitelist — no longer navigable (asserted null below).
       ["portofolio", "portfolio"],
-      ["dashbord", "portfolio"],
+      ["dashbord", "overview"],
     ];
 
     for (const [message, destinationKey] of lpCases) {
