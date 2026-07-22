@@ -14,6 +14,8 @@ import {
   Menu,
   Pickaxe,
   PieChart,
+  Settings,
+  ShieldCheck,
   Vault,
   X,
 } from "lucide-react";
