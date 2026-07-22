@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { type ComponentType } from "react";
 import {
-  Bitcoin,
   FileText,
   LayoutDashboard,
-  Pickaxe,
   PieChart,
   ShieldCheck,
   Vault,
@@ -22,14 +20,17 @@ export type Series1NavItem = {
   icon: ComponentType<{ className?: string }>;
 };
 
+/**
+ * The five investor surfaces. Bitcoin Reserve, Mining, Ledger and My Vaults
+ * were folded in: their routes now redirect (see each route's page.tsx) rather
+ * than standing as separate destinations, so the rail carries one entry per
+ * real surface instead of a menu of near-duplicates.
+ */
 export const SERIES1_NAV: Series1NavItem[] = [
   { id: "overview", label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { id: "bitcoin-reserve", label: "Bitcoin Reserve", href: "/btc", icon: Bitcoin },
-  { id: "vaults", label: "Vaults", href: "/vaults", icon: Vault },
-  { id: "portfolio", label: "Portfolio", href: "/portfolio", icon: PieChart },
+  { id: "vaults", label: "Series 1 Vault", href: "/vaults", icon: Vault },
+  { id: "portfolio", label: "My Position", href: "/portfolio", icon: PieChart },
   { id: "proof-center", label: "Proof Center", href: "/proof-center", icon: ShieldCheck },
-  { id: "mining", label: "Mining", href: "/mining", icon: Pickaxe },
-  { id: "ledger", label: "Ledger", href: "/btc/ledger", icon: FileText },
   { id: "documents-kyc", label: "Documents & KYC", href: "/profile", icon: FileText },
 ];
 
