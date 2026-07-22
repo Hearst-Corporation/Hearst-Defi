@@ -24,7 +24,7 @@ import {
 } from "@/lib/chain/wired-view";
 import { getVault } from "@/lib/data/vaults";
 import { getInvestor } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { loadOwnedPosition } from "./_data/confirmed-loader";
 import { INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 
 export const dynamic = "force-dynamic";
@@ -86,15 +86,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
   // already renders for a missing/foreign positionId, not an unhandled
   // rejection that blows the whole confirmation page to a generic 500.
   const investor = await getInvestor();
-  const position =
-    sp.positionId && investor
-      ? await prisma.position
-          .findFirst({
-            where: { id: sp.positionId, investorId: investor.id },
-            select: { subscribedAt: true, principalUsdc: true },
-          })
-          .catch(() => null)
-      : null;
+  const position = await loadOwnedPosition(sp.positionId, investor?.id ?? null);
   const positionId = position ? (sp.positionId ?? null) : null;
   const amount = position
     ? formatUsdcFromParam(position.principalUsdc.toString())

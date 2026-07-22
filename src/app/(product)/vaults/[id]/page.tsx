@@ -21,7 +21,7 @@ import {
   KycSection,
 } from "@/components/catalyst/kyc-page";
 import { VaultChainReadout } from "@/components/vaults/vault-chain-readout";
-import { getVault } from "@/lib/data/vaults";
+import { loadVaultDetail } from "./_data/vault-detail-loader";
 import { REG_LABELS_LONG, SPV_LABELS_LONG } from "@/lib/constants/vault";
 import { investDepositPath, INVEST_SELECT_PATH } from "@/lib/vaults/invest-routes";
 import {
@@ -75,19 +75,31 @@ function PanelRow({ label, value, hint }: { label: string; value: string; hint?:
   );
 }
 
+/** Atomic USDC decimal-string → display, absent stays absent. */
+function formatAtomicUsdc(atomic: string | null): string {
+  if (atomic === null) return "—";
+  const value = Number(BigInt(atomic) / 1_000_000n);
+  if (!Number.isFinite(value) || value <= 0) return "—";
+  return formatUsdc(value);
+}
+
 export default async function VaultDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const vault = await getVault(id);
+  const { vault, backend } = await loadVaultDetail(id);
 
   if (!vault) notFound();
 
   const open = series1IsOpen(vault.status);
   const pockets = series1TargetPockets(vault);
-  // `currentAumUsdc` is null when no snapshot attributes an AUM to this vault
-  // (Phase 3 has not landed a per-vault snapshot link). Null and 0 both render
-  // as absent here, but they are different facts and only null is "unknown".
-  const aum =
-    vault.currentAumUsdc !== null && vault.currentAumUsdc > 0 ? vault.currentAumUsdc : null;
+  // Live business figures come from the backend contract (same source as
+  // /vaults) — the DB aggregate is no longer rendered as capital deployed.
+  const backendSnapshot = backend.state === "ok" ? backend.snapshot : null;
+  const backendTerms = backend.state === "ok" ? backend.terms : null;
+  const liveAumAtomic =
+    backendSnapshot?.status === "wired" ? backendSnapshot.data.totalAssets : null;
+  const termMonths =
+    backendTerms?.status === "wired" ? backendTerms.data.productDurationMonths : null;
+  const termLabel = termMonths !== null ? `${termMonths} months` : "—";
   // The stored disclaimer still describes the retired yield product on legacy
   // rows — suppressed unless it is clean (see series1SafeDisclaimer).
   const safeDisclaimer = series1SafeDisclaimer(vault.disclaimers);
@@ -129,10 +141,22 @@ export default async function VaultDetailPage({ params }: PageProps) {
               : "Subscriptions are not open at this time.",
           }}
           metrics={[
-            { label: "Term", value: "24 months", hint: "BTC delivered at maturity" },
+            {
+              label: "Term",
+              value: termLabel,
+              hint:
+                termMonths !== null
+                  ? "BTC delivered at maturity"
+                  : backend.state === "error"
+                    ? "Live terms unreachable"
+                    : "Not reported by the product factsheet yet",
+            },
             {
               label: "Minimum ticket",
-              value: formatUsdc(vault.minTicketUsdc),
+              value:
+                backendTerms?.status === "wired"
+                  ? formatAtomicUsdc(backendTerms.data.minimumDepositUsdc)
+                  : formatUsdc(vault.minTicketUsdc),
               hint: "USDC · contractual",
             },
             {
@@ -140,7 +164,16 @@ export default async function VaultDetailPage({ params }: PageProps) {
               value: `${vault.softLockupDays} days`,
               hint: "Contractual — not enforced on-chain",
             },
-            { label: "Capital deployed", value: formatUsdc(aum), hint: "Snapshot aggregate" },
+            {
+              label: "Capital deployed",
+              value: formatAtomicUsdc(liveAumAtomic),
+              hint:
+                liveAumAtomic !== null
+                  ? "On-chain totalAssets — live"
+                  : backend.state === "error"
+                    ? "Live read unreachable"
+                    : "Not reported on-chain yet",
+            },
             {
               label: "Capacity",
               value: formatUsdc(vault.capacityUsdc),
@@ -199,7 +232,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
           <KycPanel>
             <PanelHeader title="Maturity & BTC delivery" />
             <div className="divide-y divide-zinc-200/70 dark:divide-white/10">
-              <PanelRow label="Term" value="24 months" hint="From subscription settlement" />
+              <PanelRow label="Term" value={termLabel} hint="From subscription settlement" />
               <PanelRow
                 label="Delivered in"
                 value="BTC"

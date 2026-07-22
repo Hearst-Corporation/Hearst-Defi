@@ -30,6 +30,7 @@ import {
   Series1WiredRow,
 } from "@/components/series1-shell/Series1Wired";
 import { vaultModeLabel, wiredMetric } from "../dashboard/_view";
+import { loadPortfolioTerms } from "./_data/portfolio-terms-loader";
 
 export const dynamic = "force-dynamic";
 
@@ -53,12 +54,18 @@ export default async function PortfolioPage() {
   // Only ask the chain about a user we can actually name. Without a wallet the
   // question is malformed, so we answer it ourselves rather than sending a
   // zero-address read that would come back looking like an empty position.
-  const [shares, whitelist]: [Wired<UserShares>, Wired<WhitelistStatus>] = wallet
-    ? await Promise.all([
-        readUserShares(wallet as `0x${string}`),
-        readWhitelist(wallet as `0x${string}`),
-      ])
-    : [NO_WALLET, NO_WALLET];
+  const [[shares, whitelist], terms]: [
+    [Wired<UserShares>, Wired<WhitelistStatus>],
+    Awaited<ReturnType<typeof loadPortfolioTerms>>,
+  ] = await Promise.all([
+    wallet
+      ? Promise.all([
+          readUserShares(wallet as `0x${string}`),
+          readWhitelist(wallet as `0x${string}`),
+        ])
+      : Promise.resolve([NO_WALLET, NO_WALLET] as [Wired<UserShares>, Wired<WhitelistStatus>]),
+    loadPortfolioTerms(),
+  ]);
 
   const hasPosition = shares.status === "wired" && shares.data.shares > 0n;
 
@@ -113,8 +120,17 @@ export default async function PortfolioPage() {
             value: "—",
             hint: "Per-investor attribution not exposed on-chain",
           },
-          { label: "Term", value: "24 months", hint: "BTC delivered at maturity" },
-          { label: "Soft lock-up", value: "60 days", hint: "Contractual, not enforced on-chain" },
+          {
+            label: "Term",
+            value: terms.termMonths !== null ? `${terms.termMonths} months` : "—",
+            hint:
+              terms.termMonths !== null
+                ? "BTC delivered at maturity"
+                : terms.reachable
+                  ? "Not reported by the product factsheet yet"
+                  : "Live terms unreachable",
+          },
+          { label: "Soft lock-up", value: "60 days", hint: "Class A contractual, not enforced on-chain" },
         ]}
       />
 
