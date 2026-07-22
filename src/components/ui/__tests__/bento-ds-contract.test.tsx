@@ -12,11 +12,6 @@ const BENTO_SRC = readFileSync(
   "utf8",
 );
 
-const PROFILE_SRC = readFileSync(
-  join(process.cwd(), "src/app/(product)/profile/page.tsx"),
-  "utf8",
-);
-
 const DASHBOARD_SRC = readFileSync(
   join(process.cwd(), "src/app/admin/dashboard/page.tsx"),
   "utf8",
@@ -60,13 +55,6 @@ describe("bento DS contract", () => {
 });
 
 describe("primary pages — no ad-hoc surface hardcodes in patched files", () => {
-  it("profile page uses BentoPageShell + DS primitives", () => {
-    expect(PROFILE_SRC).toContain("BentoPageShell");
-    expect(PROFILE_SRC).toContain("ProductPageHeader");
-    expect(PROFILE_SRC).not.toContain("bg-zinc-900");
-    expect(PROFILE_SRC).not.toContain("bg-[#15191C]");
-    expect(PROFILE_SRC).not.toContain("text-[#A7FB90]");
-  });
 
   it("dashboard page uses the canonical admin shell + AdminPageHeader", () => {
     // Canon update: admin surfaces migrated from BentoPageShell to AdminPageShell

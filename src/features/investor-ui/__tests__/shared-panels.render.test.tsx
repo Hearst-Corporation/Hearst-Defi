@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { getFixtureInvestorUiDataSource } from "@/features/investor-ui/data-source";
-import { btcPageExtraCompleteFixture } from "@/app/(product)/btc/_data/btc-page-fixtures";
 import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
 import {
   ACCUMULATION_CHART_CONFIG,
@@ -24,7 +23,10 @@ import { ReserveHealthPanel } from "@/features/investor-ui/components/widgets/re
 
 const FORBIDDEN_COPY = /\bapy\b|\byield\b|\bguarantee\b|\bpromise\b|\brisk-free\b|\bwill deliver\b|Just now/i;
 
-const points = buildAccumulationSeries(btcPageExtraCompleteFixture.production.value?.monthly);
+const points = buildAccumulationSeries([
+  { period: "2026-01", satsEarned: "4000000", cumulativeSatsEarned: "4000000" },
+  { period: "2026-02", satsEarned: "5000000", cumulativeSatsEarned: "9000000" },
+]);
 
 async function fixtures() {
   const ds = getFixtureInvestorUiDataSource();
