@@ -1,86 +1,50 @@
 /**
- * Series 1 shell — local, self-contained token layer.
+ * Series 1 — the two rules that cannot be expressed as utility classes.
  *
- * Deliberately independent from the retired KYC cockpit / legacy Cockpit
- * design system: no --ct-*, no emerald-*, no dashboard-signature. Every
- * investor route under (product) reads colors, radius and shadow from these
- * variables only.
- *
- * Surface hierarchy (4 planes, dark cockpit — never a white SaaS sheet):
- *   canvas (--s1-bg) → shell/sidebar (--s1-shell) → panel (--s1-panel)
- *   → inset / chart body / metric cell (--s1-inset)
- * Volume comes from the shadow triplet (inset highlight + inset shade +
- * soft outer drop), not from raising the fill luminosity.
+ * The bespoke token layer that used to live here (--s1-bg / shell / panel /
+ * inset, shadow triplets, accent washes) is gone. The investor shell now runs
+ * on Catalyst primitives and the Tailwind zinc ramp, exactly like the rest of
+ * the product: depth comes from SidebarLayout's raised content card, colour
+ * from zinc, and the Hearst accent (#a7fb90) appears only as a signal —
+ * monogram, Live tag, timeline marker, allocation bar.
  */
 
-:root {
-  /* Plane ladder. Each step is a real luminance jump (~+4 on the 0-255 scale
-     between neighbours) so canvas / shell / panel / inset never collapse into
-     one dark sheet. The hue stays the same cool green-grey throughout — depth
-     comes from lightness, not from tinting each plane differently. */
-  --s1-bg: #070908;
-  --s1-shell: #0e1211;
-  --s1-panel: #171c1a;
-  --s1-panel-soft: #1c2220;
-  /* Recessed plane: sits BELOW the panel fill (chart bodies, metric cells).
-     Pushed under the shell tone so a well reads as cut into the panel, while
-     staying clear of the canvas it must not be confused with. */
-  --s1-inset: #0c100f;
-  /* Raised plane: the one cell that reads as lifted (KPI hero). Distinct from
-     the panel without turning into a light SaaS card. */
-  --s1-panel-elevated: #212826;
-  --s1-line: rgba(231, 240, 227, 0.1);
-  /* Stronger hairline for panel edges / header rules that must stay readable. */
-  --s1-line-strong: rgba(231, 240, 227, 0.18);
-  --s1-text: #eef2ee;
-  --s1-muted: #93a199;
-  --s1-accent: #a7fb90;
-  --s1-accent-soft: rgba(167, 251, 144, 0.14);
-  /* Accent reduced to an edge: borders and halos only, never a fill. */
-  --s1-accent-line: rgba(167, 251, 144, 0.3);
-  --s1-warning: #f5b566;
-  --s1-radius: 14px;
-
-  /* ── Depth primitives ─────────────────────────────────────────────────── */
-  /* Top bevel: a hair of light catching the upper edge of a raised surface. */
-  --s1-highlight: rgba(255, 255, 255, 0.07);
-  /* Bottom shade: the surface's own thickness, grounding it on the canvas. */
-  --s1-shade: rgba(0, 0, 0, 0.42);
-  /* Accent bloom used behind the canvas — presence, never a colour wash.
-     Cut hard: at the previous value the green read as a tint over the whole
-     upper canvas rather than as a light source somewhere off-screen. */
-  --s1-glow: rgba(167, 251, 144, 0.022);
-  --s1-shadow: 0 20px 48px -28px rgba(0, 0, 0, 0.6);
-  /* Panel volume = inset highlight + inset shade + a deeper outer drop, which
-     is what actually separates the panel from the canvas behind it. */
-  --s1-shadow-panel:
-    inset 0 1px 0 var(--s1-highlight),
-    inset 0 -1px 0 var(--s1-shade),
-    0 24px 48px -28px rgba(0, 0, 0, 0.78);
-  /* Recessed surfaces invert the bevel: shade on top, highlight at the base. */
-  --s1-shadow-inset:
-    inset 0 2px 4px rgba(0, 0, 0, 0.5),
-    inset 0 -1px 0 var(--s1-highlight);
-  /* Detaches the fixed rail from the scrolling canvas. */
-  --s1-sidebar-shadow:
-    inset -1px 0 0 var(--s1-highlight),
-    16px 0 34px -30px rgba(0, 0, 0, 0.72);
-}
-
-.s1-scope {
-  color-scheme: dark;
-  /* Canvas depth: a high accent bloom, a second cooler bloom on the opposite
-     corner, then a vertical settle from the shell tone down to the deep bg.
-     --s1-bg stays the last layer so it remains the honest fallback. */
-  background:
-    radial-gradient(circle at 88% -14%, var(--s1-glow), transparent 38rem),
-    radial-gradient(circle at 6% -10%, rgba(255, 255, 255, 0.014), transparent 30rem),
-    linear-gradient(180deg, var(--s1-shell) 0%, var(--s1-bg) 34rem),
-    var(--s1-bg);
-  background-attachment: fixed;
-  color: var(--s1-text);
-}
-
+/* Row lists draw their own separators: a border on every child but the first
+   is not expressible as a utility on the parent. */
 .s1-row-list > * + * {
-  border-top: 1px solid var(--s1-line);
+  border-top: 1px solid --alpha(var(--color-zinc-950) / 5%);
+}
+
+:where(.dark) .s1-row-list > * + * {
+  border-top-color: --alpha(var(--color-white) / 5%);
+}
+
+/* Empty chart wells read as a plotting surface rather than blank padding.
+   Pure chrome at hairline opacity — it never implies a data series. */
+.s1-chart-well {
+  background-image:
+    repeating-linear-gradient(
+      180deg,
+      --alpha(var(--color-zinc-950) / 5%) 0 1px,
+      transparent 1px 25%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      --alpha(var(--color-zinc-950) / 3%) 0 1px,
+      transparent 1px 16.66%
+    );
+}
+
+:where(.dark) .s1-chart-well {
+  background-image:
+    repeating-linear-gradient(
+      180deg,
+      --alpha(var(--color-white) / 5%) 0 1px,
+      transparent 1px 25%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      --alpha(var(--color-white) / 3%) 0 1px,
+      transparent 1px 16.66%
+    );
 }

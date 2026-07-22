@@ -41,7 +41,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    /* `dark` is set here, not left to prefers-color-scheme: globals.css maps
+       the dark variant to `.dark` (@custom-variant), and the product is dark by
+       identity — without this class every `dark:` utility in the tree is inert. */
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body suppressHydrationWarning>
         {/* Skip-link — MUST be the first focusable element in the DOM so the
             very first Tab reaches it (a11y / QA P2). Hoisted OUT of <AppChrome>:

@@ -19,20 +19,14 @@ export function Series1ProvenanceTag({ status }: { status: Series1Provenance }) 
   const isLive = status === "live";
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-[0.08em] uppercase"
-      style={{
-        // Live keeps the accent on its edge, dot and text; the fill stays the
-        // neutral chip so a green pill never competes with the data it labels.
-        borderColor: isLive ? "var(--s1-accent-line)" : "var(--s1-line-strong)",
-        color: isLive ? "var(--s1-accent)" : "var(--s1-muted)",
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)), var(--s1-panel-soft)",
-        boxShadow: isLive
-          ? "inset 0 1px 0 var(--s1-highlight), 0 0 10px -3px rgba(167,251,144,0.3)"
-          : "inset 0 1px 0 var(--s1-highlight)",
-      }}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-[0.08em] uppercase ring-1",
+        isLive
+          ? "text-[#a7fb90] ring-[#a7fb90]/30"
+          : "text-zinc-500 ring-zinc-950/10 dark:text-zinc-400 dark:ring-white/10",
+      )}
     >
-      {isLive ? <span className="size-1.5 rounded-full" style={{ background: "var(--s1-accent)" }} /> : null}
+      {isLive ? <span className="size-1.5 rounded-full bg-[#a7fb90]" /> : null}
       {PROVENANCE_LABEL[status]}
     </span>
   );
@@ -59,31 +53,18 @@ export function Series1ChartPlaceholder({
 }) {
   return (
     <figure
-      className={cn("flex h-full min-h-72 flex-col overflow-hidden rounded-[var(--s1-radius)] border", className)}
-      style={{
-        background:
-          "linear-gradient(150deg, rgba(255,255,255,0.028), rgba(255,255,255,0) 18rem), var(--s1-panel)",
-        borderColor: "var(--s1-line-strong)",
-        boxShadow: "var(--s1-shadow-panel)",
-      }}
+      className={cn(
+        "flex h-full min-h-72 flex-col overflow-hidden rounded-xl bg-white ring-1 ring-zinc-950/[0.08] dark:bg-zinc-950/40 dark:ring-white/10",
+        className,
+      )}
     >
       <Series1PanelHeader title={title} description={description} actions={<Series1ProvenanceTag status={status} />} />
-      {/* Chart well: recessed below the panel fill so an empty state reads as
-          a plotting surface waiting for a series, not as blank card padding.
-          Ghost gridlines give the well the geometry of a plot area — they are
-          pure chrome at hairline opacity and never imply a data series. */}
-      <div
-        className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-1 px-6 py-8 text-center"
-        style={{
-          background:
-            "repeating-linear-gradient(180deg, rgba(231,240,227,0.045) 0 1px, rgba(255,255,255,0) 1px 25%), repeating-linear-gradient(90deg, rgba(231,240,227,0.028) 0 1px, rgba(255,255,255,0) 1px 16.66%), var(--s1-inset)",
-          boxShadow: "var(--s1-shadow-inset)",
-        }}
-      >
-        <p className="text-sm font-medium">{label}</p>
-        <p className="max-w-sm text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
-          {detail}
-        </p>
+      {/* Chart well: recessed below the panel fill, with hairline ghost
+          gridlines so an empty state reads as a plotting surface waiting for a
+          series rather than blank card padding. Chrome only — never data. */}
+      <div className="s1-chart-well flex min-h-0 flex-1 flex-col items-center justify-center gap-1 bg-zinc-50 px-6 py-8 text-center dark:bg-black/20">
+        <p className="text-sm font-medium text-zinc-950 dark:text-white">{label}</p>
+        <p className="max-w-sm text-xs leading-5 text-zinc-500 dark:text-zinc-400">{detail}</p>
       </div>
     </figure>
   );

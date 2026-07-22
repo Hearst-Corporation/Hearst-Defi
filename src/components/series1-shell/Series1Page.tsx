@@ -16,19 +16,13 @@ export function Series1PageTitle({
   return (
     <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">{title}</h1>
         {description ? (
-          <p className="mt-2 max-w-3xl text-sm leading-6" style={{ color: "var(--s1-muted)" }}>
-            {description}
-          </p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500 dark:text-zinc-400">{description}</p>
         ) : null}
       </div>
       <div className="flex min-w-0 items-center gap-3">
-        {meta ? (
-          <p className="text-xs" style={{ color: "var(--s1-muted)" }}>
-            {meta}
-          </p>
-        ) : null}
+        {meta ? <p className="text-xs text-zinc-500 dark:text-zinc-400">{meta}</p> : null}
         {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
       </div>
     </header>
@@ -52,27 +46,24 @@ export function Series1Section({
 }) {
   const headed = Boolean(index || title || description || actions);
   return (
-    <section className={cn(headed && "border-t pt-8", className)} style={headed ? { borderColor: "var(--s1-line-strong)" } : undefined}>
+    <section
+      className={cn(headed && "border-t border-zinc-950/5 pt-8 dark:border-white/10", className)}
+    >
       {headed ? (
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
           <div>
             <div className="flex items-center gap-3">
               {index ? (
-                <span
-                  className="flex size-7 items-center justify-center rounded-md text-xs font-semibold tabular-nums"
-                  style={{
-                    background: "var(--s1-inset)",
-                    color: "var(--s1-muted)",
-                    boxShadow: "var(--s1-shadow-inset)",
-                  }}
-                >
+                <span className="flex size-7 items-center justify-center rounded-md bg-zinc-100 text-xs font-semibold text-zinc-500 tabular-nums dark:bg-white/5 dark:text-zinc-400">
                   {index}
                 </span>
               ) : null}
-              {title ? <h2 className="text-base font-semibold">{title}</h2> : null}
+              {title ? (
+                <h2 className="text-base font-semibold text-zinc-950 dark:text-white">{title}</h2>
+              ) : null}
             </div>
             {description ? (
-              <p className="mt-2 max-w-3xl text-sm leading-6" style={{ color: "var(--s1-muted)" }}>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500 dark:text-zinc-400">
                 {description}
               </p>
             ) : null}

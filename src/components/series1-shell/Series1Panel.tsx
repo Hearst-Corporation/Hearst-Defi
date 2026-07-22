@@ -11,16 +11,10 @@ export function Series1Panel({
 }) {
   return (
     <div
-      className={cn("overflow-hidden rounded-[var(--s1-radius)] border", className)}
-      style={{
-        // Light rakes across the panel from the top-left, fading well before
-        // the opposite corner — the fill stays the panel tone, the gradient
-        // only bends it.
-        background:
-          "linear-gradient(150deg, rgba(255,255,255,0.028), rgba(255,255,255,0) 18rem), var(--s1-panel)",
-        borderColor: "var(--s1-line-strong)",
-        boxShadow: "var(--s1-shadow-panel)",
-      }}
+      className={cn(
+        "overflow-hidden rounded-xl bg-white ring-1 ring-zinc-950/[0.08] dark:bg-zinc-950/40 dark:ring-white/10",
+        className,
+      )}
     >
       {children}
     </div>
@@ -37,24 +31,13 @@ export function Series1PanelHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div
-      className="flex flex-wrap items-start justify-between gap-3 border-b px-5 py-4"
-      style={{
-        // Header band sits a touch above the panel body, closed by a rule that
-        // reads as a real edge (hairline + a sliver of shade under it).
-        background: "linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0))",
-        borderColor: "var(--s1-line-strong)",
-        boxShadow: "0 1px 0 var(--s1-shade)",
-      }}
-    >
+    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-zinc-950/5 px-5 py-4 dark:border-white/5">
       <div className="min-w-0">
-        <p className="text-xs font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--s1-text)" }}>
+        <p className="text-xs font-semibold tracking-[0.14em] text-zinc-950 uppercase dark:text-white">
           {title}
         </p>
         {description ? (
-          <p className="mt-1 text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
-            {description}
-          </p>
+          <p className="mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400">{description}</p>
         ) : null}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -73,13 +56,11 @@ export function Series1Row({
 }) {
   return (
     <div className="flex items-center justify-between gap-4 px-5 py-4">
-      <span className="text-sm" style={{ color: "var(--s1-muted)" }}>
-        {label}
-      </span>
-      <span className="text-right text-sm font-semibold" style={{ color: "var(--s1-text)" }}>
+      <span className="text-sm text-zinc-500 dark:text-zinc-400">{label}</span>
+      <span className="text-right text-sm font-semibold text-zinc-950 dark:text-white">
         {value}
         {hint ? (
-          <span className="mt-0.5 block text-[10px] font-normal" style={{ color: "var(--s1-muted)" }}>
+          <span className="mt-0.5 block text-[10px] font-normal text-zinc-500 dark:text-zinc-400">
             {hint}
           </span>
         ) : null}

@@ -18,27 +18,24 @@ export function Series1Allocation({ pockets = SERIES1_POCKETS }: { pockets?: Ser
         <div key={pocket.id}>
           <div className="flex items-baseline justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-sm font-semibold">
+              <p className="text-sm font-semibold text-zinc-950 dark:text-white">
                 {pocket.id} · {pocket.label}
               </p>
               {pocket.detail ? (
-                <p className="mt-0.5 text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
+                <p className="mt-0.5 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
                   {pocket.detail}
                 </p>
               ) : null}
             </div>
-            <span className="shrink-0 text-lg font-semibold tabular-nums">{pocket.targetPct}%</span>
+            <span className="shrink-0 text-lg font-semibold text-zinc-950 tabular-nums dark:text-white">
+              {pocket.targetPct}%
+            </span>
           </div>
-          <div
-            className="mt-2 h-2 overflow-hidden rounded-full"
-            style={{ background: "var(--s1-inset)", boxShadow: "var(--s1-shadow-inset)" }}
-          >
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-white/5">
+            {/* The accent fills the bar because the bar IS the datum. */}
             <div
-              className="h-full rounded-full"
-              style={{
-                width: `${pocket.targetPct}%`,
-                background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0)), var(--s1-accent)",
-              }}
+              className="h-full rounded-full bg-[#a7fb90]"
+              style={{ width: `${pocket.targetPct}%` }}
             />
           </div>
         </div>
