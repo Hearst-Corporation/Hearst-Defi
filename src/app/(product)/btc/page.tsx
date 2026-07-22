@@ -9,10 +9,9 @@
 //  Zone 3 — uniform ops band: Sources · Ledger · Maturity · Custody
 //           (OpsStatCard gabarit — drill-down via footer links).
 //
-// No page title (the rail names the page), no vertical scroll on desktop
-// (cockpit-fit via dashboard-signature.css, shared [data-testid="btc-page"]
-// scope). The full ledger table & maturity detail moved behind the Zone 3
-// links (/proof-center, /mining) — cockpit doctrine: boards + view-more.
+// The Bitcoin register is rendered in the same KYC-light page rhythm as the
+// overview. Ledger and maturity detail remain available on their dedicated
+// surfaces.
 //
 // Honesty contract (unchanged):
 //  - "Your attributed BTC" = the investor's economic share, page-scoped
