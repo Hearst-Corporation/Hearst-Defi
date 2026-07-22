@@ -91,7 +91,7 @@ export interface ProofSummaryViewModel {
   readonly types: readonly string[];
 }
 
-export type ContractRuntimeMode = "v2-testnet" | "v2-mainnet" | "not_configured";
+export type ContractRuntimeMode = "v2-testnet" | "v2-mainnet" | "v2-fork" | "not_configured";
 
 export interface RuntimeViewModel {
   readonly mode: ContractRuntimeMode;

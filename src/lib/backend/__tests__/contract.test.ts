@@ -84,6 +84,29 @@ describe("hearst-connect-backend contract (integration, skipped if backend unrea
     expect(Object.keys(body.data).sort()).toEqual(EXPECTED_DASHBOARD_KEYS);
   });
 
+  it("Series1EventsDTO shape matches src/lib/backend/contracts.ts", async () => {
+    if (!backendReachable) return;
+    const res = await fetch(`${BASE_URL}/api/v1/series1/events`, {
+      headers: { Authorization: `Bearer ${mintTestToken()}` },
+    });
+    const body = (await res.json()) as {
+      data: { events: { status: string; value: Array<Record<string, unknown>> | null } };
+    };
+    expect(Object.keys(body.data).sort()).toEqual(["events"]);
+    expect(body.data.events).toHaveProperty("status");
+    expect(body.data.events).toHaveProperty("provenance", "indexed");
+    const first = body.data.events.status === "LIVE" ? body.data.events.value?.[0] : undefined;
+    if (first) {
+      expect(Object.keys(first).sort()).toEqual(
+        [
+          "id", "eventName", "chainId", "contractAddress", "blockNumber", "txHash",
+          "logIndex", "investorAddress", "assetAmountAtomic", "shareAmountAtomic",
+          "occurredAt", "indexedAt",
+        ].sort(),
+      );
+    }
+  });
+
   it("every envelope carries the versioned meta contract", async () => {
     if (!backendReachable) return;
     const res = await fetch(`${BASE_URL}/api/v1/btc`, { headers: { Authorization: `Bearer ${mintTestToken()}` } });

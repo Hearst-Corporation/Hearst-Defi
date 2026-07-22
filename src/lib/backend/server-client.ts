@@ -16,6 +16,7 @@ import type {
   ProductFactsheetDTO,
   RebalancingStatusDTO,
   RwaVaultDTO,
+  Series1EventsDTO,
   StrategyDetailDTO,
   VaultDTO,
   VaultStrategiesDTO,
@@ -179,4 +180,18 @@ export async function getBacktestHistoricalFromBackend(): Promise<Envelope<Backt
  */
 export async function getProfileFromBackend(): Promise<Envelope<ProfileDTO>> {
   return getEnveloped<ProfileDTO>("/api/v1/profile");
+}
+
+/**
+ * GET /api/v1/series1/events — the indexer's proven on-chain events,
+ * most-recent-first. `limit` (optional) is validated here for the same reason
+ * as getStrategyFromBackend: a malformed limit is a programming error, not a
+ * data condition. The backend clamps to its own cap (200) regardless.
+ */
+export async function getSeries1EventsFromBackend(limit?: number): Promise<Envelope<Series1EventsDTO>> {
+  if (limit !== undefined && (!Number.isInteger(limit) || limit <= 0)) {
+    throw new TypeError(`getSeries1EventsFromBackend: limit must be a positive integer, got ${limit}`);
+  }
+  const path = limit === undefined ? "/api/v1/series1/events" : `/api/v1/series1/events?limit=${limit}`;
+  return getEnveloped<Series1EventsDTO>(path);
 }

@@ -9,6 +9,14 @@
 // catalogue below is the v2.1 interface (VAULT_SPEC_V2.1.md §4) — it states
 // what WILL be evidenced, never that a record exists.
 
+import Link from "next/link";
+
+import {
+  getSeries1EventsFromBackend,
+  type Envelope,
+  type Series1EventsDTO,
+  type Series1EventSummary,
+} from "@/lib/backend";
 import { CHAIN_ID, getVaultAddress, getVaultMode, readGovernance, readOpsState } from "@/lib/chain/dynavault";
 import { selectWired } from "@/lib/chain/wired-view";
 
@@ -42,8 +50,42 @@ const PROOF_EVENTS = [
   { id: "engine", event: "MonthlyEngineRun", eyebrow: "Engine", title: "Monthly engine run" },
 ] as const;
 
+/** Ethereum mainnet + Base mainnet — anything else is labeled as such. */
+const MAINNET_CHAIN_IDS = new Set([1, 8453]);
+
+function chainLabel(chainId: number): string {
+  if (chainId === 31337) return `fork (chain ${chainId})`;
+  if (chainId === 84532) return `Base Sepolia (chain ${chainId})`;
+  return `chain ${chainId}`;
+}
+
+/**
+ * Indexed-events read: LIVE → real rows; NOT_CONFIGURED → indexer has no rows
+ * (an honest product state); UNAVAILABLE covers both the backend's own
+ * "db_error" and a transport failure reaching it — a panne, never rendered as
+ * an empty ledger.
+ */
+type EventsRead =
+  | { kind: "live"; events: readonly Series1EventSummary[] }
+  | { kind: "not_configured" }
+  | { kind: "unavailable" };
+
+async function readIndexedEvents(): Promise<EventsRead> {
+  let envelope: Envelope<Series1EventsDTO>;
+  try {
+    envelope = await getSeries1EventsFromBackend(200);
+  } catch (error) {
+    console.error("[proof-center] series1 events fetch failed", error);
+    return { kind: "unavailable" };
+  }
+  const resolved = envelope.data.events;
+  if (resolved.status === "LIVE" && resolved.value) return { kind: "live", events: resolved.value };
+  if (resolved.status === "NOT_CONFIGURED") return { kind: "not_configured" };
+  return { kind: "unavailable" };
+}
+
 export default async function ProductProofCenterPage() {
-  const [governance, ops] = await Promise.all([readGovernance(), readOpsState()]);
+  const [governance, ops, indexed] = await Promise.all([readGovernance(), readOpsState(), readIndexedEvents()]);
   const mode = getVaultMode();
   // The proof register catalogues v2.1 events — only a v2 deployment can emit
   // them. "legacy configured" must NOT read as "v2.1 deployed" (the old flag
@@ -131,29 +173,68 @@ export default async function ProductProofCenterPage() {
         title="Proof register"
         description="Each record below is an on-chain event the vault emits. Records are indexed once the contract is deployed and the lifecycle event occurs."
       >
+        {indexed.kind === "unavailable" ? (
+          <div className="mb-4 flex items-center gap-3">
+            <Series1ProvenanceTag status="unavailable" />
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Indexer unreachable — indexed counts cannot be shown right now. This is an outage of the read, not a
+              statement that no record exists.
+            </p>
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {PROOF_EVENTS.map((block) => (
-            <Series1Panel key={block.id} className="p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold tracking-[0.1em] text-zinc-500 uppercase dark:text-zinc-400">
-                    {block.eyebrow}
-                  </span>
-                  <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">{block.title}</h3>
+          {PROOF_EVENTS.map((block) => {
+            const matching = indexed.kind === "live" ? indexed.events.filter((e) => e.eventName === block.event) : [];
+            const latest = matching[0] ?? null;
+            const nonMainnetChainIds =
+              indexed.kind === "live"
+                ? [...new Set(matching.map((e) => e.chainId))].filter((id) => !MAINNET_CHAIN_IDS.has(id))
+                : [];
+            return (
+              <Series1Panel key={block.id} className="p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold tracking-[0.1em] text-zinc-500 uppercase dark:text-zinc-400">
+                      {block.eyebrow}
+                    </span>
+                    <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">{block.title}</h3>
+                  </div>
+                  {/* Once v2.1 deploys, "Not configured" would contradict the
+                      footer's "No record indexed yet" — the footer alone carries
+                      the state then. */}
+                  {latest ? (
+                    <Series1ProvenanceTag status="live" />
+                  ) : v2Deployed ? null : (
+                    <Series1ProvenanceTag status="configured" />
+                  )}
                 </div>
-                {/* Once v2.1 deploys, "Not configured" would contradict the
-                    footer's "No record indexed yet" — the footer alone carries
-                    the state then. */}
-                {v2Deployed ? null : <Series1ProvenanceTag status="configured" />}
-              </div>
-              <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-950/5 pt-3 dark:border-white/10">
-                <span className="text-[10px] tracking-tight text-zinc-500 dark:text-zinc-400">{block.event}</span>
-                <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                  {v2Deployed ? "No record indexed yet" : "Awaiting v2.1 deployment"}
-                </span>
-              </div>
-            </Series1Panel>
-          ))}
+                {latest ? (
+                  <p className="mt-3 text-[10px] leading-5 text-zinc-500 dark:text-zinc-400">
+                    Latest: tx {latest.txHash.slice(0, 10)}…{latest.txHash.slice(-6)} · block {latest.blockNumber}
+                    {nonMainnetChainIds.length > 0 ? (
+                      <>
+                        <br />
+                        Indexed on {nonMainnetChainIds.map(chainLabel).join(", ")} — not mainnet
+                      </>
+                    ) : null}
+                  </p>
+                ) : null}
+                <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-950/5 pt-3 dark:border-white/10">
+                  <span className="text-[10px] tracking-tight text-zinc-500 dark:text-zinc-400">{block.event}</span>
+                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                    {latest
+                      ? `${matching.length} record${matching.length === 1 ? "" : "s"} indexed`
+                      : indexed.kind === "unavailable"
+                        ? "Indexer unreachable"
+                        : v2Deployed || indexed.kind === "live"
+                          ? "No record indexed yet"
+                          : "Awaiting v2.1 deployment"}
+                  </span>
+                </div>
+              </Series1Panel>
+            );
+          })}
         </div>
 
         <p className="mt-5 text-xs leading-6 text-zinc-500 dark:text-zinc-400">
@@ -161,6 +242,15 @@ export default async function ProductProofCenterPage() {
           did not occur. Series 1 accumulates Bitcoin over a 24-month term and settles at maturity; delivery evidence
           appears after a maturity settlement is recorded. Estimated accumulation is disclosed as a range and is not
           guaranteed.
+        </p>
+
+        <p className="mt-2 text-xs leading-6">
+          <Link
+            href="/proof-center/full"
+            className="font-semibold text-zinc-950 underline decoration-zinc-950/20 underline-offset-2 hover:decoration-zinc-950/40 dark:text-white dark:decoration-white/20 dark:hover:decoration-white/40"
+          >
+            View the full evidence register →
+          </Link>
         </p>
       </Series1Section>
     </Series1Page>

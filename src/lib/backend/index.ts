@@ -52,6 +52,8 @@ export type {
   BacktestRunSummary,
   BacktestHistoricalDTO,
   ProfileDTO,
+  Series1EventSummary,
+  Series1EventsDTO,
 } from "./contracts";
 
 // Server-side loaders (session-authenticated calls to the backend)
@@ -70,4 +72,5 @@ export {
   getProductFactsheetFromBackend,
   getBacktestHistoricalFromBackend,
   getProfileFromBackend,
+  getSeries1EventsFromBackend,
 } from "./server-client";

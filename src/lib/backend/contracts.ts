@@ -260,7 +260,7 @@ export interface VaultEvent {
 
 // ── Runtime / contract status ────────────────────────────────────────────
 
-export type ContractRuntimeMode = "v2-testnet" | "v2-mainnet" | "not_configured";
+export type ContractRuntimeMode = "v2-testnet" | "v2-mainnet" | "v2-fork" | "not_configured";
 
 export interface ContractRuntimeStatus {
   readonly mode: ContractRuntimeMode;
@@ -519,12 +519,22 @@ export interface ProfileDTO {
   readonly identity: Resolved<InvestorIdentity>;
 }
 
+/** Byte-identical to hearst-connect-backend/src/domain/index.ts
+ *  `BacktestRunSummary` (verified against the source 2026-07-23) — the
+ *  previous local shape ({createdAt, label, horizonMonths, status}) was a
+ *  drift and never matched what the route returns. Amounts/percentages are
+ *  decimal STRINGS on the wire, not numbers. */
 export interface BacktestRunSummary {
   readonly id: string;
-  readonly createdAt: string;
-  readonly label: string | null;
-  readonly horizonMonths: number | null;
-  readonly status: string | null;
+  readonly backtestKey: string;
+  readonly ranAt: string;
+  readonly rulesMode: string;
+  readonly initialCapital: string;
+  readonly endingValue: string;
+  readonly totalReturnPct: string;
+  readonly maxDrawdownPct: string;
+  readonly worstMonthPct: string;
+  readonly numRebalances: number;
 }
 
 /** `GET /api/v1/backtest/historical` — the CALLER's own BacktestRun rows.
@@ -532,5 +542,40 @@ export interface BacktestRunSummary {
  *  fabricated series. */
 export interface BacktestHistoricalDTO {
   readonly runs: Resolved<readonly BacktestRunSummary[]>;
+}
+
+// ── Series 1 indexed events ───────────────────────────────────────────────
+//
+// Mirrors hearst-connect-backend/src/persistence/series1-event-repository.ts
+// (Series1EventSummary) and src/application/series1-events.ts
+// (Series1EventsDTO). The route `GET /api/v1/series1/events` is DB-only —
+// the indexer writes, this reads — and can only repeat what the indexer
+// proved on-chain:
+//   - rows found  → LIVE with the real rows (provenance "indexed")
+//   - table empty → NOT_CONFIGURED / "no_events_indexed"
+//   - DB failure  → UNAVAILABLE / "db_error"
+
+export interface Series1EventSummary {
+  readonly id: string;
+  readonly eventName: string;
+  // The uniqueness key IS (chainId, txHash, logIndex) — a consumer cannot
+  // distinguish fork/testnet/mainnet rows, or build an explorer link, without
+  // the chain dimension, so the read model exposes it rather than hiding it.
+  readonly chainId: number;
+  readonly contractAddress: string;
+  readonly blockNumber: string;
+  readonly txHash: string;
+  readonly logIndex: number;
+  readonly investorAddress: string | null;
+  readonly assetAmountAtomic: string | null;
+  readonly shareAmountAtomic: string | null;
+  readonly occurredAt: string | null;
+  readonly indexedAt: string;
+}
+
+/** `GET /api/v1/series1/events` — most-recent-first, bounded (`?limit=`,
+ *  default 50, cap 200 on the backend). */
+export interface Series1EventsDTO {
+  readonly events: Resolved<readonly Series1EventSummary[]>;
 }
 
