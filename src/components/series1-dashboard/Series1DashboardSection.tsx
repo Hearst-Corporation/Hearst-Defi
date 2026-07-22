@@ -6,11 +6,10 @@
 // panel by panel the way it did in `series1-shell`.
 //
 //   L1 shell   --ct-surface-page    the raised card SidebarLayout already draws
-//   L2 card    --ct-surface-raised  RISES above L1 — this is the fix for the
-//                                   inverted depth model (canon §0): the old
-//                                   Series1Panel used a fill DARKER than its
-//                                   own parent, so every card read as a hole.
-//   L3 inset   --ct-surface-inset   RECESSES below L2 — wells, not content.
+//   L2 card    --ct-bg-deep mix     a deep, clean cockpit panel — separated
+//                                   from L1 by ring + shadow, not by being a
+//                                   LIGHTER fill (that read as flat/"gris sale").
+//   L3 inset   deeper --ct-bg-deep  RECESSES below L2 — wells, not content.
 //
 // No zinc, no `dark:`, no raw hex, no --ct-surface-card (#000). Colour comes
 // from --ct-* tokens only; the app is dark-only.
@@ -85,17 +84,17 @@ export function Series1DashboardSection({
 }
 
 /**
- * L2 content card — the Qatar cockpit `surfaceRaised`.
+ * L2 content card — the Qatar cockpit `surfaceRaised`, rendered as a cockpit
+ * panel rather than a lightened plate.
  *
- * The DS recipe is a zinc-900 fill plus a white/10 ring plus a large shadow:
- * the RING is what separates the card from the page, and the SHADOW is what
- * lifts it. Here both come from tokens (--ct-border, --ct-shadow-soft). The
- * first rebuild had the right fill but neither, which is why the cards read
- * flat and "gris sale" instead of raised. `--ct-border` is the repo's
- * white/10 hairline, so the ring is a token, not a new value.
+ * Separation from the page comes from the RING (--ct-border, white/10) and
+ * the SHADOW (--ct-shadow-elevated) — never from the fill being lighter than
+ * --ct-surface-page. A fill mixed toward --ct-bg-deep is what reads as a
+ * deep, clean cockpit panel; --ct-surface-raised (a page tint lightened by
+ * text-strong) is what read as "gris sale" / flat.
  *
- * Never `--ct-surface-card`: that token is #000000, i.e. darker than the
- * --ct-surface-page (#18181b) that contains it.
+ * Never --ct-surface-card (#000000, pure black, no depth cue left for the
+ * wells inside it to recede further).
  */
 export function Series1DashboardCard({
   children,
@@ -108,8 +107,8 @@ export function Series1DashboardCard({
     <div
       className={cn(
         "flex min-w-0 flex-col overflow-hidden rounded-[var(--ct-radius-xl)]",
-        "bg-[var(--ct-surface-raised)] ring-1 ring-[var(--ct-border)]",
-        "shadow-[var(--ct-shadow-elevated)]",
+        "bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))]",
+        "ring-1 ring-[var(--ct-border)] shadow-[var(--ct-shadow-elevated)]",
         className,
       )}
     >
@@ -162,9 +161,10 @@ export function Series1DashboardCardHeader({
  *
  * The DS recipe is `bg-zinc-950/50 + ring white/5`: a well is DARKER than the
  * card holding it, so it recedes. `--ct-surface-inset` (#15191C) is lighter
- * than `--ct-surface-raised`, which made every well read as a second raised
- * plate — the "cage-in-cage" effect. Mixing toward the page-deep ground gives
- * a true recess without inventing a value.
+ * than the card, which made every well read as a second raised plate — the
+ * "cage-in-cage" effect. A deeper mix toward --ct-bg-deep than the card uses
+ * (80% here vs. the card's 65%) keeps the well legibly darker without
+ * touching --ct-surface-card (#000, no room left to recede further).
  */
 export function Series1DashboardInset({
   children,
@@ -176,7 +176,7 @@ export function Series1DashboardInset({
   return (
     <div
       className={cn(
-        "min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_55%,var(--ct-surface-page))]",
+        "min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_80%,var(--ct-surface-page))]",
         className,
       )}
     >

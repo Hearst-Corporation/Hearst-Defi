@@ -6,8 +6,9 @@
 // tree from touching `@/lib/data/*`, Prisma, viem or ethers (canon F9).
 //
 // The three canon defects this composition fixes:
-//   F1  every surface is a Series1Dashboard* primitive, so cards RISE
-//       (--ct-surface-raised) and only wells recess. No #000 card.
+//   F1  every surface is a Series1Dashboard* primitive: cards sit on a deep
+//       fill (--ct-bg-deep mixed into --ct-surface-page) and wells recess
+//       deeper still. No #000 card (--ct-surface-card).
 //   F2  the spreadsheet KPI band is gone — hero + metric deck instead.
 //   F3  motives are collapsed to ONE line per group via `groupMotive`,
 //       instead of being printed as the value of every KPI.

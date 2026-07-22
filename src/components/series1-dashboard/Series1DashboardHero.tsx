@@ -60,7 +60,7 @@ export function Series1DashboardHero({
   trailing?: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)] shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]">
+    <section className="overflow-hidden rounded-[var(--ct-radius-xl)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]">
       {/* Programme line — above the band, on the card's own ground. */}
       <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)] pb-[var(--ct-space-4)]">
         <p
@@ -80,7 +80,7 @@ export function Series1DashboardHero({
           so the hairlines run the full height. */}
       <div className="grid gap-px bg-[var(--ct-border-soft)] sm:grid-cols-2 lg:grid-cols-12">
         {/* Hero cell — col-span-4, spanning both secondary rows. */}
-        <div className="flex min-w-0 flex-col justify-center bg-[var(--ct-surface-raised)] px-[var(--ct-space-6)] py-[var(--ct-space-6)] sm:col-span-2 lg:col-span-4 lg:row-span-2">
+        <div className="flex min-w-0 flex-col justify-center bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] sm:col-span-2 lg:col-span-4 lg:row-span-2">
           {/* Label in the normal register, NOT uppercase: the programme line
               above is already an eyebrow, and two stacked letter-spaced caps
               made the hero read as a header with nothing under it. */}
@@ -130,7 +130,7 @@ export function Series1DashboardHero({
         {context.map((item) => (
             <div
               key={item.label}
-              className="min-w-0 bg-[var(--ct-surface-raised)] px-[var(--ct-space-5)] py-[var(--ct-space-3)] lg:col-span-4"
+              className="min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] px-[var(--ct-space-5)] py-[var(--ct-space-3)] lg:col-span-4"
             >
               <p
                 className="m-0 font-medium text-[var(--ct-text-muted)]"

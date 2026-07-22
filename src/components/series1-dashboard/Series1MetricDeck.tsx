@@ -35,7 +35,7 @@ export function Series1MetricDeck({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)]",
+        "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))]",
         "shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]",
         className,
       )}
@@ -44,7 +44,7 @@ export function Series1MetricDeck({
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className="flex min-w-0 flex-col bg-[var(--ct-surface-raised)] px-[var(--ct-space-5)] py-[var(--ct-space-4)]"
+            className="flex min-w-0 flex-col bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] px-[var(--ct-space-5)] py-[var(--ct-space-4)]"
           >
             <dt
               className="m-0 font-medium text-[var(--ct-text-muted)]"
