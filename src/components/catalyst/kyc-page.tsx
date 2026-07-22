@@ -14,7 +14,7 @@ export function KycPageTitle({
   description?: ReactNode;
 }) {
   return (
-    <header className="kyc-cockpit-page-title flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+    <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
       <div className="min-w-0">
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">{title}</h1>
         {description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-600 dark:text-zinc-300">{description}</p> : null}
@@ -44,7 +44,7 @@ export function KycSection({
 }) {
   const headed = Boolean(index || title || description || actions);
   return (
-    <section className={cn("kyc-cockpit-section", headed && "border-t pt-8", className)}>
+    <section className={cn("border-(--ct-border-soft)", headed && "border-t pt-8", className)}>
       {headed ? (
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
           <div>
@@ -69,7 +69,16 @@ export function KycPanel({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={cn("kyc-cockpit-panel overflow-hidden rounded-xl", className)}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-xl border border-(--ct-border-soft) bg-(--ct-surface-card)",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function KycChartSurface({
@@ -86,8 +95,13 @@ export function KycChartSurface({
   className?: string;
 }) {
   return (
-    <figure className={cn("kyc-cockpit-chart flex h-full min-h-72 flex-col rounded-xl p-5 sm:p-6", className)}>
-      <figcaption className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b pb-4">
+    <figure
+      className={cn(
+        "flex h-full min-h-72 flex-col rounded-xl border border-(--ct-border-soft) bg-(--ct-surface-card) p-5 sm:p-6",
+        className,
+      )}
+    >
+      <figcaption className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b border-(--ct-border-soft) pb-4">
         <div>
           <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">{title}</h3>
           {description ? <p className="mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400">{description}</p> : null}
@@ -107,7 +121,7 @@ export function KycEmptyChart({
   detail: string;
 }) {
   return (
-    <div className="kyc-cockpit-empty flex min-h-40 flex-1 flex-col items-center justify-center rounded-lg border border-dashed px-6 text-center">
+    <div className="flex min-h-40 flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-(--ct-border-soft) bg-(--ct-surface-inset) px-6 text-center">
       <p className="text-sm font-medium text-zinc-950 dark:text-white">{label}</p>
       <p className="mt-1 max-w-sm text-xs leading-5 text-zinc-500 dark:text-zinc-400">{detail}</p>
     </div>
@@ -122,21 +136,21 @@ export function KycHeroKpiBand({
   metrics: Array<{ label: string; value: ReactNode; hint?: ReactNode }>;
 }) {
   return (
-    <div className="kyc-cockpit-kpi overflow-hidden rounded-xl">
+    <div className="overflow-hidden rounded-xl border border-(--ct-border-soft) bg-(--ct-surface-card)">
       {/* `min-w-0` on BOTH cells: grid items default to `min-width:auto`, so
           without it a long hero value (e.g. "No active position" at text-5xl)
           refuses to shrink below its intrinsic width, steals space from the
           metric list and truncates every metric in cascade. The `truncate`
           below only works once this is set. */}
-      <div className="grid gap-px lg:grid-cols-12">
-        <div className="min-w-0 px-6 py-7 lg:col-span-4">
-          <p className="text-xs font-semibold uppercase tracking-uppercase text-zinc-500 dark:text-emerald-400">{hero.label}</p>
+      <div className="grid gap-px bg-(--ct-border-soft) lg:grid-cols-12">
+        <div className="min-w-0 bg-(--ct-surface-card) px-6 py-7 lg:col-span-4">
+          <p className="text-xs font-semibold uppercase tracking-uppercase text-(--ct-accent-strong)">{hero.label}</p>
           <div className="mt-3 truncate text-4xl font-semibold tracking-tight tabular-nums text-zinc-950 sm:text-5xl dark:text-white">{hero.value}</div>
           <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">{hero.hint}</p>
         </div>
-        <dl className="grid min-w-0 grid-cols-1 gap-px sm:grid-cols-2 lg:col-span-8 lg:grid-cols-3">
+        <dl className="grid min-w-0 grid-cols-1 gap-px bg-(--ct-border-soft) sm:grid-cols-2 lg:col-span-8 lg:grid-cols-3">
           {metrics.map((metric) => (
-            <div key={metric.label} className="min-w-0 px-4 py-4">
+            <div key={metric.label} className="min-w-0 bg-(--ct-surface-card) px-4 py-4">
               <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{metric.label}</dt>
               <dd className="mt-1 truncate text-xl font-semibold tracking-tight tabular-nums text-zinc-950 dark:text-white">{metric.value}</dd>
               {/* Hints carry provenance / legal qualifiers ("Contractual — not
