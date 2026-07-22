@@ -43,9 +43,9 @@ export const KPI_METRICS = [
 ] as const;
 
 export const ALLOCATION_POCKETS = [
-  { code: "B1", label: "B1 Mining Power", target: "45%", amount: "$9.8M", note: "Hashrate procurement" },
-  { code: "B2", label: "B2 BTC Reserve", target: "40%", amount: "$8.7M", note: "Reserve construction" },
-  { code: "B3", label: "B3 Operating Reserve", target: "15%", amount: "$3.3M", note: "Reserve runway" },
+  { code: "B1", label: "B1 Mining Power", target: "40%", amount: "$8.7M", note: "Hashrate procurement" },
+  { code: "B2", label: "B2 BTC Reserve", target: "27%", amount: "$5.9M", note: "Reserve construction" },
+  { code: "B3", label: "B3 Operating Reserve", target: "33%", amount: "$7.2M", note: "Reserve runway" },
 ] as const;
 
 export const CONSTRUCTION_STEPS = [

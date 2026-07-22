@@ -65,9 +65,9 @@ export function PreviewLineChart({ className }: { className?: string }) {
 
 export function PreviewAllocationBars({ className }: { className?: string }) {
   const segments = [
-    { label: "B1", pct: 45, color: "bg-emerald-500" },
-    { label: "B2", pct: 40, color: "bg-emerald-400/80" },
-    { label: "B3", pct: 15, color: "bg-zinc-400/70" },
+    { label: "B1", pct: 40, color: "bg-emerald-500" },
+    { label: "B2", pct: 27, color: "bg-emerald-400/80" },
+    { label: "B3", pct: 33, color: "bg-zinc-400/70" },
   ];
 
   return (
