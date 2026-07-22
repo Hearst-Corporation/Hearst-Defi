@@ -55,16 +55,20 @@ export function Series1Nav({ pathname }: { pathname: string }) {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-1">
-          {/* Monogram: dark plate, accent letter and edge — the accent is a
-              signal here, never a filled tile. */}
-          <span className="flex size-8 items-center justify-center rounded-lg bg-zinc-800 text-sm font-bold text-(--ct-accent-strong) ring-1 ring-(--ct-border-accent)">
+        {/* Brand block — DS registry grammar: the wordmark carries the weight,
+            the programme line sits under it as an eyebrow (12px uppercase,
+            tracking-[0.12em]) in the accent. The monogram is a raised plate
+            with an accent edge: the accent is a SIGNAL, never a filled tile. */}
+        <div className="flex items-center gap-3 px-2 py-1.5">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-(--ct-surface-raised) text-sm font-bold text-(--ct-accent-strong) ring-1 ring-(--ct-border-accent)">
             H
           </span>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-zinc-950 dark:text-white">Hearst</div>
-            <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
-              Bitcoin Reserve Vault · Series 1
+            <div className="truncate text-sm font-semibold tracking-tight text-zinc-950 dark:text-white">
+              Hearst
+            </div>
+            <div className="mt-0.5 truncate text-[10px] font-semibold tracking-[0.12em] text-(--ct-accent-strong) uppercase">
+              Series 1
             </div>
           </div>
         </div>

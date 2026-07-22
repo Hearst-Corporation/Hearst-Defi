@@ -1,16 +1,16 @@
-// Series1MetricDeck — the replacement for Series1KpiBand (canon: DELETE).
+// Series1MetricDeck — the DS `KpiBand`: six cells of equal weight.
 //
-// What the old band did wrong (canon F2 + F3), and what changes here:
+// Reproduces design-system.html §09 "KpiBand — six cases de poids égal":
+//   dl.kpi-grid.kpi-6 → gap-px over white/5, welded inside one surfaceRaised,
+//   responsive 2 → 3 → 6 columns, each cell `dt` 12px muted / `dd` 24px
+//   semibold tracking-tight tabular-nums / hint 10px faint.
 //
-//   F2  `grid gap-px bg-white/10` with 7 opaque cells: the grid GUTTER was the
-//       1px rule, so the band rendered as a spreadsheet. Here each metric is a
-//       real card in a responsive grid with real spacing — no gutter-as-border,
-//       no divider grid.
+// The first rebuild rendered six SEPARATE bordered boxes with a gap. That is
+// what read as "cartes gris sale" and broke the rhythm: the DS band is ONE
+// instrument, subdivided by hairline gutters — not six cards side by side.
 //
-//   F3  every cell printed `reasonLabel(reason)` AS ITS VALUE, so one motive
-//       repeated across the whole band in large type. Here an unresolved metric
-//       shows an em dash, and the motive is stated ONCE by the caller through
-//       <Series1DataState>.
+// Honesty is unchanged: an unresolved metric shows an em dash and renders
+// quiet; the motive is stated once by the caller (canon F3), never per cell.
 
 import type { ReactNode } from "react";
 
@@ -35,42 +35,45 @@ export function Series1MetricDeck({
   return (
     <div
       className={cn(
-        "grid min-w-0 grid-cols-1 gap-[var(--ct-space-4)] sm:grid-cols-2 xl:grid-cols-3",
+        "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)]",
+        "shadow-[var(--ct-shadow-soft)] ring-1 ring-[var(--ct-border)]",
         className,
       )}
     >
-      {metrics.map((metric) => (
-        <div
-          key={metric.label}
-          className="flex min-w-0 flex-col rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-raised)] px-[var(--ct-space-5)] py-[var(--ct-space-4)]"
-        >
-          <p
-            className="m-0 text-[var(--ct-text-muted)]"
-            style={{ fontSize: "var(--ct-text-2xs)" }}
+      <dl className="grid grid-cols-1 gap-px bg-[var(--ct-border-soft)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        {metrics.map((metric) => (
+          <div
+            key={metric.label}
+            className="flex min-w-0 flex-col bg-[var(--ct-surface-raised)] px-[var(--ct-space-5)] py-[var(--ct-space-4)]"
           >
-            {metric.label}
-          </p>
-          <p
-            className={cn(
-              "m-0 mt-[var(--ct-space-2)] truncate font-semibold tracking-tight tabular-nums",
-              metric.muted
-                ? "text-[var(--ct-text-faint)]"
-                : "text-[var(--ct-text-strong)]",
-            )}
-            style={{ fontSize: "var(--ct-text-3xl-fixed)" }}
-          >
-            {metric.value}
-          </p>
-          {metric.hint ? (
-            <p
-              className="m-0 mt-[var(--ct-space-1)] leading-relaxed text-[var(--ct-text-faint)]"
-              style={{ fontSize: "var(--ct-text-nano)" }}
+            <dt
+              className="m-0 font-medium text-[var(--ct-text-muted)]"
+              style={{ fontSize: "var(--ct-text-2xs)" }}
             >
-              {metric.hint}
-            </p>
-          ) : null}
-        </div>
-      ))}
+              {metric.label}
+            </dt>
+            <dd
+              className={cn(
+                "m-0 mt-[var(--ct-space-1)] truncate font-semibold tracking-tight tabular-nums",
+                metric.muted
+                  ? "text-[var(--ct-text-faint)]"
+                  : "text-[var(--ct-text-strong)]",
+              )}
+              style={{ fontSize: "var(--ct-text-3xl-fixed)", lineHeight: 1.15 }}
+            >
+              {metric.value}
+            </dd>
+            {metric.hint ? (
+              <p
+                className="m-0 mt-[var(--ct-space-1)] leading-tight text-[var(--ct-text-faint)]"
+                style={{ fontSize: "var(--ct-text-nano)" }}
+              >
+                {metric.hint}
+              </p>
+            ) : null}
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }

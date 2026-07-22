@@ -1,21 +1,32 @@
-// Series1DashboardHero — the dominant read of the investor dashboard.
+// Series1DashboardHero — the DS `HeroKpiBand`.
 //
-// Canon §2: the Series 1 investor screen is a premium Bitcoin reserve cockpit,
-// and the dominant read is ACCUMULATED BTC delivered at maturity — not total
-// assets, and never a market-price-derived figure. The old page led with
-// "Total assets" inside a 7-cell divider grid; capital deployed is context for
-// the accumulation, not the headline.
+// Reproduces the Qatar cockpit recipe exactly (design-system.html §09):
+//   - a 12-column grid: hero `col-span-4`, secondaries `col-span-8 lg:grid-cols-3`
+//   - separators are `gap-px` over a `white/5` ground, NEVER drawn borders —
+//     that is what gives the grid without a drawn line
+//   - hero label in `uppercase tracking-[0.12em]` accent
+//   - hero number `text-4xl→6xl font-semibold tracking-tight tabular-nums`
+//   - the whole band is welded INSIDE one surfaceRaised card
 //
-// Typography follows canon §8: the hero number is FIXED and token-driven
-// (--ct-text-hero, 40px), never a fluid `text-4xl sm:text-5xl` ramp.
+// Note on `gap-px`: the dashboard canon banned it (F2) because the old
+// Series1KpiBand used it on SEVEN BARE CELLS, so the gutter was the only
+// chrome and the band read as a spreadsheet. The DS uses the same mechanism
+// legitimately — welded inside a single raised card, with one dominant figure
+// carrying the hierarchy. That is the difference between a cockpit band and a
+// table, and it is why the pattern is safe here.
+//
+// Accent: green `--ct-accent` (Hearst brand, CI-locked in ds-token-drift.mjs).
+// The DS's bordeaux is the Qatar programme's accent; the GRAMMAR transfers,
+// the hue does not.
 
 import type { ReactNode } from "react";
 
-import { Series1DashboardCard } from "./Series1DashboardSection";
+import { cn } from "@/lib/cn";
 
 export interface Series1HeroContext {
   label: string;
   value: ReactNode;
+  hint?: ReactNode;
   /** True when the underlying read did not resolve — renders quiet. */
   muted?: boolean;
 }
@@ -37,79 +48,87 @@ export function Series1DashboardHero({
   muted?: boolean;
   /** One-line honest framing under the number. */
   caption: ReactNode;
-  /** Two or three supporting figures, inline — not a KPI grid. */
+  /** The secondary KPI cells welded to the right of the hero. */
   context: readonly Series1HeroContext[];
-  /** Provenance or motive slot, top-right. */
+  /** Provenance slot, rendered under the hero caption. */
   trailing?: ReactNode;
 }) {
   return (
-    <Series1DashboardCard>
-      <div className="flex flex-col gap-[var(--ct-space-6)] p-[var(--ct-space-6)] lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <p
-            className="m-0 font-semibold uppercase tracking-[0.14em] text-[var(--ct-text-faint)]"
-            style={{ fontSize: "var(--ct-text-deci)" }}
-          >
-            {eyebrow}
-          </p>
+    <section className="overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)] shadow-[var(--ct-shadow-soft)] ring-1 ring-[var(--ct-border)]">
+      {/* Programme line — above the band, on the card's own ground. */}
+      <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)] pb-[var(--ct-space-4)]">
+        <p
+          className="m-0 font-semibold uppercase tracking-[0.12em] text-[var(--ct-accent-strong)]"
+          style={{ fontSize: "var(--ct-text-2xs)" }}
+        >
+          {eyebrow}
+        </p>
+      </div>
 
+      {/* The band itself: gap-px over a white/5 ground = the DS separator. */}
+      <div className="grid gap-px bg-[var(--ct-border-soft)] lg:grid-cols-12">
+        {/* Hero cell — col-span-4. */}
+        <div className="min-w-0 bg-[var(--ct-surface-raised)] px-[var(--ct-space-6)] py-[var(--ct-space-6)] lg:col-span-4">
           <p
-            className="m-0 mt-[var(--ct-space-4)] text-[var(--ct-text-muted)]"
+            className="m-0 font-medium uppercase tracking-[0.12em] text-[var(--ct-text-muted)]"
             style={{ fontSize: "var(--ct-text-2xs)" }}
           >
             {label}
           </p>
           <div
-            className={
-              muted
-                ? "mt-[var(--ct-space-2)] font-semibold tracking-tight tabular-nums text-[var(--ct-text-faint)]"
-                : "mt-[var(--ct-space-2)] font-semibold tracking-tight tabular-nums text-[var(--ct-text-strong)]"
-            }
-            style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1.05 }}
+            className={cn(
+              "mt-[var(--ct-space-3)] font-semibold tracking-tight tabular-nums",
+              muted ? "text-[var(--ct-text-faint)]" : "text-[var(--ct-text-strong)]",
+            )}
+            style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1 }}
           >
             {value}
           </div>
           <p
-            className="m-0 mt-[var(--ct-space-3)] max-w-[56ch] leading-relaxed text-[var(--ct-text-muted)]"
-            style={{ fontSize: "var(--ct-text-xs)" }}
+            className="m-0 mt-[var(--ct-space-3)] leading-relaxed text-[var(--ct-text-muted)]"
+            style={{ fontSize: "var(--ct-text-2xs)" }}
           >
             {caption}
           </p>
+          {trailing ? <div className="mt-[var(--ct-space-2)]">{trailing}</div> : null}
         </div>
 
-        {trailing ? <div className="shrink-0">{trailing}</div> : null}
-      </div>
-
-      {/* Supporting figures — an inset strip that RECESSES under the hero
-          (canon §4), separated by hairlines drawn per cell rather than by a
-          `gap-px` grid gutter (canon F2). */}
-      {context.length > 0 ? (
-        <div className="flex flex-col border-t border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] sm:flex-row">
+        {/* Secondary cells — col-span-8, three across. */}
+        <dl className="grid min-w-0 grid-cols-1 gap-px bg-[var(--ct-border-soft)] sm:grid-cols-2 lg:col-span-8 lg:grid-cols-3">
           {context.map((item) => (
             <div
               key={item.label}
-              className="min-w-0 flex-1 px-[var(--ct-space-5)] py-[var(--ct-space-4)] not-first:border-t not-first:border-[var(--ct-border-soft)] sm:not-first:border-t-0 sm:not-first:border-l"
+              className="min-w-0 bg-[var(--ct-surface-raised)] px-[var(--ct-space-5)] py-[var(--ct-space-4)]"
             >
-              <p
-                className="m-0 text-[var(--ct-text-faint)]"
-                style={{ fontSize: "var(--ct-text-nano)" }}
+              <dt
+                className="m-0 font-medium text-[var(--ct-text-muted)]"
+                style={{ fontSize: "var(--ct-text-2xs)" }}
               >
                 {item.label}
-              </p>
-              <p
-                className={
+              </dt>
+              <dd
+                className={cn(
+                  "m-0 mt-[var(--ct-space-1)] truncate font-semibold tracking-tight tabular-nums",
                   item.muted
-                    ? "m-0 mt-[var(--ct-space-1)] truncate font-semibold tabular-nums text-[var(--ct-text-faint)]"
-                    : "m-0 mt-[var(--ct-space-1)] truncate font-semibold tabular-nums text-[var(--ct-text-strong)]"
-                }
-                style={{ fontSize: "var(--ct-text-xl-fixed)" }}
+                    ? "text-[var(--ct-text-faint)]"
+                    : "text-[var(--ct-text-strong)]",
+                )}
+                style={{ fontSize: "var(--ct-text-3xl-fixed)", lineHeight: 1.15 }}
               >
                 {item.value}
-              </p>
+              </dd>
+              {item.hint ? (
+                <p
+                  className="m-0 mt-[var(--ct-space-1)] truncate text-[var(--ct-text-faint)]"
+                  style={{ fontSize: "var(--ct-text-nano)" }}
+                >
+                  {item.hint}
+                </p>
+              ) : null}
             </div>
           ))}
-        </div>
-      ) : null}
-    </Series1DashboardCard>
+        </dl>
+      </div>
+    </section>
   );
 }

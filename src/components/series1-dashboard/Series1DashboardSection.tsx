@@ -47,29 +47,36 @@ export function Series1DashboardSection({
   const headed = Boolean(title || description || actions);
   return (
     <section className={cn("flex min-w-0 flex-col", className)}>
+      {/* DS section head (design-system.html §08): a top hairline, then
+          `sec-head` = optional index pill + 16px semibold title, then the
+          description indented under it. The rule above each section is what
+          gives the document its register — sections are separated by a filet,
+          not by whitespace alone. */}
       {headed ? (
-        <div className="mb-[var(--ct-space-4)] flex flex-wrap items-start justify-between gap-x-[var(--ct-space-6)] gap-y-[var(--ct-space-2)]">
-          <div className="min-w-0">
-            {title ? (
-              <h2
-                className="m-0 font-semibold tracking-tight text-[var(--ct-text-strong)]"
-                style={{ fontSize: "var(--ct-text-xl-fixed)" }}
-              >
-                {title}
-              </h2>
-            ) : null}
-            {description ? (
-              <p
-                className="m-0 mt-[var(--ct-space-1)] max-w-[68ch] leading-relaxed text-[var(--ct-text-muted)]"
-                style={{ fontSize: "var(--ct-text-xs)" }}
-              >
-                {description}
-              </p>
+        <div className="mb-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-5)]">
+          <div className="flex flex-wrap items-start justify-between gap-x-[var(--ct-space-6)] gap-y-[var(--ct-space-2)]">
+            <div className="min-w-0">
+              {title ? (
+                <h2
+                  className="m-0 font-semibold text-[var(--ct-text-strong)]"
+                  style={{ fontSize: "var(--ct-text-sm)" }}
+                >
+                  {title}
+                </h2>
+              ) : null}
+              {description ? (
+                <p
+                  className="m-0 mt-[var(--ct-space-2)] max-w-[68ch] leading-relaxed text-[var(--ct-text-muted)]"
+                  style={{ fontSize: "var(--ct-text-2xs)" }}
+                >
+                  {description}
+                </p>
+              ) : null}
+            </div>
+            {actions ? (
+              <div className="flex shrink-0 items-center gap-[var(--ct-space-2)]">{actions}</div>
             ) : null}
           </div>
-          {actions ? (
-            <div className="flex shrink-0 items-center gap-[var(--ct-space-2)]">{actions}</div>
-          ) : null}
         </div>
       ) : null}
       {children}
@@ -78,8 +85,16 @@ export function Series1DashboardSection({
 }
 
 /**
- * L2 content card — RISES above the page (canon §4). Never
- * `--ct-surface-card`: that token is #000000, i.e. darker than the
+ * L2 content card — the Qatar cockpit `surfaceRaised`.
+ *
+ * The DS recipe is a zinc-900 fill plus a white/10 ring plus a large shadow:
+ * the RING is what separates the card from the page, and the SHADOW is what
+ * lifts it. Here both come from tokens (--ct-border, --ct-shadow-soft). The
+ * first rebuild had the right fill but neither, which is why the cards read
+ * flat and "gris sale" instead of raised. `--ct-border` is the repo's
+ * white/10 hairline, so the ring is a token, not a new value.
+ *
+ * Never `--ct-surface-card`: that token is #000000, i.e. darker than the
  * --ct-surface-page (#18181b) that contains it.
  */
 export function Series1DashboardCard({
@@ -93,7 +108,8 @@ export function Series1DashboardCard({
     <div
       className={cn(
         "flex min-w-0 flex-col overflow-hidden rounded-[var(--ct-radius-xl)]",
-        "border border-[var(--ct-border-soft)] bg-[var(--ct-surface-raised)]",
+        "bg-[var(--ct-surface-raised)] ring-1 ring-[var(--ct-border)]",
+        "shadow-[var(--ct-shadow-soft)]",
         className,
       )}
     >
@@ -102,7 +118,13 @@ export function Series1DashboardCard({
   );
 }
 
-/** Card header — title, optional caption, optional trailing slot (provenance). */
+/**
+ * Card header — the DS `panel-heading`: a 12px uppercase micro-label at
+ * `tracking-[0.12em]` in the MUTED tone, over a faint hairline. The DS uses
+ * the eyebrow register for panel titles, not a semibold body-size heading —
+ * that is what makes a cockpit panel read as an instrument label rather than
+ * as a document subtitle.
+ */
 export function Series1DashboardCardHeader({
   title,
   caption,
@@ -113,10 +135,10 @@ export function Series1DashboardCardHeader({
   trailing?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-1)] border-b border-[var(--ct-border-soft)] px-[var(--ct-space-5)] py-[var(--ct-space-4)]">
+    <div className="flex flex-wrap items-center justify-between gap-x-[var(--ct-space-4)] gap-y-[var(--ct-space-1)] border-b border-[var(--ct-border-soft)] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
       <div className="min-w-0">
         <h3
-          className="m-0 font-semibold text-[var(--ct-text-strong)]"
+          className="m-0 font-semibold uppercase tracking-[0.12em] text-[var(--ct-text-muted)]"
           style={{ fontSize: "var(--ct-text-2xs)" }}
         >
           {title}
@@ -136,8 +158,13 @@ export function Series1DashboardCardHeader({
 }
 
 /**
- * L3 inset — a well that RECESSES below the card. For chart grounds and
- * secondary panes only; never for primary content.
+ * L3 inset — the Qatar cockpit `surfaceSunken`.
+ *
+ * The DS recipe is `bg-zinc-950/50 + ring white/5`: a well is DARKER than the
+ * card holding it, so it recedes. `--ct-surface-inset` (#15191C) is lighter
+ * than `--ct-surface-raised`, which made every well read as a second raised
+ * plate — the "cage-in-cage" effect. Mixing toward the page-deep ground gives
+ * a true recess without inventing a value.
  */
 export function Series1DashboardInset({
   children,
@@ -147,7 +174,14 @@ export function Series1DashboardInset({
   className?: string;
 }) {
   return (
-    <div className={cn("min-w-0 bg-[var(--ct-surface-inset)]", className)}>{children}</div>
+    <div
+      className={cn(
+        "min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_55%,var(--ct-surface-page))]",
+        className,
+      )}
+    >
+      {children}
+    </div>
   );
 }
 

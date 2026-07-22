@@ -1,54 +1,104 @@
-// Series1BitcoinAccumulation — the investor's principal outcome.
+// Series1BitcoinAccumulation — the DS `ChartSurface`.
 //
-// Wires `BtcAccumulationCurve`, one of the eight preserved reserve-cockpit
-// modules that were built, token-only, and left ORPHANED (canon F8 — only
-// CapitalFlowRail was ever mounted). The old page rendered a hand-rolled
-// `Series1ChartPlaceholder` with raw #a7fb90 hex instead.
+// design-system.html §10 defines a chart block as ONE surfaceRaised carrying:
+//   title (16px semibold) → description (14px muted) → 1px rule → plot area.
+// One frame. No nested panel, no well inside a well.
 //
-// The contract reports a cumulative total, not a per-month series, so the
-// curve has no series to draw yet. That is stated once, honestly — the module
-// renders its own DataUnavailable state rather than a fabricated line.
+// The first rebuild stacked THREE: Series1DashboardCard → Series1DashboardInset
+// → the module's own `ReserveBlockFrame` (itself a framed card). That is the
+// "carte dans carte dans carte" / "tunnel noir" in the screenshot.
+//
+// Fix: this component IS the chart surface, and the plot area renders the
+// honest empty state directly instead of delegating to a module that draws its
+// own card. `BtcAccumulationCurve` stays the canonical renderer for the day the
+// ledger indexes a monthly series — it is composed bare, at that point, inside
+// this same frame rather than around it.
 
-import { BtcAccumulationCurve } from "@/features/investor-ui/components/reserve-cockpit";
-import type { HcSourceStatus } from "@/components/dataviz/his";
-
-import {
-  Series1DashboardCard,
-  Series1DashboardCardHeader,
-  Series1DashboardInset,
-} from "./Series1DashboardSection";
-import { Series1DataState } from "./Series1DataState";
+import type { ReactNode } from "react";
 
 export function Series1BitcoinAccumulation({
-  /** Provenance of the mining read that would feed the series. */
-  source,
   /** Group motive when the underlying read did not resolve. */
   motive,
   className,
 }: {
-  source: HcSourceStatus;
   motive: string | null;
   className?: string;
 }) {
   return (
-    <Series1DashboardCard className={className}>
-      <Series1DashboardCardHeader
-        title="Accumulated Bitcoin"
-        caption="Mining production credited to the reserve through the term. Delivered in BTC at maturity."
-      />
-      <Series1DashboardInset className="p-[var(--ct-space-5)]">
-        {/* The module owns its own honest empty state: `data={null}` renders
-            DataUnavailable, never a fabricated curve. */}
-        <BtcAccumulationCurve data={null} source={source} />
-      </Series1DashboardInset>
+    <section
+      className={
+        className ??
+        "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[var(--ct-surface-raised)] shadow-[var(--ct-shadow-soft)] ring-1 ring-[var(--ct-border)]"
+      }
+    >
+      {/* DS chart header: title + description + hairline rule. */}
+      <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)]">
+        <h3
+          className="m-0 font-semibold text-[var(--ct-text-strong)]"
+          style={{ fontSize: "var(--ct-text-sm)" }}
+        >
+          Accumulated Bitcoin
+        </h3>
+        <p
+          className="m-0 mt-[var(--ct-space-2)] max-w-[68ch] leading-relaxed text-[var(--ct-text-muted)]"
+          style={{ fontSize: "var(--ct-text-2xs)" }}
+        >
+          Mining production credited to the reserve through the term. Delivered in BTC at
+          maturity.
+        </p>
+        <div className="mt-[var(--ct-space-4)] h-px bg-[var(--ct-border-soft)]" />
+      </div>
+
+      {/* Plot area — a sunken well, ONE level deep, holding the honest state. */}
+      <PlotWell>
+        <ChartEmptyState motive={motive} />
+      </PlotWell>
+    </section>
+  );
+}
+
+/**
+ * The plot ground. Recessed below the card (DS surfaceSunken), sized like a
+ * real chart slot (the DS pins CostRevenueChart at 260px) so the empty state
+ * occupies a plotting surface rather than an arbitrary black rectangle.
+ */
+function PlotWell({ children }: { children: ReactNode }) {
+  return (
+    <div className="m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_55%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] ring-1 ring-[var(--ct-border-soft)]">
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Honest empty state. A baseline rule marks where the series will sit — chrome
+ * only, at hairline opacity, so it never implies a data series (the DS bans
+ * decor behind figures; a single axis line is structure, not decor).
+ */
+function ChartEmptyState({ motive }: { motive: string | null }) {
+  return (
+    <div className="flex max-w-[46ch] flex-col items-center text-center">
+      <p
+        className="m-0 font-medium text-[var(--ct-text-muted)]"
+        style={{ fontSize: "var(--ct-text-2xs)" }}
+      >
+        No accumulation series yet
+      </p>
+      <p
+        className="m-0 mt-[var(--ct-space-2)] leading-relaxed text-[var(--ct-text-faint)]"
+        style={{ fontSize: "var(--ct-text-nano)" }}
+      >
+        The contract reports a cumulative total, not a per-month series. The curve appears
+        once the ledger indexes monthly credits.
+      </p>
       {motive ? (
-        <div className="border-t border-[var(--ct-border-soft)] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
-          <Series1DataState
-            motive={motive}
-            detail="a monthly series appears once the ledger indexes per-month credits"
-          />
-        </div>
+        <p
+          className="m-0 mt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-3)] text-[var(--ct-text-faint)]"
+          style={{ fontSize: "var(--ct-text-nano)" }}
+        >
+          <span className="font-semibold text-[var(--ct-text-muted)]">{motive}</span>
+        </p>
       ) : null}
-    </Series1DashboardCard>
+    </div>
   );
 }

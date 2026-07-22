@@ -21,11 +21,6 @@ import {
   formatUsdcAmount,
   selectWired,
 } from "@/lib/chain/wired-view";
-import type { HcSourceStatus } from "@/components/dataviz/his";
-import type {
-  CapitalFlowPocket,
-  PocketAllocation,
-} from "@/features/investor-ui/components/reserve-cockpit";
 // TYPE-ONLY: erased at compile time, so this never pulls the `server-only`
 // adapter into a client bundle (the architecture guard ignores `import type`).
 import type {
@@ -40,14 +35,16 @@ import type {
 import type { VaultMode } from "@/lib/chain/vault-mode";
 
 import { Series1BitcoinAccumulation } from "./Series1BitcoinAccumulation";
-import { Series1CapitalArchitecture } from "./Series1CapitalArchitecture";
+import {
+  Series1CapitalArchitecture,
+  type Series1Pocket,
+} from "./Series1CapitalArchitecture";
 import {
   groupMotive,
   isUnresolved,
   Series1DataState,
   Series1Provenance,
   wiredValue,
-  type Series1Wired,
 } from "./Series1DataState";
 import { Series1DashboardHero } from "./Series1DashboardHero";
 import {
@@ -77,11 +74,6 @@ function vaultModeLabel(mode: "v2" | "legacy" | "not_configured"): string {
     case "not_configured":
       return "Contract not configured";
   }
-}
-
-/** A wired read earns `live`; anything else is `configured`, never `live`. */
-function sourceOf(read: Series1Wired<unknown>): HcSourceStatus {
-  return read.status === "wired" ? "live" : "configured";
 }
 
 /**
@@ -123,7 +115,7 @@ export function Series1Dashboard({
 
   // ── Allocation: live strategies if wired, else the LABELLED policy target.
   const strategiesWired = strategies.status === "wired";
-  const pocketAllocations: PocketAllocation[] = strategiesWired
+  const pocketAllocations: Series1Pocket[] = strategiesWired
     ? strategies.data.map((s) => ({
         id: POCKETS[s.index]?.id ?? "B1",
         label: POCKETS[s.index]?.label ?? `Strategy ${s.index}`,
@@ -134,12 +126,6 @@ export function Series1Dashboard({
         label: POCKETS[i]?.label ?? `Strategy ${i}`,
         value: bps / 100,
       }));
-
-  const flowPockets: CapitalFlowPocket[] = pocketAllocations.map((p) => ({
-    id: p.id,
-    label: p.label,
-    weightPct: p.value,
-  }));
 
   // ── Motives, collapsed per group (canon §5). Never printed per cell.
   const headlineMotive = groupMotive([mining, core, ops]);
@@ -161,15 +147,45 @@ export function Series1Dashboard({
             label: "Capital deployed",
             value: wiredValue(totalAssets, (v) => formatUsdcAmount(v)),
             muted: isUnresolved(totalAssets),
+            hint: "USDC subscribed",
           },
           {
             label: "Term progress",
             value: termValue,
             muted: isUnresolved(currentMonth),
+            hint: "Months elapsed",
           },
           {
             label: "Contract",
             value: vaultModeLabel(mode),
+            hint: "Active deployment",
+          },
+          {
+            label: "Reported hashrate",
+            value: wiredValue(
+              selectWired(mining, (m) => m.reportedHashrateTh),
+              (h) => formatHashrateTh(h),
+            ),
+            muted: isUnresolved(mining),
+            hint: "Last keeper report",
+          },
+          {
+            label: "Mining state",
+            value: wiredValue(
+              selectWired(ops, (o) => o.isCurtailed),
+              (c) => (c ? "Curtailed" : "Active"),
+            ),
+            muted: isUnresolved(ops),
+            hint: "Current window",
+          },
+          {
+            label: "Allocation mode",
+            value: wiredValue(
+              selectWired(ops, (o) => o.miningNoteMode),
+              (m) => (m ? "Enforced" : "Advisory"),
+            ),
+            muted: isUnresolved(ops),
+            hint: "40 / 27 / 33 policy",
           },
         ]}
       />
@@ -188,22 +204,25 @@ export function Series1Dashboard({
         <Series1MetricDeck
           metrics={[
             {
-              label: "Reported hashrate",
+              label: "BTC earned",
               value: wiredValue(
-                selectWired(mining, (m) => m.reportedHashrateTh),
-                (h) => formatHashrateTh(h),
+                selectWired(mining, (m) => m.totalBtcEarnedSats),
+                (s) => formatBtcFromSats(s),
               ),
               muted: isUnresolved(mining),
-              hint: "Last keeper report",
+              hint: "Cumulative on-chain",
             },
             {
-              label: "Mining state",
+              label: "Last report",
               value: wiredValue(
-                selectWired(ops, (o) => o.isCurtailed),
-                (c) => (c ? "Curtailed" : "Active"),
+                selectWired(mining, (m) => m.lastReportTime),
+                (t) =>
+                  t > 0n
+                    ? new Date(Number(t) * 1000).toISOString().slice(0, 10)
+                    : "Never",
               ),
-              muted: isUnresolved(ops),
-              hint: "Current reporting window",
+              muted: isUnresolved(mining),
+              hint: "Keeper operation",
             },
             {
               label: "Shares in circulation",
@@ -233,16 +252,16 @@ export function Series1Dashboard({
                 (c) => (c ? "Payable" : "On cooldown"),
               ),
               muted: isUnresolved(elec),
-              hint: "Funded from the B3 Operating Reserve",
+              hint: "Funded from B3",
             },
             {
-              label: "Allocation mode",
+              label: "Contract state",
               value: wiredValue(
-                selectWired(ops, (o) => o.miningNoteMode),
-                (m) => (m ? "Enforced" : "Advisory"),
+                selectWired(core, (c) => c.paused),
+                (p) => (p === null ? "Not exposed" : p ? "Paused" : "Active"),
               ),
-              muted: isUnresolved(ops),
-              hint: "40 / 27 / 33 policy split",
+              muted: isUnresolved(core),
+              hint: "Pausable read",
             },
           ]}
         />
@@ -252,10 +271,7 @@ export function Series1Dashboard({
         title="Bitcoin accumulation"
         description="Production credited to the reserve through the 24-month term."
       >
-        <Series1BitcoinAccumulation
-          source={sourceOf(mining)}
-          motive={miningMotive}
-        />
+        <Series1BitcoinAccumulation motive={miningMotive} />
       </Series1DashboardSection>
 
       <Series1DashboardSection
@@ -264,13 +280,6 @@ export function Series1Dashboard({
       >
         <Series1CapitalArchitecture
           pockets={pocketAllocations}
-          flowPockets={flowPockets}
-          depositAmount={
-            totalAssets.status === "wired"
-              ? formatUsdcAmount(totalAssets.data)
-              : undefined
-          }
-          source={strategiesWired ? "live" : "configured"}
           policyNotice={
             strategiesWired
               ? null
