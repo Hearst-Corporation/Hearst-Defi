@@ -3,7 +3,7 @@
 import * as Headless from "@headlessui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ComponentType, type ReactNode } from "react";
+import { useState, type ComponentType, type ReactNode } from "react";
 import {
   BarChart3,
   Bitcoin,
@@ -176,21 +176,9 @@ export function KycAppShell({ children }: { children: ReactNode }) {
     ? ADMIN_SECTIONS.find((section) => isActive(pathname, section.href))?.label ?? "Admin"
     : PRODUCT_NAV.find((item) => isActive(pathname, item.href))?.label ?? "Overview";
 
-  useEffect(() => {
-    document.documentElement.classList.add("kyc-front");
-    return () => document.documentElement.classList.remove("kyc-front");
-  }, []);
-
   return (
     <div className="kyc-app-root kyc-cockpit-shell min-h-dvh text-zinc-950">
       <style jsx global>{`
-        html.kyc-front,
-        html.kyc-front body {
-          height: auto !important;
-          min-height: 100dvh !important;
-          overflow: visible !important;
-          background: color-mix(in srgb, var(--ct-bg-deep) 14%, white) !important;
-        }
         .kyc-cockpit-shell {
           --kyc-cockpit-canvas: color-mix(in srgb, var(--ct-bg-deep) 18%, white);
           --kyc-cockpit-frame: color-mix(in srgb, var(--ct-bg-deep) 4%, white);
@@ -201,6 +189,7 @@ export function KycAppShell({ children }: { children: ReactNode }) {
           background:
             radial-gradient(circle at 92% -8%, color-mix(in srgb, var(--ct-accent) 11%, transparent), transparent 31rem),
             var(--kyc-cockpit-canvas);
+          overflow-x: clip;
         }
         .kyc-cockpit-shell .kyc-cockpit-sidebar {
           background: color-mix(in srgb, var(--ct-bg-deep) 8%, white);
@@ -279,25 +268,27 @@ export function KycAppShell({ children }: { children: ReactNode }) {
         </button>
       </header>
 
-      <Headless.Dialog open={mobileOpen} onClose={setMobileOpen} className="lg:hidden">
-        <Headless.DialogBackdrop className="fixed inset-0 z-40 bg-black/30" />
-        <Headless.DialogPanel className="fixed inset-y-0 left-0 z-50 w-full max-w-80 bg-white shadow-2xl dark:bg-zinc-900">
-          <div className="absolute right-3 top-3 z-10">
-            <Headless.CloseButton className="flex size-11 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-950/5 dark:hover:bg-white/5">
-              <ChevronLeft className="size-5" />
-            </Headless.CloseButton>
-          </div>
-          <Sidebar pathname={pathname} onNavigate={() => setMobileOpen(false)} />
-        </Headless.DialogPanel>
-      </Headless.Dialog>
+      {mobileOpen ? (
+        <Headless.Dialog open={mobileOpen} onClose={setMobileOpen} className="lg:hidden">
+          <Headless.DialogBackdrop className="fixed inset-0 z-40 bg-black/30" />
+          <Headless.DialogPanel className="fixed inset-y-0 left-0 z-50 w-full max-w-80 bg-white shadow-2xl dark:bg-zinc-900">
+            <div className="absolute right-3 top-3 z-10">
+              <Headless.CloseButton className="flex size-11 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-950/5 dark:hover:bg-white/5">
+                <ChevronLeft className="size-5" />
+              </Headless.CloseButton>
+            </div>
+            <Sidebar pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+          </Headless.DialogPanel>
+        </Headless.Dialog>
+      ) : null}
 
-      <main className="min-w-0 lg:pl-64">
-        <div className="min-h-[calc(100dvh-0.5rem)] p-4 sm:p-6 lg:p-2">
-          <div className="kyc-cockpit-frame mx-auto min-h-[calc(100dvh-1rem)] max-w-[1600px] rounded-xl border p-5 sm:p-7 lg:p-10">
+      <div className="min-w-0 lg:pl-64">
+        <div className="p-4 sm:p-6 lg:p-2">
+          <div className="kyc-cockpit-frame mx-auto max-w-[1600px] rounded-xl border p-5 sm:p-7 lg:p-10">
             {children}
           </div>
         </div>
-      </main>
+      </div>
 
       <button
         type="button"
