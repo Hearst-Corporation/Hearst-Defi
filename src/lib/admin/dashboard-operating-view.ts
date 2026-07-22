@@ -265,9 +265,13 @@ export function buildOperatingKpis(input: {
     },
     {
       label: "Custody reserves",
-      value: proof.custodyConfigured
-        ? formatUsdCompact(proof.custodyReservesUsdc)
-        : "—",
+      // A null reserve means nothing was read (provider unreachable, or not
+      // configured) — it is shown as absent, never as "$0", which would assert
+      // a measured empty vault.
+      value:
+        proof.custodyConfigured && proof.custodyReservesUsdc !== null
+          ? formatUsdCompact(proof.custodyReservesUsdc)
+          : "—",
       sublabel: proof.custodyConfigured
         ? proof.custodyProvenance === "live"
           ? "live custody read"

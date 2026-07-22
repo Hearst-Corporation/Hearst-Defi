@@ -54,9 +54,14 @@ export async function custodySnapshotHourlyHandler({
   // produce a snapshot row. This is the single point that enforces honesty.
   // The vault is currently empty (0 USDC) so this branch will be taken on
   // every run until Fireblocks account 86 holds real funds.
+  // `totalUsdcReserves === null` means nothing was read (provider unreachable,
+  // or not configured). It is checked FIRST and explicitly: a null must never
+  // reach `aumUsdc` below, and `null <= 0` would not have caught it. A real 0
+  // is a measured empty vault and still skips, for a different reason.
   if (
     !custody.configured ||
     custody.provenance !== "live" ||
+    custody.totalUsdcReserves === null ||
     custody.totalUsdcReserves <= 0
   ) {
     logger.info("[custody-snapshot-hourly] vault empty or unconfigured — skipping write", {
@@ -88,7 +93,13 @@ export async function custodySnapshotHourlyHandler({
 
   // ─── Step 3: persist live snapshot ────────────────────────────────────────
   const snapshotId = await step.run("persist-snapshot", async () => {
+    // The guard above already rejected null, but this runs in a new closure so
+    // the narrowing is gone. Re-assert rather than cast: if the guard is ever
+    // loosened, this throws instead of writing a null AUM into the snapshot.
     const liveAum = custody.totalUsdcReserves;
+    if (liveAum === null) {
+      throw new Error("custody-snapshot-hourly: totalUsdcReserves is null after the guard — refusing to persist");
+    }
 
     const snapshot = await prisma.vaultSnapshot.create({
       data: {

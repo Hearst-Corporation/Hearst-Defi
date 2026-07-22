@@ -95,6 +95,38 @@ function isStale(iso: string | null): boolean {
 }
 
 /**
+ * Provenance for an event-backed block. Existence of rows is NOT freshness:
+ * a six-month-old event is evidence that something happened, not evidence the
+ * source is live. So "live" requires BOTH rows and a fresh newest row.
+ *
+ * An empty list is not "manual" either — "manual" claims a human keyed the
+ * value in, which is a stronger (and false) claim than "we have nothing".
+ * Absence and age both resolve to "stale" ("awaiting update from source"),
+ * the only term in the existing vocabulary that claims nothing.
+ */
+function eventBlockProvenance(count: number, latestIso: string | null): ProofBlockProvenance {
+  if (count === 0) return "stale";
+  return isStale(latestIso) ? "stale" : "live";
+}
+
+/**
+ * Worst-field-first composite, mirroring `precedenceWorst` in
+ * `features/investor-ui/data-source/backend-data-source.ts`: a composite status
+ * is only as good as its weakest contributing source. Implemented as an AND
+ * over the sources that actually exist — a source that is absent (null) is not
+ * a fresh source and must never count as a positive vote. When no source
+ * contributes at all there is nothing to be fresh about, so the answer is
+ * "stale", never "live".
+ */
+function compositeFreshness(
+  contributions: readonly (string | null)[],
+): ProofBlockProvenance {
+  const present = contributions.filter((iso): iso is string => iso !== null);
+  if (present.length === 0) return "stale";
+  return present.every((iso) => !isStale(iso)) ? "live" : "stale";
+}
+
+/**
  * On-chain event kinds that evidence take-profit / curtailment operations for
  * the Series 1 mining note. `Rebalance` covers pocket take-profit sweeps; `ModeChange`
  * covers curtailment mode transitions; `GuardrailBreach` / `TriggerArmed` are
@@ -171,15 +203,25 @@ function attestationBlockProvenance(
   attestation: OnChainAttestation | null,
   verified: boolean,
 ): ProofBlockProvenance {
-  if (!attestation) return "manual";
+  // No attestation is "nothing to show", not "a human entered this".
+  if (!attestation) return "stale";
   if (isStale(attestation.timestamp.toISOString())) return "stale";
   return verified ? "attested" : "oracle";
 }
 
 function custodyBlockProvenance(custody: CustodySnapshot | null): ProofBlockProvenance {
-  if (!custody) return "manual";
-  if (custody.provenance === "live" && custody.configured) return "live";
-  if (isStale(custody.asOf)) return "stale";
+  // No snapshot at all — claim nothing rather than implying manual entry.
+  if (!custody) return "stale";
+  // Upstream outage / not configured. `loadCustody` reports this explicitly as
+  // "unavailable"; it is not manual data entry and not an aged reading, but the
+  // block-level vocabulary has no "unavailable" term, so it maps to the only
+  // non-claiming option. `state: "absent"` carries the honest empty rendering.
+  if (custody.provenance === "unavailable") return "stale";
+  // "live" must survive the age check like every other source: a live-flagged
+  // snapshot whose `asOf` has aged past the threshold is stale, not live.
+  if (custody.provenance === "live" && custody.configured) {
+    return isStale(custody.asOf) ? "stale" : "live";
+  }
   return "manual";
 }
 
@@ -206,8 +248,23 @@ function buildSeries1Proof(input: {
   } = input;
 
   const miningPresent = coverage?.provenance === "live" || coverage?.provenance === "estimated";
+  // Custody is "present" only when a live snapshot actually measured reserves
+  // above zero. `totalUsdcReserves` is now nullable upstream: `null` means "not
+  // measured" (outage / not configured) while `0` is a real reading. Comparing
+  // null with `> 0` would coerce to false by accident rather than by intent, so
+  // the null case is excluded explicitly.
+  const custodyReserves = custody?.totalUsdcReserves ?? null;
   const custodyPresent =
-    custody !== null && custody.provenance === "live" && custody.totalUsdcReserves > 0;
+    custody !== null &&
+    custody.provenance === "live" &&
+    custodyReserves !== null &&
+    custodyReserves > 0;
+  // Evidence count must never turn "we could not look" into "we looked and
+  // found nothing". `accountsCount === null` is the outage signal, and a
+  // non-live snapshot carries no verified count either. Both report 0 evidence
+  // alongside `state: "absent"`, which claims nothing in either direction.
+  const custodyEvidenceCount =
+    custody?.provenance === "live" ? (custody.accountsCount ?? 0) : 0;
 
   const takeProfitEvents = onChainEvents.filter((e) =>
     TAKE_PROFIT_CURTAILMENT_KINDS.has(e.kind),
@@ -251,13 +308,13 @@ function buildSeries1Proof(input: {
       provenance: custodyBlockProvenance(custody),
       state: custodyPresent ? "present" : "absent",
       lastUpdated: custody?.asOf ?? null,
-      evidenceCount: custody?.accountsCount ?? 0,
+      evidenceCount: custodyEvidenceCount,
     },
     {
       kind: "delivery",
       title: "Proof of Delivery",
       eyebrow: "BTC settlement at maturity",
-      provenance: deliveryEvents.length > 0 ? "live" : "manual",
+      provenance: eventBlockProvenance(deliveryEvents.length, latestDeliveryTs),
       // Series 1 delivers BTC at maturity — before then, honestly absent.
       state: deliveryEvents.length > 0 ? "present" : "absent",
       lastUpdated: latestDeliveryTs,
@@ -267,7 +324,7 @@ function buildSeries1Proof(input: {
       kind: "contract-events",
       title: "Contract Events",
       eyebrow: "On-chain event log",
-      provenance: onChainEvents.length > 0 ? "live" : "manual",
+      provenance: eventBlockProvenance(onChainEvents.length, latestEventTs),
       state: onChainEvents.length > 0 ? "present" : "absent",
       lastUpdated: latestEventTs,
       evidenceCount: onChainEvents.length,
@@ -276,7 +333,7 @@ function buildSeries1Proof(input: {
       kind: "take-profit-curtailment",
       title: "Take-profit & Curtailment",
       eyebrow: "Vault operations",
-      provenance: takeProfitEvents.length > 0 ? "live" : "manual",
+      provenance: eventBlockProvenance(takeProfitEvents.length, latestTakeProfitTs),
       state: takeProfitEvents.length > 0 ? "present" : "absent",
       lastUpdated: latestTakeProfitTs,
       evidenceCount: takeProfitEvents.length,
@@ -285,11 +342,18 @@ function buildSeries1Proof(input: {
       kind: "freshness",
       title: "Proof Freshness",
       eyebrow: "Source recency",
-      // Freshness is derived meta — provenance follows the freshest live source.
-      provenance:
-        !isStale(attestationTs) || !isStale(latestEventTs) || (custody?.provenance === "live")
-          ? "live"
-          : "stale",
+      // Freshness is derived meta over every contributing source. It follows the
+      // WORST source, not the freshest: this badge is the one place a reader
+      // looks to know whether the whole proof rail can be trusted right now, so
+      // a single fresh source must not mask two stale ones. `custody.asOf` is
+      // only offered as a contribution when the snapshot is actually live — a
+      // degraded fallback stamps `asOf` with `Date.now()`, which would otherwise
+      // look permanently fresh and silently vote "live".
+      provenance: compositeFreshness([
+        attestationTs,
+        latestEventTs,
+        custody?.provenance === "live" ? custody.asOf : null,
+      ]),
       state:
         attestation || onChainEvents.length > 0 || custodyPresent || distributions.length > 0
           ? "present"
@@ -325,7 +389,9 @@ function buildProofFreshness(input: {
     },
     {
       label: "On-chain events",
-      provenance: onChainEvents.length > 0 ? "live" : "manual",
+      // Same rule as the proof blocks: row count is not freshness. Without this
+      // the row could render "Live" next to its own `stale: true` flag.
+      provenance: eventBlockProvenance(onChainEvents.length, eventTs),
       lastUpdated: eventTs,
       stale: isStale(eventTs),
     },
@@ -384,8 +450,13 @@ export async function loadProofCenterHubData(
   const reservePockets: ReservePocketCoverage = {
     b1Evidenced: coverage?.provenance === "live" || coverage?.provenance === "estimated",
     b2Evidenced: latestAttestation !== null,
+    // Same nullable-reserves rule as `custodyPresent`: an unmeasured reserve
+    // (null) is not evidence of a pocket, and must not be read as zero.
     b3Evidenced:
-      custody !== null && custody.provenance === "live" && custody.totalUsdcReserves > 0,
+      custody !== null &&
+      custody.provenance === "live" &&
+      custody.totalUsdcReserves !== null &&
+      custody.totalUsdcReserves > 0,
   };
 
   return {

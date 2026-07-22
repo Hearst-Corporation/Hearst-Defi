@@ -117,12 +117,26 @@ export default async function VaultDetailPage({ params }: PageProps) {
   if (!position) notFound();
 
   const now = new Date();
-  const value = position.principalUsdc + position.accruedYieldUsdc;
+  // Position value = principal ONLY.
+  //
+  // This used to be `principalUsdc + accruedYieldUsdc`. `Position.accruedYieldUsdc`
+  // is never computed by any business process (its only writers are the demo
+  // fixtures in src/lib/demo/), so in production it is always its `@default(0)`,
+  // and Series 1 is a BTC-accumulation note that accrues no yield at all
+  // (/portfolio/yield and /portfolio/distributions are retired redirects). Adding
+  // it made the headline value a principal + phantom-yield sum, and the derived
+  // performance percentage a measurement of that phantom. Principal is real
+  // (attested at subscription), so the value shown is the deposited capital until
+  // a genuine valuation source exists.
+  const value = position.principalUsdc;
+  // No recorded value change → no performance figure to display. Kept explicit
+  // rather than rendering "+0.00%", which would assert a measured flat return.
+  // Computed from a value-change source once one exists; null until then.
+  const valueChangeUsdc: number | null = null;
   const perfPct =
-    position.principalUsdc > 0
-      ? ((value - position.principalUsdc) / position.principalUsdc) * 100
-      : 0;
-  const up = perfPct >= 0;
+    valueChangeUsdc !== null && position.principalUsdc > 0
+      ? (valueChangeUsdc / position.principalUsdc) * 100
+      : null;
 
   const hasAccumulationRange =
     position.realizedApyLow !== null && position.realizedApyHigh !== null;
@@ -187,11 +201,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
   const isActive = position.status === "active";
 
-  // Hero edge stat band — the position's four real headline metrics (4-up = a
+  // Hero edge stat band — the position's four headline metrics (4-up = a
   // perfectly symmetric rail, StatBand caps at 4 cols). Deposited (Manual) ·
-  // Current value (Attested + delta) · Accrued value (Estimated — BTC/value
-  // accumulated, NOT distributed) · Est. BTC delivery range (Estimated). Maturity
-  // moves to a header chip. No red anywhere.
+  // Current value (Attested, = principal) · Accrued (not calculated) · Est. BTC
+  // delivery range (Estimated). Maturity moves to a header chip. No red anywhere.
   const deliveryRangeLabel = hasAccumulationRange
     ? `${formatUsdFull(projection.maturityLo)}–${formatUsdFull(projection.maturityHi)}`
     : "—";
@@ -203,18 +216,22 @@ export default async function VaultDetailPage({ params }: PageProps) {
       provenance: "manual",
     },
     {
+      // No delta chip: there is no computed value change to express as a
+      // percentage (see the `value` note above).
       label: "Current value",
       value: formatUsdFull(value),
-      delta: {
-        text: `${up ? "+" : ""}${perfPct.toFixed(2)}%`,
-        tone: up ? "up" : "down",
-      },
       provenance: "attested",
     },
     {
-      label: "Accrued (est.)",
-      value: formatUsdFull(position.accruedYieldUsdc),
-      provenance: "estimated",
+      // Was `formatUsdFull(position.accruedYieldUsdc)` — i.e. an unconditional
+      // "$0.00" presented with an "Estimated" badge, which reads as a measured
+      // accrual of zero. The column is never computed, so the cell states that
+      // it has no value instead of showing one. `valueTone: "neutral"` keeps the
+      // placeholder off the accent green reserved for real figures.
+      label: "Accrued",
+      value: "Not calculated",
+      valueTone: "neutral",
+      provenance: "manual",
     },
     {
       label: "Est. BTC delivery",
@@ -309,13 +326,27 @@ export default async function VaultDetailPage({ params }: PageProps) {
                   <span className="ct-metric-value text-[length:var(--ct-text-2xl)] tabular-nums">
                     {formatUsdFull(value)}
                   </span>
-                  <span
-                    className="text-[length:var(--ct-text-sm)] font-semibold tabular-nums"
-                    style={{ color: "var(--ct-text-body)" }}
-                  >
-                    {up ? "+" : ""}
-                    {perfPct.toFixed(2)}%
-                  </span>
+                  {/* The performance percentage is only rendered when a real
+                      value change exists. It previously derived from
+                      accruedYieldUsdc and so always printed "+0.00%" — a
+                      measured-looking flat return over a figure nothing
+                      computes. */}
+                  {perfPct !== null ? (
+                    <span
+                      className="text-[length:var(--ct-text-sm)] font-semibold tabular-nums"
+                      style={{ color: "var(--ct-text-body)" }}
+                    >
+                      {perfPct >= 0 ? "+" : ""}
+                      {perfPct.toFixed(2)}%
+                    </span>
+                  ) : (
+                    <span
+                      className="text-[length:var(--ct-text-nano)]"
+                      style={{ color: "var(--ct-text-muted)" }}
+                    >
+                      Deposited capital · no value change recorded
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <MetaChip label="Maturity" value={horizonLabel} />
@@ -472,9 +503,14 @@ export default async function VaultDetailPage({ params }: PageProps) {
           {/* Structural safeguards + capital-at-work (real USDC figures) */}
           <div className={`${SUPPORT} flex flex-col`}>
             <CardHeader title="Structural safeguards" />
+            {/* accruedYieldUsdc is passed as 0 on purpose: the column is never
+                computed (see the `value` note at the top of this file), so the
+                component's "Recorded value change" line must not present it as a
+                measured figure. At 0 its proportional bar collapses to
+                principal-only, which is the honest render. */}
             <PositionCapitalProtection
               principalUsdc={position.principalUsdc}
-              accruedYieldUsdc={position.accruedYieldUsdc}
+              accruedYieldUsdc={0}
               distributedUsdc={position.distributedUsdc}
               status={position.status}
               softLockupDays={position.softLockupDays}

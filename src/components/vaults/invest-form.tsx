@@ -455,7 +455,13 @@ function InvestFormUnconfigured({
   investor: Investor | null;
   session: SessionUser | null;
 }) {
-  const maxAmount = vault.capacityUsdc - vault.currentAumUsdc;
+  // Unknown AUM (null) means remaining capacity is UNKNOWN, not "the whole
+  // capacity". Treating it as 0 would overstate what the vault can still take
+  // and could let a subscription through that the vault cannot honour, so the
+  // unknown case reports zero headroom — the fail-safe direction on a figure
+  // that gates money in.
+  const maxAmount =
+    vault.currentAumUsdc === null ? 0 : vault.capacityUsdc - vault.currentAumUsdc;
   const ptai = buildPtai(0, vault);
   const helper = {
     text: `Minimum ${formatUsdAmount(vault.minTicketUsdc, true)} · Capacity remaining: ${formatUsdAmount(maxAmount, true)}`,
@@ -556,7 +562,13 @@ function InvestFormLive({
   const { ready } = usePrivy();
   const { wallets } = useWallets();
 
-  const maxAmount = vault.capacityUsdc - vault.currentAumUsdc;
+  // Unknown AUM (null) means remaining capacity is UNKNOWN, not "the whole
+  // capacity". Treating it as 0 would overstate what the vault can still take
+  // and could let a subscription through that the vault cannot honour, so the
+  // unknown case reports zero headroom — the fail-safe direction on a figure
+  // that gates money in.
+  const maxAmount =
+    vault.currentAumUsdc === null ? 0 : vault.capacityUsdc - vault.currentAumUsdc;
 
   const [rawAmount, setRawAmount] = useState<string>("");
   const [agreedToTermSheet, setAgreedToTermSheet] = useState(false);

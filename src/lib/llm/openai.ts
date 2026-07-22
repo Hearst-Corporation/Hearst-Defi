@@ -11,44 +11,29 @@ import { env } from "@/lib/env";
  * integration trap that returned empty `content`). No Anthropic SDK either.
  *
  * Configuration is sourced exclusively from the validated env (`@/lib/env`).
- * There are NO silent placeholder fallbacks for the API key — a missing value
- * either throws explicitly at import (normal runtime) or, only during
- * `next build` (NEXT_PHASE === "phase-production-build"), yields a stub that
- * throws on first use so route static analysis still succeeds.
+ * There are NO silent placeholder fallbacks for the API key — but a missing
+ * value must never break module LOADING. Importing this module always
+ * succeeds; a missing `OPENAI_API_KEY` throws on first USE (the first property
+ * access on the exported client), the same deferral contract already used by
+ * `@/lib/hubspot/client`, `@/lib/apollo/client` and `@/lib/email/send`.
+ *
+ * Why it matters: 14 modules import this one, including `client.ts` (pulled in
+ * by 12 agents), `/api/cockpit-chat` and `/api/admin/review-document`. An
+ * eager throw at import turned a missing key into a 500 on every one of those
+ * routes before any handler could run — including routes that never touch the
+ * LLM. The client is therefore built lazily, once, on first use.
  */
 
 const IS_BUILD_PHASE = process.env.NEXT_PHASE === "phase-production-build";
 
-/**
- * Returns a Proxy-backed OpenAI instance that throws a clear error the first
- * time any property is touched. This lets module import succeed during
- * `next build`, while ensuring any runtime call fails loudly with context.
- */
-function buildPlaceholderClient(reason: string): OpenAI {
-  const throwStub = (): never => {
-    throw new Error(reason);
-  };
-  const handler: ProxyHandler<object> = {
-    get(_target, prop): unknown {
-      if (typeof prop === "symbol") return undefined;
-      return new Proxy(throwStub, handler);
-    },
-    apply(): never {
-      return throwStub();
-    },
-  };
-  return new Proxy({}, handler) as OpenAI;
-}
-
 function createOpenAIClient(): OpenAI {
   const apiKey = env.OPENAI_API_KEY;
   if (!apiKey || apiKey.trim().length === 0) {
-    const reason =
-      "OPENAI_API_KEY is not configured. Set it in the environment to use LLM features.";
-    if (IS_BUILD_PHASE) {
-      return buildPlaceholderClient(reason);
-    }
-    throw new Error(reason);
+    // Never throw here at import time — `openai` below defers this call to the
+    // first property access, so this error surfaces at USE, with context.
+    throw new Error(
+      "OPENAI_API_KEY is not configured. Set it in the environment to use LLM features.",
+    );
   }
 
   return new OpenAI({
@@ -83,8 +68,64 @@ function withTracing(client: OpenAI): OpenAI {
   return wrapOpenAI(client);
 }
 
-/** The OpenAI GPT-4.1 client (ADR-011) — single provider for all agents + chat. */
-export const openai: OpenAI = withTracing(createOpenAIClient());
+/**
+ * Memoized real client. Built at most once, on the first property access of
+ * the exported `openai` Proxy — never at module load.
+ */
+let resolvedClient: OpenAI | null = null;
+
+function resolveClient(): OpenAI {
+  if (resolvedClient === null) {
+    resolvedClient = withTracing(createOpenAIClient());
+  }
+  return resolvedClient;
+}
+
+/**
+ * The OpenAI GPT-4.1 client (ADR-011) — single provider for all agents + chat.
+ *
+ * A lazy Proxy, not a bare instance: importing this module must never throw on
+ * a missing key (see the header note). Every trap forwards to the real client,
+ * built on demand, so the public shape is unchanged for callers — they keep
+ * doing `openai.chat.completions.create(...)`, passing `openai` as a dependency
+ * (`kimi: openai` in the review-document route) or casting it to a narrower
+ * structural type. Methods are bound to the underlying client so `this` stays
+ * correct once destructured off the proxy.
+ *
+ * During `next build` (NEXT_PHASE === "phase-production-build") the key is not
+ * expected to be present: route static analysis only imports the module, and
+ * that no longer touches any property, so nothing throws.
+ */
+export const openai: OpenAI = new Proxy({} as OpenAI, {
+  get(_target, prop, receiver): unknown {
+    const client = resolveClient();
+    const value = Reflect.get(client as object, prop, receiver);
+    return typeof value === "function" ? value.bind(client) : value;
+  },
+  set(_target, prop, value): boolean {
+    return Reflect.set(resolveClient() as object, prop, value);
+  },
+  has(_target, prop): boolean {
+    return Reflect.has(resolveClient() as object, prop);
+  },
+  getPrototypeOf(): object | null {
+    return Reflect.getPrototypeOf(resolveClient() as object);
+  },
+  ownKeys(): ArrayLike<string | symbol> {
+    return Reflect.ownKeys(resolveClient() as object);
+  },
+  getOwnPropertyDescriptor(_target, prop): PropertyDescriptor | undefined {
+    const descriptor = Reflect.getOwnPropertyDescriptor(
+      resolveClient() as object,
+      prop,
+    );
+    // A proxy may only report an own property as non-configurable if the
+    // target actually has it; the target here is a permanently empty object.
+    return descriptor === undefined
+      ? undefined
+      : { ...descriptor, configurable: true };
+  },
+});
 
 /** Canonical model id — `OPENAI_MODEL` env (default `gpt-4.1`). ADR-011. */
 export const LLM_MODEL: string = env.OPENAI_MODEL;

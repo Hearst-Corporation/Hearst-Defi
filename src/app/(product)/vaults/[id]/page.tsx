@@ -83,7 +83,11 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
   const open = series1IsOpen(vault.status);
   const pockets = series1TargetPockets(vault);
-  const aum = vault.currentAumUsdc > 0 ? vault.currentAumUsdc : null;
+  // `currentAumUsdc` is null when no snapshot attributes an AUM to this vault
+  // (Phase 3 has not landed a per-vault snapshot link). Null and 0 both render
+  // as absent here, but they are different facts and only null is "unknown".
+  const aum =
+    vault.currentAumUsdc !== null && vault.currentAumUsdc > 0 ? vault.currentAumUsdc : null;
   // The stored disclaimer still describes the retired yield product on legacy
   // rows — suppressed unless it is clean (see series1SafeDisclaimer).
   const safeDisclaimer = series1SafeDisclaimer(vault.disclaimers);

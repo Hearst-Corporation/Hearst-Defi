@@ -48,9 +48,9 @@ function usd(n: number): string {
   }).format(n);
 }
 
-function pct(n: number): string {
-  return n.toFixed(2) + "%";
-}
+// `pct()` removed with its last two call sites (Net Return and the "% net"
+// caption on Total Return) — both rendered engine output driven by the
+// never-computed accrual column.
 
 function fmtDate(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -262,7 +262,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontStyle: "italic",
   },
+  /**
+   * Value slot for a metric the platform does not compute. Rendered muted and
+   * at a smaller size than `summaryValue` so it never reads as a headline
+   * number — an investor must not mistake it for a measured $0.00.
+   */
+  summaryValueUnavailable: {
+    fontSize: 11,
+    fontFamily: "Helvetica",
+    color: TEXT_MUTED,
+  },
 });
+
+/** Printed in place of any figure derived from the never-computed accrual column. */
+const NOT_CALCULATED = "Not calculated";
 
 // ---------------------------------------------------------------------------
 // Logo SVG inline (Hearst Connect wordmark as path)
@@ -310,26 +323,36 @@ function LogoSvg() {
  * `Position`, DB `InvestorTransaction`, DB `VaultDeployment`, pure engine
  * `aggregateLpPnl`) so we cannot rely on a single flag.
  *
+ * ACCRUED YIELD IS NOT PRINTED IN THIS STATEMENT.
+ *
+ * The previous mapping described `Position.accruedYieldUsdc` as "refreshed by a
+ * cron from snapshots -> estimated (model output)". That is not true: no business
+ * process ever writes that column. Its only writers are the demo fixtures in
+ * `src/lib/demo/`, so on a production record it holds its Prisma `@default(0)`.
+ * Series 1 is moreover a BTC-ACCUMULATION note that pays no yield — the
+ * `/portfolio/yield` and `/portfolio/distributions` surfaces are retired
+ * redirects. Printing that column in an investor-facing statement published an
+ * uncomputed default as a measured accrual, and contaminated every figure
+ * derived from it (total value, yield YTD, current value, unrealized, total
+ * return, net return). Those figures are now either principal-only or marked as
+ * not calculated. Realized cash from the ledger is unaffected and still printed.
+ *
  * Source mapping rationale:
  *   - Principal           : DB `Position.principalUsdc` set at subscription
  *                           confirmation -> attested (on-chain tx)
- *   - Accrued yield       : DB `Position.accruedYieldUsdc`, refreshed by a
- *                           cron from snapshots -> estimated (model output)
+ *   - Accrued yield       : NOT CALCULATED — column never written (see above)
  *   - Distributed         : DB `Position.distributedUsdc` (cumulative paid)
  *                           -> attested
  *   - APY range           : `VaultDeployment.targetApyLowBps/HighBps`,
  *                           published target -> estimated (forward-looking)
- *   - Total value         : principal (attested) + accrued (estimated)
- *                           -> partial (mixed lineage)
- *   - Yield YTD           : distributions (attested) + accrued (estimated)
- *                           -> partial
- *   - Net return / annual : `aggregateLpPnl` pure-fn over the above
- *                           -> estimated
+ *   - Total value         : sum of principals only -> attested
+ *   - Yield YTD           : YTD ledger distributions only -> attested
+ *   - Net return / annual : NOT CALCULATED — was driven by accrued
  *   - Cost basis          : sum of principals -> attested
- *   - Current value       : principal + accrued -> partial
- *   - Unrealized          : engine, accrued not yet paid -> estimated
+ *   - Current value       : principal (no accrual to add) -> attested
+ *   - Unrealized          : NOT CALCULATED — accrual not computed
  *   - Realized            : sum of distributed -> attested
- *   - Total return        : realized + unrealized -> partial
+ *   - Total return        : realized cash only -> attested
  *   - Distribution rows   : DB ledger -> attested (paid) | estimated (scheduled)
  */
 interface PositionRow {
@@ -338,7 +361,8 @@ interface PositionRow {
   vaultTicker: string;
   status: string;
   principalUsdc: number;
-  accruedYieldUsdc: number;
+  // No `accruedYieldUsdc`: the column is never computed, so it is deliberately
+  // not carried into the statement model at all (see the note above).
   distributedUsdc: number;
   apyLow: number;
   apyHigh: number;
@@ -376,11 +400,16 @@ function StatementDocument({ data }: { data: StatementData }) {
     timeZone: "UTC",
   });
 
+  // `accruedYieldUsdc: 0` is intentional, not an omission. The engine's
+  // "unrealized" leg is exactly the accrual column, which nothing computes; the
+  // statement therefore reports the engine's REALIZED figures (cost basis,
+  // realized cash) and marks the unrealized-derived ones as not calculated,
+  // instead of publishing an uncomputed default as an unrealized gain.
   const aggregatePnl = aggregateLpPnl(
     data.positions.map((p) => ({
       contributedUsdc: p.principalUsdc,
       distributedUsdc: p.distributedUsdc,
-      accruedYieldUsdc: p.accruedYieldUsdc,
+      accruedYieldUsdc: 0,
       daysHeld: p.daysHeld,
     })),
   );
@@ -427,52 +456,56 @@ function StatementDocument({ data }: { data: StatementData }) {
         <View style={styles.summaryGrid}>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>Total Value</Text>
+            {/* Deposited principal only — no accrual is added (see note above). */}
             <Text style={styles.summaryValue}>{usd(data.totalValueUsdc)}</Text>
+            <Text style={styles.summaryUnit}>Deposited principal</Text>
             <View style={styles.provenanceWrap}>
-              {/* principal (attested) + accrued (estimated) = partial */}
-              <PdfProvenance kind="partial" hint="principal + accrued" />
+              <PdfProvenance kind="attested" hint="principal" />
             </View>
           </View>
 
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>Yield YTD</Text>
+            <Text style={styles.summaryLabel}>Distributions YTD</Text>
+            {/* Renamed from "Yield YTD": the figure is now strictly cash recorded
+                in the ledger this year, with no accrual term added. */}
             <Text style={styles.summaryValueAccent}>
               {usd(data.totalYieldYtdUsdc)}
             </Text>
             <Text style={styles.summaryUnit}>
-              As of {data.generatedAt.getUTCFullYear()}
+              Cash recorded · {data.generatedAt.getUTCFullYear()}
             </Text>
             <View style={styles.provenanceWrap}>
-              {/* distributions (attested) + accrued (estimated) = partial */}
-              <PdfProvenance kind="partial" hint="ledger + accrual" />
+              <PdfProvenance kind="attested" hint="ledger" />
             </View>
           </View>
 
           <View style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>Net Return</Text>
-            <Text style={styles.summaryValueAccent}>
-              {pct(aggregatePnl.netReturnPct)}
+            {/* The engine's net return is driven by the unrealized (accrual) leg,
+                which nothing computes. Printing its output would state a measured
+                return. Marked unavailable rather than shown as 0.00%. */}
+            <Text style={styles.summaryValueUnavailable}>{NOT_CALCULATED}</Text>
+            <Text style={styles.summaryUnit}>
+              No valuation source for this note
             </Text>
-            <Text style={styles.summaryUnit}>Total since inception</Text>
             <View style={styles.provenanceWrap}>
-              {/* engine pure-fn output derived from positions */}
-              <PdfProvenance kind="estimated" hint="engine" />
+              <PdfProvenance kind="manual" hint="not computed" />
             </View>
           </View>
 
-          {aggregatePnl.annualizedReturnPct !== null && (
-            <View style={styles.summaryCard}>
-              <Text style={styles.summaryLabel}>Est. Return (Target)</Text>
-              <Text style={styles.summaryValue}>{apyRangeLabel}</Text>
-              <Text style={styles.summaryUnit}>
-                Annualized: {pct(aggregatePnl.annualizedReturnPct)}
-              </Text>
-              <View style={styles.provenanceWrap}>
-                {/* published target range + engine annualisation */}
-                <PdfProvenance kind="estimated" hint="target range" />
-              </View>
+          {/* Target range is a published forward-looking figure, independent of
+              the accrual column, so it is still printed. The annualisation line
+              is dropped: it rescaled the same non-computed net return. */}
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryLabel}>Est. Return (Target)</Text>
+            <Text style={styles.summaryValue}>{apyRangeLabel}</Text>
+            <Text style={styles.summaryUnit}>
+              Published target · not a realized figure
+            </Text>
+            <View style={styles.provenanceWrap}>
+              <PdfProvenance kind="estimated" hint="target range" />
             </View>
-          )}
+          </View>
         </View>
 
         {/* ── Positions ─────────────────────────────────────────────────── */}
@@ -482,7 +515,8 @@ function StatementDocument({ data }: { data: StatementData }) {
             <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Vault</Text>
             <Text style={styles.tableHeaderCell}>Status</Text>
             <Text style={styles.tableHeaderCellRight}>Principal</Text>
-            <Text style={styles.tableHeaderCellRight}>Accrued Yield</Text>
+            {/* "Accrued Yield" column removed — the value it printed came from a
+                column no process computes, and this note accrues no yield. */}
             <Text style={styles.tableHeaderCellRight}>Distributed</Text>
             <Text style={styles.tableHeaderCellRight}>Est. Return</Text>
             <Text style={styles.tableHeaderCellRight}>Since</Text>
@@ -497,18 +531,15 @@ function StatementDocument({ data }: { data: StatementData }) {
               <Text style={styles.cellMuted}>{p.status}</Text>
               {/* principal = attested (on-chain subscription) */}
               <Text style={styles.cellRight}>{usd(p.principalUsdc)}</Text>
-              {/* accrued = estimated (engine projection until paid) */}
-              <Text style={styles.cellAccent}>{usd(p.accruedYieldUsdc)}</Text>
               {/* distributed = attested (cumulative paid in USDC) */}
               <Text style={styles.cellRight}>{usd(p.distributedUsdc)}</Text>
-              {/* Est. return range = estimated (vault target) */}
+              {/* Est. return range = estimated (published vault target) */}
               <Text style={styles.cellAccent}>
                 {p.apyLow}–{p.apyHigh}%
               </Text>
               <Text style={styles.cellMuted}>{fmtDate(p.subscribedAt)}</Text>
-              {/* Composite source badge for the row — partial because the
-                  row mixes attested principal/distributed with estimated
-                  accrued and target return. */}
+              {/* Still `partial`: attested principal/distributed alongside the
+                  forward-looking target return range. */}
               <View style={styles.cellProvenance}>
                 <PdfProvenance kind="partial" />
               </View>
@@ -519,8 +550,9 @@ function StatementDocument({ data }: { data: StatementData }) {
         {/* ── P&L ───────────────────────────────────────────────────────── */}
         <Text style={styles.sectionHeader}>P&L Analysis</Text>
         <Text style={styles.pnlSubtitle}>
-          Cost basis, unrealized and realized gains across all positions.
-          Projections are not a commitment of future returns.
+          Cost basis and realized cash across all positions. Unrealized gain and
+          net return are not calculated: this note accrues no yield and the
+          platform runs no valuation process for it.
         </Text>
         <View style={styles.summaryGrid}>
           <View style={styles.summaryCard}>
@@ -536,24 +568,26 @@ function StatementDocument({ data }: { data: StatementData }) {
           </View>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>Current Value</Text>
+            {/* With no accrual leg this equals the contributed principal, which
+                is attested — no longer a "partial" principal + accrued mix. */}
             <Text style={styles.summaryValue}>
               {usd(aggregatePnl.currentValueUsdc)}
             </Text>
-            <Text style={styles.summaryUnit}>Principal + unrealized</Text>
-            {/* attested principal + estimated accrued */}
+            <Text style={styles.summaryUnit}>Principal deployed</Text>
             <View style={styles.provenanceWrap}>
-              <PdfProvenance kind="partial" />
+              <PdfProvenance kind="attested" />
             </View>
           </View>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>Unrealized</Text>
-            <Text style={styles.summaryValueAccent}>
-              {usd(aggregatePnl.unrealizedUsdc)}
-            </Text>
-            <Text style={styles.summaryUnit}>Accrued, not yet paid</Text>
-            {/* engine projection until paid */}
+            {/* This card printed `Position.accruedYieldUsdc` verbatim — the
+                never-computed column — labelled "Accrued, not yet paid". That is
+                the single most misleading line of the statement, so it now states
+                that no such figure is produced. */}
+            <Text style={styles.summaryValueUnavailable}>{NOT_CALCULATED}</Text>
+            <Text style={styles.summaryUnit}>No accrual is computed</Text>
             <View style={styles.provenanceWrap}>
-              <PdfProvenance kind="estimated" />
+              <PdfProvenance kind="manual" hint="not computed" />
             </View>
           </View>
           <View style={styles.summaryCard}>
@@ -569,15 +603,15 @@ function StatementDocument({ data }: { data: StatementData }) {
           </View>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>Total Return</Text>
+            {/* Realized cash only (the unrealized leg is 0 by the decision above),
+                so this is attested. The "% net" caption is dropped — it was the
+                engine's net return, driven by the non-computed accrual. */}
             <Text style={styles.summaryValueAccent}>
               {usd(aggregatePnl.totalReturnUsdc)}
             </Text>
-            <Text style={styles.summaryUnit}>
-              {pct(aggregatePnl.netReturnPct)} net
-            </Text>
-            {/* realized (attested) + unrealized (estimated) */}
+            <Text style={styles.summaryUnit}>Realized cash only</Text>
             <View style={styles.provenanceWrap}>
-              <PdfProvenance kind="partial" />
+              <PdfProvenance kind="attested" />
             </View>
           </View>
         </View>
@@ -621,8 +655,10 @@ function StatementDocument({ data }: { data: StatementData }) {
           Projections — not guaranteed. The estimated target return range
           ({apyRangeLabel}) is expressed in accumulated BTC over the term, based
           on stated assumptions and Methodology v3.0; it is not a distributed
-          cash yield and is not a commitment of future returns. Accrued figures
-          are indicative and subject to change based on vault conditions. Past
+          cash yield and is not a commitment of future returns. Lines marked
+          &quot;Not calculated&quot; are figures this platform does not produce for
+          this note — no accrued-yield or valuation process runs against it — and
+          must not be read as a nil result. Past
           performance does not predict future results. Hearst Connect is a
           Cayman SPV mining-backed note that accumulates BTC over a 24-month
           term with rule-based take-profit; there is no periodic cash
@@ -733,7 +769,6 @@ export async function GET(
 
   const positions = rawPositions.map((p) => {
     const principal = toNumber(p.principalUsdc);
-    const accrued = toNumber(p.accruedYieldUsdc);
     const distributed = toNumber(p.distributedUsdc);
     const apyLowBps = p.vaultDeployment?.targetApyLowBps ?? 940;
     const apyHighBps = p.vaultDeployment?.targetApyHighBps ?? 1280;
@@ -744,7 +779,6 @@ export async function GET(
       vaultTicker: p.vaultDeployment?.ticker ?? "HYV-A",
       status: p.status,
       principalUsdc: principal,
-      accruedYieldUsdc: accrued,
       distributedUsdc: distributed,
       apyLow: Math.round((apyLowBps / 100) * 10) / 10,
       apyHigh: Math.round((apyHighBps / 100) * 10) / 10,
@@ -753,15 +787,18 @@ export async function GET(
     };
   });
 
-  const totalValueUsdc = positions.reduce(
-    (sum, p) => sum + p.principalUsdc + p.accruedYieldUsdc,
+  // Total value = deposited principal only. Adding `accruedYieldUsdc` (never
+  // computed — see the provenance note above) inflated the headline with an
+  // uncomputed default presented as portfolio value.
+  const totalValueUsdc = positions.reduce((sum, p) => sum + p.principalUsdc, 0);
+
+  // YTD yield = cash actually recorded in the ledger this year. The former
+  // "+ accrued across all positions" term added a non-computed column to a
+  // figure the investor reads as income received.
+  const totalYieldYtdUsdc = ytdTxs.reduce(
+    (sum, t) => sum + toNumber(t.amountUsdc),
     0,
   );
-
-  // YTD yield: accrued across all positions + YTD cash distributions.
-  const totalYieldYtdUsdc =
-    ytdTxs.reduce((sum, t) => sum + toNumber(t.amountUsdc), 0) +
-    positions.reduce((sum, p) => sum + p.accruedYieldUsdc, 0);
 
   const ytdDistributions: DistributionRow[] = ytdTxs.map((t) => ({
     id: t.id,

@@ -29,8 +29,10 @@ import { abbreviateAddress } from "@/lib/onchain";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 interface VaultChainReadoutProps {
-  /** The snapshot aggregate the rest of the page shows — for side-by-side compare. */
-  dbAumUsdc: number;
+  /** The snapshot aggregate the rest of the page shows — for side-by-side
+   *  compare. `null` = no snapshot attributes an AUM to this vault, which is
+   *  not the same as a measured zero. */
+  dbAumUsdc: number | null;
 }
 
 const ROW =
@@ -129,7 +131,9 @@ export async function VaultChainReadout({ dbAumUsdc }: VaultChainReadoutProps) {
           </dt>
           <dd className={DD}>
             <span className={`${VALUE} text-[var(--ct-text-strong)]`}>
-              {dbAumUsdc > 0 ? formatUsdCompact(dbAumUsdc) : AUM_PENDING_LABEL}
+              {dbAumUsdc !== null && dbAumUsdc > 0
+                ? formatUsdCompact(dbAumUsdc)
+                : AUM_PENDING_LABEL}
             </span>
             <ProvenanceBadge kind="estimated" variant="compact" />
           </dd>

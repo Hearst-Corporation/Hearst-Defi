@@ -32,11 +32,17 @@ export const ARCHITECTURE_DATA: ArchZone[] = [
     name: "Product Modules — Next.js UI",
     nodes: [
       { id: "overview", name: "Overview", description: "/admin", status: "Live" },
-      { id: "vault-cockpit", name: "Vault Cockpit", description: "/admin/cockpit — realtime in-process engine", status: "Live" },
-      { id: "strategy-vision", name: "Strategy Vision", description: "/admin/strategy-vision — spec + DB editor", status: "Partial" },
-      { id: "market", name: "Market", description: "/admin/market", status: "Live" },
-      { id: "yields", name: "Yields", description: "/admin/yields", status: "Live" },
-      { id: "vault-lab", name: "Vault Lab", description: "/admin/vault-lab — mock-first sandbox, off-nav", status: "Partial" },
+      // The five nodes below were declared Live/Partial for routes that do not
+      // exist on disk (verified 2026-07-22: no src/app/admin/{cockpit,market,
+      // yields,strategy-vision,vault-lab}). A system-status map that reports
+      // "Live" for a route returning 404 is worse than no map — an operator
+      // reads it to decide whether something is up. They are now "Planned",
+      // which is what a route with no code is.
+      { id: "vault-cockpit", name: "Vault Cockpit", description: "/admin/cockpit — no route on disk", status: "Planned" },
+      { id: "strategy-vision", name: "Strategy Vision", description: "/admin/strategy-vision — no route on disk", status: "Planned" },
+      { id: "market", name: "Market", description: "/admin/market — no route on disk", status: "Planned" },
+      { id: "yields", name: "Yields", description: "/admin/yields — no route on disk", status: "Planned" },
+      { id: "vault-lab", name: "Vault Lab", description: "/admin/vault-lab — no route on disk", status: "Planned" },
       { id: "system", name: "System", description: "/admin/system", status: "Live" },
       { id: "architecture-map", name: "Architecture map", description: "/admin/system/architecture — this page", status: "Live" },
       { id: "strategy-builder", name: "Strategy Builder", description: "no UI exists — DB schema only", status: "Planned" },
@@ -47,9 +53,14 @@ export const ARCHITECTURE_DATA: ArchZone[] = [
     letter: "C",
     name: "API Layer — Next.js routes",
     nodes: [
-      { id: "vault-api", name: "Vault API", description: "/api/vault/backtest · /api/vault/runs/[id]", status: "Live" },
-      { id: "data-apis", name: "Data APIs", description: "/api/market/* · /api/protocol-rates/* · /api/rates/* · /api/machines/*", status: "Live" },
-      { id: "status-apis", name: "Status APIs", description: "/api/health · /api/db/health · /api/workers/status · architecture-summary", status: "Live" },
+      // Same verification as zone B: of the eight API paths these three nodes
+      // named, only /api/health exists. /api/vault/* was deleted with the
+      // frontend's duplicate read path; /api/market, /api/protocol-rates,
+      // /api/rates, /api/machines, /api/db/health and /api/workers/status have
+      // never existed in this repo. Statuses now match the filesystem.
+      { id: "vault-api", name: "Vault API", description: "/api/vault/* — removed (backend serves these)", status: "Planned" },
+      { id: "data-apis", name: "Data APIs", description: "/api/market · /api/protocol-rates · /api/rates · /api/machines — none on disk", status: "Planned" },
+      { id: "status-apis", name: "Status APIs", description: "/api/health only — /api/db/health and /api/workers/status do not exist", status: "Partial" },
     ],
   },
   {

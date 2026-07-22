@@ -94,12 +94,17 @@ describe("getVault — AUM is not leaked to non-Yield vaults (A1)", () => {
     expect(vault?.currentAumUsdc).toBe(25_000_000);
   });
 
+  // The invariant is unchanged — the Yield vault's AUM must not leak onto
+  // another vault. What changed is how the absence is expressed: `null`
+  // ("no snapshot attributes an AUM to this vault") instead of `0`, which
+  // asserted a measured empty vault. `VaultSnapshot` has no
+  // `vaultDeploymentId` yet, so no non-Yield vault can have a real figure.
   it("does NOT apply the Yield AUM to the Defensive vault", async () => {
     findFirstDeployment.mockResolvedValueOnce(
       makeRow({ id: "hearst-defensive-vault", ticker: "HDV-A" }),
     );
     const vault = await getVault("hearst-defensive-vault");
-    expect(vault?.currentAumUsdc).toBe(0);
+    expect(vault?.currentAumUsdc).toBeNull();
   });
 
   it("does NOT apply the Yield AUM to the BTC Plus vault", async () => {
@@ -107,6 +112,6 @@ describe("getVault — AUM is not leaked to non-Yield vaults (A1)", () => {
       makeRow({ id: "hearst-btc-plus-vault", ticker: "HBP-A" }),
     );
     const vault = await getVault("hearst-btc-plus-vault");
-    expect(vault?.currentAumUsdc).toBe(0);
+    expect(vault?.currentAumUsdc).toBeNull();
   });
 });

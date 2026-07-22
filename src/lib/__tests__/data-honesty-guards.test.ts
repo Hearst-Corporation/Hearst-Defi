@@ -330,19 +330,33 @@ describe("POINT 5 — portfolio real-data (canary; full contract elsewhere)", ()
 //
 // `getTaxPreview` (src/lib/portfolio/tax.ts) falls back to a deterministic
 // userId-seeded placeholder ($12,000 + seed*100 etc.) whenever a real ledger
-// override is missing, and flags that in the `dataSource` field ("live" vs
-// "stub"). The LP-facing tax page must always supply all three real-ledger
-// overrides so it can never surface the placeholder — this is a static-source
-// regression guard, not a runtime check, matching the rest of this file.
+// override is MISSING, and flags that in `dataSource` ("live" vs "stub"). The
+// LP-facing tax page must always supply all three overrides so the placeholder
+// can never surface — a static-source regression guard, like the rest of this
+// file.
+//
+// The page used to forward `totalYieldYtdUsdc` / `accruedYieldUsdc` from
+// `loadPortfolio()`. Both derive from `Position.accruedYieldUsdc`, a column no
+// process ever computes (it holds its `@default(0)` in production), so the tax
+// surface was declaring interest income that does not exist for a product that
+// pays none. They are now passed as explicit `0` — still overrides, so the
+// stub stays unreachable and `dataSource` stays "live", while the rendered
+// lines state "not calculated" instead of a fabricated figure. `principal` is
+// real and still forwarded.
 describe("POINT 6 — tax preview page always sources real ledger overrides", () => {
-  it("the tax page passes actualInterestIncomeUsd/actualPrincipalUsd/actualAccruedYieldUsd from loadPortfolio()", () => {
+  it("the tax page supplies all three overrides so the seeded stub can never surface", () => {
     const page = stripComments(
       read("src/app/(product)/portfolio/tax/page.tsx"),
     );
     expect(page).toMatch(/loadPortfolio\(\)/);
-    expect(page).toMatch(/actualInterestIncomeUsd:\s*totalYieldYtdUsdc/);
+    // Principal is a real ledger figure and must stay wired to it.
     expect(page).toMatch(/actualPrincipalUsd:\s*deployedUsdc/);
-    expect(page).toMatch(/actualAccruedYieldUsd:\s*accruedYieldUsdc/);
+    // The two yield overrides must be PRESENT (absence would trigger the stub)
+    // and must NOT be wired to the uncomputed accrued column.
+    expect(page).toMatch(/actualInterestIncomeUsd:/);
+    expect(page).toMatch(/actualAccruedYieldUsd:/);
+    expect(page).not.toMatch(/actualInterestIncomeUsd:\s*totalYieldYtdUsdc/);
+    expect(page).not.toMatch(/actualAccruedYieldUsd:\s*accruedYieldUsdc/);
   });
 
   it("loadTaxPreview() (the Prisma-backed loader) also sources all three from real queries", () => {

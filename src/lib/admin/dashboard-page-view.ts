@@ -105,7 +105,11 @@ export function resolveDashboardPageInputs(
   );
 
   const { custodyConfigured, custodyReservesUsdc } = overview.proof;
-  const useCustody = !preview && custodyConfigured && custodyReservesUsdc > 0;
+  // `custodyReservesUsdc === null` = nothing was read. It must not drive the
+  // capital figure: an outage would otherwise fall through to the fallback and
+  // present it as the custody-backed number.
+  const useCustody =
+    !preview && custodyConfigured && custodyReservesUsdc !== null && custodyReservesUsdc > 0;
   const capitalUsdc = preview
     ? 0
     : useCustody

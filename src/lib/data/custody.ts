@@ -33,31 +33,85 @@ function resolveFireblocksSecretKey(): string | null {
   return null;
 }
 
+/**
+ * Provenance of a custody snapshot.
+ *
+ * Widens `CustodyProvenance` ("live" | "manual") with a third, non-value-bearing
+ * state. The aggregate module's vocabulary describes how a MEASURED balance was
+ * obtained; "unavailable" describes the case where nothing was measured at all,
+ * so it belongs here at the I/O boundary rather than in the pure math module.
+ */
+export type CustodySnapshotProvenance = CustodyProvenance | "unavailable";
+
 export interface CustodySnapshot {
-  provenance: CustodyProvenance;
+  provenance: CustodySnapshotProvenance;
   /** True when FIREBLOCKS_VAULT_ACCOUNT_IDS pins the reserve scope. */
   configured: boolean;
-  asOf: string;
-  accountsCount: number;
-  totalUsdcReserves: number;
+  /**
+   * When the reserves were actually observed. `null` when nothing was observed
+   * — never a timestamp minted at the moment of failure, which would date a
+   * reading that never happened.
+   */
+  asOf: string | null;
+  accountsCount: number | null;
+  /**
+   * Measured USDC reserves, or `null` when unmeasured. `0` is a REAL reading
+   * ("the vault is empty"); the absence of a reading must not borrow it.
+   */
+  totalUsdcReserves: number | null;
   accounts: CustodyAccountBalance[];
 }
 
-function manualFallback(): CustodySnapshot {
+/**
+ * Fireblocks is not wired up (no API key / secret / base path).
+ *
+ * A legitimate, honest absence: there is nothing to read because nothing was
+ * ever connected. Distinct from `custodyUnavailable()` below — an operator
+ * seeing this needs to provision credentials, not investigate an incident.
+ */
+function custodyNotConfigured(): CustodySnapshot {
   return {
     provenance: "manual",
     configured: false,
-    asOf: new Date().toISOString(),
-    accountsCount: 0,
-    totalUsdcReserves: 0,
+    asOf: null,
+    accountsCount: null,
+    totalUsdcReserves: null,
+    accounts: [],
+  };
+}
+
+/**
+ * The Fireblocks read was ATTEMPTED and failed (timeout, 5xx, SDK import
+ * error, bad credentials…).
+ *
+ * The trap this avoids: the previous fallback returned `totalUsdcReserves: 0`
+ * stamped `asOf: new Date()`, which turned "we could not reach the custodian"
+ * into the far stronger — and false — claim "the vault holds 0 USDC, verified
+ * just now". A Proof-of-Reserves surface asserting zero reserves it never
+ * measured is the exact failure mode this data layer exists to prevent, so an
+ * outage carries no figures and no timestamp at all.
+ */
+function custodyUnavailable(): CustodySnapshot {
+  return {
+    provenance: "unavailable",
+    configured: false,
+    asOf: null,
+    accountsCount: null,
+    totalUsdcReserves: null,
     accounts: [],
   };
 }
 
 /**
  * Live Proof-of-Reserves from Fireblocks via a read-only Viewer key. Never
- * throws — missing config or any upstream failure degrades to a `manual`
- * snapshot so the Proof Center keeps rendering.
+ * throws, so the Proof Center keeps rendering — but the two ways of having no
+ * figures stay DISTINCT in the returned snapshot:
+ *
+ *   • not configured → `provenance: "manual"`, all figures `null`
+ *   • upstream failure → `provenance: "unavailable"`, all figures `null`
+ *
+ * Callers must branch on `totalUsdcReserves == null` before treating reserves
+ * as a number: a null is "we have no reading", never "the vault is empty".
  *
  * The reserve scope is pinned by `FIREBLOCKS_VAULT_ACCOUNT_IDS` (comma-separated
  * vault account ids). When unset, every account is returned with
@@ -68,7 +122,7 @@ export async function loadCustody(): Promise<CustodySnapshot> {
   const apiKey = env.FIREBLOCKS_API_KEY;
   const basePath = env.FIREBLOCKS_BASE_URL;
   const secretKey = resolveFireblocksSecretKey();
-  if (!apiKey || !secretKey || !basePath) return manualFallback();
+  if (!apiKey || !secretKey || !basePath) return custodyNotConfigured();
 
   try {
     // Dynamic import: @fireblocks/ts-sdk@19 has a static `require('uuid')`
@@ -115,6 +169,9 @@ export async function loadCustody(): Promise<CustodySnapshot> {
       accounts,
     };
   } catch {
-    return manualFallback();
+    // The call was made and did not come back. Report the outage as such —
+    // degrading to a zeroed, freshly-timestamped snapshot here would publish a
+    // reserve figure nobody ever read.
+    return custodyUnavailable();
   }
 }

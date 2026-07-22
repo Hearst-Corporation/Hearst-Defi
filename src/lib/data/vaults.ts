@@ -35,7 +35,13 @@ export interface VaultProduct {
   minTicketUsdc: number;
   softLockupDays: number;
   capacityUsdc: number;
-  currentAumUsdc: number; // from VaultSnapshot OR 0
+  /**
+   * AUM from the latest VaultSnapshot, or `null` when none applies to this
+   * vault. Nullable rather than 0 because "no snapshot exists for this vault
+   * yet" and "this vault holds nothing" are different statements, and only the
+   * second is a figure we are entitled to display.
+   */
+  currentAumUsdc: number | null;
   fees: { mgmtBps: number; perfBps: number; hurdleBps: number };
   riskLevel: "low" | "low-moderate" | "moderate" | "high";
   spvJurisdiction: string;
@@ -94,7 +100,7 @@ function riskLevelFromBps(
   return "low";
 }
 
-function toVaultProduct(row: VaultDeployment, aumUsdc: number): VaultProduct {
+function toVaultProduct(row: VaultDeployment, aumUsdc: number | null): VaultProduct {
   const miningBps = row.targetMiningBps;
   return {
     id: row.id,
@@ -137,8 +143,9 @@ function toVaultProduct(row: VaultDeployment, aumUsdc: number): VaultProduct {
 // Yield Vault recognition — ADR-006 #9: the current `VaultSnapshot` schema is
 // not yet keyed per vault, so the only snapshot we hold is the Hearst Yield
 // Vault timeline. Any other row in `VaultDeployment` MUST keep `currentAumUsdc
-// = 0` until Phase 3 adds `VaultSnapshot.vaultDeploymentId`; otherwise the
-// Yield AUM would silently appear under every vault's card.
+// = null` until Phase 3 adds `VaultSnapshot.vaultDeploymentId`; otherwise the
+// Yield AUM would silently appear under every vault's card. Null, not 0: we do
+// not know these vaults' AUM, and 0 would assert that we do.
 function isYieldVaultRow(row: VaultDeployment): boolean {
   return (
     row.ticker === "HYV-A" ||
@@ -166,64 +173,80 @@ function isPlaceholderVault(row: VaultDeployment): boolean {
   return /^0{39}[0-9a-f]$/.test(hex);
 }
 
+/**
+ * The catalogue of real vaults.
+ *
+ * THROWS when the database cannot be read. The previous `catch { return [] }`
+ * collapsed an outage into the empty catalogue, which the UI renders as the
+ * honest, reassuring statement "there are no vaults on offer" — a claim we
+ * cannot make when we do not know. Letting the rejection propagate hands the
+ * decision to the caller's error boundary, where it renders as a failure
+ * instead of as an answer.
+ *
+ * An empty array retains its single meaning: the DB answered, and holds no
+ * non-placeholder vault.
+ */
 export async function listVaults(): Promise<VaultProduct[]> {
-  try {
-    const rows = await prisma.vaultDeployment.findMany({
-      orderBy: { createdAt: "asc" },
-      take: 100,
-    });
+  const rows = await prisma.vaultDeployment.findMany({
+    orderBy: { createdAt: "asc" },
+    take: 100,
+  });
 
-    // Drop placeholder rows — we never advertise vaults that don't have a
-    // real on-chain contract behind them (see isPlaceholderVault).
-    const realRows = rows.filter((row) => !isPlaceholderVault(row));
-    if (realRows.length === 0) return [];
+  // Drop placeholder rows — we never advertise vaults that don't have a
+  // real on-chain contract behind them (see isPlaceholderVault).
+  const realRows = rows.filter((row) => !isPlaceholderVault(row));
+  if (realRows.length === 0) return [];
 
-    // Fetch the latest AUM snapshot — only applied to the Yield Vault row.
-    // Non-Yield vaults stay at 0 until per-vault snapshots land (Phase 3).
-    const latestSnapshots = await prisma.vaultSnapshot.findMany({
-      orderBy: { takenAt: "desc" },
-      take: 1,
-    });
-    const latestAum = latestSnapshots[0]?.aumUsdc?.toNumber() ?? 0;
+  // Fetch the latest AUM snapshot — only applied to the Yield Vault row.
+  // Non-Yield vaults keep a null AUM until per-vault snapshots land (Phase 3).
+  const latestSnapshots = await prisma.vaultSnapshot.findMany({
+    orderBy: { takenAt: "desc" },
+    take: 1,
+  });
+  const latestAum = latestSnapshots[0]?.aumUsdc?.toNumber() ?? null;
 
-    return realRows.map((row) =>
-      toVaultProduct(row, isYieldVaultRow(row) ? latestAum : 0),
-    );
-  } catch {
-    // DB unavailable — never invent vault data; surface an empty state instead.
-    return [];
-  }
+  return realRows.map((row) =>
+    toVaultProduct(row, isYieldVaultRow(row) ? latestAum : null),
+  );
 }
 
+/**
+ * One vault by id or ticker.
+ *
+ * `null` means exactly one thing: the DB was read and holds no such (non-
+ * placeholder) vault. THROWS when the DB cannot be read — the removed
+ * `catch { return null }` overloaded `null` with a second, contradictory
+ * meaning, so a transient outage made `/vaults/[id]` answer "this vault does
+ * not exist" about a vault that does, and made subscribe() reject a valid
+ * order as "Vault not found." A rejected promise cannot be mistaken for a
+ * verdict on the vault's existence.
+ */
 export async function getVault(
   idOrTicker: string,
 ): Promise<VaultProduct | null> {
-  try {
-    const upper = idOrTicker.toUpperCase();
-    const [row, snapshot] = await Promise.all([
-      prisma.vaultDeployment.findFirst({
-        where: {
-          OR: [{ id: idOrTicker }, { ticker: upper }],
-        },
-      }),
-      prisma.vaultSnapshot.findFirst({
-        orderBy: { takenAt: "desc" },
-      }),
-    ]);
-    if (!row) return null;
-    // Treat placeholders as non-existent for the consumer surface — the row
-    // stays in the DB for schema continuity, but `/vaults/[id]` 404s on it.
-    if (isPlaceholderVault(row)) return null;
+  const upper = idOrTicker.toUpperCase();
+  const [row, snapshot] = await Promise.all([
+    prisma.vaultDeployment.findFirst({
+      where: {
+        OR: [{ id: idOrTicker }, { ticker: upper }],
+      },
+    }),
+    prisma.vaultSnapshot.findFirst({
+      orderBy: { takenAt: "desc" },
+    }),
+  ]);
+  if (!row) return null;
+  // Treat placeholders as non-existent for the consumer surface — the row
+  // stays in the DB for schema continuity, but `/vaults/[id]` 404s on it.
+  if (isPlaceholderVault(row)) return null;
 
-    // Same honesty rule as listVaults(): the single VaultSnapshot timeline is
-    // the Yield Vault's. Non-Yield vaults must NOT inherit the Yield AUM — keep
-    // them at 0 until per-vault snapshots land (Phase 3, ADR-006 #9).
-    const aumUsdc = isYieldVaultRow(row)
-      ? (snapshot?.aumUsdc?.toNumber() ?? 0)
-      : 0;
+  // Same honesty rule as listVaults(): the single VaultSnapshot timeline is
+  // the Yield Vault's. Non-Yield vaults must NOT inherit the Yield AUM — they
+  // carry an unknown (null) AUM until per-vault snapshots land (Phase 3,
+  // ADR-006 #9).
+  const aumUsdc = isYieldVaultRow(row)
+    ? (snapshot?.aumUsdc?.toNumber() ?? null)
+    : null;
 
-    return toVaultProduct(row, aumUsdc);
-  } catch {
-    return null;
-  }
+  return toVaultProduct(row, aumUsdc);
 }

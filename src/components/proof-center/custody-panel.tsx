@@ -7,18 +7,36 @@ import { formatNestedTimestamp, formatUsdCompact, isOlderThan24h } from "./forma
 
 function custodyProvenance(snapshot: CustodySnapshot): "attested" | "stale" {
   const live = snapshot.provenance === "live" && snapshot.configured;
-  const fresh = !isOlderThan24h(new Date(snapshot.asOf));
+  // `asOf` is null when no reading happened at all (not configured, or the
+  // provider could not be reached). No timestamp means nothing to age, so it
+  // can never be "fresh" — and must never be stamped with `new Date()`.
+  const fresh = snapshot.asOf !== null && !isOlderThan24h(new Date(snapshot.asOf));
   return live && fresh ? "attested" : "stale";
 }
 
 function isCustodyDisplayable(custody: CustodySnapshot): boolean {
-  return custody.totalUsdcReserves > 0 && custodyProvenance(custody) === "attested";
+  return (
+    custody.totalUsdcReserves !== null &&
+    custody.totalUsdcReserves > 0 &&
+    custodyProvenance(custody) === "attested"
+  );
 }
 
+/** Nothing has been posted yet — an honest product state. */
 const CUSTODY_EMPTY = {
   message: "Custody reserves will appear after the first verified Fireblocks snapshot.",
   detail:
     "Fireblocks reserve scope must be pinned and a fresh snapshot posted before USDC reserves are shown here.",
+} as const;
+
+/** We could not reach Fireblocks. Deliberately different wording from
+ *  CUSTODY_EMPTY: "there is nothing yet" and "we couldn't check" are different
+ *  facts, and showing the first during an outage would state that the vault
+ *  holds no reserves. */
+const CUSTODY_UNAVAILABLE = {
+  message: "We couldn’t reach the custody provider.",
+  detail:
+    "No reserve figure is shown because none was read — this is a connectivity problem on our side, not a statement about the reserves.",
 } as const;
 
 /** Bento KPI tile — label + value, matching the Portfolio / vaults flow. */
@@ -59,24 +77,32 @@ function CustodyStaleNote({ custody }: { custody: CustodySnapshot }) {
   );
 }
 
+/** Em dash, not "0" and not "—" via a formatter: an unread value has no
+ *  figure, and `formatUsdCompact(0)` would print "$0" — a measured claim. */
+const NO_READING = "—";
+
 function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
-  const snapshotTs = formatNestedTimestamp(new Date(custody.asOf));
+  const snapshotTs = custody.asOf === null ? null : formatNestedTimestamp(new Date(custody.asOf));
   return (
     <div className="flex flex-col gap-5">
       {/* ct-nested-kpi-grid marker retained for proof-center contract tests */}
       <div className="ct-nested-kpi-grid grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
         <BentoKpi
           label="USDC reserves"
-          value={formatUsdCompact(custody.totalUsdcReserves)}
+          value={
+            custody.totalUsdcReserves === null
+              ? NO_READING
+              : formatUsdCompact(custody.totalUsdcReserves)
+          }
         />
         <BentoKpi
           label="Vault accounts"
-          value={custody.accountsCount.toString()}
+          value={custody.accountsCount === null ? NO_READING : custody.accountsCount.toString()}
         />
         <BentoKpi
           label="Snapshot at"
-          value={snapshotTs.value}
-          sublabel={snapshotTs.sublabel}
+          value={snapshotTs?.value ?? NO_READING}
+          sublabel={snapshotTs?.sublabel}
         />
       </div>
       <CustodyStaleNote custody={custody} />

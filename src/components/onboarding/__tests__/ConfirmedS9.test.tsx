@@ -35,6 +35,11 @@ vi.mock("@/lib/auth/session", () => ({
 // fabricated 0% — the progress bar only renders when an OWNED position
 // resolves) and to display the DB principal as the amount (the `amount` query
 // param is untrusted). Fresh confirmation: subscribedAt = now → "Day 0 of 60".
+// `vaultDeployment`/`vaultSnapshot` are mocked because `getVault()` no longer
+// swallows a DB failure into `null`: an outage used to be indistinguishable
+// from "no such vault", so the page 404'd during an incident. Now the error
+// propagates, which means an unmocked Prisma client fails this test loudly
+// instead of silently exercising the not-found path.
 vi.mock("@/lib/db", () => ({
   prisma: {
     position: {
@@ -42,6 +47,14 @@ vi.mock("@/lib/db", () => ({
         subscribedAt: new Date(),
         principalUsdc: 500_000,
       }),
+    },
+    vaultDeployment: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      findMany: vi.fn().mockResolvedValue([]),
+    },
+    vaultSnapshot: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      findMany: vi.fn().mockResolvedValue([]),
     },
   },
 }));

@@ -7,7 +7,7 @@ import {
   coerceCachedDate,
 } from "@/lib/data/admin-dashboard-cache";
 import { prisma } from "@/lib/db";
-import { loadCustody } from "@/lib/data/custody";
+import { loadCustody, type CustodySnapshotProvenance } from "@/lib/data/custody";
 import { evaluateFreshness, type FreshnessKind } from "@/lib/data/freshness";
 // ---------------------------------------------------------------------------
 // Admin dashboard proof + custody overlay.
@@ -36,10 +36,13 @@ export interface AdminProofStatus {
   proofsTotal: number;
   /** Custody PoR scope is pinned AND funded. */
   custodyConfigured: boolean;
-  /** Custody provenance from the live Fireblocks read ("live" | "manual"). */
-  custodyProvenance: "live" | "manual";
-  /** Total USDC reserves under custody (0 when not configured / empty). */
-  custodyReservesUsdc: number;
+  /** "unavailable" = the custody provider could not be reached. Distinct from
+   *  "manual" (no credentials configured — an honest absence): an outage must
+   *  not read as "operations key this in by hand". */
+  custodyProvenance: CustodySnapshotProvenance;
+  /** Total USDC reserves under custody. `null` = nothing was read (outage or
+   *  not configured); a real `0` is a measured empty vault. Never conflate. */
+  custodyReservesUsdc: number | null;
 }
 
 export interface AdminOverview {

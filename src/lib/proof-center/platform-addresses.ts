@@ -21,8 +21,11 @@ export function buildPlatformAddresses(
   const vaultAddr = target.address ?? vaultFromRegistry;
   const manager = getHearstPublisherAddress();
 
+  // `accountsCount === null` means no reading happened (outage or unconfigured)
+  // — not "zero accounts". Both yield no scope line, but only a real count is
+  // ever printed.
   const custodyScope =
-    custody && custody.configured && custody.accountsCount > 0
+    custody && custody.configured && custody.accountsCount !== null && custody.accountsCount > 0
       ? `${custody.accountsCount} Fireblocks vault account${custody.accountsCount === 1 ? "" : "s"}`
       : null;
 
