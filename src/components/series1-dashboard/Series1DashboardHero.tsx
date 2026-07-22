@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import {
+  surfaceClassName,
+  surfaceHeroAccentLine,
+} from "@/lib/ui/surface-classes";
 
 export interface Series1HeroContext {
   label: string;
@@ -33,8 +37,8 @@ export function Series1DashboardHero({
   trailing?: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_60%,var(--ct-surface-page))] shadow-(--ct-shadow-elevated) ring-1 ring-(--ct-border)">
-      <div className="h-px bg-(--ct-border-accent)" />
+    <section className={surfaceClassName("hero")}>
+      <div className={surfaceHeroAccentLine} />
       <div className="px-(--ct-space-6) pb-(--ct-space-4) pt-(--ct-space-5)">
         <p
           className="m-0 font-semibold uppercase tracking-[0.12em] text-(--ct-accent-strong)"

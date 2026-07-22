@@ -87,8 +87,8 @@ export function HcCompositionRing({
   return (
     <div
       className={cn(
-        "flex items-center gap-6 max-sm:flex-col max-sm:items-start",
-        bars && showLegend ? "w-full" : "",
+        "flex w-full min-w-0 items-center gap-4 max-sm:flex-col max-sm:items-stretch",
+        bars && showLegend ? "" : "",
         !showLegend ? "justify-center" : "",
       )}
     >
@@ -98,7 +98,7 @@ export function HcCompositionRing({
         width={size}
         height={size}
         viewBox={`0 0 ${size} ${size}`}
-        className="shrink-0"
+        className="mx-auto shrink-0 max-w-full"
       >
         <circle
           cx={cx}
@@ -161,18 +161,19 @@ export function HcCompositionRing({
       </svg>
 
       {showLegend ? (
-      <ul className={`flex flex-col gap-2${bars ? " min-w-0 flex-1 max-sm:w-full" : ""}`}>
+      <ul className={cn("m-0 flex min-w-0 list-none flex-col gap-2 p-0", bars ? "w-full flex-1" : "")}>
         {segments.map((s, i) => {
           const pct = total > 0 ? (Math.max(0, s.value) / total) * 100 : 0;
           const color = RAMP[i % RAMP.length];
           return (
             <li
               key={s.label}
-              className="flex items-center gap-2"
+              className="flex min-w-0 items-center gap-2"
               style={{ fontSize: "var(--ct-text-2xs)", color: "var(--ct-text-body)" }}
             >
               <span
                 aria-hidden="true"
+                className="shrink-0"
                 style={{
                   width: 8,
                   height: 8,
@@ -180,20 +181,14 @@ export function HcCompositionRing({
                   background: color,
                 }}
               />
-              <span
-                className="truncate"
-                style={bars ? { flex: "0 1 116px", minWidth: 0 } : { minWidth: 0 }}
-              >
+              <span className="min-w-0 flex-1 truncate">
                 {s.label}
               </span>
               {bars && (
-                // Identical-size gauge on every row: same start X (after the
-                // fixed-width label) and same end X (before the fixed % column).
-                // The track spans the full remaining width; only the fill varies.
                 <span
                   aria-hidden="true"
+                  className="min-w-0 flex-[2] basis-0"
                   style={{
-                    flex: "1 1 0%",
                     height: 4,
                     borderRadius: "var(--ct-radius-full)",
                     background: "var(--ct-surface-inset)",
@@ -212,10 +207,9 @@ export function HcCompositionRing({
                 </span>
               )}
               <span
+                className={cn("shrink-0 tabular-nums", !bars && "ml-auto")}
                 style={{
-                  marginLeft: bars ? undefined : "auto",
                   minWidth: bars ? 36 : undefined,
-                  flexShrink: 0,
                   textAlign: "right",
                   fontVariantNumeric: "tabular-nums",
                   color: "var(--ct-text-primary)",

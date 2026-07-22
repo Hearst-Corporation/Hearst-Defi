@@ -1,10 +1,19 @@
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import {
+  surfaceClassName,
+  type SurfaceVariant,
+} from "@/lib/ui/surface-classes";
 
 export function Series1DashboardPage({ children }: { children: ReactNode }) {
   return (
-    <div className="flex w-full min-w-0 flex-col gap-[var(--ct-space-5)] overflow-x-hidden">
+    <div
+      className={cn(
+        surfaceClassName("canvas"),
+        "flex w-full flex-col gap-[var(--ct-space-5)]",
+      )}
+    >
       {children}
     </div>
   );
@@ -63,22 +72,12 @@ export function Series1DashboardCard({
   children,
   className,
 }: {
-  variant?: "primary" | "secondary" | "quiet";
+  variant?: Exclude<SurfaceVariant, "canvas" | "hero" | "inset">;
   children: ReactNode;
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex min-w-0 flex-col overflow-hidden rounded-(--ct-radius-xl)",
-        variant === "primary" && "bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] ring-1 ring-(--ct-border) shadow-(--ct-shadow-elevated)",
-        variant === "secondary" && "bg-[color-mix(in_srgb,var(--ct-bg-deep)_75%,var(--ct-surface-page))] ring-1 ring-(--ct-border-soft) shadow-(--ct-shadow-soft)",
-        variant === "quiet" && "bg-[color-mix(in_srgb,var(--ct-bg-deep)_85%,var(--ct-surface-page))] ring-1 ring-(--ct-border-soft)",
-        className,
-      )}
-    >
-      {children}
-    </div>
+    <div className={surfaceClassName(variant, className)}>{children}</div>
   );
 }
 
@@ -122,14 +121,7 @@ export function Series1DashboardInset({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_90%,var(--ct-surface-page))] ring-1 ring-inset ring-(--ct-border-soft) shadow-(--ct-shadow-inset)",
-        className,
-      )}
-    >
-      {children}
-    </div>
+    <div className={surfaceClassName("inset", className)}>{children}</div>
   );
 }
 

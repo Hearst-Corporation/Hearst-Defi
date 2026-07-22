@@ -1,8 +1,13 @@
-import { BentoPanel } from "@/components/catalyst/bento";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { AdminLeafLink } from "./admin-leaf-link";
 import { fetchBinancePrices } from "@/lib/data/binance-price";
 import { cn } from "@/lib/cn";
+
+import {
+  AdminDashboardCard,
+  AdminDashboardCardHeader,
+  AdminDashboardInset,
+} from "./AdminDashboardSection";
 
 function formatUsd(n: number): string {
   return n.toLocaleString("en-US", {
@@ -38,21 +43,23 @@ export async function MarketPricesPanel() {
   const provenance = snapshot.source === "live" ? "live" : "stale";
 
   return (
-    <BentoPanel aria-label="Market prices panel">
-      <div className="ct-bento-panel-header flex items-center justify-between">
-        <h3 className="ct-bento-card-title">Market prices</h3>
-        <div className="flex items-center gap-2">
-          <ProvenanceBadge kind={provenance} variant="strip" />
-          <AdminLeafLink href="/admin/marketplace" />
-        </div>
-      </div>
+    <AdminDashboardCard variant="quiet" ariaLabel="Market prices panel">
+      <AdminDashboardCardHeader
+        title="Market prices"
+        trailing={
+          <div className="flex items-center gap-2">
+            <ProvenanceBadge kind={provenance} variant="strip" />
+            <AdminLeafLink href="/admin/marketplace" />
+          </div>
+        }
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 bg-surface-inset">
+      <AdminDashboardInset className="grid grid-cols-1 sm:grid-cols-2">
         {snapshot.tickers.map((t, i, arr) => (
           <div
             key={t.symbol}
             className={cn(
-              "flex flex-col gap-2 p-5",
+              "flex min-w-0 flex-col gap-2 p-5",
               i < arr.length - 1 &&
                 "border-b border-[var(--ct-border-soft)] sm:border-b-0 sm:border-r",
             )}
@@ -70,7 +77,7 @@ export async function MarketPricesPanel() {
             </div>
           </div>
         ))}
-      </div>
-    </BentoPanel>
+      </AdminDashboardInset>
+    </AdminDashboardCard>
   );
 }

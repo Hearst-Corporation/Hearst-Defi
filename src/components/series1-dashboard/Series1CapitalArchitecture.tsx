@@ -1,4 +1,6 @@
 import { HcCompositionRing } from "@/components/dataviz/his";
+import { cn } from "@/lib/cn";
+import { surfaceNoticeWell } from "@/lib/ui/surface-classes";
 
 import {
   Series1DashboardCard,
@@ -26,7 +28,7 @@ export function Series1CapitalArchitecture({
   return (
     <Series1DashboardCard variant="secondary" className={className}>
       <Series1DashboardCardHeader title="Pocket allocation" />
-      <div className="flex flex-1 flex-col items-center justify-center px-[var(--ct-space-6)] py-[var(--ct-space-5)]">
+      <div className="flex min-w-0 flex-1 flex-col items-center justify-center px-[var(--ct-space-6)] py-[var(--ct-space-5)]">
         <HcCompositionRing
           segments={pockets.map((p) => ({
             label: p.id === "B1" ? `${p.id} · ${p.label}` : `${p.id} · ${p.label.replace("Reserve", "Res.")}`,
@@ -41,7 +43,7 @@ export function Series1CapitalArchitecture({
         />
       </div>
       {policyNotice ? (
-        <div className="border-t border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_95%,var(--ct-surface-page))] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
+        <div className={cn(surfaceNoticeWell, "px-[var(--ct-space-5)] py-[var(--ct-space-3)]")}>
           <Series1DataState motive="Configured policy split" detail={policyNotice} />
         </div>
       ) : null}

@@ -35,7 +35,7 @@ export function AdminRiskStrip({
 }) {
   return (
     <div className="grid min-w-0 grid-cols-1 gap-[var(--ct-space-4)] lg:grid-cols-2">
-      <AdminDashboardCard ariaLabel="Operator queue">
+      <AdminDashboardCard variant="quiet" ariaLabel="Operator queue">
         <AdminDashboardCardHeader
           title="Operator queue"
           caption="Items awaiting a human decision"
@@ -84,7 +84,7 @@ export function AdminRiskStrip({
         )}
       </AdminDashboardCard>
 
-      <AdminDashboardCard ariaLabel="Audit trail">
+      <AdminDashboardCard variant="quiet" ariaLabel="Audit trail">
         <AdminDashboardCardHeader
           title="Audit trail"
           caption="Most recent recorded actions"

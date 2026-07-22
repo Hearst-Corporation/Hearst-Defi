@@ -1,20 +1,15 @@
 // AdminDashboardHero — the operator's dominant read.
 //
-// The retired board opened on a "Command Center" title plus a KPI strip whose
-// first cell was the vault APY of a fixture vault (canon F5). The operator's
-// actual first question is "what is the posture, and what is waiting on me" —
-// so the hero states the posture and the pending count, and everything that
-// follows explains it.
-//
-// Accent appears only when something is genuinely pending; a clear queue is
-// neutral, not green. There is no decorative status pill.
+// Hero variant: elevated surface, accent hairline, no nested heavy card chrome.
 
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 import type { OperatingTone } from "@/lib/admin/dashboard-operating-view";
-
-import { AdminDashboardCard } from "./AdminDashboardSection";
+import {
+  surfaceClassName,
+  surfaceHeroAccentLine,
+} from "@/lib/ui/surface-classes";
 
 const TONE_DOT: Record<OperatingTone, string> = {
   ok: "bg-[var(--ct-accent)]",
@@ -41,13 +36,14 @@ export function AdminDashboardHero({
   posture: OperatingTone;
   postureLabel: string;
   blurb: string;
-  /** Series 1 contract mode, in operator words. */
   contractLabel: string;
   pendingCount: number;
   trailing?: ReactNode;
 }) {
   return (
-    <AdminDashboardCard ariaLabel="Operating posture">
+    <section className={surfaceClassName("hero")} aria-label="Operating posture">
+      <div className={surfaceHeroAccentLine} />
+
       <div className="flex flex-col gap-[var(--ct-space-5)] p-[var(--ct-space-6)] lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <p
@@ -84,7 +80,7 @@ export function AdminDashboardHero({
         {trailing ? <div className="shrink-0">{trailing}</div> : null}
       </div>
 
-      <div className="flex flex-col border-t border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] sm:flex-row">
+      <div className="flex flex-col border-t border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_90%,var(--ct-surface-page))] sm:flex-row">
         <div className="min-w-0 flex-1 px-[var(--ct-space-5)] py-[var(--ct-space-4)]">
           <p
             className="m-0 text-[var(--ct-text-faint)]"
@@ -109,7 +105,6 @@ export function AdminDashboardHero({
           <p
             className={cn(
               "m-0 mt-[var(--ct-space-1)] font-semibold tabular-nums",
-              // Accent ONLY when something is actually pending.
               pendingCount > 0
                 ? "text-[var(--ct-accent-strong)]"
                 : "text-[var(--ct-text-strong)]",
@@ -120,6 +115,6 @@ export function AdminDashboardHero({
           </p>
         </div>
       </div>
-    </AdminDashboardCard>
+    </section>
   );
 }

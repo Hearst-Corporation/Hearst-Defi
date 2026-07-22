@@ -45,7 +45,7 @@ const TONE_TEXT: Record<OperatingTone, string> = {
 
 export function AdminReadinessPanel({ view }: { view: OperatingReadinessView }) {
   return (
-    <AdminDashboardCard ariaLabel="System readiness">
+    <AdminDashboardCard variant="primary" ariaLabel="System readiness">
       <AdminDashboardCardHeader
         title="System readiness"
         caption="Derived from the contract mode, proof and custody reads, the operator queue and the audit trail. No synthetic uptime, no synthetic scan time."

@@ -30,7 +30,7 @@ export function AdminDomainCard({
   caption?: string;
 }) {
   return (
-    <AdminDashboardCard ariaLabel={`${label} overview`}>
+    <AdminDashboardCard variant="quiet" ariaLabel={`${label} overview`}>
       <AdminDashboardCardHeader
         title={label}
         caption={caption}

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 import type { HeroKpi } from "@/lib/data/cockpit";
+import { surfaceClassName } from "@/lib/ui/surface-classes";
 
 import { DashboardKpiStrip } from "./kpi-strip";
 
@@ -50,7 +51,7 @@ export function AdminKpiStripPanel({
         "admin-kpi-strip-panel flex flex-col overflow-hidden",
         embedded
           ? "border-b border-[var(--ct-border-soft)]"
-          : "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)]",
+          : surfaceClassName("secondary"),
       )}
     >
       {hasHeader ? (

@@ -1,28 +1,28 @@
 // Admin dashboard — section + card grammar.
 //
 // Owns the SURFACE LADDER for the operator dashboard
-// (docs/front-dashboard-zero-rebuild-canon.md §4), the same ladder the investor
-// dashboard uses, at operator density:
-//
-//   L1 shell   --ct-surface-page    the raised card SidebarLayout already draws
-//   L2 card    --ct-surface-raised  RISES above L1. The retired board used
-//                                   BentoPanel → .ct-glass-panel →
-//                                   --ct-surface-card (#000000), i.e. a pure
-//                                   black slab punched into a graphite page
-//                                   (canon §0/F1). That is what this replaces.
-//   L3 inset   --ct-surface-inset   RECESSES below L2 — wells only.
-//
-// No zinc, no `dark:`, no raw hex, no --ct-surface-card. Accent is a signal,
-// never a material.
+// (docs/front-dashboard-zero-rebuild-canon.md §4), sharing the same
+// `surfaceClassName` helper as the investor dashboard.
 
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import {
+  surfaceClassName,
+  type SurfaceVariant,
+} from "@/lib/ui/surface-classes";
 
 /** Page root — one vertical rhythm for the whole operator surface. */
 export function AdminDashboardStack({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-w-0 flex-col gap-[var(--ct-space-6)]">{children}</div>
+    <div
+      className={cn(
+        surfaceClassName("canvas"),
+        "flex flex-col gap-[var(--ct-space-6)]",
+      )}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -73,12 +73,16 @@ export function AdminDashboardSection({
   );
 }
 
-/** L2 operator card — RISES above the page. `min-w-0` per admin-visual-frame. */
+type AdminCardVariant = Exclude<SurfaceVariant, "canvas" | "hero" | "inset">;
+
+/** Operator card — variant selects visual weight on the shared surface ladder. */
 export function AdminDashboardCard({
+  variant = "primary",
   children,
   className,
   ariaLabel,
 }: {
+  variant?: AdminCardVariant;
   children: ReactNode;
   className?: string;
   ariaLabel?: string;
@@ -86,11 +90,7 @@ export function AdminDashboardCard({
   return (
     <section
       aria-label={ariaLabel}
-      className={cn(
-        "flex min-w-0 flex-col overflow-hidden rounded-[var(--ct-radius-xl)]",
-        "border border-[var(--ct-border-soft)] bg-[var(--ct-surface-raised)]",
-        className,
-      )}
+      className={surfaceClassName(variant, className)}
     >
       {children}
     </section>
@@ -144,7 +144,7 @@ export function AdminDashboardInset({
 }) {
   return (
     <div
-      className={cn("min-w-0 bg-[var(--ct-surface-inset)]", className)}
+      className={surfaceClassName("inset", className)}
       role={role}
       aria-label={ariaLabel}
     >

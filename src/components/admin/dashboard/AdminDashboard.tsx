@@ -22,7 +22,11 @@ import type { OverviewClustersView } from "@/lib/admin/overview-clusters-view";
 import type { ActionQueueItem, AuditTrailEntry } from "@/lib/data/cockpit";
 
 import { AdminDashboardHero } from "./AdminDashboardHero";
-import { AdminDashboardSection, AdminDashboardStack } from "./AdminDashboardSection";
+import {
+  AdminDashboardCard,
+  AdminDashboardSection,
+  AdminDashboardStack,
+} from "./AdminDashboardSection";
 import { AdminOperatingGrid } from "./AdminOperatingGrid";
 import { AdminReadinessPanel } from "./AdminReadinessPanel";
 import { AdminRiskStrip } from "./AdminRiskStrip";
@@ -58,9 +62,9 @@ export function AdminDashboard({
         title="Platform"
         description="Aggregates across every vault, read from the platform record. A figure that has no value shows an em dash, never a zero."
       >
-        <div className="overflow-hidden rounded-[var(--ct-radius-xl)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-raised)]">
+        <AdminDashboardCard variant="secondary" ariaLabel="Platform aggregates">
           <AdminKpiStripPanel kpis={kpis} embedded />
-        </div>
+        </AdminDashboardCard>
       </AdminDashboardSection>
 
       <AdminDashboardSection

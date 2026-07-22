@@ -7,6 +7,9 @@
 
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/cn";
+import { surfaceNoticeWell } from "@/lib/ui/surface-classes";
+
 import {
   Series1DashboardCard,
   Series1DashboardCardHeader,
@@ -52,7 +55,7 @@ export function Series1MiningRegister({
         ))}
       </div>
       {motive ? (
-        <div className="border-t border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_95%,var(--ct-surface-page))] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
+        <div className={cn(surfaceNoticeWell, "px-[var(--ct-space-5)] py-[var(--ct-space-3)]")}>
           <Series1DataState motive={motive} />
         </div>
       ) : null}

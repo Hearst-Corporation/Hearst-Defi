@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
-import { Series1DashboardCard } from "./Series1DashboardSection";
+
+import {
+  Series1DashboardCard,
+  Series1DashboardInset,
+} from "./Series1DashboardSection";
 
 export function Series1BitcoinAccumulation({
   /** Group motive when the underlying read did not resolve. */
@@ -41,7 +45,7 @@ export function Series1BitcoinAccumulation({
 
 function PlotWell({ children }: { children: ReactNode }) {
   return (
-    <div className="relative m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center overflow-hidden rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_95%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] ring-1 ring-inset ring-[var(--ct-border-soft)] shadow-[var(--ct-shadow-inset)]">
+    <Series1DashboardInset className="relative m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center overflow-hidden rounded-[var(--ct-radius-lg)] px-[var(--ct-space-6)] py-[var(--ct-space-6)]">
       {/* Full width axis */}
       <div className="absolute inset-x-0 top-1/2 -translate-y-1/2">
         <div className="relative h-px w-full bg-[var(--ct-border-soft)]">
@@ -52,7 +56,7 @@ function PlotWell({ children }: { children: ReactNode }) {
       <div className="relative z-10">
         {children}
       </div>
-    </div>
+    </Series1DashboardInset>
   );
 }
 
