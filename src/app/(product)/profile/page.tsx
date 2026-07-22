@@ -10,6 +10,8 @@
 // until v2 is live — swapping a real on-chain reading for that null would
 // trade a true value for an absence. This read is eligibility, not profile.
 
+import Link from "next/link";
+
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { readWhitelist, type Wired, type WhitelistStatus } from "@/lib/chain/dynavault";
@@ -65,6 +67,8 @@ const KYC_COPY: Record<string, { label: string; detail: string }> = {
 function kycPresentation(identity: ResolvedViewModel<InvestorIdentityViewModel>): {
   label: string;
   detail: string;
+  /** True only for the honest "nothing started" state — drives the start CTA. */
+  notStarted?: boolean;
 } {
   if (identity.status === "UNAVAILABLE") {
     return {
@@ -78,6 +82,7 @@ function kycPresentation(identity: ResolvedViewModel<InvestorIdentityViewModel>)
     return {
       label: "Not yet started",
       detail: "Complete identity verification to become eligible to subscribe to Series 1.",
+      notStarted: true,
     };
   }
   const status = identity.value.kycStatus;
@@ -85,6 +90,7 @@ function kycPresentation(identity: ResolvedViewModel<InvestorIdentityViewModel>)
   return {
     label: "Not yet started",
     detail: "Complete identity verification to become eligible to subscribe to Series 1.",
+    notStarted: true,
   };
 }
 
@@ -150,7 +156,21 @@ export default async function ProfilePage() {
             <Series1Row
               label="Receiver wallet"
               value={wallet ? abbreviateAddress(wallet) : "Not linked"}
-              hint={wallet ? "Receives share receipts and delivery at maturity" : "Required before subscribing"}
+              hint={
+                wallet ? (
+                  "Receives share receipts and delivery at maturity"
+                ) : (
+                  <>
+                    Required before subscribing — wallet linking is done in onboarding.{" "}
+                    <Link
+                      href="/onboarding/wallet"
+                      className="text-(--ct-accent-strong) transition-colors hover:underline"
+                    >
+                      Link a wallet →
+                    </Link>
+                  </>
+                )
+              }
             />
             <Series1Row
               label="Accredited"
@@ -205,6 +225,14 @@ export default async function ProfilePage() {
           <div className="p-5">
             <p className="text-sm font-medium text-zinc-950 dark:text-white">{kyc.label}</p>
             <p className="mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400">{kyc.detail}</p>
+            {kyc.notStarted ? (
+              <Link
+                href="/onboarding/identity"
+                className="mt-4 inline-flex min-h-10 items-center rounded-lg bg-zinc-800 px-4 text-sm font-medium text-(--ct-accent-strong) ring-1 ring-(--ct-border-accent) transition-colors hover:bg-zinc-700"
+              >
+                Start identity verification →
+              </Link>
+            ) : null}
           </div>
         </Series1Panel>
       </Series1Section>

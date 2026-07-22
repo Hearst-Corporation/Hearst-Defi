@@ -145,27 +145,17 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
   const openTxUrl = position.txHashOpen ? explorerTxUrl(position.txHashOpen) : null;
 
-  // Effective maturity anchor for the engines below. `position.maturedAt` is
-  // always null pre-Phase-2, so the mechanical horizon is `subscribedAt +
-  // softLockupDays`. For a position that is still `active` in the ledger but
-  // whose mechanical horizon already fell in the past (renewal / pending
-  // settlement — the ledger status is the source of truth, not the derived
-  // date), anchor the engines' horizon at "now + term" instead of a stale
-  // past date — otherwise the pure engine reads `matured: true` and silently
-  // drops the forward projection cone, which is how an active $250k position
-  // showed "Matured" while still live.
+  // Effective maturity anchor for the engines below. Series 1 is a note at a
+  // fixed 24-MONTH TERM: maturity = subscribedAt + 24 months. The soft
+  // lock-up (60d, Class A) is an early-exit WINDOW, never the maturity — a
+  // previous version anchored the horizon on subscribedAt + softLockupDays,
+  // which showed a 60-day "maturity" on a 24-month note. `position.maturedAt`
+  // (a recorded settlement) stays authoritative when present.
+  const TERM_DAYS = 730; // 24 months
   const mechanicalHorizonMs = position.maturedAt
     ? position.maturedAt.getTime()
-    : position.softLockupDays > 0
-      ? position.subscribedAt.getTime() + position.softLockupDays * DAY_MS
-      : now.getTime() + 365 * DAY_MS;
-  const effectiveMaturityAt =
-    position.status === "active" && mechanicalHorizonMs <= now.getTime()
-      ? new Date(
-          now.getTime() +
-            (position.softLockupDays > 0 ? position.softLockupDays * DAY_MS : 365 * DAY_MS),
-        )
-      : position.maturedAt;
+    : position.subscribedAt.getTime() + TERM_DAYS * DAY_MS;
+  const effectiveMaturityAt = position.maturedAt ?? new Date(mechanicalHorizonMs);
 
   // Engine (pure, clock injected) — the honest value cone.
   const projection = projectValueTrajectory({
@@ -203,12 +193,14 @@ export default async function VaultDetailPage({ params }: PageProps) {
 
   // Hero edge stat band — the position's four headline metrics (4-up = a
   // perfectly symmetric rail, StatBand caps at 4 cols). Deposited (Manual) ·
-  // Current value (Attested, = principal) · Accrued (not calculated) · Est. BTC
-  // delivery range (Estimated). Maturity moves to a header chip. No red anywhere.
-  const deliveryRangeLabel = hasAccumulationRange
-    ? `${formatUsdFull(projection.maturityLo)}–${formatUsdFull(projection.maturityHi)}`
-    : "—";
-
+  // Current value (Attested, = principal) · Accrued (not calculated) · BTC
+  // delivery (not yet reported). Maturity moves to a header chip. No red
+  // anywhere.
+  //
+  // The fourth cell used to print "Est. BTC delivery" as a DOLLAR range
+  // derived from realizedApyLow/High — retired cash-yield framing dressed up
+  // as a BTC figure. No real BTC attribution exists for this position, so the
+  // honest cell states that instead of inventing an amount.
   const heroStats: StatCell[] = [
     {
       label: "Deposited",
@@ -234,9 +226,10 @@ export default async function VaultDetailPage({ params }: PageProps) {
       provenance: "manual",
     },
     {
-      label: "Est. BTC delivery",
-      value: deliveryRangeLabel,
-      provenance: "estimated",
+      label: "BTC delivery",
+      value: "Not yet reported",
+      valueTone: "neutral",
+      provenance: "manual",
     },
   ];
 

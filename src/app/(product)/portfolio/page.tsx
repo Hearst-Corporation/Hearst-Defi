@@ -72,7 +72,7 @@ export default async function PortfolioPage() {
           !hasPosition ? (
             <Link
               href="/vaults"
-              className="inline-flex min-h-10 items-center rounded-lg bg-zinc-800 px-4 text-sm font-medium text-[#a7fb90] ring-1 ring-[#a7fb90]/30 transition-colors hover:bg-zinc-700"
+              className="inline-flex min-h-10 items-center rounded-lg bg-zinc-800 px-4 text-sm font-medium text-(--ct-accent-strong) ring-1 ring-(--ct-border-accent) transition-colors hover:bg-zinc-700"
             >
               View Series 1 →
             </Link>
@@ -142,7 +142,18 @@ export default async function PortfolioPage() {
               <Series1Row
                 label="Receiver wallet"
                 value={wallet ? `${wallet.slice(0, 6)}…${wallet.slice(-4)}` : "Not linked"}
-                hint={wallet ? "Delivery address at maturity" : "Link a wallet in Documents & KYC"}
+                hint={
+                  wallet ? (
+                    "Delivery address at maturity"
+                  ) : (
+                    <Link
+                      href="/profile"
+                      className="text-(--ct-accent-strong) transition-colors hover:underline"
+                    >
+                      Link a wallet →
+                    </Link>
+                  )
+                }
               />
             </Series1RowList>
           </Series1Panel>

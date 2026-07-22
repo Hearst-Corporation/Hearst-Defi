@@ -15,6 +15,8 @@
 
 import Link from "next/link";
 
+import { investProductPath } from "@/lib/vaults/invest-routes";
+
 import {
   formatBps,
   formatNavPerShare,
@@ -88,12 +90,20 @@ export default async function VaultsPage() {
         meta={`${vaultModeLabel(runtime)} · Methodology v3.0`}
         description="BTC-accumulation instrument backed by real Bitcoin mining, structured across three on-chain pockets and delivered at maturity."
         actions={
-          <Link
-            href="/proof-center"
-            className="inline-flex min-h-10 items-center rounded-lg bg-zinc-800 px-4 text-sm font-semibold text-(--ct-accent-strong) ring-1 ring-(--ct-border-accent) transition-colors hover:bg-zinc-700"
-          >
-            View proof status
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/proof-center"
+              className="inline-flex min-h-10 items-center rounded-lg bg-zinc-800 px-4 text-sm font-semibold text-(--ct-accent-strong) ring-1 ring-(--ct-border-accent) transition-colors hover:bg-zinc-700"
+            >
+              View proof status
+            </Link>
+            <Link
+              href={investProductPath("HYV-A")}
+              className="inline-flex min-h-10 items-center rounded-lg bg-(--ct-accent-strong) px-4 text-sm font-semibold text-zinc-950 transition-opacity hover:opacity-90"
+            >
+              View &amp; subscribe →
+            </Link>
+          </div>
         }
       />
 
@@ -159,7 +169,7 @@ export default async function VaultsPage() {
               selectExposedFromWired(terms, (t) => t.minimumDepositUsdc),
               (v) => formatUsdcAmount(BigInt(v)),
             ),
-            hint: "60-day soft lock-up",
+            hint: "Minimum subscription per investor",
           },
           { label: "Distribution", value: "None", hint: "No periodic cash, no fixed rate" },
         ]}
