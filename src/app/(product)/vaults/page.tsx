@@ -1,26 +1,29 @@
 // /vaults — Series 1 Vault.
 //
 // The product surface for PermissionedDynaVault v2.1: what the instrument is,
-// how capital is structured, and what the contract currently reports. Read
-// through the server-only adapter; no write action is offered here — the
-// deposit path is described, never executed from this page (no user-write
-// endpoint is validated, and the front never touches the contract).
+// how capital is structured, and what the contract currently reports.
+//
+// Read through hearst-connect-backend (independent repository) over HTTP — see
+// ./_data/vault-loader.ts. This page does NOT import
+// `src/lib/chain/dynavault.ts`: the frontend no longer reads business facts
+// from the chain itself, so there is exactly one source for totalAssets /
+// navPerShare / the B1-B2-B3 pockets, and it is the backend. (The adapter
+// stays in the tree for the client-side wallet-signing deposit/redeem flows.)
+//
+// No write action is offered here — the deposit path is described, never
+// executed from this page.
 
 import Link from "next/link";
 
-import {
-  getVaultMode,
-  readStrategies,
-  readVaultCore,
-} from "@/lib/chain/dynavault";
 import {
   formatBps,
   formatNavPerShare,
   formatShareAmount,
   formatUsdcAmount,
-  selectExposed,
-  selectWired,
 } from "@/lib/chain/wired-view";
+import { selectExposedFromWired, selectFromWired, vaultModeLabel } from "@/lib/backend/resolved-view";
+
+import { loadVaultPageData } from "./_data/vault-loader";
 
 import { Series1KpiBand } from "@/components/series1-shell/Series1KpiBand";
 import { Series1Page, Series1PageTitle, Series1Section } from "@/components/series1-shell/Series1Page";
@@ -32,7 +35,10 @@ import {
 } from "@/components/series1-shell/Series1Wired";
 import { Series1Timeline } from "@/components/series1-shell/Series1Timeline";
 import { HcCompositionRing } from "@/components/dataviz/his";
-import { POCKET_LABELS, POLICY_TARGET_BPS, vaultModeLabel, wiredMetric } from "../dashboard/_view";
+// `vaultModeLabel` comes from the backend view helper, not `_view`: the mode
+// now reflects what the BACKEND says answered (including "v2-fork"), not the
+// frontend's own env-derived VaultMode.
+import { POCKET_LABELS, POLICY_TARGET_BPS, wiredMetric } from "../dashboard/_view";
 
 export const dynamic = "force-dynamic";
 
@@ -42,14 +48,44 @@ export const metadata = {
 };
 
 export default async function VaultsPage() {
-  const [core, strategies] = await Promise.all([readVaultCore(), readStrategies()]);
-  const mode = getVaultMode();
+  const data = await loadVaultPageData();
+
+  // The backend never came back. This is NOT "nothing is configured yet" — the
+  // page says so in its own words, and shows no figure at all rather than a
+  // zero or a stale guess.
+  if (data.state === "error") {
+    return (
+      <Series1Page>
+        <Series1PageTitle
+          title="Hearst Bitcoin Reserve Vault — Series 1"
+          meta="Vault state unavailable"
+          description="BTC-accumulation instrument backed by real Bitcoin mining, structured across three on-chain pockets and delivered at maturity."
+        />
+        <Series1Panel>
+          <Series1PanelHeader title="We couldn’t reach the data" />
+          <div className="p-6">
+            <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+              The service that reports this vault’s state did not respond. The figures below are
+              deliberately left blank: nothing here has been estimated, cached or filled in. This is a
+              connectivity problem on our side, not a statement about the vault.
+            </p>
+            <p className="mt-3 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+              Reload in a moment. If it persists, the vault state can be confirmed independently from
+              the contract on-chain.
+            </p>
+          </div>
+        </Series1Panel>
+      </Series1Page>
+    );
+  }
+
+  const { snapshot, capacity, strategies, runtime } = data;
 
   return (
     <Series1Page>
       <Series1PageTitle
         title="Hearst Bitcoin Reserve Vault — Series 1"
-        meta={`${vaultModeLabel(mode)} · Methodology v3.0`}
+        meta={`${vaultModeLabel(runtime)} · Methodology v3.0`}
         description="BTC-accumulation instrument backed by real Bitcoin mining, structured across three on-chain pockets and delivered at maturity."
         actions={
           <Link
@@ -64,36 +100,42 @@ export default async function VaultsPage() {
       <Series1KpiBand
         hero={{
           label: "Total assets",
+          // selectExposedFromWired throughout: every one of these is nullable
+          // in the backend's own DTO, and a null means "the contract does not
+          // report it", never 0.
           value: wiredMetric(
-            selectWired(core, (c) => c.totalAssets),
-            (v) => formatUsdcAmount(v),
+            selectExposedFromWired(snapshot, (s) => s.totalAssets),
+            (v) => formatUsdcAmount(BigInt(v)),
           ),
-          hint: <Series1Provenance read={core} />,
+          hint: <Series1Provenance read={snapshot} />,
         }}
         metrics={[
           {
             label: "Total shares",
+            // The vault's share receipt uses the asset's own precision (USDC,
+            // 6) — the backend reports `assetDecimals` and does not expose a
+            // separate share-decimals field.
             value: wiredMetric(
-              selectWired(core, (c) => ({ shares: c.totalShares, decimals: c.shareDecimals })),
+              selectExposedFromWired(snapshot, (s) =>
+                s.totalShares === null ? null : { shares: BigInt(s.totalShares), decimals: s.assetDecimals },
+              ),
               (v) => formatShareAmount(v.shares, v.decimals),
             ),
             hint: "Share receipts issued",
           },
           {
             label: "TVL cap",
-            // selectExposed: a null cap becomes a proper unavailable envelope
-            // (not_exposed_by_contract) instead of a string posing as a value.
             value: wiredMetric(
-              selectExposed(core, (c) => c.tvlCap),
-              (cap) => formatUsdcAmount(cap),
+              selectExposedFromWired(capacity, (c) => c.tvlCap),
+              (cap) => formatUsdcAmount(BigInt(cap)),
             ),
             hint: "Maximum capital accepted",
           },
           {
             label: "NAV per share",
             value: wiredMetric(
-              selectWired(core, (c) => c.navPerShare),
-              (n) => formatNavPerShare(n),
+              selectExposedFromWired(snapshot, (s) => s.navPerShare),
+              (n) => formatNavPerShare(BigInt(n)),
             ),
             hint: "convertToAssets(1 share)",
           },
@@ -115,17 +157,21 @@ export default async function VaultsPage() {
           />
           {strategies.status === "wired" ? (
             <Series1RowList>
-              {strategies.data.map((s) => {
-                const pocket = POCKET_LABELS[s.index];
-                return (
-                  <Series1Row
-                    key={s.index}
-                    label={pocket ? `${pocket.id} · ${pocket.label}` : `Strategy ${s.index}`}
-                    value={formatBps(s.allocationBps)}
-                    hint={`${s.isIdle ? "Idle" : "Adapter-deployed"}${s.enabled ? "" : " · inactive"}`}
-                  />
-                );
-              })}
+              {strategies.data.map((s) => (
+                <Series1Row
+                  key={s.pocket}
+                  // The backend labels the pockets itself (B1 "Mining Power",
+                  // B2 "BTC Pouch", B3 "Reserve USDC"). Using its labels rather
+                  // than the local POCKET_LABELS constant keeps one authority
+                  // for what a pocket is called.
+                  label={`${s.pocket} · ${s.label}`}
+                  // targetBps arrives as a JSON number (bps are small
+                  // integers, far below 2^53 — no precision risk, unlike the
+                  // uint256 amounts which stay strings end to end).
+                  value={formatBps(BigInt(s.targetBps))}
+                  hint={s.isIdle ? "Idle — held as reserve" : "Adapter-deployed"}
+                />
+              ))}
             </Series1RowList>
           ) : (
             <div className="flex flex-col gap-5 p-6">
@@ -193,18 +239,18 @@ export default async function VaultsPage() {
           <Series1Panel>
             <Series1PanelHeader title="Smart contract & share receipt" />
             <Series1RowList>
-              <Series1Row label="Contract" value={vaultModeLabel(mode)} />
+              <Series1Row label="Contract" value={vaultModeLabel(runtime)} />
               <Series1WiredRow
                 label="Underlying asset"
-                read={selectWired(core, (c) => c.asset)}
-                render={(a) => `${a.slice(0, 6)}…${a.slice(-4)}`}
+                read={selectFromWired(snapshot, (s) => s.asset)}
+                render={(a) => a}
                 hint="asset() — read from the contract"
               />
               <Series1WiredRow
-                label="Share decimals"
-                read={selectWired(core, (c) => c.shareDecimals)}
+                label="Asset decimals"
+                read={selectFromWired(snapshot, (s) => s.assetDecimals)}
                 render={(d) => d.toString()}
-                hint="Share receipt precision"
+                hint="Accounting precision"
               />
               <Series1Row label="SPV jurisdiction" value="Cayman" />
             </Series1RowList>

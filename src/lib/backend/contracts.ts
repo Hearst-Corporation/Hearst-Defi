@@ -393,3 +393,121 @@ export interface MiningDTO {
   readonly operationalTelemetry: Resolved<MiningTelemetryRow>;
 }
 
+// ── DynaVault v2.1 additional reads ───────────────────────────────────────
+//
+// The nine routes below (docs/api.md "DynaVault v2.1 — additional reads")
+// carry the vault-level facts the three original DTOs never exposed. The
+// shapes here were verified field-by-field against the deployed service
+// (connect-api.hearst.app, mode "v2-fork") on 2026-07-22 — not inferred from
+// prose. Each is envelope-wrapped like every other /api/v1 data route.
+
+/** `GET /api/v1/vault` — totalAssets/totalShares/navPerShare + tvlCap/utilization. */
+export interface VaultDTO {
+  readonly runtime: ContractRuntimeStatus;
+  readonly snapshot: Resolved<VaultSnapshot>;
+  readonly capacity: Resolved<VaultCapacityBlock>;
+}
+
+/** `GET /api/v1/vault/strategies` — the B1/B2/B3 pockets with target allocations. */
+export interface VaultStrategiesDTO {
+  readonly runtime: ContractRuntimeStatus;
+  readonly strategies: Resolved<readonly VaultStrategy[]>;
+}
+
+/** `GET /api/v1/strategies/:index` — one pocket in detail. A malformed index
+ *  400s (`Problem.code: "BAD_REQUEST"`) before any chain read. */
+export interface StrategyDetailDTO {
+  readonly runtime: ContractRuntimeStatus;
+  readonly strategy: Resolved<VaultStrategy>;
+}
+
+/** A pocket as returned by `/api/v1/rwa-vault`. `pocketAssets` is ALWAYS null:
+ *  the v2.1 contract exposes a TARGET allocation via `strategies()`, never a
+ *  per-pocket balance (VAULT_SPEC_V2.1.md §5 vs §3). That is a contract limit,
+ *  not a gap the backend can close — render it as absent, never as 0. */
+export interface RwaPocket {
+  readonly pocket: PocketId;
+  readonly label: string;
+  readonly targetBps: number;
+  readonly actualBps: number | null;
+  readonly isIdle: boolean;
+  readonly adapter: string | null;
+  readonly pocketAssets: string | null;
+}
+
+/** `GET /api/v1/rwa-vault` — pockets + mining + electricity combined. */
+export interface RwaVaultDTO {
+  readonly runtime: ContractRuntimeStatus;
+  readonly pockets: Resolved<readonly RwaPocket[]>;
+  readonly mining: Resolved<MiningMetrics>;
+  readonly electricity: Resolved<ElectricityStatus>;
+}
+
+/** `GET /api/v1/rebalancing/status` — ADMIN ONLY (a non-admin session 403s).
+ *  `rebalancing` resolves UNAVAILABLE/"not_exposed_by_contract" even once v2
+ *  is live: the ABI has no drift/lastRebalanceAt getter (`Rebalance` is an
+ *  event, and reading it needs an indexer the backend does not run). */
+export interface RebalancingStatusDTO {
+  readonly runtime: ContractRuntimeStatus;
+  readonly rebalancing: Resolved<RebalancingSummary>;
+}
+
+/** `GET /api/v1/mining/metrics/onchain` — the on-chain subset of MiningDTO. */
+export interface MiningOnchainDTO {
+  readonly runtime: ContractRuntimeStatus;
+  readonly hashrate: Resolved<MiningMetrics>;
+  readonly btcEarned: Resolved<MiningMetrics>;
+}
+
+/** `GET /api/v1/mining/electricity` — cost, payee, canPay. */
+export interface MiningElectricityDTO {
+  readonly runtime: ContractRuntimeStatus;
+  readonly electricity: Resolved<ElectricityStatus>;
+}
+
+export interface FactsheetAllocation {
+  readonly pockets: readonly AllocationPocket[];
+  readonly targetTotalBps: number;
+}
+
+export interface FactsheetTerms {
+  readonly productDurationMonths: number | null;
+  readonly minimumDepositUsdc: string | null;
+  readonly allocation: FactsheetAllocation;
+  readonly electricityMonthlyCostUsdc: string | null;
+  readonly curtailmentPreHalvingUsdc: string | null;
+  readonly curtailmentPostHalvingUsdc: string | null;
+  readonly halvingMonth: number | null;
+}
+
+export interface VendingCurvePoint {
+  readonly month: number;
+  readonly bps: number;
+}
+
+/** `GET /api/v1/product/factsheet` — term, allocation bands, curtailment
+ *  thresholds. `terms` is provenance "manual" (named constants) unless
+ *  `productDurationMonths()` resolves on-chain, which flips that one field to
+ *  "live"; `tvlCap`/`vendingCurve` are chain-only. */
+export interface ProductFactsheetDTO {
+  readonly runtime: ContractRuntimeStatus;
+  readonly terms: Resolved<FactsheetTerms>;
+  readonly tvlCap: Resolved<string>;
+  readonly vendingCurve: Resolved<readonly VendingCurvePoint[]>;
+}
+
+export interface BacktestRunSummary {
+  readonly id: string;
+  readonly createdAt: string;
+  readonly label: string | null;
+  readonly horizonMonths: number | null;
+  readonly status: string | null;
+}
+
+/** `GET /api/v1/backtest/historical` — the CALLER's own BacktestRun rows.
+ *  Never touches the chain. No rows → NOT_CONFIGURED/"not_available", never a
+ *  fabricated series. */
+export interface BacktestHistoricalDTO {
+  readonly runs: Resolved<readonly BacktestRunSummary[]>;
+}
+

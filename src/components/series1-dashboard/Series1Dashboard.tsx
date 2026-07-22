@@ -1,9 +1,18 @@
 // Series1Dashboard — composition root of the investor overview.
 //
-// Receives `Wired<T>` envelopes that the route already read through the single
-// server-only passage point (`@/lib/chain/dynavault.ts`) and turns them into
-// the rebuilt surface. It performs NO I/O: the architecture guard forbids this
-// tree from touching `@/lib/data/*`, Prisma, viem or ethers (canon F9).
+// Receives honesty envelopes the route already read from
+// hearst-connect-backend (see app/(product)/dashboard/_data/dashboard-loader.ts)
+// and turns them into the rebuilt surface. It performs NO I/O: the architecture
+// guard forbids this tree from touching `@/lib/data/*`, Prisma, viem or ethers
+// (canon F9).
+//
+// The envelope type is `Series1Wired<T>`, which is wider than the chain
+// adapter's `Wired<T>` (`source` is an open string, addresses are plain
+// strings). The adapter's own reads still satisfy it, so a surface can be
+// switched between the two sources without changing this tree. The domain
+// types below are still imported FROM the adapter — as types only, erased at
+// compile time — because they remain the canonical description of what a vault
+// fact IS, whichever transport delivered it.
 //
 // The canon defects this composition fixes:
 //   F1  every surface is a Series1Dashboard* primitive: cards sit on a deep
@@ -22,7 +31,6 @@ import {
   formatBtcFromSats,
   formatHashrateTh,
   formatUsdcAmount,
-  selectWired,
 } from "@/lib/chain/wired-view";
 // TYPE-ONLY: erased at compile time, so this never pulls the `server-only`
 // adapter into a client bundle (the architecture guard ignores `import type`).
@@ -33,9 +41,7 @@ import type {
   ProductDuration,
   StrategyInfo,
   VaultCore,
-  Wired,
 } from "@/lib/chain/dynavault";
-import type { VaultMode } from "@/lib/chain/vault-mode";
 
 import { Series1BitcoinAccumulation } from "./Series1BitcoinAccumulation";
 import {
@@ -48,7 +54,9 @@ import {
   isUnresolved,
   Series1DataState,
   Series1Provenance,
+  selectRead,
   wiredValue,
+  type Series1Wired,
 } from "./Series1DataState";
 import { Series1DashboardHero } from "./Series1DashboardHero";
 import {
@@ -72,33 +80,67 @@ const POLICY_TARGET_BPS: readonly number[] = [4000, 2700, 3300];
  * holds one term; the caveat belongs in the hint, otherwise the cell truncates
  * ("Legacy vault · v2.1 addre…") and says nothing.
  */
-function vaultModeCell(mode: "v2" | "legacy" | "not_configured"): {
+function vaultModeCell(mode: string): {
   value: string;
   hint: string;
 } {
   switch (mode) {
+    // Modes reported by hearst-connect-backend (`ContractRuntimeStatus.mode`).
+    case "v2-mainnet":
+      return { value: "DynaVault v2.1", hint: "Active deployment" };
+    case "v2-testnet":
+      return { value: "DynaVault v2.1", hint: "Testnet deployment" };
+    // A fork is named as a fork. The figures it serves are real reads of a real
+    // contract, but the chain is ephemeral — presenting it as a live deployment
+    // would let a preprod number read as a position of record.
+    case "v2-fork":
+      return { value: "DynaVault v2.1", hint: "Preprod fork — not a record" };
+    // Modes from the frontend's own adapter, kept while both paths coexist.
     case "v2":
       return { value: "DynaVault v2.1", hint: "Active deployment" };
     case "legacy":
       return { value: "Legacy vault", hint: "v2.1 address not posted yet" };
     case "not_configured":
       return { value: "Not configured", hint: "No address on this network" };
+    default:
+      return { value: mode, hint: "Unrecognised contract mode" };
   }
 }
 
 /**
- * Props mirror the adapter's own envelope types rather than restating them:
- * `Wired<T>` carries `address` as a `0x${string}` template literal, and a
- * hand-written `string` would silently diverge from the single passage point.
+ * The envelope this surface consumes.
+ *
+ * Structural, and deliberately WIDER than the chain adapter's `Wired<T>`: the
+ * data now arrives from hearst-connect-backend, whose addresses are plain
+ * strings (JSON has no `0x${string}` template literal) and which does not
+ * report the adapter-only fields — `shareDecimals`, `tvlCap`, `paused`,
+ * per-strategy `enabled`. This tree reads none of them (verified by usage),
+ * so requiring them would have forced the loader to FABRICATE values just to
+ * satisfy a type. Widening the prop instead keeps the honesty contract:
+ * nothing is invented to make a signature fit.
+ *
+ * An adapter-produced `Wired<T>` still satisfies this — `0x${string}` is
+ * assignable to `string` — so both read paths type-check during the cutover.
  */
+export type Series1Envelope<T> = Series1Wired<T>;
+
+/** The fields this surface actually reads, per concern. */
 export interface Series1DashboardProps {
-  core: Wired<VaultCore>;
-  strategies: Wired<StrategyInfo[]>;
-  mining: Wired<MiningMetrics>;
-  elec: Wired<ElecStatus>;
-  ops: Wired<OpsState>;
-  duration: Wired<ProductDuration>;
-  mode: VaultMode;
+  core: Series1Envelope<Pick<VaultCore, "totalAssets"> & { asset: string }>;
+  strategies: Series1Envelope<readonly Pick<StrategyInfo, "index" | "allocationBps">[]>;
+  mining: Series1Envelope<MiningMetrics>;
+  // `lastElecPaymentTime` widened to `| null`: the backend reports "no payment
+  // ever made" as null, which must not be coerced to 0 (that would render as
+  // the Unix epoch — a payment dated 1970).
+  elec: Series1Envelope<
+    Pick<ElecStatus, "monthlyElecCost" | "totalElecPaid"> & { lastElecPaymentTime: bigint | null }
+  >;
+  ops: Series1Envelope<OpsState>;
+  duration: Series1Envelope<ProductDuration>;
+  // `mode` is a plain string rather than `VaultMode`: it now carries whichever
+  // mode the BACKEND reports actually answered ("v2-fork", "v2-mainnet", …),
+  // which is a wider vocabulary than the frontend adapter's own three.
+  mode: string;
 }
 
 export function Series1Dashboard({
@@ -111,9 +153,9 @@ export function Series1Dashboard({
   mode,
 }: Series1DashboardProps) {
   // ── Hero: accumulated BTC is the principal investor outcome (canon §2).
-  const btcEarned = selectWired(mining, (m) => m.totalBtcEarnedSats);
-  const totalAssets = selectWired(core, (c) => c.totalAssets);
-  const currentMonth = selectWired(ops, (o) => o.currentMonth);
+  const btcEarned = selectRead(mining, (m) => m.totalBtcEarnedSats);
+  const totalAssets = selectRead(core, (c) => c.totalAssets);
+  const currentMonth = selectRead(ops, (o) => o.currentMonth);
   const contractCell = vaultModeCell(mode);
 
   const termValue = (() => {
@@ -174,7 +216,7 @@ export function Series1Dashboard({
           {
             label: "Reported hashrate",
             value: wiredValue(
-              selectWired(mining, (m) => m.reportedHashrateTh),
+              selectRead(mining, (m) => m.reportedHashrateTh),
               (h) => formatHashrateTh(h),
             ),
             muted: isUnresolved(mining),
@@ -183,7 +225,7 @@ export function Series1Dashboard({
           {
             label: "Mining state",
             value: wiredValue(
-              selectWired(ops, (o) => o.isCurtailed),
+              selectRead(ops, (o) => o.isCurtailed),
               (c) => (c ? "Curtailed" : "Active"),
             ),
             muted: isUnresolved(ops),
@@ -192,7 +234,7 @@ export function Series1Dashboard({
           {
             label: "Allocation mode",
             value: wiredValue(
-              selectWired(ops, (o) => o.miningNoteMode),
+              selectRead(ops, (o) => o.miningNoteMode),
               (m) => (m ? "Enforced" : "Advisory"),
             ),
             muted: isUnresolved(ops),
@@ -240,7 +282,7 @@ export function Series1Dashboard({
               {
                 label: "BTC earned",
                 value: wiredValue(
-                  selectWired(mining, (m) => m.totalBtcEarnedSats),
+                  selectRead(mining, (m) => m.totalBtcEarnedSats),
                   (s) => formatBtcFromSats(s),
                 ),
                 muted: isUnresolved(mining),
@@ -249,7 +291,7 @@ export function Series1Dashboard({
               {
                 label: "Last report",
                 value: wiredValue(
-                  selectWired(mining, (m) => m.lastReportTime),
+                  selectRead(mining, (m) => m.lastReportTime),
                   (t) =>
                     t > 0n
                       ? new Date(Number(t) * 1000).toISOString().slice(0, 10)
@@ -278,7 +320,7 @@ export function Series1Dashboard({
               {
                 label: "Monthly electricity cost",
                 value: wiredValue(
-                  selectWired(elec, (e) => e.monthlyElecCost),
+                  selectRead(elec, (e) => e.monthlyElecCost),
                   (c) => formatUsdcAmount(c),
                 ),
                 muted: isUnresolved(elec),
@@ -286,7 +328,7 @@ export function Series1Dashboard({
               {
                 label: "Total paid since inception",
                 value: wiredValue(
-                  selectWired(elec, (e) => e.totalElecPaid),
+                  selectRead(elec, (e) => e.totalElecPaid),
                   (t) => formatUsdcAmount(t),
                 ),
                 muted: isUnresolved(elec),
@@ -294,9 +336,11 @@ export function Series1Dashboard({
               {
                 label: "Last payment",
                 value: wiredValue(
-                  selectWired(elec, (e) => e.lastElecPaymentTime),
+                  selectRead(elec, (e) => e.lastElecPaymentTime),
+                  // null (backend: no payment recorded) and 0n (chain adapter:
+                  // zero timestamp) both mean "never paid" — neither is a date.
                   (t) =>
-                    t > 0n
+                    t !== null && t > 0n
                       ? new Date(Number(t) * 1000).toISOString().slice(0, 10)
                       : "Never paid",
                 ),
@@ -305,7 +349,7 @@ export function Series1Dashboard({
               {
                 label: "Underlying asset",
                 value: wiredValue(
-                  selectWired(core, (c) => c.asset),
+                  selectRead(core, (c) => c.asset),
                   (a) => `${a.slice(0, 6)}…${a.slice(-4)}`,
                 ),
                 muted: isUnresolved(core),

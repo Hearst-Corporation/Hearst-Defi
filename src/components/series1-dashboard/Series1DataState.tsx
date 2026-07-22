@@ -19,7 +19,7 @@
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
-import { reasonLabel, type Series1Wired } from "@/components/series1-shell/Series1Wired";
+import { reasonLabel, sourceLabel, type Series1Wired } from "@/components/series1-shell/Series1Wired";
 
 export type { Series1Wired };
 export { reasonLabel };
@@ -33,6 +33,24 @@ export { reasonLabel };
  * stay legible at the label tier the muted cells render at.
  */
 export const EMPTY_VALUE = "Not reported";
+
+/**
+ * Pull one field out of a grouped read, keeping the envelope verbatim.
+ *
+ * The `Series1Wired` analogue of `selectWired` (@/lib/chain/wired-view), which
+ * is typed against the chain adapter's narrower `Wired<T>` (`source: "v2" |
+ * "legacy"`, `address: 0x${string}`). This surface now receives reads from
+ * hearst-connect-backend too, whose source vocabulary is wider — so the
+ * projection this tree uses has to accept the wider envelope.
+ *
+ * Same guarantee as the original: an unavailable read yields the SAME reason
+ * on every field it fed, so a group of rows all state one motive instead of
+ * some of them quietly becoming "no data".
+ */
+export function selectRead<T, U>(read: Series1Wired<T>, select: (data: T) => U): Series1Wired<U> {
+  if (read.status === "unavailable") return read;
+  return { ...read, data: select(read.data) };
+}
 
 /**
  * Render a wired read's value, or the empty slot. `render` only runs on the
@@ -108,7 +126,7 @@ export function Series1DataState({
  */
 export function Series1Provenance({ read }: { read: Series1Wired<unknown> }) {
   if (read.status !== "wired") return null;
-  const label = read.source === "v2" ? "PermissionedDynaVault v2.1" : "Legacy vault";
+  const label = sourceLabel(read.source);
   return (
     <span
       className="inline-flex items-center gap-[var(--ct-space-2)] text-[var(--ct-text-faint)]"

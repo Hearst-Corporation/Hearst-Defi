@@ -25,7 +25,14 @@ export type Series1Wired<T> =
   | {
       status: "wired";
       data: T;
-      source: "v2" | "legacy";
+      /**
+       * Which deployment answered. A plain `string`, not `"v2" | "legacy"`:
+       * the reads now come from hearst-connect-backend, whose mode vocabulary
+       * is its own ("v2-fork", "v2-mainnet", "v2-testnet", …). The adapter's
+       * two values remain assignable, so both read paths satisfy this during
+       * the cutover.
+       */
+      source: string;
       address: string;
       chainId: number;
       readAt: string;
@@ -49,10 +56,70 @@ const REASON_LABELS: Record<string, string> = {
   tvl_cap_zero: "No cap configured",
   no_session: "Sign in required",
   no_wallet: "No wallet linked",
+  // Absences reported BY hearst-connect-backend (see
+  // src/lib/backend/resolved-view.ts `BACKEND_REASONS`). Namespaced motives so
+  // an operator can tell a backend-side absence from the local adapter's — but
+  // the investor-facing wording says the same plain thing, because the
+  // distinction is ours, not theirs.
+  "backend:not_configured": "Not configured yet",
+  "backend:not_supported": "Not exposed by contract",
+  "backend:permission_denied": "Not available for your account",
+  "backend:unavailable": "Read unavailable",
+  "backend:missing_value": "Read unavailable",
+  // A backend outage — the request never came back. Deliberately distinct
+  // wording from every motive above: those mean "the value is honestly absent",
+  // this one means "we could not reach the data at all".
+  "backend:unreachable": "Couldn’t reach the data",
 };
 
+/**
+ * Investor-facing label for a motive.
+ *
+ * Backend motives arrive namespaced and may carry the backend's own machine
+ * reason appended (`backend:not_configured:dynavault_not_deployed`) so the
+ * detail survives into logs. The UI shows only the mapped prefix — the raw
+ * machine reason is operator vocabulary and must not leak onto the surface.
+ * An unknown motive still degrades to its raw string rather than to silence.
+ */
 export function reasonLabel(reason: string): string {
-  return REASON_LABELS[reason] ?? reason;
+  const exact = REASON_LABELS[reason];
+  if (exact) return exact;
+
+  if (reason.startsWith("backend:")) {
+    const prefixed = REASON_LABELS[reason.split(":").slice(0, 2).join(":")];
+    if (prefixed) return prefixed;
+  }
+
+  return reason;
+}
+
+/**
+ * Which deployment answered, in one short term.
+ *
+ * A previous version read `source === "v2" ? "PermissionedDynaVault v2.1" :
+ * "Legacy vault"`, which mislabels every value it does not recognise as
+ * legacy. With the backend's wider mode vocabulary that would print "Legacy
+ * vault" over reads of the v2.1 contract on a preprod fork — a false statement
+ * about which contract produced the number. Unknown sources now surface
+ * verbatim instead of being coerced into one of two guesses.
+ *
+ * "fork" is named on the surface on purpose: those figures are real reads of a
+ * real contract, but the chain is ephemeral and must not read as a record.
+ */
+export function sourceLabel(source: string): string {
+  switch (source) {
+    case "v2":
+    case "v2-mainnet":
+      return "PermissionedDynaVault v2.1";
+    case "v2-testnet":
+      return "PermissionedDynaVault v2.1 · testnet";
+    case "v2-fork":
+      return "PermissionedDynaVault v2.1 · preprod fork";
+    case "legacy":
+      return "Legacy vault";
+    default:
+      return source;
+  }
 }
 
 /** Short provenance line: which contract answered, and when. */
@@ -64,10 +131,9 @@ export function Series1Provenance({ read }: { read: Series1Wired<unknown> }) {
       </span>
     );
   }
-  const label = read.source === "v2" ? "PermissionedDynaVault v2.1" : "Legacy vault";
   return (
     <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-      {label} · read {new Date(read.readAt).toISOString().slice(11, 16)} UTC
+      {sourceLabel(read.source)} · read {new Date(read.readAt).toISOString().slice(11, 16)} UTC
     </span>
   );
 }
