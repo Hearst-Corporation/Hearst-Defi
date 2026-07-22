@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Series1Panel } from "./Series1Panel";
+import { surfaceClassName } from "@/lib/ui/surface-classes";
 
 export type Series1KpiMetric = {
   label: string;
@@ -9,9 +9,9 @@ export type Series1KpiMetric = {
 };
 
 // Gap-px KPI band (doctrine §7 — separators come from the gap, never a
-// hairline per cell). Cell fills are the same color-mix depth steps the
-// surface grammar uses: hero cell slightly raised, metric cells at panel
-// depth, divider = --ct-border-soft showing through the gap.
+// hairline per cell). This band is the ONE raised object of its route
+// (surface "primary"); every other Series1Panel stays flat — depth marks
+// the page's thesis, it is not sprinkled on every block.
 export function Series1KpiBand({
   hero,
   metrics,
@@ -20,10 +20,10 @@ export function Series1KpiBand({
   metrics: Series1KpiMetric[];
 }) {
   return (
-    <Series1Panel>
+    <div className={surfaceClassName("primary")}>
       {/* The grid gap exposes the divider colour as 1px rules between cells. */}
       <div className="grid gap-px bg-(--ct-border-soft) lg:grid-cols-12">
-        <div className="min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] px-6 py-7 lg:col-span-4">
+        <div className="min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_55%,var(--ct-surface-page))] px-6 py-7 lg:col-span-4">
           <p className="text-xs font-semibold tracking-[0.14em] text-(--ct-text-muted) uppercase">
             {hero.label}
           </p>
@@ -36,7 +36,7 @@ export function Series1KpiBand({
           {metrics.map((metric) => (
             <div
               key={metric.label}
-              className="min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_75%,var(--ct-surface-page))] px-4 py-4"
+              className="min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] px-4 py-4"
             >
               <dt className="text-xs font-medium text-(--ct-text-muted)">{metric.label}</dt>
               <dd className="mt-1 truncate text-xl font-semibold tracking-tight text-(--ct-text-strong) tabular-nums">
@@ -51,6 +51,6 @@ export function Series1KpiBand({
           ))}
         </dl>
       </div>
-    </Series1Panel>
+    </div>
   );
 }

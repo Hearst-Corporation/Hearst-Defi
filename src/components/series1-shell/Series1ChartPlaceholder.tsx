@@ -54,7 +54,7 @@ export function Series1ChartPlaceholder({
   return (
     <figure
       className={cn(
-        "flex h-full min-h-72 flex-col overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_75%,var(--ct-surface-page))] ring-1 ring-(--ct-border-soft)",
+        "flex h-full min-h-72 flex-col overflow-hidden rounded-(--ct-radius-xl) border border-(--ct-border-soft)",
         className,
       )}
     >

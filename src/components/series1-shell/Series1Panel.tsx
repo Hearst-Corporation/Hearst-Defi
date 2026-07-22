@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 
-import { surfaceClassName } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/cn";
 
 /**
- * Series 1 shell panel — same surface grammar as the dashboard (DS doctrine
- * §4): a raised card from `surfaceClassName("secondary")`, tokens only. The
- * previous `bg-white … dark:bg-zinc-950/40` twin recipe is gone — one panel
- * recipe across the investor journey.
+ * Series 1 shell panel — FLAT by canon. Dense row panels are not cards: no
+ * fill, no ring stack, just a hairline frame so a page never becomes a wall
+ * of identical raised plaques (doctrine §4 "plaques identiques partout" /
+ * anti cage-in-cage, and the standing "panneaux denses = PLATS" rule).
+ * Depth belongs to the ONE hero object of the route, not to every block.
  */
 export function Series1Panel({
   children,
@@ -15,7 +16,16 @@ export function Series1Panel({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={surfaceClassName("secondary", className)}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "min-w-0 overflow-hidden rounded-(--ct-radius-xl) border border-(--ct-border-soft)",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function Series1PanelHeader({
