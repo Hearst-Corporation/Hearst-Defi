@@ -69,7 +69,7 @@ function NavLink({
       )}
     >
       {current ? (
-        <span className="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-emerald-500" />
+        <span className="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-(--ct-accent)" />
       ) : null}
       <Icon className="size-5 shrink-0" />
       <span className="truncate">{item.label}</span>
@@ -97,7 +97,7 @@ function Sidebar({
     <nav className="flex h-full min-h-0 flex-col" aria-label="Admin navigation">
       <div className="border-b border-zinc-950/8 p-5 dark:border-white/8">
         <Link href="/admin/dashboard" className="flex items-center gap-3">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-emerald-400 text-sm font-bold text-zinc-950">
+          <span className="flex size-9 items-center justify-center rounded-lg border border-(--ct-border-accent) bg-zinc-950/5 text-sm font-bold text-zinc-950 dark:bg-white/8 dark:text-white">
             H
           </span>
           <span className="min-w-0">
@@ -151,7 +151,7 @@ function AssistantDock({ onClose }: { onClose: () => void }) {
         </button>
       </div>
       <div className="flex flex-1 flex-col justify-center p-6 text-center">
-        <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-500">
+        <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-(--ct-accent-muted) text-(--ct-accent-strong)">
           <Bot className="size-6" />
         </div>
         <h2 className="mt-4 text-base font-semibold text-zinc-950 dark:text-white">Assistant dock</h2>
@@ -199,24 +199,19 @@ export function KycAppShell({ children }: { children: ReactNode }) {
           --kyc-cockpit-line: color-mix(in srgb, var(--ct-bg-deep) 34%, white 12%);
           --kyc-cockpit-accent: color-mix(in srgb, var(--ct-accent) 62%, var(--ct-bg-deep));
           background:
-            radial-gradient(circle at 90% -12%, color-mix(in srgb, var(--ct-accent) 16%, transparent), transparent 34rem),
-            radial-gradient(circle at 8% -18%, color-mix(in srgb, var(--ct-accent) 7%, transparent), transparent 28rem),
+            radial-gradient(circle at 90% -12%, color-mix(in srgb, var(--ct-accent) 6%, transparent), transparent 34rem),
             var(--kyc-cockpit-canvas);
           overflow-x: clip;
         }
         .kyc-cockpit-shell .kyc-cockpit-sidebar {
-          background:
-            linear-gradient(180deg, color-mix(in srgb, var(--ct-accent) 7%, transparent), transparent 9rem),
-            color-mix(in srgb, var(--ct-bg-deep) 24%, white);
+          background: color-mix(in srgb, var(--ct-bg-deep) 24%, white);
           border-color: var(--kyc-cockpit-line);
           box-shadow:
             inset -1px 0 0 color-mix(in srgb, white 28%, transparent),
             14px 0 32px -28px color-mix(in srgb, var(--ct-bg-deep) 56%, transparent);
         }
         .kyc-cockpit-shell .kyc-cockpit-frame {
-          background:
-            linear-gradient(145deg, color-mix(in srgb, var(--ct-accent) 8%, transparent), transparent 28rem),
-            var(--kyc-cockpit-frame);
+          background: var(--kyc-cockpit-frame);
           box-shadow:
             inset 0 1px 0 color-mix(in srgb, white 58%, transparent),
             inset 0 -1px 0 color-mix(in srgb, black 8%, transparent),
@@ -229,9 +224,7 @@ export function KycAppShell({ children }: { children: ReactNode }) {
         .kyc-cockpit-shell .kyc-cockpit-panel,
         .kyc-cockpit-shell .kyc-cockpit-chart,
         .kyc-cockpit-shell .kyc-cockpit-kpi {
-          background:
-            linear-gradient(135deg, color-mix(in srgb, var(--ct-accent) 7%, transparent), transparent 17rem),
-            var(--kyc-cockpit-panel);
+          background: var(--kyc-cockpit-panel);
           box-shadow:
             inset 0 1px 0 color-mix(in srgb, white 44%, transparent),
             inset 0 -1px 0 color-mix(in srgb, black 7%, transparent),
@@ -255,9 +248,8 @@ export function KycAppShell({ children }: { children: ReactNode }) {
           background: color-mix(in srgb, var(--ct-bg-deep) 16%, white);
         }
         .kyc-cockpit-shell .kyc-cockpit-kpi > div > div:first-child {
-          background:
-            linear-gradient(140deg, color-mix(in srgb, var(--ct-accent) 17%, transparent), transparent 18rem),
-            color-mix(in srgb, var(--ct-bg-deep) 13%, white);
+          background: color-mix(in srgb, var(--ct-bg-deep) 13%, white);
+          border-left: 2px solid var(--kyc-cockpit-accent);
         }
       `}</style>
       <aside className="kyc-cockpit-sidebar fixed inset-y-0 left-0 z-30 hidden w-64 border-r lg:block">
@@ -274,7 +266,7 @@ export function KycAppShell({ children }: { children: ReactNode }) {
           <Menu className="size-5" />
         </button>
         <div className="min-w-0 text-center">
-          <p className="text-xs font-semibold uppercase tracking-uppercase text-emerald-600 dark:text-emerald-400">Series 1</p>
+          <p className="text-xs font-semibold uppercase tracking-uppercase text-(--ct-accent-strong)">Series 1</p>
           <p className="truncate text-sm font-semibold">{label}</p>
         </div>
         <button
@@ -317,7 +309,7 @@ export function KycAppShell({ children }: { children: ReactNode }) {
         type="button"
         onClick={() => setAssistantOpen(true)}
         aria-label="Open assistant"
-        className="fixed bottom-5 right-5 z-20 hidden size-12 items-center justify-center rounded-xl bg-emerald-400 text-zinc-950 shadow-lg transition-transform hover:scale-105 lg:flex"
+        className="fixed bottom-5 right-5 z-20 hidden size-12 items-center justify-center rounded-xl bg-(--ct-accent) text-zinc-950 shadow-lg transition-transform hover:scale-105 lg:flex"
       >
         <Bot className="size-5" />
       </button>
