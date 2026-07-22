@@ -41,7 +41,7 @@ export function Series1CapitalArchitecture({
         />
       </div>
       {policyNotice ? (
-        <div className="border-t border-[var(--ct-border-soft)] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
+        <div className="border-t border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_95%,var(--ct-surface-page))] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
           <Series1DataState motive="Configured policy split" detail={policyNotice} />
         </div>
       ) : null}
@@ -62,7 +62,7 @@ export function Series1CapitalFlow({ className }: { className?: string }) {
   return (
     <Series1DashboardCard variant="quiet" className={className}>
       <Series1DashboardCardHeader title="Capital flow" />
-      <ol className="m-0 flex list-none flex-col p-[var(--ct-space-5)]">
+      <ol className="m-0 flex flex-1 list-none flex-col p-[var(--ct-space-5)]">
         {FLOW_STEPS.map((step, index) => {
           const isLast = index === FLOW_STEPS.length - 1;
           return (

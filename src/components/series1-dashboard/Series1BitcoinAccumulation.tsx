@@ -41,22 +41,24 @@ export function Series1BitcoinAccumulation({
 
 function PlotWell({ children }: { children: ReactNode }) {
   return (
-    <div className="m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_95%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] ring-1 ring-inset ring-[var(--ct-border-soft)] shadow-[var(--ct-shadow-inset)]">
-      {children}
+    <div className="relative m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center overflow-hidden rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_95%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] ring-1 ring-inset ring-[var(--ct-border-soft)] shadow-[var(--ct-shadow-inset)]">
+      {/* Full width axis */}
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2">
+        <div className="relative h-px w-full bg-[var(--ct-border-soft)]">
+          <span className="absolute right-1/4 top-1/2 h-px w-24 -translate-y-1/2 bg-[var(--ct-border-accent)]" />
+          <span className="absolute right-1/4 top-1/2 inline-block size-1.5 -translate-y-1/2 translate-x-[5.5rem] rounded-full bg-[var(--ct-accent)]" />
+        </div>
+      </div>
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   );
 }
 
 function ChartEmptyState({ motive }: { motive: string | null }) {
   return (
-    <div className="flex w-full max-w-[46ch] flex-col items-center text-center">
-      <div className="mb-[var(--ct-space-5)] w-full px-[var(--ct-space-2)]">
-        <div className="relative h-4 w-full">
-          <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[var(--ct-border-soft)]" />
-          <span className="absolute right-0 top-1/2 h-px w-14 -translate-y-1/2 bg-[var(--ct-border-accent)]" />
-          <span className="absolute right-14 top-1/2 inline-block size-1.5 -translate-y-1/2 rounded-full bg-[var(--ct-accent)]" />
-        </div>
-      </div>
+    <div className="mt-[var(--ct-space-4)] flex w-full max-w-[46ch] flex-col items-center text-center">
       <p
         className="m-0 font-medium text-[var(--ct-text-muted)]"
         style={{ fontSize: "var(--ct-text-2xs)" }}

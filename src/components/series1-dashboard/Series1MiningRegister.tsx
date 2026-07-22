@@ -40,7 +40,7 @@ export function Series1MiningRegister({
   return (
     <Series1DashboardCard variant="quiet" className={className}>
       <Series1DashboardCardHeader title={title} caption={caption} trailing={trailing} />
-      <div className="flex flex-col">
+      <div className="flex flex-1 flex-col">
         {rows.map((row) => (
           <Series1DashboardRow
             key={row.label}
@@ -52,7 +52,7 @@ export function Series1MiningRegister({
         ))}
       </div>
       {motive ? (
-        <div className="border-t border-[var(--ct-border-soft)] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
+        <div className="border-t border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_95%,var(--ct-surface-page))] px-[var(--ct-space-5)] py-[var(--ct-space-3)]">
           <Series1DataState motive={motive} />
         </div>
       ) : null}

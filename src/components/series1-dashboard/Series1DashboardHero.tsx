@@ -45,7 +45,7 @@ export function Series1DashboardHero({
       </div>
 
       <div className="grid w-full min-w-0 gap-0 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-        <div className="flex min-h-[15.5rem] min-w-0 flex-col justify-between border-b border-(--ct-border-soft) px-(--ct-space-6) pb-(--ct-space-6) lg:border-b-0 lg:border-r">
+        <div className="flex min-h-[15.5rem] min-w-0 flex-col justify-center gap-(--ct-space-6) border-b border-(--ct-border-soft) px-(--ct-space-6) pb-(--ct-space-6) lg:border-b-0 lg:border-r">
           <div className="min-w-0">
             <p
               className="m-0 flex items-center gap-(--ct-space-2) font-medium text-(--ct-text-muted)"

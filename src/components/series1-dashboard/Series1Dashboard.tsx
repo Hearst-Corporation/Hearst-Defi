@@ -229,8 +229,9 @@ export function Series1Dashboard({
         description="Operational reports, kept separate from the investor outcome."
       >
         <div className="grid w-full min-w-0 grid-cols-1 gap-[var(--ct-space-4)] lg:grid-cols-3">
-          <Series1CapitalFlow />
+          <Series1CapitalFlow className="h-full" />
           <Series1MiningRegister
+            className="h-full"
             title="Mining register"
             caption="Reported on-chain by the keeper"
             trailing={<Series1Provenance read={mining} />}
@@ -268,6 +269,7 @@ export function Series1Dashboard({
           />
 
           <Series1MiningRegister
+            className="h-full"
             title="Reserve and contract"
             caption="B3 Operating Reserve funds electricity; the contract state is read directly."
             trailing={<Series1Provenance read={elec} />}
