@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { InvestFlowShell } from "@/components/vaults/invest-flow-shell";
 import { InvestForm } from "@/components/vaults/invest-form";
-import { BtcCompositionPanel } from "@/app/(product)/btc/_components/btc-composition-panel";
+import { BtcCompositionPanel } from "@/components/vaults/vault-composition-panel";
 import type { AllocationPocketViewModel } from "@/features/investor-ui/types/dashboard";
 import { investProductPath } from "@/lib/vaults/invest-routes";
 import { series1DisplayName } from "@/lib/vaults/series1";
