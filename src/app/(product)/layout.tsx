@@ -3,8 +3,6 @@ export const dynamic = "force-dynamic";
 
 import { headers } from "next/headers";
 
-import { HubModeStyles } from "@/components/hub-mode-styles";
-import { InvestorRailIntra } from "@/components/nav/product-rail-intra";
 import { requireInvestor } from "@/lib/auth/require-investor";
 
 export default async function ProductLayout({
@@ -27,13 +25,7 @@ export default async function ProductLayout({
 
   // Investor gate: no session → /login?from=<destination>. Admins are allowed
   // through (admin ⊇ investor) so they can review the product surfaces A→Z.
-  const session = await requireInvestor(destination);
+  await requireInvestor(destination);
 
-  return (
-    <>
-      <HubModeStyles />
-      <InvestorRailIntra isAdmin={session.role === "admin"} />
-      {children}
-    </>
-  );
+  return children;
 }

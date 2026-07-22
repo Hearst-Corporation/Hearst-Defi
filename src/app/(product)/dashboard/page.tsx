@@ -1,4 +1,10 @@
-import { BentoPageShell } from "@/components/catalyst/bento";
+import {
+  KycChartSurface,
+  KycHeroKpiBand,
+  KycPageTitle,
+  KycPanel,
+  KycSection,
+} from "@/components/catalyst/kyc-page";
 import { isBackendError } from "@/lib/backend";
 import { BackendDownState } from "@/features/investor-ui/components/states/data-states";
 import { requireInvestor } from "@/lib/auth/require-investor";
@@ -14,15 +20,16 @@ import {
   PocketAllocationVisual,
   BtcAccumulationCurve,
   SmartContractStateCard,
+  AllInCostVsSpot,
+  MiningActivityTimeline,
+  ReserveRunwayChart,
   type CapitalFlowPocket,
   type PocketAllocation,
   type SmartContractState,
   type VaultMode,
 } from "@/features/investor-ui/components/reserve-cockpit";
 
-import { DashboardHero } from "./_components/dashboard-hero";
-import { StrategyOverviewPanel, type StrategySignal } from "./_components/strategy-overview-panel";
-import { OpsRow } from "./_components/ops-row";
+import { type StrategySignal } from "./_components/strategy-overview-panel";
 import { AccumulationChartSignature } from "@/features/investor-ui/components/accumulation-chart-signature";
 
 import "./dashboard-signature.css";
@@ -57,7 +64,7 @@ function dataStatusToSource(status: DataStatus): HcSourceStatus {
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Dashboard · Hearst Connect",
+  title: "Overview · Hearst Bitcoin Reserve Vault — Series 1",
 };
 
 const FIXTURE_VARIANTS = [
@@ -122,9 +129,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   } catch (err) {
     if (isBackendError(err)) {
       return (
-        <BentoPageShell testId="dashboard-page">
+        <div data-testid="dashboard-page" className="flex flex-col gap-10">
+          <KycPageTitle
+            title="Reserve Vault Overview"
+            description="Capital deployment, accumulated Bitcoin, reserve runway and mining operations in one institutional view."
+          />
           <BackendDownState requestId={err.requestId} path={err.path ?? "/api/v1/dashboard"} mode="backend_down" />
-        </BentoPageShell>
+        </div>
       );
     }
     throw err;
@@ -264,98 +275,222 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           codePresent: runtime.codePresent,
         };
 
+  const runwayMonths = btc.reserve.value?.electricityCoveredMonths ?? null;
+  const runwayData =
+    runwayMonths == null
+      ? null
+      : {
+          points: [{ period: accumulationPoints.at(-1)?.period ?? "Current", coverageMonths: runwayMonths }],
+          floorMonths: HEALTHY_MONTHS_THRESHOLD,
+        };
+  const miningIntervals =
+    miningVal == null
+      ? null
+      : [
+          {
+            label: "Current reporting window",
+            state: miningVal.curtailed ? ("curtailed" as const) : ("active" as const),
+            durationWeight: 1,
+          },
+        ];
+  const heroBtc = accumulationPoints.at(-1)?.cumulativeBtc ?? null;
+  const allocationByPocket = allocation?.pockets ?? [];
+
   return (
-    <BentoPageShell testId="dashboard-page">
-      {/* No page title — the rail's active state names the page; the KPI band
-          IS the header (design pass 2026-07-16). Global provenance badge kept,
-          floated over the band's top-right corner. */}
+    <div data-testid="dashboard-page" className="flex flex-col gap-10">
+      <KycPageTitle
+        title="Reserve Vault Overview"
+        meta={`As of ${formatIsoDateTime(dashboard.runtime.generatedAt)} · Methodology v3.0`}
+        description="A single investor register for capital deployment, accumulated Bitcoin, reserve coverage, mining operations and proof readiness."
+      />
 
-      <div className="dash-signature flex min-w-0 flex-col gap-[var(--ct-space-5)]">
-        {/* Zone 1 — institutional KPI band + animated Bitcoin orb (single
-            "View Bitcoin →" CTA, D10) */}
-        <DashboardHero
-          position={dashboard.position}
-          mining={mining}
-          accumulationPoints={accumulationPoints}
-          accumulationStatus={productionBlock.status}
+      <KycSection>
+        <KycHeroKpiBand
+          hero={{
+            label: hasActivePosition ? "BTC accumulated" : "Position status",
+            value: hasActivePosition && heroBtc != null ? `${heroBtc.toFixed(6)} BTC` : "No active position",
+            hint: hasActivePosition
+              ? "Attributed accumulation across the current Series 1 term"
+              : "Subscribe to begin tracked Bitcoin accumulation",
+          }}
+          metrics={[
+            {
+              label: "Capital deployed",
+              value: hasActivePosition ? formatUsdCompactAmount(positionVal?.principal) ?? "—" : "—",
+              hint: hasActivePosition ? "Investor position" : "No subscription recorded",
+            },
+            {
+              label: "Reserve runway",
+              value: runwayMonths != null ? `${runwayMonths.toFixed(1)} mo` : "—",
+              hint: "B3 Reserve USDC coverage",
+            },
+            {
+              label: "Mining state",
+              value: miningVal?.curtailed ? "Curtailed" : miningVal?.fleetActive ? "Active" : "—",
+              hint: "Current reporting window",
+            },
+            {
+              label: "Term progress",
+              value: miningVal?.currentMonth != null ? `${miningVal.currentMonth}/${miningVal.productDurationMonths ?? 24}` : "—",
+              hint: "Months elapsed",
+            },
+            {
+              label: "Contract",
+              value: contractState?.codePresent ? "Read" : "Pending",
+              hint: contractState?.chainLabel ?? "Deployment state",
+            },
+            {
+              label: "Proof status",
+              value: dashboard.allocation.status === "LIVE" ? "Reported" : "Awaiting",
+              hint: "Source provenance below",
+            },
+          ]}
         />
+      </KycSection>
 
-        {/* Zone 1b — Capital Flow rail: the Series 1 narrative spine.
-            USDC deposit → B1 Mining Power (40) / B2 BTC Pouch (27) /
-            B3 Reserve USDC (33) → BTC Reserve Ledger → Delivery at maturity. */}
-        <CapitalFlowRail
-          data={capitalFlowData}
-          source={dataStatusToSource(dashboard.allocation.status)}
-        />
-
-        {/* Zone 2 — signature accumulation chart (dual-axis BTC/USD, planned
-            trajectory, market-price backdrop) + strategy overview ring.
-            .dash-row-main absorbs the free viewport height (cockpit fit). */}
-        <div className="dash-row-main flex flex-col lg:flex-row gap-[var(--ct-space-5)] lg:items-stretch min-h-0">
-          <div className="flex-[7] min-w-0">
+      <KycSection
+        index="01"
+        title="Bitcoin accumulation"
+        description="Accumulated BTC is the principal investor outcome. Market price is contextual only; it is not a return projection."
+      >
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+          <KycChartSurface
+            className="lg:col-span-8"
+            title="Accumulated BTC through the term"
+            description="Mining credits indexed from the program ledger."
+          >
             <AccumulationChartSignature
               points={accumulationPoints}
               currentMonth={miningVal?.currentMonth ?? null}
               totalMonths={miningVal?.productDurationMonths ?? null}
               provenance={accumulationProvenance}
             />
-          </div>
-          <div className="flex-[4] min-w-0">
-            {hasActivePosition ? (
-              <StrategyOverviewPanel
-                signals={strategySignals}
-                verdict={verdict}
-                verdictDetail={verdictDetail}
-              />
-            ) : (
-              // Honest neutral read-out: no position resolved → no fabricated
-              // verdict. Same panel, neutral signals, "—" headline.
-              <StrategyOverviewPanel
-                signals={[
-                  { label: "DCA discipline", status: "—", tone: "neutral" },
-                  { label: "Risk management", status: "—", tone: "neutral" },
-                  { label: "Execution quality", status: "—", tone: "neutral" },
-                  { label: "Accumulation pace", status: "—", tone: "neutral" },
-                ]}
-                verdict="—"
-                verdictDetail="Strategy signals will appear once an active position is resolved."
-              />
-            )}
-          </div>
+          </KycChartSurface>
+          <KycPanel className="lg:col-span-4">
+            <div className="border-b border-zinc-950/8 px-5 py-4 dark:border-white/10">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">Position summary</p>
+            </div>
+            <dl className="divide-y divide-zinc-950/8 px-5 dark:divide-white/10">
+              {[
+                ["DCA discipline", strategySignals[0]?.status ?? "—"],
+                ["Reserve management", strategySignals[1]?.status ?? "—"],
+                ["Execution quality", strategySignals[2]?.status ?? "—"],
+                ["Accumulation pace", strategySignals[3]?.status ?? "—"],
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between gap-4 py-4">
+                  <dt className="text-sm text-zinc-500 dark:text-zinc-400">{label}</dt>
+                  <dd className="text-sm font-semibold text-zinc-950 dark:text-white">{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="px-5 py-4 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+              {hasActivePosition ? verdictDetail : "Signals populate as the position and underlying reports resolve."}
+            </p>
+          </KycPanel>
         </div>
+      </KycSection>
 
-        {/* Zone 2b — reserve narrative row: on-chain pocket split · cumulative
-            BTC accumulated over the term · honest contract-state read-out.
-            Reads left→right: how capital is split, what it accumulates, and
-            the vault backing it. */}
-        <div className="grid grid-cols-1 gap-[var(--ct-space-5)] lg:grid-cols-2 xl:grid-cols-3 items-stretch">
-          <PocketAllocationVisual pockets={pocketAllocations} source={pocketSource} />
-          <BtcAccumulationCurve
-            data={btcCurveData}
-            source={dataStatusToSource(productionBlock.status)}
-          />
-          <SmartContractStateCard
-            state={contractState}
-            source={dataStatusToSource(dashboard.runtime.mode === "not_configured" ? "NOT_CONFIGURED" : "LIVE")}
-          />
+      <KycSection
+        index="02"
+        title="Capital architecture"
+        description="Capital is governed by the Series 1 policy allocation: B1 Mining Power, B2 BTC Pouch and B3 Reserve USDC."
+      >
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+          <KycPanel className="lg:col-span-7">
+            <div className="border-b border-zinc-950/8 px-5 py-4 dark:border-white/10">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">Policy allocation</p>
+            </div>
+            <div className="space-y-5 p-5">
+              {allocationByPocket.length > 0 ? allocationByPocket.map((pocket) => {
+                const pct = (pocket.actualBps ?? pocket.targetBps) / 100;
+                return (
+                  <div key={pocket.pocket}>
+                    <div className="flex items-baseline justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-zinc-950 dark:text-white">{pocket.pocket} · {pocket.label}</p>
+                        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Target allocation</p>
+                      </div>
+                      <span className="text-lg font-semibold tabular-nums text-zinc-950 dark:text-white">{pct.toFixed(0)}%</span>
+                    </div>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+                      <div className="h-full rounded-full bg-emerald-500" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              }) : (
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">Allocation reports will appear once the vault source is configured.</p>
+              )}
+            </div>
+          </KycPanel>
+          <KycPanel className="lg:col-span-5">
+            <div className="border-b border-zinc-950/8 px-5 py-4 dark:border-white/10">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">Capital flow</p>
+            </div>
+            <ol className="divide-y divide-zinc-950/8 px-5 dark:divide-white/10">
+              {["USDC subscription", "B1 / B2 / B3 allocation", "BTC reserve ledger", "BTC delivery at maturity"].map((step, index) => (
+                <li key={step} className="flex items-center gap-4 py-4">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-emerald-500/12 text-xs font-semibold text-emerald-600 dark:text-emerald-400">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="text-sm font-medium text-zinc-950 dark:text-white">{step}</span>
+                </li>
+              ))}
+            </ol>
+          </KycPanel>
         </div>
+      </KycSection>
 
-        {/* Zone 3 — operational row: ONE uniform stat band (equal-density
-            cards: capacity · reserve · mining · fleet). Verified activity +
-            analyst note retired from this surface (cockpit no-scroll pass
-            2026-07-16) — activity lives on /proof-center. */}
-        <OpsRow
-          capacity={dashboard.capacity}
-          subscription={dashboard.subscription}
-          mining={mining}
-          btc={btc}
-        />
+      <KycSection
+        index="03"
+        title="Operations, reserve & proof"
+        description="Operational reports are kept separate from the investor outcome so every number retains its source and meaning."
+      >
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <KycChartSurface
+            title="All-in acquisition cost vs BTC spot"
+            description="A comparison becomes available when cost and spot observations have both resolved."
+          >
+            <AllInCostVsSpot points={null} source="configured" />
+          </KycChartSurface>
+          <KycChartSurface
+            title="Reserve runway"
+            description="Electricity coverage funded by B3 Reserve USDC."
+          >
+            <ReserveRunwayChart data={runwayData} source={dataStatusToSource(btc.reserve.status)} />
+          </KycChartSurface>
+          <KycChartSurface
+            title="Mining activity"
+            description="Active and curtailed fleet state in the current reporting window."
+          >
+            <MiningActivityTimeline intervals={miningIntervals} source={dataStatusToSource(mining.mining.status)} />
+          </KycChartSurface>
+          <KycPanel>
+            <div className="border-b border-zinc-950/8 px-5 py-4 dark:border-white/10">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">Proof & contract status</p>
+            </div>
+            <dl className="divide-y divide-zinc-950/8 px-5 dark:divide-white/10">
+              <div className="flex items-center justify-between gap-4 py-4">
+                <dt className="text-sm text-zinc-500 dark:text-zinc-400">Network</dt>
+                <dd className="text-sm font-semibold text-zinc-950 dark:text-white">{contractState?.chainLabel ?? "Not configured"}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-4">
+                <dt className="text-sm text-zinc-500 dark:text-zinc-400">Contract code</dt>
+                <dd className="text-sm font-semibold text-zinc-950 dark:text-white">{contractState?.codePresent ? "Present" : "Not yet posted"}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-4">
+                <dt className="text-sm text-zinc-500 dark:text-zinc-400">Allocation source</dt>
+                <dd className="text-sm font-semibold text-zinc-950 dark:text-white">{dashboard.allocation.status}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-4">
+                <dt className="text-sm text-zinc-500 dark:text-zinc-400">Delivery evidence</dt>
+                <dd className="text-sm font-semibold text-zinc-950 dark:text-white">At maturity</dd>
+              </div>
+            </dl>
+          </KycPanel>
+        </div>
+      </KycSection>
 
-        {/* Compliance line — unified footer shared with /btc (P0.7) */}
-        <p className="ct-metric-caption m-0 px-[var(--ct-space-1)]">
-          As of {formatIsoDateTime(dashboard.runtime.generatedAt)} · Methodology v3.0 · Accumulated BTC delivered at maturity — not guaranteed
-        </p>
-      </div>
-    </BentoPageShell>
+      <p className="text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+        Accumulated BTC is delivered at maturity. Allocation, reserve and mining figures carry their own provenance; estimates and forward-looking outcomes are not guaranteed.
+      </p>
+    </div>
   );
 }

@@ -1,11 +1,9 @@
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 
-import { AdminRailIntra } from "@/components/nav/product-rail-intra";
 import { AdminSubNav } from "@/components/nav/admin-sub-nav";
 import { CommandPalette } from "@/components/power/command-palette";
 import { NotificationsBellWrapper } from "@/components/notifications/notifications-bell-wrapper";
-import { ChatRailToggle } from "@hearst/cockpit-shell";
 import { getSession } from "@/lib/auth/session";
 
 import "../doc-flow.css";
@@ -46,11 +44,9 @@ export default async function AdminLayout({
 
   return (
     <>
-      <AdminRailIntra />
       <div className="admin-search-dock">
         <CommandPalette />
         <NotificationsBellWrapper />
-        <ChatRailToggle />
       </div>
       <div className="admin-doc admin-doc-shell w-full min-w-0">
         {/* Section sub-nav (Agents · Outreach · Investors · Feedback, etc.).
