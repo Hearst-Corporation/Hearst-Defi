@@ -174,21 +174,27 @@
   .rail-lbl { color: var(--fg-muted); }
   .rail-v { font-family: var(--font-mono); color: var(--fg-strong); }
 
-  /* 3. Data Rail */
+  /* 3. Data Rail (Organic Asymmetric Flex) */
   .data-rail {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    background: color-mix(in srgb, var(--bg-deep) 80%, #18181b);
+    display: flex;
+    flex-wrap: nowrap;
+    background: var(--hairline); /* DS gap-px pattern */
     border: 1px solid var(--hairline);
     border-radius: var(--radius);
-    overflow: hidden;
+    overflow-x: auto;
+    gap: 1px;
+    scrollbar-width: none;
   }
+  .data-rail::-webkit-scrollbar { display: none; }
+  
   .rail-cell {
+    background: color-mix(in srgb, var(--bg-deep) 80%, #18181b);
     padding: 16px 20px;
-    border-right: 1px solid var(--hairline);
     display: flex; flex-direction: column; gap: 6px;
+    white-space: nowrap;
   }
-  .rail-cell:last-child { border-right: none; }
+  .rail-cell.monetary { flex: 1.5 0 auto; min-width: 140px; }
+  .rail-cell.status { flex: 1 0 auto; min-width: 100px; }
   .rc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); }
   .rc-val { font-family: var(--font-mono); font-size: 14px; color: var(--fg-strong); }
   .rc-hint { font-size: 10px; color: var(--fg-muted); }
@@ -363,14 +369,14 @@
 
   <!-- 3. Data Rail Horizontal Strip -->
   <div class="data-rail">
-    <div class="rail-cell"><span class="rc-label">Deployed</span><span class="rc-val">— USDC</span></div>
-    <div class="rail-cell"><span class="rc-label">Total Shares</span><span class="rc-val">—</span></div>
-    <div class="rail-cell"><span class="rc-label">NAV / Share</span><span class="rc-val">— USDC</span><span class="rc-hint">Est.</span></div>
-    <div class="rail-cell"><span class="rc-label">Term</span><span class="rc-val">— / 24</span></div>
-    <div class="rail-cell"><span class="rc-label">Mining State</span><span class="rc-val">—</span></div>
-    <div class="rail-cell"><span class="rc-label">Last Report</span><span class="rc-val">—</span></div>
-    <div class="rail-cell"><span class="rc-label">Proof</span><span class="rc-val" style="color: var(--fg-faint);">Unavailable</span></div>
-    <div class="rail-cell"><span class="rc-label">Wallet</span><span class="rc-val">Linked</span><span class="rc-hint">0x…1234</span></div>
+    <div class="rail-cell monetary"><span class="rc-label">Deployed</span><span class="rc-val">— USDC</span></div>
+    <div class="rail-cell monetary"><span class="rc-label">Total Shares</span><span class="rc-val">—</span></div>
+    <div class="rail-cell monetary"><span class="rc-label">NAV / Share</span><span class="rc-val">— USDC</span><span class="rc-hint">Est.</span></div>
+    <div class="rail-cell status"><span class="rc-label">Term</span><span class="rc-val">— / 24</span></div>
+    <div class="rail-cell status"><span class="rc-label">Mining State</span><span class="rc-val">—</span></div>
+    <div class="rail-cell status"><span class="rc-label">Last Report</span><span class="rc-val">—</span></div>
+    <div class="rail-cell status"><span class="rc-label">Proof</span><span class="rc-val" style="color: var(--fg-faint);">Unavailable</span></div>
+    <div class="rail-cell status"><span class="rc-label">Wallet</span><span class="rc-val">Linked</span><span class="rc-hint">0x…1234</span></div>
   </div>
 
   <!-- 4. Second Level Zones -->
