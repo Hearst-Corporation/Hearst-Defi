@@ -195,7 +195,10 @@ describe("vaultSlug + vaultLabel", () => {
   it("uses VaultId for fixtures", async () => {
     const ref = await resolveVault("yield");
     expect(ref && vaultSlug(ref)).toBe("yield");
-    expect(ref && vaultLabel(ref)).toBe("Hearst Yield Vault");
+    // The technical id stays "yield" (compat key), but the label is the
+    // Series 1 canon — "Yield Vault" named a cash-yield product this
+    // BTC-accumulation note is not.
+    expect(ref && vaultLabel(ref)).toBe("Hearst Bitcoin Reserve Vault — Series 1");
   });
 
   it("uses lowercased ticker for deployments", async () => {

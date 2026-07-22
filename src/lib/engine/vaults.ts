@@ -90,11 +90,22 @@ export interface VaultDefinition {
 // presets so a single edit tracks the platform methodology version.
 const METHODOLOGY_V3 = "v3.0";
 
-// ── Hearst Yield Vault (HYV) — flagship mining note: 3 pockets, 24-month BTC accumulation ──
+// ── Flagship — Hearst Bitcoin Reserve Vault, Series 1 ────────────────────────
+// The id stays "yield" as a TECHNICAL COMPATIBILITY KEY only: the memo cron
+// calls `loadMemoInput()` with no id and every resolver defaults to this
+// preset, so renaming the id would break the cron and the admin action for a
+// cosmetic gain. The investor-facing label, however, must carry the Series 1
+// canon — "Yield Vault" named a cash-yield product this note is not, and that
+// label flowed verbatim into the investor memo PDF's headline.
 export const VAULT_YIELD: VaultDefinition = {
+  /** @deprecated legacy compatibility key — reads as the Series 1 flagship. */
   id: "yield",
+  // "HYV" stays: it is a resolver key (resolveFixture("HYV") → "yield") and may
+  // exist in VaultDeployment.ticker rows — changing it breaks lookups, not
+  // wording. The LABEL is the investor-facing surface, and it now matches the
+  // canon used by /vaults, /dashboard and the legal terms.
   ticker: "HYV",
-  label: "Hearst Yield Vault",
+  label: "Hearst Bitcoin Reserve Vault — Series 1",
   description:
     "Mining-backed BTC accumulation note: real Bitcoin mining structured across three pockets (mining power, BTC, USDC reserve), accumulating BTC over a 24-month term with rule-based take-profit; accumulated BTC is settled at maturity, with no periodic cash distribution.",
   apyTarget: { low: 8, high: 15 },
@@ -122,11 +133,14 @@ export const VAULT_YIELD: VaultDefinition = {
 
 // ── Hearst Defensive Vault — lower risk, 5–8% estimated band, mining 15–25% ──
 export const VAULT_DEFENSIVE: VaultDefinition = {
+  /** @deprecated phantom preset — no such product exists in the Series 1 line.
+   *  Kept only so a legacy `?vault=defensive` or memo request does not crash;
+   *  its output is explicitly labelled a retired configuration. */
   id: "defensive",
   ticker: "HDV",
-  label: "Hearst Defensive Vault",
+  label: "Hearst Defensive Vault (retired configuration)",
   description:
-    "Capital-preservation tilt: a larger stable reserve and USDC base sleeve, with mining capped at a low band to dampen drawdowns.",
+    "Retired pre-Series 1 configuration — not an offered product. Preserved for legacy report compatibility only; any document generated from it must state this status.",
   apyTarget: { low: 5, high: 8 },
   baseMode: "defensive",
   allocationTargets: {
@@ -139,19 +153,22 @@ export const VAULT_DEFENSIVE: VaultDefinition = {
   defaultProvenance: "estimated",
   methodologyVersion: METHODOLOGY_V3,
   assumptions: [
-    "Mining exposure held in the 15–25% band; majority in stable reserve and USDC base.",
-    "Designed to reduce volatility versus the Yield Vault, at the cost of upside.",
+    "RETIRED CONFIGURATION: this preset predates Series 1 and is not an offered product; it exists solely for legacy report compatibility.",
+    "Its allocation (20/10/35/35 across four sleeves) does not match the Series 1 contract, which hard-enforces a three-pocket 40/27/33 layout.",
     "Outputs are projections, not guaranteed. Past performance does not predict future results.",
   ],
 };
 
-// ── Hearst BTC Plus Vault — higher tactical BTC, 10–20% estimated band ──
+// ── RETIRED pre-Series-1 preset (compat only — see VAULT_DEFENSIVE note) ─────
 export const VAULT_BTC_PLUS: VaultDefinition = {
+  /** @deprecated phantom preset — no such product exists in the Series 1 line.
+   *  Kept only so a legacy `?vault=btc-plus` or memo request does not crash;
+   *  its output is explicitly labelled a retired configuration. */
   id: "btc-plus",
   ticker: "HBP",
-  label: "Hearst BTC Plus Vault",
+  label: "Hearst BTC Plus Vault (retired configuration)",
   description:
-    "Upside-tilted strategy with a heavier BTC tactical sleeve alongside mining, accepting wider drawdowns for higher projected yield.",
+    "Retired pre-Series 1 configuration — not an offered product. Preserved for legacy report compatibility only; any document generated from it must state this status.",
   apyTarget: { low: 10, high: 20 },
   baseMode: "opportunistic",
   allocationTargets: {
@@ -164,8 +181,8 @@ export const VAULT_BTC_PLUS: VaultDefinition = {
   defaultProvenance: "estimated",
   methodologyVersion: METHODOLOGY_V3,
   assumptions: [
-    "BTC tactical sleeve is the largest single allocation; mining is secondary.",
-    "Higher projected band reflects greater BTC delta and lower stable buffer.",
+    "RETIRED CONFIGURATION: this preset predates Series 1 and is not an offered product; it exists solely for legacy report compatibility.",
+    "Its allocation (40/45/10/5 across four sleeves) does not match the Series 1 contract, which hard-enforces a three-pocket 40/27/33 layout.",
     "Outputs are projections, not guaranteed. Past performance does not predict future results.",
   ],
 };

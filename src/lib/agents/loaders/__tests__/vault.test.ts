@@ -89,7 +89,10 @@ describe("loadMemoInput — vault resolution", () => {
     findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
     const result = await loadMemoInput("btc-plus");
     expect(result.vault.id).toBe("btc-plus");
-    expect(result.vault.name).toBe("Hearst BTC Plus Vault");
+    // The phantom preset is contained, not deleted: a legacy request still
+    // resolves, but its label carries the retired marker so the memo cannot
+    // present it as an offered product.
+    expect(result.vault.name).toBe("Hearst BTC Plus Vault (retired configuration)");
     expect(result.vault.apyRange).toEqual({ low: 10, high: 20 });
     // AUM/mode/riskScore come from the live snapshot, not the preset.
     expect(result.vault.aumUsdc).toBe(24_500_000);
@@ -278,5 +281,65 @@ describe("loadVaultMonthlyHistory", () => {
     // Outage ≠ empty history: the caller (memo cron) must see the failure, not
     // a blank table it would render as "no history yet".
     await expect(loadVaultMonthlyHistory(3)).rejects.toThrow("db unreachable");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Series 1 canon containment — the presets feed an investor-facing memo, so
+// their text surfaces must never speak the language of a yield product.
+// yield/defensive/btc-plus remain ACCEPTED ids (the cron calls loadMemoInput()
+// with no id and the admin action validates all three — deleting them breaks
+// both), but what they SAY is contained.
+// ---------------------------------------------------------------------------
+
+describe("Series 1 canon — preset text surfaces", () => {
+  // Assertions of the forbidden concepts, not mere occurrences of the words:
+  // the canon texts legitimately DENY them ("not a distributed cash yield",
+  // "not guaranteed"), and a screen for the bare words would flag the denials
+  // that are doing the honesty work. Negative lookbehind excludes "not …".
+  const CANON_VIOLATIONS =
+    /yield product|coupon|(?<!not )guaranteed|assured|certain return|projected yield|higher projected|dampen drawdowns|defensive yield/i;
+
+  it("resolveVaultDefinition('yield') resolves to the Series 1 flagship label", async () => {
+    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
+    const result = await loadMemoInput("yield");
+    expect(result.vault.name).toBe("Hearst Bitcoin Reserve Vault — Series 1");
+    // Its assumptions describe accumulation, never a distributed yield promise.
+    for (const line of result.vault.assumptions) {
+      expect(line).not.toMatch(CANON_VIOLATIONS);
+    }
+  });
+
+  it("legacy ids stay accepted — the cron path (no id) and both phantom ids resolve", async () => {
+    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
+    // No id = the cron's call shape; must resolve to the flagship.
+    const byDefault = await loadMemoInput();
+    expect(byDefault.vault.name).toBe("Hearst Bitcoin Reserve Vault — Series 1");
+    await expect(loadMemoInput("defensive")).resolves.toBeDefined();
+    await expect(loadMemoInput("btc-plus")).resolves.toBeDefined();
+  });
+
+  it("phantom presets are labelled retired and say so in their assumptions", async () => {
+    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
+    for (const id of ["defensive", "btc-plus"] as const) {
+      const result = await loadMemoInput(id);
+      expect(result.vault.name).toContain("(retired configuration)");
+      // The first assumption states the retirement — the memo agent cites
+      // assumptions verbatim, so the status reaches the document.
+      expect(result.vault.assumptions[0]).toContain("RETIRED CONFIGURATION");
+      expect(result.vault.assumptions.join(" ")).not.toMatch(CANON_VIOLATIONS);
+    }
+  });
+
+  it("no preset description promises drawdown damping or 'higher projected yield' anymore", async () => {
+    // The old defensive description promised to "dampen drawdowns"; btc-plus
+    // literally said "higher projected yield". Both are gone from every text
+    // surface a memo can cite.
+    findFirstVaultSnapshot.mockResolvedValue(makeSnapshot());
+    for (const id of [undefined, "yield", "defensive", "btc-plus"] as const) {
+      const result = await loadMemoInput(id);
+      const allText = [result.vault.name, ...result.vault.assumptions].join(" ");
+      expect(allText).not.toMatch(/dampen drawdowns|higher projected yield/i);
+    }
   });
 });

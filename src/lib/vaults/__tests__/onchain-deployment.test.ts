@@ -60,8 +60,17 @@ describe("BTC Plus onchain deployment fixture — structural checks", () => {
     expect(BTC_PLUS_ONCHAIN.slug).toBe("btc-plus");
   });
 
-  it("name matches the engine fixture label", () => {
-    expect(BTC_PLUS_ONCHAIN.name).toBe(VAULT_BTC_PLUS.label);
+  it("seeded name is the historical label; the engine label now carries the retired marker", () => {
+    // The seed row keeps the name it was created under — rewriting stored data
+    // is not what a preset rename does. The ENGINE label diverges on purpose:
+    // it appends "(retired configuration)" so any document generated from this
+    // phantom preset states its status. The invariant that matters is that the
+    // engine label still recognisably extends the seeded name (so the
+    // resolver's label-collision dedup, which also keeps the historical alias,
+    // still relates the two).
+    expect(BTC_PLUS_ONCHAIN.name).toBe("Hearst BTC Plus Vault");
+    expect(VAULT_BTC_PLUS.label).toBe("Hearst BTC Plus Vault (retired configuration)");
+    expect(VAULT_BTC_PLUS.label.startsWith(BTC_PLUS_ONCHAIN.name)).toBe(true);
   });
 
   it("chainId is Base Sepolia (84532)", () => {

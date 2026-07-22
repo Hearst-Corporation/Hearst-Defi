@@ -126,9 +126,17 @@ export async function listAllVaults(
 
   const fixtureTickers = new Set(FIXTURE_BY_TICKER.keys());
   const fixtureIds = new Set<string>(FIXTURE_BY_ID.keys());
-  const fixtureLabels = new Set(
-    FIXTURES.map((f) => f.label.trim().toLowerCase()),
-  );
+  const fixtureLabels = new Set([
+    ...FIXTURES.map((f) => f.label.trim().toLowerCase()),
+    // Historical labels stay collision keys. The presets were renamed to the
+    // Series 1 canon ("Hearst Bitcoin Reserve Vault — Series 1", "… (retired
+    // configuration)"), but VaultDeployment rows created under the OLD names
+    // still exist — without these aliases such a row would stop deduplicating
+    // against its fixture and show up twice in every vault list.
+    "hearst yield vault",
+    "hearst defensive vault",
+    "hearst btc plus vault",
+  ]);
 
   const seenDeploymentKeys = new Set<string>();
   const deploymentRefs: VaultRef[] = [];

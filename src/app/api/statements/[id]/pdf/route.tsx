@@ -5,6 +5,7 @@ import { renderToBuffer, Document, Page, Text, View, Svg, Rect, G, StyleSheet } 
 
 import { requireAuth } from "@/lib/auth/require-auth";
 import { PDF_DARK } from "@/lib/pdf/pdf-palette";
+import { SERIES1_FULL_NAME, series1DisplayName } from "@/lib/vaults/series1";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import {
@@ -434,7 +435,9 @@ function StatementDocument({ data }: { data: StatementData }) {
           <View style={styles.headerLeft}>
             <LogoSvg />
             <Text style={[styles.tagline, { marginTop: 6 }]}>
-              Institutional Bitcoin mining note · Hearst Yield Vault
+              {/* Canon, not the retired "Yield Vault" name: this tagline sits
+                  on every investor statement. */}
+              Institutional Bitcoin mining note · {SERIES1_FULL_NAME}
             </Text>
           </View>
           <View style={styles.headerRight}>
@@ -775,7 +778,10 @@ export async function GET(
 
     return {
       id: p.id,
-      vaultName: p.vaultDeployment?.name ?? "Hearst Yield Vault",
+      // series1DisplayName remaps retired stored names ("Hearst Yield Vault")
+      // and absences onto the Series 1 canon — the same read boundary the
+      // cockpit already uses, now applied to the statement PDF.
+      vaultName: series1DisplayName(p.vaultDeployment?.name),
       vaultTicker: p.vaultDeployment?.ticker ?? "HYV-A",
       status: p.status,
       principalUsdc: principal,
