@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Series 1 Layout Proposal — Composer 2.5 · Hearst Bitcoin Reserve Vault</title>
+<meta name="description" content="Layout direction for Hearst Connect Series 1 dashboard — 3 cockpit proposals, HTML first, no React changes.">
+<style>
+/* =============================================================================
+   HEARST SERIES 1 — LAYOUT PROPOSAL COMPOSER 2.5
+   Autonomous file: no CDN, no external images, no frameworks.
+   Accent: Hearst green #A7FB90 — signal only. Deep black canvas.
+   ========================================================================== */
+:root {
+  --accent: #A7FB90;
+  --accent-strong: color-mix(in srgb, var(--accent) 85%, #fff);
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-ring: color-mix(in srgb, var(--accent) 28%, transparent);
+  --accent-halo: color-mix(in srgb, var(--accent) 6%, transparent);
+
+  --zinc-50: #fafafa;
+  --zinc-400: #a1a1aa;
+  --zinc-500: #71717a;
+  --zinc-600: #52525b;
+  --zinc-700: #3f3f46;
+  --zinc-800: #27272a;
+  --zinc-900: #18181b;
+  --zinc-950: #09090b;
+
+  --page-bg: var(--zinc-950);
+  --fg-strong: #fff;
+  --fg-muted: var(--zinc-400);
+  --fg-faint: var(--zinc-600);
+  --hairline: color-mix(in srgb, #fff 8%, transparent);
+  --hairline-faint: color-mix(in srgb, #fff 4%, transparent);
+  --separator: var(--zinc-800);
+
+  --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem;
+  --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --radius-lg: .5rem;
+  --radius-xl: .75rem;
+  --sidebar-w: 15rem;
+  --header-h: 3.5rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--page-bg);
+  color: var(--fg-muted);
+  font-size: .875rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Doc chrome (proposal navigator) ---- */
+.doc-nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-6);
+  background: color-mix(in srgb, var(--zinc-950) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--hairline);
+}
+.doc-nav .brand {
+  font-weight: 700; font-size: .8125rem; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--accent-strong);
+}
+.doc-nav .tabs { display: flex; gap: var(--space-1); flex-wrap: wrap; }
+.doc-nav .tab {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: .8125rem; font-weight: 600;
+  color: var(--fg-muted); background: transparent;
+  border: 1px solid transparent; cursor: pointer;
+  transition: all .15s;
+}
+.doc-nav .tab:hover { color: var(--fg-strong); background: var(--hairline-faint); }
+.doc-nav .tab.is-active {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border-color: var(--accent-ring);
+}
+.doc-intro {
+  max-width: 72rem; margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+}
+.doc-intro h1 {
+  font-size: 1.75rem; font-weight: 700; letter-spacing: -.02em;
+  color: var(--fg-strong); line-height: 1.2;
+}
+.doc-intro .tagline { margin-top: var(--space-2); font-size: 1rem; color: var(--fg-muted); }
+.doc-intro .rules {
+  margin-top: var(--space-4); padding: var(--space-4);
+  border-left: 2px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  font-size: .8125rem;
+}
+
+.proposal { display: none; }
+.proposal.is-visible { display: block; }
+
+.proposal-meta {
+  max-width: 90rem; margin: 0 auto var(--space-6);
+  padding: 0 var(--space-6);
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+.meta-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--zinc-900) 60%, transparent);
+  border: 1px solid var(--hairline-faint);
+}
+.meta-card h3 {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--accent-strong); margin-bottom: var(--space-2);
+}
+.meta-card p, .meta-card ul { font-size: .8125rem; color: var(--fg-muted); }
+.meta-card ul { padding-left: 1.1rem; }
+.meta-card li + li { margin-top: var(--space-1); }
+.effort { display: inline-block; padding: 2px 8px; border-radius: 999px;
+  font-size: .6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.effort.low { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent-strong); }
+.effort.med { background: color-mix(in srgb, #F5C451 15%, transparent); color: #F5C451; }
+.effort.high { background: color-mix(in srgb, #7FB5FF 15%, transparent); color: #7FB5FF; }
+
+/* ---- Shared cockpit shell ---- */
+.cockpit-frame {
+  max-width: 90rem; margin: 0 auto var(--space-12);
+  padding: 0 var(--space-6);
+}
+.frame-label {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--fg-faint);
+  margin-bottom: var(--space-3);
+}
+.frame-label span { color: var(--accent-strong); }
+
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  min-height: 820px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  background: var(--page-bg);
+  position: relative;
+}
+.shell::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 55% 40% at 55% 15%, var(--accent-halo), transparent 70%);
+}
+
+.shell-sidebar {
+  position: relative; z-index: 1;
+  background: var(--zinc-900);
+  border-right: 1px solid var(--hairline);
+  padding: var(--space-5) var(--space-4);
+  display: flex; flex-direction: column; gap: var(--space-6);
+}
+.brand-mark {
+  font-weight: 700; font-size: .875rem; color: var(--fg-strong);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.brand-glyph {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(140deg, var(--accent), color-mix(in srgb, var(--accent) 35%, #000));
+  display: grid; place-items: center;
+  font-size: .625rem; font-weight: 800; color: #06210a;
+}
+.nav-item {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: .8125rem; font-weight: 500; color: var(--fg-muted);
+}
+.nav-item.on {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.shell-main { position: relative; z-index: 1; display: flex; flex-direction: column; min-width: 0; }
+.shell-header {
+  height: var(--header-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--space-6);
+  border-bottom: 1px solid var(--hairline-faint);
+  background: color-mix(in srgb, var(--zinc-900) 50%, transparent);
+}
+.shell-content {
+  flex: 1; padding: var(--space-6);
+  display: flex; flex-direction: column; gap: var(--space-6);
+  overflow: hidden;
+}
+
+/* Typography */
+.t-eyebrow {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--accent-strong);
+}
+.t-hero {
+  font-size: clamp(2rem, 4vw, 3rem); font-weight: 700;
+  letter-spacing: -.03em; line-height: 1;
+  color: var(--fg-strong); font-variant-numeric: tabular-nums;
+}
+.t-kpi { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em;
+  color: var(--fg-strong); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.t-label { font-size: .6875rem; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--fg-faint); }
+.t-caption { font-size: .75rem; color: var(--fg-muted); line-height: 1.45; }
+.t-strong { color: var(--fg-strong); font-weight: 600; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px; border-radius: 999px;
+  font-size: .625rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  border: 1px solid var(--hairline); color: var(--fg-muted);
+}
+.badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--fg-faint); }
+.badge.accent { color: var(--accent-strong); border-color: var(--accent-ring); }
+.badge.accent .dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+/* KPI band — DS gap-px pattern */
+.kpi-band {
+  display: grid; gap: 1px;
+  background: var(--separator);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+.kpi-band.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kpi-band.cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.kpi-band.cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.kpi-cell {
+  background: color-mix(in srgb, var(--zinc-900) 80%, var(--zinc-950));
+  padding: var(--space-4) var(--space-5);
+}
+.kpi-cell.featured {
+  background: color-mix(in srgb, var(--zinc-800) 40%, var(--zinc-900));
+}
+.kpi-cell .kpi-label { composes: t-label; font-size: .625rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--fg-faint); }
+.kpi-cell .kpi-value { font-size: 1.25rem; font-weight: 700; color: var(--fg-strong);
+  margin-top: var(--space-1); font-variant-numeric: tabular-nums; }
+.kpi-cell .kpi-hint { font-size: .6875rem; color: var(--fg-faint); margin-top: 2px; }
+
+/* Visual panel — fused surface, no card-in-card */
+.visual-panel {
+  flex: 1; min-height: 0;
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--zinc-900) 70%, var(--zinc-950));
+  position: relative; overflow: hidden;
+}
+.visual-panel .mesh {
+  position: absolute; inset: 0; pointer-events: none; opacity: .35;
+  background-image: radial-gradient(circle, color-mix(in srgb, #fff 4%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.visual-panel .halo {
+  position: absolute; top: -20%; left: 30%; width: 60%; height: 70%;
+  background: radial-gradient(ellipse, var(--accent-halo), transparent 65%);
+  pointer-events: none;
+}
+
+/* Operational rail */
+.op-rail {
+  display: grid; gap: 1px;
+  background: var(--separator);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+.op-rail.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.op-rail .op-cell {
+  background: color-mix(in srgb, var(--zinc-900) 60%, var(--zinc-950));
+  padding: var(--space-5);
+}
+.op-rail .op-title {
+  font-size: .625rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--fg-faint); margin-bottom: var(--space-3);
+}
+.op-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--hairline-faint);
+}
+.op-row:first-of-type { border-top: none; }
+.op-row .lbl { font-size: .8125rem; color: var(--fg-muted); }
+.op-row .val { font-size: .8125rem; font-weight: 600; color: var(--fg-strong);
+  font-variant-numeric: tabular-nums; text-align: right; }
+
+/* Timeline */
+.timeline {
+  display: flex; align-items: flex-start; gap: 0;
+  padding: var(--space-5) 0;
+  overflow-x: auto;
+}
+.tl-node {
+  flex: 1; min-width: 120px; position: relative; text-align: center;
+  padding: 0 var(--space-2);
+}
+.tl-node::before {
+  content: ''; position: absolute; top: 10px; left: 0; right: 0; height: 1px;
+  background: var(--hairline);
+}
+.tl-node:first-child::before { left: 50%; }
+.tl-node:last-child::before { right: 50%; }
+.tl-dot {
+  width: 20px; height: 20px; border-radius: 50%;
+  margin: 0 auto var(--space-3);
+  position: relative; z-index: 1;
+  background: var(--zinc-800);
+  border: 2px solid var(--hairline);
+}
+.tl-dot.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-ring);
+}
+.tl-node .tl-label { font-size: .625rem; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--fg-faint); }
+.tl-node .tl-val { font-size: .75rem; font-weight: 600; color: var(--fg-strong); margin-top: 2px; }
+
+/* Flow diagram */
+.flow-diagram {
+  display: flex; align-items: center; gap: 0;
+  padding: var(--space-6) var(--space-4);
+  overflow-x: auto;
+}
+.flow-step {
+  flex: 1; min-width: 140px; text-align: center; position: relative;
+}
+.flow-step .step-icon {
+  width: 48px; height: 48px; margin: 0 auto var(--space-3);
+  border-radius: 50%;
+  background: var(--zinc-800);
+  border: 1px solid var(--hairline);
+  display: grid; place-items: center;
+}
+.flow-step.active .step-icon {
+  border-color: var(--accent-ring);
+  background: var(--accent-soft);
+}
+.flow-step .step-label { font-size: .75rem; font-weight: 600; color: var(--fg-strong); }
+.flow-step .step-detail { font-size: .6875rem; color: var(--fg-faint); margin-top: 2px; }
+.flow-connector {
+  flex: 0 0 40px; height: 1px; background: var(--accent-ring);
+  position: relative;
+}
+.flow-connector::after {
+  content: ''; position: absolute; right: 0; top: -3px;
+  border: 4px solid transparent; border-left-color: var(--accent);
+}
+
+/* Wallet strip */
+.wallet-strip {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--zinc-900) 50%, transparent);
+  border: 1px solid var(--hairline-faint);
+}
+.wallet-strip .ws-item { display: flex; flex-direction: column; gap: 2px; }
+.wallet-strip .ws-label { font-size: .625rem; font-weight: 600; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--fg-faint); }
+.wallet-strip .ws-val { font-size: .8125rem; font-weight: 600; color: var(--fg-strong); }
+
+/* Command center rail */
+.context-rail {
+  display: flex; flex-direction: column; gap: var(--space-4);
+  border-left: 1px solid var(--hairline-faint);
+  padding-left: var(--space-5);
+}
+.ctx-block { padding-bottom: var(--space-4); border-bottom: 1px solid var(--hairline-faint); }
+.ctx-block:last-child { border-bottom: none; }
+
+/* Mobile preview */
+.mobile-preview {
+  max-width: 390px; margin: var(--space-8) auto 0;
+  border: 1px solid var(--hairline);
+  border-radius: 24px; overflow: hidden;
+  background: var(--page-bg);
+}
+.mobile-preview .m-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--hairline-faint);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.mobile-preview .m-content { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4); }
+.mobile-note {
+  max-width: 90rem; margin: var(--space-6) auto 0;
+  padding: var(--space-4) var(--space-6);
+  font-size: .8125rem; color: var(--fg-muted);
+  border-top: 1px solid var(--hairline-faint);
+}
+
+/* Footer recommendation */
+.recommendation {
+  max-width: 72rem; margin: var(--space-12) auto;
+  padding: var(--space-8) var(--space-6);
+  border-top: 1px solid var(--hairline);
+}
+.recommendation h2 { font-size: 1.25rem; color: var(--fg-strong); margin-bottom: var(--space-4); }
+.recommendation .rec-choice {
+  font-size: 1.5rem; font-weight: 700; color: var(--accent-strong);
+  margin-bottom: var(--space-4);
+}
+.recommendation ul { padding-left: 1.2rem; }
+.recommendation li { margin-top: var(--space-2); font-size: .875rem; }
+
+svg text { font-family: var(--font); }
+.mono { font-family: var(--mono); }
+
+@media (max-width: 1100px) {
+  .shell { grid-template-columns: 1fr; min-height: auto; }
+  .shell-sidebar { display: none; }
+  .kpi-band.cols-6, .kpi-band.cols-5 { grid-template-columns: repeat(2, 1fr); }
+  .op-rail.cols-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .doc-nav { padding: var(--space-3) var(--space-4); }
+  .cockpit-frame { padding: 0 var(--space-4); }
+  .kpi-band.cols-4 { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <span class="brand">Hearst · Series 1 Layout Proposal</span>
+  <div class="tabs">
+    <button class="tab is-active" data-target="prop-a">A · Integrated Cockpit</button>
+    <button class="tab" data-target="prop-b">B · Reserve Story</button>
+    <button class="tab" data-target="prop-c">C · Command Center</button>
+    <button class="tab" data-target="rec">Recommandation</button>
+  </div>
+</nav>
+
+<header class="doc-intro">
+  <h1>Hearst Bitcoin Reserve Vault — Series 1</h1>
+  <p class="tagline">Not yield. Bitcoin inventory. · Not a coupon. A Bitcoin reserve. · BTC delivered at maturity.</p>
+  <div class="rules">
+  <strong>Règles</strong> : vert Hearst signal uniquement · noir deep · pas de bordeaux · pas d'APY/yield/distribution/borrow/leverage ·
+  Capital structured across B1 Mining Power 40% · B2 BTC Reserve 27% · B3 Operating Reserve 33% · Legacy mode / v2.1 address TBD.
+  </div>
+</header>
+
+<!-- ================================================================== PROP A -->
+<section id="prop-a" class="proposal is-visible">
+  <div class="proposal-meta">
+    <div class="meta-card">
+      <h3>Proposition A</h3>
+      <p><strong>Integrated Cockpit</strong> — 3 grandes zones au lieu de 12 cards.</p>
+      <p style="margin-top:8px"><span class="effort low">Effort : Moyen</span></p>
+    </div>
+    <div class="meta-card">
+      <h3>Remplace</h3>
+      <ul>
+        <li>Series1DashboardHero + 6-cell context grid</li>
+        <li>Series1BitcoinAccumulation card</li>
+        <li>Series1CapitalArchitecture card</li>
+        <li>3× Series1MiningRegister cards</li>
+      </ul>
+    </div>
+    <div class="meta-card">
+      <h3>Avantage</h3>
+      <ul>
+        <li>Aligné DS §05 Shell client + kpi-band</li>
+        <li>1 chiffre héro, composition fluide</li>
+        <li>Migration data layer minimale</li>
+      </ul>
+    </div>
+    <div class="meta-card">
+      <h3>Risque</h3>
+      <ul>
+        <li>Rail opérationnel peut sembler dense</li>
+        <li>Responsive hero + visual panel à calibrer</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cockpit-frame">
+    <p class="frame-label">Desktop <span>1440px</span> — Proposition A</p>
+    <div class="shell">
+      <aside class="shell-sidebar">
+        <div class="brand-mark"><span class="brand-glyph">H</span> Hearst Connect</div>
+        <div><div class="nav-item on">Dashboard</div><div class="nav-item">Vault</div><div class="nav-item">Portfolio</div><div class="nav-item">Proof Center</div><div class="nav-item">Profile</div></div>
+      </aside>
+      <div class="shell-main">
+        <header class="shell-header">
+          <span class="t-caption">Series 1 overview</span>
+          <span class="badge accent"><span class="dot"></span> Legacy mode</span>
+        </header>
+        <div class="shell-content">
+          <!-- ZONE 1: Hero fusionné -->
+          <div style="border-radius:var(--radius-xl);overflow:hidden;background:color-mix(in srgb,var(--zinc-900) 80%,var(--zinc-950));position:relative">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.6"></div>
+            <div style="padding:var(--space-6) var(--space-6) var(--space-4)">
+              <p class="t-eyebrow">Hearst Bitcoin Reserve Vault · Series 1</p>
+              <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:var(--space-6);margin-top:var(--space-5);align-items:end">
+                <div>
+                  <p class="t-label" style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent)"></span> Bitcoin accumulated</p>
+                  <p class="t-hero mono" style="margin-top:var(--space-3)">—</p>
+                  <p class="t-caption" style="margin-top:var(--space-3);max-width:48ch">Accumulated BTC is the principal investor outcome and is delivered at maturity. Market price is contextual only.</p>
+                  <span class="badge" style="margin-top:var(--space-3)"><span class="dot"></span> Not yet reported</span>
+                </div>
+                <div class="kpi-band cols-3" style="border-radius:var(--radius-lg)">
+                  <div class="kpi-cell"><p class="kpi-label">Capital deployed</p><p class="kpi-value">—</p><p class="kpi-hint">USDC subscribed</p></div>
+                  <div class="kpi-cell"><p class="kpi-label">Term progress</p><p class="kpi-value">—</p><p class="kpi-hint">Months elapsed</p></div>
+                  <div class="kpi-cell"><p class="kpi-label">Contract</p><p class="kpi-value" style="font-size:1rem">Legacy</p><p class="kpi-hint">v2.1 address TBD</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ZONE 2: Visual panel fusionné (reserve + allocation) -->
+          <div class="visual-panel" style="display:grid;grid-template-columns:1.6fr 1fr;min-height:280px">
+            <div class="mesh"></div><div class="halo"></div>
+            <div style="position:relative;z-index:1;padding:var(--space-5);display:flex;flex-direction:column">
+              <p class="t-strong" style="font-size:.875rem">Accumulated Bitcoin — reserve visual</p>
+              <p class="t-caption" style="margin-top:4px">Mining production credited to the reserve through the term.</p>
+              <div style="flex:1;min-height:180px;margin-top:var(--space-3)">
+                <svg viewBox="0 0 520 160" width="100%" height="100%" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A7FB90" stop-opacity=".25"/><stop offset="100%" stop-color="#A7FB90" stop-opacity="0"/></linearGradient>
+                  </defs>
+                  <line x1="40" y1="130" x2="500" y2="130" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+                  <line x1="40" y1="30" x2="40" y2="130" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+                  <path d="M40,125 C120,120 180,100 260,85 S400,55 500,40 L500,130 L40,130 Z" fill="url(#ga)"/>
+                  <path d="M40,125 C120,120 180,100 260,85 S400,55 500,40" fill="none" stroke="#A7FB90" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+                  <circle cx="500" cy="40" r="4" fill="#A7FB90"/>
+                  <text x="40" y="148" fill="#71717a" font-size="9">M1</text>
+                  <text x="260" y="148" fill="#71717a" font-size="9" text-anchor="middle">M12</text>
+                  <text x="500" y="148" fill="#71717a" font-size="9" text-anchor="end">M24 · maturity</text>
+                </svg>
+              </div>
+            </div>
+            <div style="position:relative;z-index:1;padding:var(--space-5);border-left:1px solid var(--hairline-faint);display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <p class="t-label">Pocket allocation</p>
+              <svg viewBox="0 0 160 160" width="140" height="140" style="margin:var(--space-4) 0">
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#27272a" stroke-width="14"/>
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#52525b" stroke-width="14" stroke-dasharray="150.8 226.2" stroke-dashoffset="0" transform="rotate(-90 80 80)"/>
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#A7FB90" stroke-width="14" stroke-dasharray="101.8 275.2" stroke-dashoffset="-150.8" transform="rotate(-90 80 80)" opacity=".85"/>
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#71717a" stroke-width="14" stroke-dasharray="124.4 252.6" stroke-dashoffset="-252.6" transform="rotate(-90 80 80)"/>
+                <text x="80" y="76" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">40/27/33</text>
+                <text x="80" y="92" text-anchor="middle" fill="#71717a" font-size="8">Policy target</text>
+              </svg>
+              <div style="width:100%;font-size:.75rem">
+                <div style="display:flex;justify-content:space-between;padding:4px 0"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#52525b;margin-right:6px"></span>B1 Mining Power</span><span class="t-strong">40%</span></div>
+                <div style="display:flex;justify-content:space-between;padding:4px 0"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#A7FB90;margin-right:6px"></span>B2 BTC Reserve</span><span class="t-strong">27%</span></div>
+                <div style="display:flex;justify-content:space-between;padding:4px 0"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#71717a;margin-right:6px"></span>B3 Operating Res.</span><span class="t-strong">33%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ZONE 3: Operational rail -->
+          <div class="op-rail cols-3">
+            <div class="op-cell">
+              <p class="op-title">Capital flow</p>
+              <div class="op-row"><span class="lbl">USDC subscription</span><span class="val">deposit → shares</span></div>
+              <div class="op-row"><span class="lbl">B1 / B2 / B3</span><span class="val">40 · 27 · 33</span></div>
+              <div class="op-row"><span class="lbl">Delivery</span><span class="val" style="color:var(--accent-strong)">At maturity</span></div>
+            </div>
+            <div class="op-cell">
+              <p class="op-title">Mining register</p>
+              <div class="op-row"><span class="lbl">BTC earned</span><span class="val">—</span></div>
+              <div class="op-row"><span class="lbl">Hashrate</span><span class="val">— TH/s</span></div>
+              <div class="op-row"><span class="lbl">Mining state</span><span class="val">—</span></div>
+            </div>
+            <div class="op-cell">
+              <p class="op-title">Reserve &amp; contract</p>
+              <div class="op-row"><span class="lbl">Monthly electricity</span><span class="val">—</span></div>
+              <div class="op-row"><span class="lbl">Underlying asset</span><span class="val mono">0x…TBD</span></div>
+              <div class="op-row"><span class="lbl">Delivery evidence</span><span class="val">At maturity</span></div>
+            </div>
+          </div>
+
+          <div class="wallet-strip">
+            <div class="ws-item"><span class="ws-label">Allocation mode</span><span class="ws-val">Advisory · 40/27/33</span></div>
+            <div class="ws-item"><span class="ws-label">Documents</span><span class="ws-val">KYC · Methodology v3.0</span></div>
+            <div class="ws-item"><span class="ws-label">Proof</span><span class="ws-val" style="color:var(--accent-strong)">View proof center →</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-preview">
+      <div class="m-header"><span class="t-strong" style="font-size:.875rem">Dashboard</span><span class="badge accent"><span class="dot"></span> Series 1</span></div>
+      <div class="m-content">
+        <p class="t-eyebrow">Hearst Bitcoin Reserve Vault</p>
+        <p class="t-hero mono" style="font-size:2rem">—</p>
+        <p class="t-caption">BTC delivered at maturity.</p>
+        <div class="kpi-band" style="grid-template-columns:1fr 1fr">
+          <div class="kpi-cell"><p class="kpi-label">Capital</p><p class="kpi-value">—</p></div>
+          <div class="kpi-cell"><p class="kpi-label">Term</p><p class="kpi-value">—</p></div>
+        </div>
+        <div class="visual-panel" style="min-height:140px;padding:var(--space-4)">
+          <svg viewBox="0 0 300 80" width="100%"><path d="M10,70 C80,65 140,50 290,25" fill="none" stroke="#A7FB90" stroke-width="2" opacity=".6"/></svg>
+        </div>
+        <div class="op-rail" style="grid-template-columns:1fr"><div class="op-cell"><p class="op-title">Mining · Reserve · Contract</p><div class="op-row"><span class="lbl">Status</span><span class="val">Legacy · v2.1 TBD</span></div></div></div>
+      </div>
+    </div>
+    <p class="mobile-note"><strong>Mobile (&lt;1024px)</strong> : sidebar → drawer ; hero stack vertical ; visual panel full-width ; op-rail en accordion vertical ; wallet strip compact.</p>
+  </div>
+</section>
+
+<!-- ================================================================== PROP B -->
+<section id="prop-b" class="proposal">
+  <div class="proposal-meta">
+    <div class="meta-card">
+      <h3>Proposition B</h3>
+      <p><strong>Reserve Story</strong> — parcours narratif horizontal.</p>
+      <p style="margin-top:8px"><span class="effort high">Effort : Élevé</span></p>
+    </div>
+    <div class="meta-card">
+      <h3>Remplace</h3>
+      <ul>
+        <li>Toute la composition dashboard verticale</li>
+        <li>Section capital flow isolée</li>
+        <li>Grille chart + allocation</li>
+      </ul>
+    </div>
+    <div class="meta-card">
+      <h3>Avantage</h3>
+      <ul>
+        <li>Forte narration produit financier premium</li>
+        <li>Éduque le parcours capital → BTC</li>
+        <li>Idéal pour /vaults et onboarding</li>
+      </ul>
+    </div>
+    <div class="meta-card">
+      <h3>Risque</h3>
+      <ul>
+        <li>Moins dense pour power users</li>
+        <li>Scroll vertical plus long</li>
+        <li>Écart plus grand vs composants actuels</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cockpit-frame">
+    <p class="frame-label">Desktop <span>1440px</span> — Proposition B</p>
+    <div class="shell">
+      <aside class="shell-sidebar">
+        <div class="brand-mark"><span class="brand-glyph">H</span> Hearst Connect</div>
+        <div><div class="nav-item on">Dashboard</div><div class="nav-item">Vault</div><div class="nav-item">Portfolio</div></div>
+      </aside>
+      <div class="shell-main">
+        <header class="shell-header">
+          <span class="t-caption">The reserve story</span>
+          <span class="badge accent"><span class="dot"></span> Series 1</span>
+        </header>
+        <div class="shell-content">
+          <div>
+            <p class="t-eyebrow">Hearst Bitcoin Reserve Vault — Series 1</p>
+            <p style="font-size:1.75rem;font-weight:700;color:var(--fg-strong);margin-top:var(--space-2);letter-spacing:-.02em">Not a coupon. A Bitcoin reserve.</p>
+            <p class="t-caption" style="margin-top:var(--space-2);max-width:60ch">Capital structured across three on-chain pockets. Mining production credits the BTC reserve. Delivered at maturity.</p>
+          </div>
+
+          <!-- Story flow diagram -->
+          <div class="visual-panel">
+            <div class="mesh"></div>
+            <div class="flow-diagram">
+              <div class="flow-step">
+                <div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><text x="12" y="16" text-anchor="middle" fill="#a1a1aa" font-size="8" stroke="none">$</text></svg></div>
+                <p class="step-label">Capital in</p>
+                <p class="step-detail">USDC subscription</p>
+              </div>
+              <div class="flow-connector"></div>
+              <div class="flow-step active">
+                <div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A7FB90" stroke-width="1.5"><rect x="4" y="6" width="5" height="5" rx="1"/><rect x="10" y="6" width="5" height="5" rx="1"/><rect x="16" y="6" width="5" height="5" rx="1"/></svg></div>
+                <p class="step-label">B1 · B2 · B3</p>
+                <p class="step-detail">40% · 27% · 33%</p>
+              </div>
+              <div class="flow-connector"></div>
+              <div class="flow-step active">
+                <div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A7FB90" stroke-width="1.5"><path d="M8 16l4-8 4 8"/><circle cx="12" cy="12" r="9"/></svg></div>
+                <p class="step-label">Mining</p>
+                <p class="step-detail">Hashpower → BTC</p>
+              </div>
+              <div class="flow-connector"></div>
+              <div class="flow-step active">
+                <div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A7FB90" stroke-width="2"><path d="M12 4v16M8 8h8M8 16h8"/></svg></div>
+                <p class="step-label">BTC Reserve</p>
+                <p class="step-detail">Inventory ledger</p>
+              </div>
+              <div class="flow-connector"></div>
+              <div class="flow-step">
+                <div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="1.5"><path d="M6 12h12M12 6v12"/></svg></div>
+                <p class="step-label">Maturity</p>
+                <p class="step-detail">BTC delivery</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reserve timeline + BTC visual -->
+          <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:var(--space-6)">
+            <div>
+              <p class="t-label" style="margin-bottom:var(--space-4)">Reserve timeline</p>
+              <div class="timeline">
+                <div class="tl-node"><div class="tl-dot active"></div><p class="tl-label">Subscribe</p><p class="tl-val">Capital in</p></div>
+                <div class="tl-node"><div class="tl-dot active"></div><p class="tl-label">Allocate</p><p class="tl-val">B1/B2/B3</p></div>
+                <div class="tl-node"><div class="tl-dot"></div><p class="tl-label">Accumulate</p><p class="tl-val">— BTC</p></div>
+                <div class="tl-node"><div class="tl-dot"></div><p class="tl-label">Maturity</p><p class="tl-val">Delivery</p></div>
+              </div>
+              <div class="kpi-band" style="margin-top:var(--space-5);grid-template-columns:1fr 1fr">
+                <div class="kpi-cell featured"><p class="kpi-label">Bitcoin accumulated</p><p class="kpi-value mono">—</p></div>
+                <div class="kpi-cell"><p class="kpi-label">Term</p><p class="kpi-value">— / 24</p></div>
+              </div>
+            </div>
+            <div class="visual-panel" style="min-height:200px">
+              <div class="halo"></div>
+              <div style="position:relative;z-index:1;padding:var(--space-5);height:100%;display:flex;flex-direction:column">
+                <p class="t-strong">BTC reserve visual</p>
+                <svg viewBox="0 0 400 120" style="flex:1;margin-top:var(--space-3)">
+                  <rect x="30" y="90" width="340" height="4" rx="2" fill="#27272a"/>
+                  <rect x="30" y="90" width="120" height="4" rx="2" fill="#A7FB90" opacity=".5"/>
+                  <circle cx="150" cy="50" r="35" fill="none" stroke="#A7FB90" stroke-width="1" opacity=".3"/>
+                  <circle cx="150" cy="50" r="25" fill="none" stroke="#A7FB90" stroke-width="1.5" opacity=".5"/>
+                  <text x="150" y="55" text-anchor="middle" fill="#A7FB90" font-size="14" font-weight="700" opacity=".8">₿</text>
+                  <text x="200" y="40" fill="#fff" font-size="11" font-weight="600">Reserve inventory</text>
+                  <text x="200" y="58" fill="#71717a" font-size="9">Not yet reported · v2.1 TBD</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="wallet-strip">
+            <div class="ws-item"><span class="ws-label">Mining register</span><span class="ws-val">Hashrate — · State —</span></div>
+            <div class="ws-item"><span class="ws-label">Electricity</span><span class="ws-val">B3 Operating Reserve</span></div>
+            <div class="ws-item"><span class="ws-label">Proof</span><span class="ws-val">Contract events → timeline</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="mobile-note"><strong>Mobile</strong> : flow diagram scroll horizontal ; timeline vertical à gauche ; reserve visual full-width en dessous.</p>
+  </div>
+</section>
+
+<!-- ================================================================== PROP C -->
+<section id="prop-c" class="proposal">
+  <div class="proposal-meta">
+    <div class="meta-card">
+      <h3>Proposition C</h3>
+      <p><strong>Command Center</strong> — dense, panel gauche + rail droit.</p>
+      <p style="margin-top:8px"><span class="effort med">Effort : Moyen-élevé</span></p>
+    </div>
+    <div class="meta-card">
+      <h3>Remplace</h3>
+      <ul>
+        <li>Hero card + context grid</li>
+        <li>Section registre 3 cards</li>
+        <li>Proof center card grid</li>
+      </ul>
+    </div>
+    <div class="meta-card">
+      <h3>Avantage</h3>
+      <ul>
+        <li>Max info sans cards multiples</li>
+        <li>Rail contextuel toujours visible</li>
+        <li>Timeline preuves en bas — pas cards</li>
+      </ul>
+    </div>
+    <div class="meta-card">
+      <h3>Risque</h3>
+      <ul>
+        <li>Peut recréer effet « dense admin »</li>
+        <li>2 colonnes difficile en mobile</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cockpit-frame">
+    <p class="frame-label">Desktop <span>1440px</span> — Proposition C</p>
+    <div class="shell">
+      <aside class="shell-sidebar">
+        <div class="brand-mark"><span class="brand-glyph">H</span> Hearst Connect</div>
+        <div><div class="nav-item on">Dashboard</div><div class="nav-item">Proof Center</div></div>
+      </aside>
+      <div class="shell-main">
+        <header class="shell-header">
+          <span class="t-caption">Command center</span>
+          <div style="display:flex;gap:8px"><span class="badge">Hashrate —</span><span class="badge accent"><span class="dot"></span> Mining —</span></div>
+        </header>
+        <div class="shell-content" style="gap:var(--space-5)">
+          <!-- Hero bandeau compact -->
+          <div class="kpi-band cols-5">
+            <div class="kpi-cell featured"><p class="kpi-label">Bitcoin accumulated</p><p class="kpi-value mono">—</p><p class="kpi-hint">Delivered at maturity</p></div>
+            <div class="kpi-cell"><p class="kpi-label">Capital deployed</p><p class="kpi-value">—</p></div>
+            <div class="kpi-cell"><p class="kpi-label">Term</p><p class="kpi-value">—</p></div>
+            <div class="kpi-cell"><p class="kpi-label">Contract</p><p class="kpi-value" style="font-size:.9rem">Legacy</p></div>
+            <div class="kpi-cell"><p class="kpi-label">Allocation</p><p class="kpi-value" style="font-size:.9rem">40·27·33</p></div>
+          </div>
+
+          <!-- Panel gauche + rail droit -->
+          <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:var(--space-5);flex:1;min-height:0">
+            <div class="visual-panel" style="min-height:260px">
+              <div class="mesh"></div><div class="halo"></div>
+              <div style="position:relative;z-index:1;padding:var(--space-5);height:100%;display:flex;flex-direction:column">
+                <p class="t-eyebrow">Reserve visual</p>
+                <p class="t-kpi mono" style="margin-top:var(--space-2)">— BTC</p>
+                <svg viewBox="0 0 480 140" style="flex:1;margin-top:var(--space-3)">
+                  <path d="M30,110 C100,105 200,80 300,60 S420,30 450,20" fill="none" stroke="#A7FB90" stroke-width="2" opacity=".65"/>
+                  <path d="M30,110 C100,105 200,80 300,60 S420,30 450,20 V110 H30 Z" fill="url(#ga)" opacity=".4"/>
+                  <!-- allocation bars inline -->
+                  <rect x="30" y="125" width="160" height="6" rx="3" fill="#52525b"/>
+                  <rect x="195" y="125" width="108" height="6" rx="3" fill="#A7FB90" opacity=".7"/>
+                  <rect x="308" y="125" width="132" height="6" rx="3" fill="#71717a"/>
+                  <text x="30" y="138" fill="#52525b" font-size="8">B1 40%</text>
+                  <text x="195" y="138" fill="#A7FB90" font-size="8">B2 27%</text>
+                  <text x="308" y="138" fill="#71717a" font-size="8">B3 33%</text>
+                </svg>
+              </div>
+            </div>
+            <div class="context-rail">
+              <div class="ctx-block">
+                <p class="t-label">Mining</p>
+                <div class="op-row"><span class="lbl">Hashrate</span><span class="val">— TH/s</span></div>
+                <div class="op-row"><span class="lbl">Last report</span><span class="val">—</span></div>
+                <div class="op-row"><span class="lbl">State</span><span class="val">—</span></div>
+              </div>
+              <div class="ctx-block">
+                <p class="t-label">Reserve</p>
+                <div class="op-row"><span class="lbl">Elec. cost</span><span class="val">—</span></div>
+                <div class="op-row"><span class="lbl">Total paid</span><span class="val">—</span></div>
+              </div>
+              <div class="ctx-block">
+                <p class="t-label">Wallet / status</p>
+                <div class="op-row"><span class="lbl">Mode</span><span class="val">Legacy · v2.1 TBD</span></div>
+                <div class="op-row"><span class="lbl">KYC</span><span class="val">→ Profile</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline preuves -->
+          <div>
+            <p class="t-label" style="margin-bottom:var(--space-3)">Proof &amp; register timeline</p>
+            <div class="visual-panel" style="padding:var(--space-4) var(--space-5)">
+              <div class="timeline">
+                <div class="tl-node"><div class="tl-dot"></div><p class="tl-label">Deposit</p><p class="tl-val">Capital in</p></div>
+                <div class="tl-node"><div class="tl-dot"></div><p class="tl-label">Rebalance</p><p class="tl-val">B1/B2/B3</p></div>
+                <div class="tl-node"><div class="tl-dot"></div><p class="tl-label">Mining</p><p class="tl-val">Metrics</p></div>
+                <div class="tl-node"><div class="tl-dot"></div><p class="tl-label">Electricity</p><p class="tl-val">B3 paid</p></div>
+                <div class="tl-node"><div class="tl-dot"></div><p class="tl-label">Take-profit</p><p class="tl-val">Reserve</p></div>
+                <div class="tl-node"><div class="tl-dot active"></div><p class="tl-label">Maturity</p><p class="tl-val">BTC delivery</p></div>
+              </div>
+              <p class="t-caption" style="margin-top:var(--space-3)">Proof unavailable until v2.1 is deployed — not the same as no proof.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="mobile-note"><strong>Mobile</strong> : kpi-band 2 colonnes ; visual panel puis rail contextuel en dessous ; timeline scroll horizontal.</p>
+  </div>
+</section>
+
+<!-- ================================================================== REC -->
+<section id="rec" class="proposal">
+  <div class="recommendation">
+    <h2>Recommandation</h2>
+    <p class="rec-choice">Layout recommandé : A — Integrated Cockpit</p>
+    <ul>
+      <li><strong>Pourquoi</strong> : corrige directement l'effet « 15 boxes » tout en restant aligné DS §05 (kpi-band, hero, contenu pleine largeur). Migration la plus directe depuis les composants <code>Series1Dashboard*</code> existants.</li>
+      <li><strong>On garde</strong> : logique Wired, provenance, copy produit, tokens --ct-accent, HcCompositionRing, structure route.</li>
+      <li><strong>On supprime</strong> : wrappers card redondants, grille 3 register cards, borders section, rings Series1Panel denses.</li>
+      <li><strong>On fusionne</strong> : hero + context → hero band ; chart + allocation → visual panel ; flow + mining + reserve → operational rail.</li>
+      <li><strong>Fichiers après validation</strong> : Series1Dashboard*.tsx, surface-classes.ts, Series1Panel.tsx, pages vault/portfolio/proof/profile.</li>
+      <li><strong>Plan 2 passes</strong> : (1) Dashboard shell composition ; (2) déclinaison autres pages.</li>
+    </ul>
+    <p style="margin-top:var(--space-6);font-size:.8125rem;color:var(--fg-faint)">Déclinaisons : B pour /vaults (story onboarding) · C pour /proof-center (timeline dense).</p>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('.doc-nav .tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.doc-nav .tab').forEach(t => t.classList.remove('is-active'));
+    document.querySelectorAll('.proposal').forEach(p => p.classList.remove('is-visible'));
+    btn.classList.add('is-active');
+    const target = btn.dataset.target;
+    const el = document.getElementById(target);
+    if (el) { el.classList.add('is-visible'); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+});
+</script>
+</body>
+</html>

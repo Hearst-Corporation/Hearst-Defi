@@ -412,6 +412,12 @@ Journal DS : [`docs/DESIGN_SYSTEM.md §11`](docs/DESIGN_SYSTEM.md).
 - Phase chantier UI : spacing, marges, hiérarchie, nav, doc-flow et shell peuvent
   être recalibrés directement dans les fichiers partagés tant que les garde-fous
   produit (APY range, provenance, no fake-live, disclaimers) restent respectés.
+- **Proposition layout Series 1 (HTML first)** :
+  [`docs/visuals/series1-layout-proposal-composer25.html`](docs/visuals/series1-layout-proposal-composer25.html)
+  — 3 directions cockpit (A Integrated · B Reserve Story · C Command Center) ;
+  plan détaillé dans
+  [`docs/visuals/series1-layout-proposal-composer25.md`](docs/visuals/series1-layout-proposal-composer25.md).
+  Aucune implémentation React tant que non validé.
 
 ---
 
