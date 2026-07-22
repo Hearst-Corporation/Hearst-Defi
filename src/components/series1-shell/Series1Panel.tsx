@@ -13,9 +13,13 @@ export function Series1Panel({
     <div
       className={cn("overflow-hidden rounded-[var(--s1-radius)] border", className)}
       style={{
-        background: "var(--s1-panel)",
-        borderColor: "var(--s1-line)",
-        boxShadow: "var(--s1-shadow)",
+        // Light rakes across the panel from the top-left, fading well before
+        // the opposite corner — the fill stays the panel tone, the gradient
+        // only bends it.
+        background:
+          "linear-gradient(150deg, rgba(255,255,255,0.028), rgba(255,255,255,0) 18rem), var(--s1-panel)",
+        borderColor: "var(--s1-line-strong)",
+        boxShadow: "var(--s1-shadow-panel)",
       }}
     >
       {children}
@@ -35,10 +39,16 @@ export function Series1PanelHeader({
   return (
     <div
       className="flex flex-wrap items-start justify-between gap-3 border-b px-5 py-4"
-      style={{ borderColor: "var(--s1-line)" }}
+      style={{
+        // Header band sits a touch above the panel body, closed by a rule that
+        // reads as a real edge (hairline + a sliver of shade under it).
+        background: "linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0))",
+        borderColor: "var(--s1-line-strong)",
+        boxShadow: "0 1px 0 var(--s1-shade)",
+      }}
     >
       <div className="min-w-0">
-        <p className="text-xs font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--s1-muted)" }}>
+        <p className="text-xs font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--s1-text)" }}>
           {title}
         </p>
         {description ? (

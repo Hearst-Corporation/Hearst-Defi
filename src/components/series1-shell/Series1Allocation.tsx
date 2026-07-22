@@ -29,10 +29,16 @@ export function Series1Allocation({ pockets = SERIES1_POCKETS }: { pockets?: Ser
             </div>
             <span className="shrink-0 text-lg font-semibold tabular-nums">{pocket.targetPct}%</span>
           </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full" style={{ background: "var(--s1-panel-soft)" }}>
+          <div
+            className="mt-2 h-2 overflow-hidden rounded-full"
+            style={{ background: "var(--s1-inset)", boxShadow: "var(--s1-shadow-inset)" }}
+          >
             <div
               className="h-full rounded-full"
-              style={{ width: `${pocket.targetPct}%`, background: "var(--s1-accent)" }}
+              style={{
+                width: `${pocket.targetPct}%`,
+                background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0)), var(--s1-accent)",
+              }}
             />
           </div>
         </div>

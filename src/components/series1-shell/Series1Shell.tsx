@@ -33,14 +33,26 @@ export function Series1Shell({ children }: { children: ReactNode }) {
     <div className="s1-scope min-h-dvh" style={{ overflowX: "clip" }}>
       <aside
         className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r lg:block"
-        style={{ background: "var(--s1-shell)", borderColor: "var(--s1-line)" }}
+        style={{
+          // Rail: accent warmth at the top fading out by the first third, then
+          // the shell tone. The shadow triplet detaches it from the canvas so
+          // the content plane reads as sitting behind it, not beside it.
+          background:
+            "linear-gradient(180deg, rgba(167,251,144,0.045), rgba(255,255,255,0) 14rem), var(--s1-shell)",
+          borderColor: "var(--s1-line-strong)",
+          boxShadow: "var(--s1-sidebar-shadow)",
+        }}
       >
         <Series1Nav pathname={pathname} />
       </aside>
 
       <header
         className="sticky top-0 z-20 flex min-h-16 items-center justify-between border-b px-4 backdrop-blur lg:hidden"
-        style={{ borderColor: "var(--s1-line)", background: "color-mix(in srgb, var(--s1-shell) 92%, transparent)" }}
+        style={{
+          borderColor: "var(--s1-line-strong)",
+          background: "color-mix(in srgb, var(--s1-shell) 92%, transparent)",
+          boxShadow: "0 1px 0 var(--s1-shade)",
+        }}
       >
         <button
           type="button"
@@ -65,7 +77,10 @@ export function Series1Shell({ children }: { children: ReactNode }) {
           <Headless.DialogBackdrop className="fixed inset-0 z-40 bg-black/50" />
           <Headless.DialogPanel
             className="fixed inset-y-0 left-0 z-50 flex h-dvh max-h-dvh w-full max-w-80 flex-col overflow-hidden shadow-2xl"
-            style={{ background: "var(--s1-shell)" }}
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(167,251,144,0.045), rgba(255,255,255,0) 14rem), var(--s1-shell)",
+            }}
           >
             <div className="absolute top-3 right-3 z-10">
               <Headless.CloseButton

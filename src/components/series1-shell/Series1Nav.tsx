@@ -74,8 +74,11 @@ export function Series1Nav({
                   "relative flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 )}
                 style={{
-                  background: current ? "var(--s1-panel-soft)" : "transparent",
+                  background: current
+                    ? "linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0)), var(--s1-panel-soft)"
+                    : "transparent",
                   color: current ? "var(--s1-text)" : "var(--s1-muted)",
+                  boxShadow: current ? "inset 0 1px 0 var(--s1-highlight)" : undefined,
                 }}
               >
                 {current ? (

@@ -52,7 +52,7 @@ export function Series1Section({
 }) {
   const headed = Boolean(index || title || description || actions);
   return (
-    <section className={cn(headed && "border-t pt-8", className)} style={headed ? { borderColor: "var(--s1-line)" } : undefined}>
+    <section className={cn(headed && "border-t pt-8", className)} style={headed ? { borderColor: "var(--s1-line-strong)" } : undefined}>
       {headed ? (
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
           <div>
@@ -60,7 +60,11 @@ export function Series1Section({
               {index ? (
                 <span
                   className="flex size-7 items-center justify-center rounded-md text-xs font-semibold tabular-nums"
-                  style={{ background: "var(--s1-panel-soft)", color: "var(--s1-muted)" }}
+                  style={{
+                    background: "var(--s1-inset)",
+                    color: "var(--s1-muted)",
+                    boxShadow: "var(--s1-shadow-inset)",
+                  }}
                 >
                   {index}
                 </span>

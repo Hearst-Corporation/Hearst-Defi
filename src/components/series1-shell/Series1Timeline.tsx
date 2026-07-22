@@ -16,8 +16,9 @@ export function Series1Timeline({ steps }: { steps: Series1TimelineStep[] }) {
               <span
                 className="flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold tabular-nums"
                 style={{
-                  background: state === "upcoming" ? "var(--s1-panel-soft)" : "var(--s1-accent-soft)",
+                  background: state === "upcoming" ? "var(--s1-inset)" : "var(--s1-accent-soft)",
                   color: state === "upcoming" ? "var(--s1-muted)" : "var(--s1-accent)",
+                  boxShadow: state === "upcoming" ? "var(--s1-shadow-inset)" : "inset 0 1px 0 var(--s1-highlight)",
                 }}
               >
                 {String(index + 1).padStart(2, "0")}

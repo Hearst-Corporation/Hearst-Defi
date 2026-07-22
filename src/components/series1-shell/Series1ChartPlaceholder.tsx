@@ -21,9 +21,12 @@ export function Series1ProvenanceTag({ status }: { status: Series1Provenance }) 
     <span
       className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-[0.08em] uppercase"
       style={{
-        borderColor: "var(--s1-line)",
+        borderColor: isLive ? "rgba(167, 251, 144, 0.28)" : "var(--s1-line-strong)",
         color: isLive ? "var(--s1-accent)" : "var(--s1-muted)",
-        background: isLive ? "var(--s1-accent-soft)" : "var(--s1-panel-soft)",
+        background: isLive
+          ? "var(--s1-accent-soft)"
+          : "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)), var(--s1-panel-soft)",
+        boxShadow: "inset 0 1px 0 var(--s1-highlight)",
       }}
     >
       {isLive ? <span className="size-1.5 rounded-full" style={{ background: "var(--s1-accent)" }} /> : null}
@@ -52,9 +55,22 @@ export function Series1ChartPlaceholder({
   className?: string;
 }) {
   return (
-    <figure className={cn("flex h-full min-h-72 flex-col overflow-hidden rounded-[var(--s1-radius)] border", className)} style={{ background: "var(--s1-panel)", borderColor: "var(--s1-line)", boxShadow: "var(--s1-shadow)" }}>
+    <figure
+      className={cn("flex h-full min-h-72 flex-col overflow-hidden rounded-[var(--s1-radius)] border", className)}
+      style={{
+        background:
+          "linear-gradient(150deg, rgba(255,255,255,0.028), rgba(255,255,255,0) 18rem), var(--s1-panel)",
+        borderColor: "var(--s1-line-strong)",
+        boxShadow: "var(--s1-shadow-panel)",
+      }}
+    >
       <Series1PanelHeader title={title} description={description} actions={<Series1ProvenanceTag status={status} />} />
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1 px-6 py-8 text-center">
+      {/* Chart well: recessed below the panel fill so an empty state reads as
+          a plotting surface waiting for a series, not as blank card padding. */}
+      <div
+        className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1 px-6 py-8 text-center"
+        style={{ background: "var(--s1-inset)", boxShadow: "var(--s1-shadow-inset)" }}
+      >
         <p className="text-sm font-medium">{label}</p>
         <p className="max-w-sm text-xs leading-5" style={{ color: "var(--s1-muted)" }}>
           {detail}
