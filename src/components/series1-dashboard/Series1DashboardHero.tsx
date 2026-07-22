@@ -44,49 +44,48 @@ export function Series1DashboardHero({
         </p>
       </div>
 
-      <div className="grid min-w-0 gap-[var(--ct-space-5)] px-[var(--ct-space-6)] pb-[var(--ct-space-6)] pt-[var(--ct-space-4)] lg:grid-cols-[1.15fr_1fr] lg:gap-[var(--ct-space-6)]">
-        <div className="flex min-w-0 flex-col justify-center rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_78%,var(--ct-surface-page))] px-[var(--ct-space-5)] py-[var(--ct-space-5)] ring-1 ring-[var(--ct-border-soft)]">
-          <p
-            className="m-0 flex items-center gap-[var(--ct-space-2)] font-medium text-[var(--ct-text-muted)]"
-            style={{ fontSize: "var(--ct-text-2xs)" }}
-          >
-            <span
-              aria-hidden
-              className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
-            />
-            {label}
-          </p>
-          {muted ? (
+      <div className="px-[var(--ct-space-6)] pb-[var(--ct-space-6)] pt-[var(--ct-space-4)]">
+        <div className="grid min-w-0 gap-0 overflow-hidden rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_72%,var(--ct-surface-page))] lg:grid-cols-[1.15fr_1fr]">
+          <div className="flex min-w-0 flex-col justify-center border-b border-[var(--ct-border-soft)] px-[var(--ct-space-5)] py-[var(--ct-space-5)] lg:border-b-0 lg:border-r">
             <p
-              className="m-0 mt-[var(--ct-space-3)] font-medium text-[var(--ct-text-faint)]"
+              className="m-0 flex items-center gap-[var(--ct-space-2)] font-medium text-[var(--ct-text-muted)]"
               style={{ fontSize: "var(--ct-text-2xs)" }}
             >
-              Not yet reported
+              <span
+                aria-hidden
+                className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+              />
+              {label}
             </p>
-          ) : (
-            <div
-              className="mt-[var(--ct-space-3)] font-semibold tracking-tight tabular-nums text-[var(--ct-text-strong)]"
-              style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1 }}
+            {muted ? (
+              <p
+                className="m-0 mt-[var(--ct-space-3)] font-medium text-[var(--ct-text-faint)]"
+                style={{ fontSize: "var(--ct-text-2xs)" }}
+              >
+                Not yet reported
+              </p>
+            ) : (
+              <div
+                className="mt-[var(--ct-space-3)] font-semibold tracking-tight tabular-nums text-[var(--ct-text-strong)]"
+                style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1 }}
+              >
+                {value}
+              </div>
+            )}
+            <p
+              className="m-0 mt-[var(--ct-space-3)] max-w-[56ch] leading-relaxed text-[var(--ct-text-muted)]"
+              style={{ fontSize: "var(--ct-text-2xs)" }}
             >
-              {value}
-            </div>
-          )}
-          <p
-            className="m-0 mt-[var(--ct-space-3)] max-w-[56ch] leading-relaxed text-[var(--ct-text-muted)]"
-            style={{ fontSize: "var(--ct-text-2xs)" }}
-          >
-            {caption}
-          </p>
-          {trailing ? <div className="mt-[var(--ct-space-2)]">{trailing}</div> : null}
-        </div>
-
-        <div className="grid min-w-0 grid-cols-1 gap-0 overflow-hidden rounded-[var(--ct-radius-lg)] ring-1 ring-[var(--ct-border-soft)] sm:grid-cols-2">
-          {context.map((item) => (
+              {caption}
+            </p>
+            {trailing ? <div className="mt-[var(--ct-space-2)]">{trailing}</div> : null}
+          </div>
+          <div className="grid min-w-0 grid-cols-1 gap-0 sm:grid-cols-2">
+            {context.map((item) => (
             <div
               key={item.label}
               className={cn(
                 "min-w-0 px-[var(--ct-space-4)] py-[var(--ct-space-3)]",
-                "bg-[color-mix(in_srgb,var(--ct-bg-deep)_72%,var(--ct-surface-page))]",
                 "border-t border-[var(--ct-border-soft)] sm:[&:nth-child(-n+2)]:border-t-0 sm:[&:nth-child(odd)]:border-r",
               )}
             >
@@ -122,6 +121,7 @@ export function Series1DashboardHero({
               ) : null}
             </div>
           ))}
+          </div>
         </div>
       </div>
     </section>
