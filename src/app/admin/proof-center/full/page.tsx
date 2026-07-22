@@ -8,7 +8,7 @@ import { AdminLeafLink } from "@/components/admin/dashboard/admin-leaf-link";
 import { ProofCenterFullLogLayout } from "@/components/proof-center/proof-center-full-log-layout";
 import { parseFilter } from "@/components/proof/proof-filter-types";
 import { loadProofCenterFullLog } from "@/lib/proof-center/full-log-loader";
-import { resolveFixtureVaultId, getVaultShortLabel } from "@/lib/vaults/dashboard-scope";
+import { resolveFixtureVault, getVaultShortLabel } from "@/lib/vaults/dashboard-scope";
 
 import "../../admin-proof.css";
 
@@ -29,7 +29,14 @@ export default async function AdminProofCenterFullPage({
   const raw = Array.isArray(params.type) ? params.type[0] : params.type;
   const filter = parseFilter(raw);
 
-  const vaultId = resolveFixtureVaultId(params.vault);
+  const { vaultId: vaultId, usedFallback, requested } = resolveFixtureVault(params.vault);
+  // A substituted scope is TRACED, never silent: a typo'd ?vault= used to
+  // show the flagship's figures under the wrong label with no signal.
+  if (usedFallback && requested !== undefined) {
+    console.warn(
+      `[vault-scope] unknown ?vault=\"${requested}\" — showing the Series 1 flagship instead`,
+    );
+  }
 
   const { onChainEvents, proofs, platformAddresses, timelockProposals } =
     await loadProofCenterFullLog(vaultId);

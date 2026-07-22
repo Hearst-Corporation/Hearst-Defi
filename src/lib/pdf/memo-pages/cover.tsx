@@ -31,7 +31,7 @@ export function CoverPage({ data }: { data: MemoPdfData }) {
       <View style={styles.coverRule} />
 
       <Text style={styles.coverTitle}>
-        Hearst Yield Vault{"\n"}Monthly Investor Memo
+        Hearst Bitcoin Reserve Vault — Series 1{"\n"}Monthly Investor Memo
       </Text>
       <Text style={styles.coverSubtitle}>
         Mining-backed note. BTC accumulated over a 24-month term with rule-based

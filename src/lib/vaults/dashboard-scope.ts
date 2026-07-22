@@ -34,38 +34,76 @@ export function adminSignalsVaultHref(vaultId: string): string {
   return adminFixtureScopedHref("/admin/signals", vaultId);
 }
 
-/**
- * Resolve `?vault=` to a fixture id (defaults to yield).
- * Used by dashboard, investor-memo, signals, distributions.
- */
-export function resolveFixtureVaultId(raw: string | undefined): VaultId {
-  if (raw && isEngineFixtureVaultId(raw)) return raw;
-  return "yield";
+/** How a `?vault=` value resolved — the fallback is TRACED, never silent. */
+export interface FixtureVaultResolution {
+  readonly vaultId: VaultId;
+  /**
+   * True when the requested value was absent or unknown and the flagship was
+   * substituted. A caller that renders vault-scoped data MUST surface this
+   * (or at least log it): a typo'd `?vault=` silently showing the flagship's
+   * figures under the wrong scope was the bug this replaces.
+   */
+  readonly usedFallback: boolean;
+  /** The raw requested value, kept for the trace. */
+  readonly requested: string | undefined;
 }
 
-/** Short label for a fixture vault (e.g. "Yield", "Defensive"). */
+/**
+ * Resolve `?vault=` to a fixture id, explicitly.
+ *
+ * - a known fixture id ("yield" | "defensive" | "btc-plus") resolves to
+ *   itself — "yield" is the Series 1 flagship's technical compat key, the
+ *   other two resolve as RETIRED configurations (their preset labels say so);
+ * - anything else (absent, empty, typo) resolves to the flagship WITH
+ *   `usedFallback: true`, so no caller can mistake a substitution for a
+ *   requested scope.
+ */
+export function resolveFixtureVault(raw: string | undefined): FixtureVaultResolution {
+  if (raw && isEngineFixtureVaultId(raw)) {
+    return { vaultId: raw, usedFallback: false, requested: raw };
+  }
+  return { vaultId: "yield", usedFallback: true, requested: raw };
+}
+
+/**
+ * @deprecated Use `resolveFixtureVault` — this signature throws the
+ * `usedFallback` trace away, which is exactly how the silent-substitution bug
+ * lived. Kept so the six existing admin callers keep compiling; each should
+ * migrate when touched.
+ */
+export function resolveFixtureVaultId(raw: string | undefined): VaultId {
+  return resolveFixtureVault(raw).vaultId;
+}
+
+/**
+ * Short label for a fixture vault. Sourced from the preset definitions (single
+ * source of truth) rather than a re-typed literal: the previous switch said
+ * "Yield" / "Defensive" / "BTC Plus" — names the canon pass retired — and this
+ * function feeds the proof-center header, a Series 1 surface.
+ */
 export function getVaultShortLabel(vaultId: string): string {
   switch (vaultId) {
     case "defensive":
-      return "Defensive";
+      return "Defensive (retired)";
     case "btc-plus":
-      return "BTC Plus";
+      return "BTC Plus (retired)";
     case "yield":
-      return "Yield";
+      return "Series 1";
     default:
       return "Vault";
   }
 }
 
-/** Full label for a fixture vault (e.g. "Hearst Yield Vault"). */
+/** Full label for a fixture vault — the preset's own canon label, never a
+ *  re-typed literal that can drift from it. */
 export function getVaultFullLabel(vaultId: string): string {
   switch (vaultId) {
     case "defensive":
-      return "Hearst Defensive Vault";
+      return VAULT_DEFENSIVE.label;
     case "btc-plus":
-      return "Hearst BTC Plus Vault";
+      return VAULT_BTC_PLUS.label;
     case "yield":
-      return "Hearst Yield Vault";
+      return VAULT_YIELD.label;
     default:
       return "Hearst Vault";
   }

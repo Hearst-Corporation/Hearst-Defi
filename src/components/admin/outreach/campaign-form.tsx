@@ -98,11 +98,15 @@ export function CampaignForm() {
             <span className={BENTO_FIELD_LABEL}>
               Base brief for the agent (optional)
             </span>
+            {/* Example copy an operator will imitate — it teaches the canon:
+                Series 1 name, accumulation framing, and no return band held up
+                as a template (the range belongs in the factsheet with its
+                provenance, not in a prompt example). */}
             <textarea
               id="campaign-body"
               name="bodyTemplate"
               rows={5}
-              placeholder="Introduce the Hearst Yield Vault: a mining-backed BTC-accumulation note (BTC accumulated over a 24-month term, rule-based take-profit, no periodic distribution), estimated target return range 8-15%, Cayman SPV. Muted, institutional register."
+              placeholder="Introduce the Hearst Bitcoin Reserve Vault — Series 1: a mining-backed BTC-accumulation note (BTC accumulated over a 24-month term, rule-based take-profit, no periodic cash distribution), Cayman SPV. Muted, institutional register."
               className={BENTO_INPUT}
             />
           </label>

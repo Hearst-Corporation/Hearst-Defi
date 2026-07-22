@@ -7,7 +7,7 @@ import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
 import { computeRiskBreakdown } from "@/lib/engine/risk";
 import type { ScenarioInputs } from "@/lib/engine/types";
 import { VAULT_YIELD } from "@/lib/engine/vaults";
-import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
+import { resolveFixtureVault } from "@/lib/vaults/dashboard-scope";
 
 // ---------------------------------------------------------------------------
 // Dashboard Risk Framework loader.
@@ -201,7 +201,17 @@ export const AWAITING_VAULT_RISK_SNAPSHOT: RiskFrameworkData = {
 export async function loadRiskFramework(
   vaultId?: string,
 ): Promise<RiskFrameworkData> {
-  const resolvedVaultId = resolveFixtureVaultId(vaultId);
+  // Renamed to avoid the pre-existing local `usedFallback` below (which tracks
+  // DATA fallbacks, a different concept from a substituted vault SCOPE).
+  const scope = resolveFixtureVault(vaultId);
+  const resolvedVaultId = scope.vaultId;
+  // A substituted scope is TRACED, never silent: a typo'd ?vault= used to
+  // show the flagship's figures under the wrong label with no signal.
+  if (scope.usedFallback && scope.requested !== undefined) {
+    console.warn(
+      `[vault-scope] unknown ?vault="${scope.requested}" — showing the Series 1 flagship instead`,
+    );
+  }
   if (resolvedVaultId !== VAULT_YIELD.id) {
     return AWAITING_VAULT_RISK_SNAPSHOT;
   }

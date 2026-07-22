@@ -12,7 +12,7 @@ import { RebalanceCard } from "@/components/admin/rebalance-card";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { requestManualSignal } from "./actions";
 import {
-  resolveFixtureVaultId,
+  resolveFixtureVault,
   withAdminVaultQuery,
 } from "@/lib/vaults/dashboard-scope";
 import { buildSignalsKpiStrip } from "@/lib/admin/signals-kpi-strip";
@@ -71,7 +71,14 @@ interface SignalsPageProps {
 export default async function SignalsPage({ searchParams }: SignalsPageProps) {
   const params = await searchParams;
   const activeStatus = toFilter(params.status);
-  const vaultId = resolveFixtureVaultId(params.vault);
+  const { vaultId: vaultId, usedFallback, requested } = resolveFixtureVault(params.vault);
+  // A substituted scope is TRACED, never silent: a typo'd ?vault= used to
+  // show the flagship's figures under the wrong label with no signal.
+  if (usedFallback && requested !== undefined) {
+    console.warn(
+      `[vault-scope] unknown ?vault=\"${requested}\" — showing the Series 1 flagship instead`,
+    );
+  }
   const vaultQuery = params.vault ?? null;
   const vaultScope = signalVaultScopeWhere(vaultId);
 

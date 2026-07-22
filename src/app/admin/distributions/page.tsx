@@ -21,7 +21,7 @@ import { ProvenanceBadge } from "@/components/catalyst/provenance-badge";
 import {
   distributionVaultScopeWhere,
   matchesDistributionVaultScope,
-  resolveFixtureVaultId,
+  resolveFixtureVault,
 } from "@/lib/vaults/dashboard-scope";
 import { formatAdminDate, formatUsdDetailed } from "@/lib/vaults/product-display";
 import { listAllVaults, vaultSlug, vaultLabel } from "@/lib/vaults/resolver";
@@ -41,7 +41,14 @@ export default async function DistributionsPage({
   searchParams,
 }: DistributionsPageProps) {
   const params = await searchParams;
-  const vaultId = resolveFixtureVaultId(params.vault);
+  const { vaultId: vaultId, usedFallback, requested } = resolveFixtureVault(params.vault);
+  // A substituted scope is TRACED, never silent: a typo'd ?vault= used to
+  // show the flagship's figures under the wrong label with no signal.
+  if (usedFallback && requested !== undefined) {
+    console.warn(
+      `[vault-scope] unknown ?vault=\"${requested}\" — showing the Series 1 flagship instead`,
+    );
+  }
 
   const [rawHistory, allVaults] = await Promise.all([
     prisma.distribution.findMany({

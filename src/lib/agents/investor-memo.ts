@@ -68,7 +68,7 @@ export type InvestorMemoInput = {
   vault: {
     /** Vault id this memo run is bound to (ADR-006 #9). Optional for back-compat. */
     id?: string;
-    /** Human label, e.g. "Hearst Yield Vault". Optional for back-compat. */
+    /** Human label, e.g. "Hearst Bitcoin Reserve Vault — Series 1". Optional for back-compat. */
     name?: string;
     aumUsdc: number;
     apyRange: { low: number; high: number };
@@ -183,7 +183,9 @@ function buildUserPrompt(
 ): string {
   const backtestBlocks = input.backtests.map(buildBacktestBlock).join("\n\n");
   const prov = input.provenance ?? DEFAULT_MEMO_PROVENANCE;
-  const vaultName = input.vault.name ?? "Hearst Yield Vault";
+  // Fallback matches the preset canon — the retired "Yield Vault" name must
+  // not resurface in the memo when a caller omits the label.
+  const vaultName = input.vault.name ?? "Hearst Bitcoin Reserve Vault — Series 1";
   const vaultId = input.vault.id ?? "yield";
   const vaultAssumptions = input.vault.assumptions ?? [];
   const vaultAssumptionLines =

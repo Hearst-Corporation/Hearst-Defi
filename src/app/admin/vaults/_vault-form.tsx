@@ -478,7 +478,7 @@ export function VaultForm(props: VaultFormProps) {
                   className={inputClass()}
                   value={form.name}
                   onChange={(v) => set("name", v)}
-                  placeholder="Hearst Yield Vault — Series A"
+                  placeholder="Hearst Bitcoin Reserve Vault — Series 1"
                   maxLength={80}
                   aria-label="Vault name"
                 />

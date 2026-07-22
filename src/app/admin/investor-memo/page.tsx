@@ -6,7 +6,7 @@ import {
 } from "@/components/admin/admin-page-shell";
 import { MemoShell } from "@/components/memo/memo-shell";
 import { VAULTS } from "@/lib/engine/vaults";
-import { resolveFixtureVaultId } from "@/lib/vaults/dashboard-scope";
+import { resolveFixtureVault } from "@/lib/vaults/dashboard-scope";
 
 interface InvestorMemoPageProps {
   searchParams: Promise<{ vault?: string }>;
@@ -16,7 +16,14 @@ export default async function InvestorMemoPage({
   searchParams,
 }: InvestorMemoPageProps) {
   const params = await searchParams;
-  const vaultId = resolveFixtureVaultId(params.vault);
+  const { vaultId: vaultId, usedFallback, requested } = resolveFixtureVault(params.vault);
+  // A substituted scope is TRACED, never silent: a typo'd ?vault= used to
+  // show the flagship's figures under the wrong label with no signal.
+  if (usedFallback && requested !== undefined) {
+    console.warn(
+      `[vault-scope] unknown ?vault=\"${requested}\" — showing the Series 1 flagship instead`,
+    );
+  }
   const vault = VAULTS[vaultId];
 
   return (
