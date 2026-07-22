@@ -43,6 +43,7 @@ const PUBLIC_PREFIXES = [
   "/reset-password",
   "/totp-challenge",
   "/legal",
+  "/preview",        // isolated UI shell previews (static, no auth)
   "/api",            // webhooks + API routes (auth handled per-route)
 ] as const;
 
