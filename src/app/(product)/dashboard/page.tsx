@@ -1,5 +1,6 @@
 import {
   KycChartSurface,
+  KycEmptyChart,
   KycHeroKpiBand,
   KycPageTitle,
   KycPanel,
@@ -16,23 +17,14 @@ import { formatIsoDateTime, formatUsdCompactAmount, toProvenance } from "@/featu
 import type { DataStatus } from "@/features/investor-ui/types";
 import type { HcSourceStatus } from "@/components/dataviz/his";
 import {
-  CapitalFlowRail,
-  PocketAllocationVisual,
-  BtcAccumulationCurve,
-  SmartContractStateCard,
-  AllInCostVsSpot,
   MiningActivityTimeline,
   ReserveRunwayChart,
-  type CapitalFlowPocket,
-  type PocketAllocation,
   type SmartContractState,
   type VaultMode,
 } from "@/features/investor-ui/components/reserve-cockpit";
 
 import { type StrategySignal } from "./_components/strategy-overview-panel";
 import { AccumulationChartSignature } from "@/features/investor-ui/components/accumulation-chart-signature";
-
-import "./dashboard-signature.css";
 
 /**
  * Map the presentation-level `DataStatus` a block resolves with to the
@@ -215,53 +207,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           : "Monitor";
   const verdictDetail = `${positiveCount} of ${strategySignals.length} strategy signals in a positive state.`;
 
-  // ── Reserve-cockpit narrative data (capital → B1/B2/B3 → mining → BTC) ────
-  // Every block derives from data already resolved on this page (no new I/O)
-  // and carries its own honest provenance; a null input renders the block's
-  // own empty / not-configured state, never a fabricated value.
   const allocation = dashboard.allocation.value;
   const positionVal = dashboard.position.value;
   const runtime = dashboard.runtime;
 
-  // Capital flow — the deposit routed across the 3 target pockets (40/27/33).
-  const flowPockets: CapitalFlowPocket[] =
-    allocation?.pockets.map((p) => ({
-      id: p.pocket,
-      label: p.label,
-      weightPct: p.targetBps / 100,
-    })) ?? [];
-  const capitalFlowData =
-    flowPockets.length > 0
-      ? {
-          depositLabel: "USDC",
-          depositAmount: hasActivePosition
-            ? (formatUsdCompactAmount(positionVal?.principal) ?? undefined)
-            : undefined,
-          pockets: flowPockets,
-          ledgerLabel: "BTC Reserve Ledger",
-          deliveryLabel: "Delivery at maturity",
-        }
-      : null;
-
-  // Pocket allocation ring — current on-chain split. `actualBps` is null until
-  // v2 is indexed; falls back to the target split so the ring reads the policy
-  // shape honestly (the block's footnote states shares drift with operations).
-  const pocketAllocations: PocketAllocation[] =
-    allocation?.pockets.map((p) => ({
-      id: p.pocket,
-      label: p.label,
-      value: (p.actualBps ?? p.targetBps) / 100,
-    })) ?? [];
-  const pocketSource: HcSourceStatus =
-    allocation != null && allocation.pockets.some((p) => p.actualBps != null)
-      ? dataStatusToSource(dashboard.allocation.status)
-      : "estimated";
-
-  // BTC accumulation curve — real production series already derived above.
-  const btcCurveData =
-    accumulationPoints.length >= 2 ? { series: accumulationPoints } : null;
-
-  // Smart-contract state — honest read-out of the vault backing Series 1.
   const contractState: SmartContractState | null =
     runtime.mode === "not_configured" || runtime.chainId == null
       ? null
@@ -359,12 +308,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             title="Accumulated BTC through the term"
             description="Mining credits indexed from the program ledger."
           >
-            <AccumulationChartSignature
-              points={accumulationPoints}
-              currentMonth={miningVal?.currentMonth ?? null}
-              totalMonths={miningVal?.productDurationMonths ?? null}
-              provenance={accumulationProvenance}
-            />
+            {accumulationPoints.length >= 2 ? (
+              <AccumulationChartSignature
+                points={accumulationPoints}
+                currentMonth={miningVal?.currentMonth ?? null}
+                totalMonths={miningVal?.productDurationMonths ?? null}
+                provenance={accumulationProvenance}
+              />
+            ) : (
+              <KycEmptyChart
+                label="Accumulation history is not available yet"
+                detail="The chart will populate after mining credits are indexed in the Bitcoin reserve ledger."
+              />
+            )}
           </KycChartSurface>
           <KycPanel className="lg:col-span-4">
             <div className="border-b border-zinc-950/8 px-5 py-4 dark:border-white/10">
@@ -448,19 +404,36 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             title="All-in acquisition cost vs BTC spot"
             description="A comparison becomes available when cost and spot observations have both resolved."
           >
-            <AllInCostVsSpot points={null} source="configured" />
+            <KycEmptyChart
+              label="Cost history is not available yet"
+              detail="No cost and spot observation pair has resolved for the current reporting window."
+            />
           </KycChartSurface>
           <KycChartSurface
             title="Reserve runway"
             description="Electricity coverage funded by B3 Reserve USDC."
           >
-            <ReserveRunwayChart data={runwayData} source={dataStatusToSource(btc.reserve.status)} />
+            {runwayData ? (
+              <ReserveRunwayChart data={runwayData} source={dataStatusToSource(btc.reserve.status)} />
+            ) : (
+              <KycEmptyChart
+                label="Reserve runway is not available yet"
+                detail="Coverage will appear when the B3 reserve and operating burn sources are available."
+              />
+            )}
           </KycChartSurface>
           <KycChartSurface
             title="Mining activity"
             description="Active and curtailed fleet state in the current reporting window."
           >
-            <MiningActivityTimeline intervals={miningIntervals} source={dataStatusToSource(mining.mining.status)} />
+            {miningIntervals ? (
+              <MiningActivityTimeline intervals={miningIntervals} source={dataStatusToSource(mining.mining.status)} />
+            ) : (
+              <KycEmptyChart
+                label="Mining activity is not available yet"
+                detail="Fleet activity will appear after an operating report has been published."
+              />
+            )}
           </KycChartSurface>
           <KycPanel>
             <div className="border-b border-zinc-950/8 px-5 py-4 dark:border-white/10">
