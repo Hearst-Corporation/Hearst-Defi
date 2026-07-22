@@ -54,7 +54,7 @@ export default async function VaultsPage() {
         actions={
           <Link
             href="/proof-center"
-            className="inline-flex min-h-10 items-center rounded-lg bg-zinc-800 px-4 text-sm font-medium text-(--ct-accent) ring-1 ring-(--ct-accent)/30 transition-colors hover:bg-zinc-700"
+            className="inline-flex min-h-10 items-center rounded-lg bg-zinc-800 px-4 text-sm font-semibold text-(--ct-accent-strong) ring-1 ring-(--ct-border-accent) transition-colors hover:bg-zinc-700"
           >
             View proof status
           </Link>
