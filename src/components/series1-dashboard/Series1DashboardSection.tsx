@@ -59,18 +59,21 @@ export function Series1DashboardSection({
 }
 
 export function Series1DashboardCard({
+  variant = "primary",
   children,
   className,
 }: {
+  variant?: "primary" | "secondary" | "quiet";
   children: ReactNode;
   className?: string;
 }) {
   return (
     <div
       className={cn(
-        "flex min-w-0 flex-col overflow-hidden rounded-[var(--ct-radius-xl)]",
-        "bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))]",
-        "ring-1 ring-[var(--ct-border)] shadow-[var(--ct-shadow-elevated)]",
+        "flex min-w-0 flex-col overflow-hidden rounded-(--ct-radius-xl)",
+        variant === "primary" && "bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] ring-1 ring-(--ct-border) shadow-(--ct-shadow-elevated)",
+        variant === "secondary" && "bg-[color-mix(in_srgb,var(--ct-bg-deep)_75%,var(--ct-surface-page))] ring-1 ring-(--ct-border-soft) shadow-(--ct-shadow-soft)",
+        variant === "quiet" && "bg-[color-mix(in_srgb,var(--ct-bg-deep)_85%,var(--ct-surface-page))] ring-1 ring-(--ct-border-soft)",
         className,
       )}
     >
@@ -121,7 +124,7 @@ export function Series1DashboardInset({
   return (
     <div
       className={cn(
-        "min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_80%,var(--ct-surface-page))]",
+        "min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_90%,var(--ct-surface-page))] ring-1 ring-inset ring-(--ct-border-soft) shadow-(--ct-shadow-inset)",
         className,
       )}
     >

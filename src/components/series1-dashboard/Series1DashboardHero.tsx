@@ -33,83 +33,82 @@ export function Series1DashboardHero({
   trailing?: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-[var(--ct-radius-xl)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]">
-      <div className="h-px bg-[var(--ct-border-accent)]" />
-      <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)]">
+    <section className="overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_60%,var(--ct-surface-page))] shadow-(--ct-shadow-elevated) ring-1 ring-(--ct-border)">
+      <div className="h-px bg-(--ct-border-accent)" />
+      <div className="px-(--ct-space-6) pb-(--ct-space-4) pt-(--ct-space-5)">
         <p
-          className="m-0 font-semibold uppercase tracking-[0.12em] text-[var(--ct-accent-strong)]"
+          className="m-0 font-semibold uppercase tracking-[0.12em] text-(--ct-accent-strong)"
           style={{ fontSize: "var(--ct-text-2xs)" }}
         >
           {eyebrow}
         </p>
       </div>
 
-      <div className="px-[var(--ct-space-6)] pb-[var(--ct-space-6)] pt-[var(--ct-space-4)]">
-        <div className="grid w-full min-w-0 gap-0 overflow-hidden rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_72%,var(--ct-surface-page))] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-          <div className="flex min-h-[15.5rem] min-w-0 flex-col justify-between border-b border-[var(--ct-border-soft)] px-[var(--ct-space-5)] py-[var(--ct-space-5)] lg:border-b-0 lg:border-r">
-            <div className="min-w-0">
+      <div className="grid w-full min-w-0 gap-0 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+        <div className="flex min-h-[15.5rem] min-w-0 flex-col justify-between border-b border-(--ct-border-soft) px-(--ct-space-6) pb-(--ct-space-6) lg:border-b-0 lg:border-r">
+          <div className="min-w-0">
+            <p
+              className="m-0 flex items-center gap-(--ct-space-2) font-medium text-(--ct-text-muted)"
+              style={{ fontSize: "var(--ct-text-2xs)" }}
+            >
+              <span
+                aria-hidden
+                className="inline-block size-1.5 shrink-0 rounded-full bg-(--ct-accent)"
+              />
+              {label}
+            </p>
+            {muted ? (
               <p
-                className="m-0 flex items-center gap-[var(--ct-space-2)] font-medium text-[var(--ct-text-muted)]"
-                style={{ fontSize: "var(--ct-text-2xs)" }}
+                className="m-0 mt-(--ct-space-3) inline-flex items-center gap-(--ct-space-2) rounded-(--ct-radius-sm) border border-(--ct-border-accent) bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-(--ct-space-3) py-(--ct-space-1) font-semibold text-(--ct-text-muted)"
+                style={{ fontSize: "var(--ct-text-xs)" }}
               >
-                <span
-                  aria-hidden
-                  className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
-                />
-                {label}
+                <span aria-hidden className="inline-block size-1 rounded-full bg-(--ct-accent)" />
+                Not yet reported
               </p>
-              {muted ? (
-                <p
-                  className="m-0 mt-[var(--ct-space-3)] inline-flex items-center gap-[var(--ct-space-2)] rounded-[var(--ct-radius-sm)] border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-[var(--ct-space-3)] py-[var(--ct-space-1)] font-semibold text-[var(--ct-text-muted)]"
-                  style={{ fontSize: "var(--ct-text-xs)" }}
-                >
-                  <span aria-hidden className="inline-block size-1 rounded-full bg-[var(--ct-accent)]" />
-                  Not yet reported
-                </p>
-              ) : (
-                <div
-                  className="mt-[var(--ct-space-3)] font-semibold tracking-tight tabular-nums text-[var(--ct-text-strong)]"
-                  style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1 }}
-                >
-                  {value}
-                </div>
-              )}
-            </div>
-            <div className="mt-[var(--ct-space-4)] min-w-0">
-              <p
-                className="m-0 max-w-[56ch] leading-relaxed text-[var(--ct-text-muted)]"
-                style={{ fontSize: "var(--ct-text-2xs)" }}
+            ) : (
+              <div
+                className="mt-(--ct-space-3) font-semibold tracking-tight tabular-nums text-(--ct-text-strong)"
+                style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1 }}
               >
-                {caption}
-              </p>
-              {trailing ? (
-                <div className="mt-[var(--ct-space-2)] min-w-0 overflow-hidden [&_span]:max-w-full [&_span]:flex-wrap">
-                  {trailing}
-                </div>
-              ) : null}
-            </div>
+                {value}
+              </div>
+            )}
           </div>
-          <div className="grid min-w-0 grid-cols-1 gap-0 sm:grid-cols-2">
-            {context.map((item) => (
+          <div className="mt-(--ct-space-4) min-w-0">
+            <p
+              className="m-0 max-w-[56ch] leading-relaxed text-(--ct-text-muted)"
+              style={{ fontSize: "var(--ct-text-2xs)" }}
+            >
+              {caption}
+            </p>
+            {trailing ? (
+              <div className="mt-(--ct-space-2) min-w-0 overflow-hidden [&_span]:max-w-full [&_span]:flex-wrap">
+                {trailing}
+              </div>
+            ) : null}
+          </div>
+        </div>
+        <div className="grid min-w-0 grid-cols-1 gap-0 sm:grid-cols-2 lg:px-(--ct-space-2) lg:pb-(--ct-space-4)">
+          {context.map((item) => (
             <div
               key={item.label}
               className={cn(
-                "min-w-0 px-[var(--ct-space-4)] py-[var(--ct-space-3)]",
-                "border-t border-[var(--ct-border-soft)] sm:[&:nth-child(-n+2)]:border-t-0 sm:[&:nth-child(odd)]:border-r",
+                "min-w-0 px-(--ct-space-4) py-(--ct-space-3)",
+                "border-t border-(--ct-border-soft) sm:nth-[-n+2]:border-t-0 sm:odd:border-r",
               )}
             >
               <p
-                className="m-0 font-medium text-[var(--ct-text-muted)]"
+                className="m-0 font-medium text-(--ct-text-muted)"
                 style={{ fontSize: "var(--ct-text-2xs)" }}
               >
                 {item.label}
               </p>
               <p
                 className={cn(
-                  "m-0 mt-[var(--ct-space-1)] truncate font-semibold tracking-tight tabular-nums",
+                  "m-0 mt-(--ct-space-1) truncate font-semibold tracking-tight tabular-nums",
                   item.muted
-                    ? "text-[var(--ct-text-faint)]"
-                    : "text-[var(--ct-text-strong)]",
+                    ? "text-(--ct-text-faint)"
+                    : "text-(--ct-text-strong)",
                 )}
                 style={{
                   fontSize: item.muted
@@ -122,7 +121,7 @@ export function Series1DashboardHero({
               </p>
               {item.hint ? (
                 <p
-                  className="m-0 mt-[var(--ct-space-1)] truncate text-[var(--ct-text-faint)]"
+                  className="m-0 mt-(--ct-space-1) truncate text-(--ct-text-faint)"
                   style={{ fontSize: "var(--ct-text-nano)" }}
                 >
                   {item.hint}
@@ -130,7 +129,6 @@ export function Series1DashboardHero({
               ) : null}
             </div>
           ))}
-          </div>
         </div>
       </div>
     </section>

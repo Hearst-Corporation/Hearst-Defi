@@ -24,7 +24,7 @@ export function Series1CapitalArchitecture({
   className?: string;
 }) {
   return (
-    <Series1DashboardCard className={className}>
+    <Series1DashboardCard variant="secondary" className={className}>
       <Series1DashboardCardHeader title="Pocket allocation" />
       <div className="flex flex-1 flex-col items-center justify-center px-[var(--ct-space-6)] py-[var(--ct-space-5)]">
         <HcCompositionRing
@@ -60,7 +60,7 @@ const FLOW_STEPS: readonly { label: string; detail: string }[] = [
 /** The capital route card, moved out of the hero row into the registry section. */
 export function Series1CapitalFlow({ className }: { className?: string }) {
   return (
-    <Series1DashboardCard className={className}>
+    <Series1DashboardCard variant="quiet" className={className}>
       <Series1DashboardCardHeader title="Capital flow" />
       <ol className="m-0 flex list-none flex-col p-[var(--ct-space-5)]">
         {FLOW_STEPS.map((step, index) => {

@@ -87,7 +87,7 @@ export function HcCompositionRing({
   return (
     <div
       className={cn(
-        "flex items-center gap-6",
+        "flex items-center gap-6 max-sm:flex-col max-sm:items-start",
         bars && showLegend ? "w-full" : "",
         !showLegend ? "justify-center" : "",
       )}
@@ -98,6 +98,7 @@ export function HcCompositionRing({
         width={size}
         height={size}
         viewBox={`0 0 ${size} ${size}`}
+        className="shrink-0"
       >
         <circle
           cx={cx}
@@ -160,7 +161,7 @@ export function HcCompositionRing({
       </svg>
 
       {showLegend ? (
-      <ul className={`flex flex-col gap-2${bars ? " min-w-0 flex-1" : ""}`}>
+      <ul className={`flex flex-col gap-2${bars ? " min-w-0 flex-1 max-sm:w-full" : ""}`}>
         {segments.map((s, i) => {
           const pct = total > 0 ? (Math.max(0, s.value) / total) * 100 : 0;
           const color = RAMP[i % RAMP.length];
@@ -181,7 +182,7 @@ export function HcCompositionRing({
               />
               <span
                 className="truncate"
-                style={bars ? { width: 116, flexShrink: 0 } : { minWidth: 0 }}
+                style={bars ? { flex: "0 1 116px", minWidth: 0 } : { minWidth: 0 }}
               >
                 {s.label}
               </span>
@@ -213,7 +214,7 @@ export function HcCompositionRing({
               <span
                 style={{
                   marginLeft: bars ? undefined : "auto",
-                  width: bars ? 36 : undefined,
+                  minWidth: bars ? 36 : undefined,
                   flexShrink: 0,
                   textAlign: "right",
                   fontVariantNumeric: "tabular-nums",

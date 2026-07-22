@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Series1DashboardCard } from "./Series1DashboardSection";
 
 export function Series1BitcoinAccumulation({
   /** Group motive when the underlying read did not resolve. */
@@ -9,12 +10,7 @@ export function Series1BitcoinAccumulation({
   className?: string;
 }) {
   return (
-    <section
-      className={
-        className ??
-        "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]"
-      }
-    >
+    <Series1DashboardCard variant="primary" className={className}>
       <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)]">
         <h3
           className="m-0 flex items-center gap-[var(--ct-space-2)] font-semibold text-[var(--ct-text-strong)]"
@@ -39,13 +35,13 @@ export function Series1BitcoinAccumulation({
       <PlotWell>
         <ChartEmptyState motive={motive} />
       </PlotWell>
-    </section>
+    </Series1DashboardCard>
   );
 }
 
 function PlotWell({ children }: { children: ReactNode }) {
   return (
-    <div className="m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_82%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] ring-1 ring-[color-mix(in_srgb,var(--ct-border-soft)_80%,transparent)]">
+    <div className="m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_95%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] ring-1 ring-inset ring-[var(--ct-border-soft)] shadow-[var(--ct-shadow-inset)]">
       {children}
     </div>
   );

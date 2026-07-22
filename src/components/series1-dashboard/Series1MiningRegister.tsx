@@ -38,7 +38,7 @@ export function Series1MiningRegister({
   className?: string;
 }) {
   return (
-    <Series1DashboardCard className={className}>
+    <Series1DashboardCard variant="quiet" className={className}>
       <Series1DashboardCardHeader title={title} caption={caption} trailing={trailing} />
       <div className="flex flex-col">
         {rows.map((row) => (
