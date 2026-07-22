@@ -225,17 +225,58 @@ describe("loadVaultMonthlyHistory", () => {
     expect(rows[0]).not.toHaveProperty("distribution_usdc");
   });
 
-  it("pads with a zero-anchored synthetic series (is_synthetic=true) when there is no real history", async () => {
+  // The padding is GONE. It used to fill missing months with a drifted NAV
+  // anchored on `nav ?? aumUsdc ?? 0` and a hardcoded 9.0–13.0 band — invented
+  // months inside an investor-facing PDF, while the renderer promised "No
+  // history → NO fabricated row". These tests pin the promise instead.
+
+  it("returns [] when there is no real history — no synthetic pad, no zero rows", async () => {
     findManyVaultSnapshot.mockResolvedValue([]);
     const rows = await loadVaultMonthlyHistory(3);
-    expect(rows).toHaveLength(3);
-    for (const row of rows) {
-      expect(row.apy_low).toBe(9.0);
-      expect(row.apy_high).toBe(13.0);
-      // "Mode vérité live": never fabricate a NAV anchor out of thin air.
-      expect(row.nav_usdc).toBe(0);
-      // Padded rows are flagged so the PDF badges them `estimated`.
-      expect(row.is_synthetic).toBe(true);
-    }
+    // Empty means empty: the PDF renders its honest "No monthly history yet"
+    // state, which was previously unreachable because the pad always filled.
+    expect(rows).toEqual([]);
+  });
+
+  it("returns FEWER rows than requested when history is short — never pads the head", async () => {
+    findManyVaultSnapshot.mockResolvedValue([
+      {
+        takenAt: new Date("2026-02-15T00:00:00Z"),
+        aumUsdc: decimal(24_700_000),
+        currentApyLow: decimal(9.4),
+        currentApyHigh: decimal(12.8),
+      },
+    ]);
+    const rows = await loadVaultMonthlyHistory(4);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.period).toBe("2026-02");
+    expect(rows[0]?.is_synthetic).toBe(false);
+    // No fabricated month, no hardcoded band, no zero NAV anywhere.
+    expect(rows.some((r) => r.is_synthetic)).toBe(false);
+    expect(rows.some((r) => r.nav_usdc === 0)).toBe(false);
+    expect(rows.some((r) => r.apy_low === 9.0 && r.apy_high === 13.0)).toBe(false);
+  });
+
+  it("a REAL zero NAV from a snapshot is preserved — a measured 0 is not an absence", async () => {
+    findManyVaultSnapshot.mockResolvedValue([
+      {
+        takenAt: new Date("2026-02-15T00:00:00Z"),
+        aumUsdc: decimal(0),
+        currentApyLow: decimal(9.4),
+        currentApyHigh: decimal(12.8),
+      },
+    ]);
+    const rows = await loadVaultMonthlyHistory(1);
+    expect(rows).toHaveLength(1);
+    // The snapshot genuinely says 0 — that is a reading, and it stays.
+    expect(rows[0]?.nav_usdc).toBe(0);
+    expect(rows[0]?.is_synthetic).toBe(false);
+  });
+
+  it("a DB failure propagates — it is never converted into rows or an empty pad", async () => {
+    findManyVaultSnapshot.mockRejectedValue(new Error("db unreachable"));
+    // Outage ≠ empty history: the caller (memo cron) must see the failure, not
+    // a blank table it would render as "no history yet".
+    await expect(loadVaultMonthlyHistory(3)).rejects.toThrow("db unreachable");
   });
 });

@@ -254,11 +254,11 @@ export interface VaultMonthlyRow {
   /** End-of-month NAV in USDC. */
   nav_usdc: number;
   /**
-   * True when this row is a fabricated pad (deterministic synthetic fill used
-   * only when fewer than `months` real snapshots exist), false when it is a
-   * real `VaultSnapshot`. The PDF must badge synthetic rows `estimated` — never
-   * as a real measurement — so an opposable document never presents an invented
-   * month as attested.
+   * Always `false` since the synthetic padding was removed: every row is a
+   * real `VaultSnapshot` month. The field survives because the PDF contract
+   * (`performance-overview.tsx`) branches on it for its provenance badge —
+   * dropping it would churn that contract for no truth gain. If a synthetic
+   * row ever reappears, it must be a deliberate, flagged decision, not a pad.
    */
   is_synthetic: boolean;
 }
@@ -272,12 +272,11 @@ export interface VaultMonthlyRow {
  * loader robust to the seed pattern (which writes one snapshot per preset on
  * adjacent days).
  *
- * Fallback: if there are not enough snapshots in the DB to build the
- * requested window, the response is padded with a deterministic synthetic
- * series (NAV growing ~0.8% / month, APY range 9.0–13.0%) so the PDF table is
- * always fully populated. Padded rows are flagged `is_synthetic: true` so the
- * renderer can badge them `estimated` and never present a fabricated month as
- * a real measurement. Real rows are `is_synthetic: false`.
+ * No padding: fewer real months than requested returns fewer rows, and no
+ * history returns []. The renderer owns the empty state — it already promises
+ * "No history → NO fabricated row", and the previous synthetic fill (drifted
+ * NAV, hardcoded 9.0–13.0 band, `nav ?? aumUsdc ?? 0` anchor) broke that
+ * promise inside an investor-facing document.
  */
 export async function loadVaultMonthlyHistory(
   months: number,
@@ -340,34 +339,18 @@ export async function loadVaultMonthlyHistory(
     });
   }
 
-  if (real.length >= safeMonths) {
-    return real.slice(-safeMonths);
-  }
-
-  // Pad the head with synthetic months going backwards from the oldest real
-  // anchor (or from "now" if no real data exists at all). These rows are
-  // fabricated fill — flagged `is_synthetic: true` so the PDF badges them
-  // `estimated`, never as a real month.
-  const missing = safeMonths - real.length;
-  // Mode vérité live: never anchor synthetic history on a fabricated $25M.
-  // With no real NAV/snapshot the anchor is 0 (honest "no history").
-  const anchorNav =
-    real[0]?.nav_usdc ?? snapshots[0]?.aumUsdc?.toNumber() ?? 0;
-  const fallback: VaultMonthlyRow[] = [];
-  for (let i = missing; i >= 1; i -= 1) {
-    const date = monthsAgo(real[0] ? parsePeriod(real[0].period) : new Date(), i);
-    const drift = 1 - i * 0.008;
-    const nav = Math.round(anchorNav * drift);
-    fallback.push({
-      period: periodOf(date),
-      apy_low: 9.0,
-      apy_high: 13.0,
-      nav_usdc: nav,
-      is_synthetic: true,
-    });
-  }
-
-  return [...fallback, ...real];
+  // Short history is short history. This function used to pad the head with
+  // fabricated months — NAV derived from an anchor by an arbitrary drift
+  // (`1 - i*0.008`), APY band hardcoded to 9.0–13.0 — whose anchor was
+  // `nav ?? aumUsdc ?? 0`: an unreconciled snapshot figure, or a literal zero,
+  // dressed up as a month that never happened. The rows were flagged
+  // `is_synthetic`, but they still put invented NAV figures and an invented
+  // return band into an INVESTOR-FACING PDF, and the renderer
+  // (performance-overview.tsx) already promises the opposite: "No history →
+  // NO fabricated row". The loader now keeps that promise: only months a real
+  // backfill snapshot attests are returned, and a caller asking for 4 months
+  // of a 2-month-old product gets 2 rows.
+  return real.slice(-safeMonths);
 }
 
 interface MonthlyAnchorSnapshot {
@@ -384,18 +367,3 @@ function periodOf(d: Date): string {
   return `${y}-${m}`;
 }
 
-function parsePeriod(period: string): Date {
-  const parts = period.split("-");
-  const y = Number(parts[0]);
-  const m = Number(parts[1]);
-  if (!Number.isFinite(y) || !Number.isFinite(m)) {
-    return new Date();
-  }
-  return new Date(Date.UTC(y, m - 1, 15));
-}
-
-function monthsAgo(reference: Date, n: number): Date {
-  const d = new Date(reference.getTime());
-  d.setUTCMonth(d.getUTCMonth() - n);
-  return d;
-}
