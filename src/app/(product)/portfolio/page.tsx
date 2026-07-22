@@ -35,6 +35,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HcValueChart } from "@/components/dataviz/his";
+import { KycPageTitle } from "@/components/catalyst/kyc-page";
+import { SERIES1_SERIES } from "@/lib/vaults/series1";
 import {
   CapitalFlowRail,
   type CapitalFlowPocket,
@@ -235,7 +237,19 @@ export default async function PortfolioPage() {
   const allocationPending = zero || allocatedMachineCount <= 0;
 
   return (
-    <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
+    // KYC cockpit page rhythm: a title block in the shell's own light material,
+    // then the console. The console body keeps its own `dark` scope because the
+    // charts and bento tokens it renders (--ct-surface-*) are defined dark at
+    // :root — stripping the scope would leave dark panels under light text.
+    // It is framed as ONE deliberate inset panel inside the KYC page, not an
+    // unexplained dark island.
+    <div className="flex flex-col gap-8">
+      <KycPageTitle
+        title="Portfolio"
+        meta={`${SERIES1_SERIES} · Methodology v3.0`}
+        description="Your position in the Hearst Bitcoin Reserve Vault — capital deployment, pocket allocation, BTC accumulation and reserve operations."
+      />
+      <div className="dark flex flex-col overflow-hidden rounded-2xl bg-surface-page [--gutter:theme(spacing.8)]">
       <div className="flex flex-col gap-y-8 p-5 lg:p-6">
         {/* Margin strip — a single discreet line above the console: held-vault
             links + Subscribe (left) · demo timeline control (right). Plain text
@@ -296,9 +310,10 @@ export default async function PortfolioPage() {
             {/* Header: just the title. No chips, no badges, no CTA button — the
                 chart is the hero; the Subscribe link lives in the top margin. */}
             <div className="flex flex-wrap items-center gap-3 p-5 lg:px-6 lg:pt-6 lg:pb-2">
-              <h1 className="h1 shrink-0">
+              {/* h2: the page-level h1 is the KycPageTitle above. */}
+              <h2 className="h1 shrink-0">
                 Vault <span className="h1-accent">Health</span>
-              </h1>
+              </h2>
             </div>
             <div className="px-5 lg:px-6">
               <HcValueChart
@@ -565,6 +580,7 @@ export default async function PortfolioPage() {
           Simulated are illustrative previews, not records. Forward figures are
           projections shown as a range under stated assumptions, not guaranteed.
         </p>
+      </div>
       </div>
     </div>
   );

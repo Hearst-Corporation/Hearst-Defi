@@ -20,7 +20,7 @@ import {
 } from "@/lib/onboarding/state";
 
 export const metadata = {
-  title: "Onboarding — Hearst Yield Vault",
+  title: "Onboarding — Hearst Bitcoin Reserve Vault",
 };
 
 export default async function OnboardingLayout({

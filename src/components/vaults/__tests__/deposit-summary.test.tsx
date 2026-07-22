@@ -43,7 +43,7 @@ describe("DepositSummary — vault panel DS patterns", () => {
     expect(html).toContain("Data provenance: Estimated");
   });
 
-  it("renders APY as a range and the graphical principal/yield split", () => {
+  it("renders the delivery term (no rate) and the graphical principal/accumulation split", () => {
     const html = renderToStaticMarkup(
       <DepositSummary vault={VAULT} amount={500_000} />,
     );
@@ -56,8 +56,11 @@ describe("DepositSummary — vault panel DS patterns", () => {
     expect(html).toContain("color-mix(in_srgb,var(--ct-accent)_40%,transparent)");
     // The projected-total headline is neutral (not full-green) on estimated data.
     expect(html).toContain("text-[var(--ct-text-strong)]");
-    expect(html).toContain("9.4");
-    expect(html).toContain("12.8");
+    // Series 1 pays no rate: the tile that used to publish an APY range now
+    // states the delivery term. Asserting the ABSENCE of a rate is the point.
+    expect(html).toContain("BTC · at maturity");
+    expect(html).not.toMatch(/\bAPY\b/);
+    expect(html).not.toMatch(/yield range/i);
     // Principal is a fact, not a projection — it stays a single figure.
     expect(html).toContain("$500,000 USDC");
   });

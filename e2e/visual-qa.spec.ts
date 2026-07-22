@@ -126,7 +126,7 @@ test.describe("Visual QA — investor product routes (3 breakpoints)", () => {
 
   test("vaults: heading, no overflow, a11y", async ({ page }) => {
     await investorLogin(page);
-    await assertRouteAtBreakpoints(page, "/vaults", /Select a Product/i);
+    await assertRouteAtBreakpoints(page, "/vaults", /Hearst Bitcoin Reserve Vault/i);
   });
 
   test("proof-center: heading, no overflow, a11y", async ({ page }) => {

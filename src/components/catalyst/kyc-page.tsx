@@ -123,18 +123,26 @@ export function KycHeroKpiBand({
 }) {
   return (
     <div className="kyc-cockpit-kpi overflow-hidden rounded-xl">
+      {/* `min-w-0` on BOTH cells: grid items default to `min-width:auto`, so
+          without it a long hero value (e.g. "No active position" at text-5xl)
+          refuses to shrink below its intrinsic width, steals space from the
+          metric list and truncates every metric in cascade. The `truncate`
+          below only works once this is set. */}
       <div className="grid gap-px lg:grid-cols-12">
-        <div className="px-6 py-7 lg:col-span-4">
-          <p className="text-xs font-semibold uppercase tracking-uppercase text-emerald-600 dark:text-emerald-400">{hero.label}</p>
+        <div className="min-w-0 px-6 py-7 lg:col-span-4">
+          <p className="text-xs font-semibold uppercase tracking-uppercase text-zinc-500 dark:text-emerald-400">{hero.label}</p>
           <div className="mt-3 truncate text-4xl font-semibold tracking-tight tabular-nums text-zinc-950 sm:text-5xl dark:text-white">{hero.value}</div>
           <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">{hero.hint}</p>
         </div>
-        <dl className="grid grid-cols-2 gap-px lg:col-span-8 lg:grid-cols-3">
+        <dl className="grid min-w-0 grid-cols-1 gap-px sm:grid-cols-2 lg:col-span-8 lg:grid-cols-3">
           {metrics.map((metric) => (
-            <div key={metric.label} className="px-4 py-4">
+            <div key={metric.label} className="min-w-0 px-4 py-4">
               <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{metric.label}</dt>
               <dd className="mt-1 truncate text-xl font-semibold tracking-tight tabular-nums text-zinc-950 dark:text-white">{metric.value}</dd>
-              {metric.hint ? <p className="mt-0.5 truncate text-[10px] text-zinc-400 dark:text-zinc-500">{metric.hint}</p> : null}
+              {/* Hints carry provenance / legal qualifiers ("Contractual — not
+                  enforced on-chain"), so they wrap instead of truncating: a
+                  half-shown disclaimer is worse than a two-line one. */}
+              {metric.hint ? <p className="mt-0.5 text-[10px] leading-4 text-zinc-500 dark:text-zinc-500">{metric.hint}</p> : null}
             </div>
           ))}
         </dl>

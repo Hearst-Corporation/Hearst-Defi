@@ -258,7 +258,11 @@ export default async function VaultDetailPage({ params }: PageProps) {
       : null;
 
   return (
-    <div className="dark mb-8 flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)]">
+    // The console body keeps its own `dark` scope: the bento/chart tokens it
+    // renders (--ct-surface-*) are defined dark at :root, so stripping the
+    // scope would leave dark panels under light text. It is framed as one
+    // deliberate inset panel inside the KYC cockpit page.
+    <div className="dark mb-8 flex flex-col overflow-hidden rounded-2xl bg-surface-page [--gutter:theme(spacing.8)]">
       <div className="flex flex-col gap-y-8 p-5 lg:p-6">
         {/* HEADER */}
         <header className="flex flex-col gap-3 pb-1">

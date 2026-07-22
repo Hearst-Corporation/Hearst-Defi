@@ -1,4 +1,3 @@
-import { ApyRange } from "@/components/catalyst/apy-range";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { cn } from "@/lib/cn";
 import type { VaultProduct } from "@/lib/data/vaults";
@@ -168,15 +167,10 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
       <dl className="grid grid-cols-1 sm:grid-cols-2 border-b border-[var(--ct-border-soft)] bg-surface-inset">
         <div className="flex flex-col gap-2 p-5 border-b sm:border-r border-[var(--ct-border-soft)]">
           <dt className="ct-bento-label">
-            Est. yield range
+            Delivered in
           </dt>
-          <dd>
-            <ApyRange
-              low={vault.apyLow}
-              high={vault.apyHigh}
-              precision={1}
-              className="text-[length:var(--ct-text-xl-fixed)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums"
-            />
+          <dd className="text-[length:var(--ct-text-xl-fixed)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
+            BTC · at maturity
           </dd>
         </div>
         {/* The note pays no rate and carries no fixed APY (v3.0 §2/§3), so there
@@ -214,7 +208,7 @@ export function DepositSummary({ vault, amount }: DepositSummaryProps) {
         Figures shown are gross (before fees). Net accumulation after management
         and performance fees is lower. Estimated return is expressed as a range in
         accumulated BTC over the {TERM_MONTHS}-month term and delivered at
-        maturity — no periodic cash distribution, no fixed APY, and not
+        maturity — no periodic cash distribution, no fixed rate, and not
         guaranteed. The {vault.softLockupDays}-day soft lock-up is contractual and
         is not a realisation date. Methodology v3.0.
       </p>

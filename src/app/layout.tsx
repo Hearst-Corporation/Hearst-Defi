@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     siteName: "Hearst Connect",
     title: "Hearst Connect — Institutional Bitcoin Accumulation Note",
     description:
-      "Backed by real Bitcoin mining. BTC accumulates over a 24-month term and is delivered at maturity — no periodic cash distribution, no fixed APY. Estimated outcomes are disclosed as a range, not guaranteed.",
+      "Backed by real Bitcoin mining. BTC accumulates over a 24-month term and is delivered at maturity — no periodic cash distribution, no fixed rate. Estimated outcomes are disclosed as a range, not guaranteed.",
   },
   twitter: {
     card: "summary_large_image",

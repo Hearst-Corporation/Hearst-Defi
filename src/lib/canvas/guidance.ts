@@ -56,16 +56,17 @@ const GUIDANCE: Record<CanvasId, CanvasGuidance> = {
     ],
   },
   "lp-yield-explainer": {
-    title: "How the yield works",
+    title: "How the Bitcoin reserve is built",
     steps: [
-      "Expliquer la source du rendement : revenue-share du mining BTC dans une réserve USDC.",
-      "Décrire les distributions mensuelles en USDC.",
-      "Donner la fourchette cible et les hypothèses sous-jacentes.",
+      "Expliquer la source : production réelle de minage BTC, répartie sur trois poches on-chain (B1 puissance de minage, B2 réserve BTC, B3 réserve d'exploitation).",
+      "Préciser qu'il n'y a AUCUNE distribution périodique : le BTC accumulé est livré à maturité du terme de 24 mois.",
+      "Donner la fourchette d'accumulation estimée et les hypothèses sous-jacentes.",
     ],
     fillableFields: [],
     guardrails: [
       "Lecture seule : aucune action, aucun bouton.",
-      "Toujours présenter l'APY comme une plage et rappeler que les projections ne sont pas garanties.",
+      "Jamais de taux, d'APY, de coupon ni de distribution mensuelle : le produit n'en verse pas.",
+      "Toujours présenter le résultat estimé comme une PLAGE de BTC accumulé et rappeler qu'il n'est pas garanti.",
     ],
   },
 };

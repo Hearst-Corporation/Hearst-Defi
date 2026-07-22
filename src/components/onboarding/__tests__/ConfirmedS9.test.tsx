@@ -202,6 +202,8 @@ describe("S9 ConfirmedPage — all required elements present", () => {
     expect(html).toContain("bg-surface-card");
     expect(html).not.toContain("vault-panel-row");
     expect(html).not.toContain("vault-panel-inset-block");
-    expect(html).toContain("View other products");
+    // Single-product cockpit: no "other products" to browse.
+    expect(html).toContain("Back to the vault");
+    expect(html).not.toContain("View other products");
   });
 });

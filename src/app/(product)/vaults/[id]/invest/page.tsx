@@ -6,6 +6,7 @@ import { InvestForm } from "@/components/vaults/invest-form";
 import { BtcCompositionPanel } from "@/app/(product)/btc/_components/btc-composition-panel";
 import type { AllocationPocketViewModel } from "@/features/investor-ui/types/dashboard";
 import { investProductPath } from "@/lib/vaults/invest-routes";
+import { series1DisplayName } from "@/lib/vaults/series1";
 import { getVault, type VaultProduct } from "@/lib/data/vaults";
 import { getInvestor, getSession } from "@/lib/auth/session";
 import { isSumsubConfigured } from "@/lib/onboarding/config";
@@ -84,7 +85,7 @@ export default async function InvestDepositPage({ params }: PageProps) {
       titleAccent="capital"
       description={
         <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">
-          {vault.name} · {vault.ticker} · institutional subscription checkout on Base Sepolia testnet
+          {series1DisplayName(vault.name)} · {vault.ticker} · institutional subscription checkout on Base Sepolia testnet
         </span>
       }
       headerBelowStepper={

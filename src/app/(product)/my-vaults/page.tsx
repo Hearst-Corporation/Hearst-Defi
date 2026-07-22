@@ -40,7 +40,7 @@ export default async function MyVaultsPage() {
   const hasPositions = positions.length > 0;
 
   return (
-    <div className="dark relative mb-8 flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page">
+    <div className="dark relative mb-8 flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-page">
       <div className="relative z-10 flex flex-col gap-y-5 p-5 lg:p-6">
         {/* HEADER */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--ct-border-soft)] pb-3">

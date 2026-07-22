@@ -12,7 +12,10 @@ describe("InvestFlowShell width", () => {
     );
     // Bento kicker (Portfolio canon) carries the context label; the stepper
     // owns progress so the index is never duplicated in the eyebrow.
-    expect(html).toContain("Investment Flow");
+    // "Investment Flow" was retired with the multi-product catalogue: Series 1
+    // has a single subscription path, not a product-selection flow.
+    expect(html).toContain("Subscription");
+    expect(html).not.toContain("Investment Flow");
     expect(html).not.toContain("Invest · Step");
     expect(html).toContain('role="progressbar"');
   });

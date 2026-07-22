@@ -120,14 +120,17 @@
   font-weight: var(--ct-font-medium);
   letter-spacing: var(--ct-tracking-normal);
   line-height: var(--ct-leading-snug);
-  color: var(--ct-accent);
 }
 
-/* Semantic h3 elements + section-panel__title — accent, comme .pf-container h3
-   dans portfolio.css. La règle de classe ci-dessus ne couvre pas les balises
-   <h3> natives ni les titres de panneau de section. */
-:is(.product-doc, .admin-doc) h3,
-:is(.product-doc, .admin-doc) .section-panel__title {
+/* L'accent vert n'est lisible que sur matière SOMBRE. Ce fichier est chargé
+   hors @layer, donc il bat TOUJOURS les utilitaires Tailwind : une règle de
+   couleur non scopée écrasait `text-zinc-950` sur chaque <h3> du cockpit KYC
+   clair, rendant les titres de chart en vert #A7FB90 sur fond clair (~1.4:1,
+   AA exige 4.5:1). L'accent est donc scopé aux surfaces sombres ; sur clair,
+   la couleur du composant s'applique normalement. */
+:is(.dark .product-doc, .dark .admin-doc) .h3,
+:is(.dark .product-doc, .dark .admin-doc) h3,
+:is(.dark .product-doc, .dark .admin-doc) .section-panel__title {
   color: var(--ct-accent);
 }
 
