@@ -103,24 +103,15 @@ describe("asset visual analytics", () => {
     expect(dash).not.toMatch(/[\u{1F300}-\u{1FFFF}]/u);
   });
 
-  it("strategy and health panels avoid h-full stretch on cards", () => {
-    // The legacy dashboard-strategy-panel / dashboard-health-panel were
-    // replaced by the shared panels — the guard follows them.
+  it("strategy panel avoids h-full stretch on cards", () => {
+    // mining-pulse-panel / reserve-health-panel were removed with the fixture
+    // purge (never mounted by any route) — the guard now covers the one
+    // surviving panel of that trio.
     const strategy = readFileSync(
       join(process.cwd(), "src/features/investor-ui/components/strategy-composition-panel.tsx"),
       "utf8",
     );
-    const miningPulse = readFileSync(
-      join(process.cwd(), "src/features/investor-ui/components/widgets/mining-pulse-panel.tsx"),
-      "utf8",
-    );
-    const reserveHealth = readFileSync(
-      join(process.cwd(), "src/features/investor-ui/components/widgets/reserve-health-panel.tsx"),
-      "utf8",
-    );
     expect(strategy).not.toMatch(/\bh-full\b/);
-    expect(miningPulse).not.toMatch(/\bh-full\b/);
-    expect(reserveHealth).not.toMatch(/\bh-full\b/);
     expect(strategy).not.toMatch(/\bflex-1\b/);
   });
 

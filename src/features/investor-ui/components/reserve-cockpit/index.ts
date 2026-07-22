@@ -1,13 +1,19 @@
 // src/features/investor-ui/components/reserve-cockpit/index.ts
 //
-// Bitcoin Reserve cockpit — shared viz blocks of the Series 1 narrative
-// (M5/W1). Single import surface: capital → 3 pockets → mining → reserve
-// operations → BTC accumulated over 24 months → delivery at maturity → proofs.
+// Bitcoin Reserve cockpit — the blocks a page ACTUALLY renders.
 //
-// Each block is token-only (--ct-*), composes the existing HIS primitives +
-// the shared accumulation-series derivation (never duplicates them), carries a
-// per-block provenance badge, and renders an honest empty / not-configured
-// state when its input is null — never a fabricated value, never a fake `Live`.
+// This barrel once exported eight visualization blocks; seven were never
+// mounted by any route (verified 2026-07-22 by closing the import graph) and
+// several carried illustrative series — a pace overlay engineered to sit
+// above the real curve, an accumulation total inflated by a fixed strategic
+// ratio. Dead code that LOOKS like product is the standing risk this codebase
+// keeps paying for: a future wiring reconnects it and the invented figures
+// ship. Removed rather than kept "just in case"; git holds them if a real,
+// sourced need returns.
+//
+// What remains is what /portfolio/[positionId] renders: the capital-flow rail
+// (real principal + factsheet bps, honest null for an unfunded position) and
+// its shared frame.
 
 export { ReserveBlockFrame } from "./block-frame";
 export type { ReserveBlockFrameProps } from "./block-frame";
@@ -18,46 +24,3 @@ export type {
   CapitalFlowRailData,
   CapitalFlowPocket,
 } from "./CapitalFlowRail";
-
-export { BtcAccumulationCurve } from "./BtcAccumulationCurve";
-export type {
-  BtcAccumulationCurveProps,
-  BtcAccumulationCurveData,
-} from "./BtcAccumulationCurve";
-
-export { AllInCostVsSpot } from "./AllInCostVsSpot";
-export type { AllInCostVsSpotProps, CostSpotPoint } from "./AllInCostVsSpot";
-
-export { ReserveRunwayChart } from "./ReserveRunwayChart";
-export type {
-  ReserveRunwayChartProps,
-  ReserveRunwayData,
-  RunwayPoint,
-} from "./ReserveRunwayChart";
-
-export { MiningActivityTimeline } from "./MiningActivityTimeline";
-export type {
-  MiningActivityTimelineProps,
-  MiningInterval,
-  FleetState,
-} from "./MiningActivityTimeline";
-
-export { PocketAllocationVisual } from "./PocketAllocationVisual";
-export type {
-  PocketAllocationVisualProps,
-  PocketAllocation,
-} from "./PocketAllocationVisual";
-
-export { SmartContractStateCard } from "./SmartContractStateCard";
-export type {
-  SmartContractStateCardProps,
-  SmartContractState,
-  VaultMode,
-} from "./SmartContractStateCard";
-
-export { DeliveryRailSelector } from "./DeliveryRailSelector";
-export type {
-  DeliveryRailSelectorProps,
-  DeliveryRailSelectorData,
-  DeliveryRail,
-} from "./DeliveryRailSelector";
