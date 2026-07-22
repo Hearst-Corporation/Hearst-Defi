@@ -47,14 +47,18 @@ function ProofRow({
   label: string;
   type: string;
   txHash: string;
-  occurredAt: Date;
+  /** null = this proof carries no timestamp. Rendered as the label alone —
+   *  NEVER as a date. A missing timestamp used to arrive here as `new Date(0)`
+   *  and printed as 1 Jan 1970 under an "Attested" badge, i.e. a fabricated
+   *  date on a proof surface. An absent date is absent. */
+  occurredAt: Date | null;
 }) {
   const linkable = !isPlaceholderTxHash(txHash);
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 bg-surface-card px-5 py-4 min-w-0">
       <Badge color="zinc">{type}</Badge>
       <span className="ct-metric-caption whitespace-nowrap">
-        {label} · {formatAdminDate(occurredAt)}
+        {occurredAt === null ? label : `${label} · ${formatAdminDate(occurredAt)}`}
       </span>
       <span className="ct-metric-caption font-mono text-[var(--ct-text-secondary)]">
         {truncateHash(txHash)}
@@ -113,7 +117,9 @@ export function PositionInfrastructureProofs({
               txHash={txHashOpen}
               // Opening tx has no dedicated timestamp on this shape; use the
               // earliest available transaction date, else render label only.
-              occurredAt={onChainTxs[0]?.occurredAt ?? new Date(0)}
+              // `null`, not `new Date(0)`: the epoch would print as 1 Jan 1970
+              // under the "Attested" badge above — a fabricated date on a proof.
+              occurredAt={onChainTxs[0]?.occurredAt ?? null}
             />
           ) : null}
           {onChainTxs.map((tx) => (

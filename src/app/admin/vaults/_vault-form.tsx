@@ -12,6 +12,11 @@ import { ProjectionFooter } from "@/components/admin/projection-footer";
 import { ForbiddenWordsInput } from "@/components/admin/forbidden-words-input";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 import { SHARE_CLASS_A } from "@/lib/engine/share-class";
+import {
+  B1_MINING_ALLOCATION_BPS,
+  B2_BTC_ALLOCATION_BPS,
+  B3_USDC_ALLOCATION_BPS,
+} from "@/lib/products/dynavault-factsheet";
 import { BENTO_INPUT } from "@/components/admin/outreach/bento-form";
 import { cn } from "@/lib/cn";
 import {
@@ -72,10 +77,22 @@ const FORM_INITIAL: FormState = {
   regExemption: "regD_506c",
   disclaimers:
     "This vault is offered exclusively to qualified purchasers as defined in Section 2(a)(51) of the Investment Company Act. Past performance is not indicative of future results. This is not a solicitation or offer in any jurisdiction where such offer is unlawful. Distributions are not guaranteed and are subject to operational performance.",
-  targetMiningBps: 5000,
-  targetBtcTacticalBps: 2500,
-  targetUsdcBaseBps: 1500,
-  targetStableReserveBps: 1000,
+  // ── Pocket defaults: the ONLY layout the contract accepts ────────────────
+  // PermissionedDynaVault v2.1 hard-enforces 40/27/33 across B1/B2/B3
+  // (`_enforceMiningNoteLayout` reverts with `MiningNoteLayoutViolation` on
+  // anything else). The previous defaults here were 50/25/15/10, which sum to
+  // 10000 and so passed this form's validation, but describe a vault the
+  // contract would refuse to deploy — and `/vaults/[id]/invest` renders these
+  // DB columns to the investor as "B1/B2/B3", so a draft created from the old
+  // defaults advertised a 50/25/25 structure that cannot exist.
+  //
+  // B3 is split across two columns here (`stableReserve` + `usdcBase`); the
+  // investor surface sums them back. Sourced from the factsheet constants, not
+  // re-typed, so a spec change moves this form with it.
+  targetMiningBps: B1_MINING_ALLOCATION_BPS,
+  targetBtcTacticalBps: B2_BTC_ALLOCATION_BPS,
+  targetUsdcBaseBps: 0,
+  targetStableReserveBps: B3_USDC_ALLOCATION_BPS,
   signersWhitelist: ["", ""],
   requiredSigners: 2,
 };

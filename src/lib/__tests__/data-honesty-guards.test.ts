@@ -361,20 +361,33 @@ describe("POINT 6 — tax preview page always sources real ledger overrides", ()
 // POINT 7 — mining fleet uptime is never badged "attested".
 // ---------------------------------------------------------------------------
 //
-// `market-data-hourly.ts` writes `uptimePct: 98.5` (a hardcoded placeholder,
-// pending a real fleet uptime feed) into `MiningMetric` on every hourly run —
-// see the comment at that call site. `loadLatestMiningMetrics()` (the Mining
-// Health Agent's data loader) must never let a fabricated constant inherit
-// the row's freshness-derived `attested`/`stale` tag: that would present a
-// placeholder as attested fact, violating CLAUDE.md non-negotiable #2. The
-// other three metrics on the same row (hashprice/difficulty/margin) ARE
-// measured/derived from live feeds, so they keep the freshness-derived tag.
+// `MiningMetric.uptimePct` / `.deployedHashrate` are NOT measured: no pool
+// integration and no uptime feed exist. `loadLatestMiningMetrics()` (the Mining
+// Health Agent's data loader) must never let such a value inherit the row's
+// freshness-derived `attested`/`stale` tag: that would present an unmeasured
+// number as attested fact, violating CLAUDE.md non-negotiable #2. The other
+// three metrics on the same row (hashprice/difficulty/margin) ARE measured or
+// derived from live feeds, so they keep the freshness-derived tag.
+//
+// The cron used to re-mint the literals `98.5` / `182_000` on EVERY hourly row,
+// which made a constant look like a live series (fresh `takenAt`, unchanging
+// value). It now carries the previous row's value forward and only falls back
+// to a named `*_UNMEASURED` seed when the table is empty. The anchor below
+// asserts that new shape: the literals may exist ONLY as those named seeds,
+// never inline in the `create()` payload.
 describe("POINT 7 — mining uptime provenance is never fabricated as attested", () => {
-  it("market-data-hourly.ts still writes the documented placeholder (sanity anchor)", () => {
+  it("market-data-hourly.ts does not re-mint the placeholder inline on every row", () => {
     const cron = stripComments(
       read("src/lib/inngest/functions/market-data-hourly.ts"),
     );
-    expect(cron).toMatch(/uptimePct:\s*98\.5/);
+    // The write must carry forward, not assign a literal.
+    expect(cron).toMatch(/uptimePct:\s*carried\.uptimePct/);
+    expect(cron).toMatch(/deployedHashrate:\s*carried\.deployedHashrate/);
+    expect(cron).not.toMatch(/uptimePct:\s*98\.5/);
+    expect(cron).not.toMatch(/deployedHashrate:\s*182_000\s*,/);
+    // The seeds survive, but named so they cannot read as measurements.
+    expect(cron).toMatch(/FLEET_UPTIME_PCT_UNMEASURED\s*=\s*98\.5/);
+    expect(cron).toMatch(/FLEET_HASHRATE_TH_UNMEASURED\s*=\s*182_000/);
   });
 
   it("loadLatestMiningMetrics() hardcodes uptime_pct provenance to 'estimated', not the row's freshness tag", () => {
@@ -394,10 +407,10 @@ describe("POINT 7 — mining uptime provenance is never fabricated as attested",
 // `loadMiningOpsSnapshot()` (src/lib/agents/loaders/mining.ts) feeds the
 // Investor Memo PDF's Mining Health page (`memo-pages/mining-health.tsx`) via
 // `MemoPdfData.miningOps`. `hashrate_ph_s` and `uptime_pct` on that snapshot
-// are averages of `MiningMetric.deployedHashrate`/`uptimePct` — both columns
-// are still written as hardcoded placeholders (`182_000` / `98.5`) by the
-// hourly cron regardless of freshness (RP-10, same root cause as T-13/POINT 7,
-// different consumer). The page used to badge them "attested" whenever
+// are averages of `MiningMetric.deployedHashrate`/`uptimePct` — neither column
+// is measured (no pool feed, no uptime feed); the hourly cron carries the
+// previous row's value forward rather than measuring anything (RP-10, same root
+// cause as T-13/POINT 7, different consumer). The page used to badge them "attested" whenever
 // `is_fallback` was false, i.e. whenever the DB had ANY row — which is true
 // almost always since the cron runs hourly. This is a CRITICAL, LP-visible
 // provenance-badge violation (CLAUDE.md non-negotiable #2): the Investor Memo

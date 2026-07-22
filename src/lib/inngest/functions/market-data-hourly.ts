@@ -26,6 +26,25 @@ import { isDuplicate, markComplete } from "@/lib/idempotency";
 const MARKET_DATA_HOURLY_ID = "market-data-hourly" as const;
 const MARKET_DATA_HOURLY_CRON = "0 * * * *" as const;
 
+/**
+ * Seed values for the two fleet columns this job cannot measure.
+ *
+ * `MiningMetric.uptimePct` and `.deployedHashrate` are declared NOT NULL, so
+ * the very first row of an empty database has to carry *something*. These are
+ * that something — and their names say what they are: NOT a measurement.
+ *
+ * They are used ONLY when no previous row exists; every subsequent row carries
+ * the previous value forward rather than re-minting a constant (a constant
+ * re-written hourly looks like a live feed in a time series; a carried value
+ * visibly flatlines, which is the truth here).
+ *
+ * Readers MUST tag anything derived from these `estimated`, never `attested` —
+ * `src/lib/agents/loaders/mining.ts` does. When a real pool/uptime integration
+ * lands, both columns should become nullable and these constants deleted.
+ */
+const FLEET_UPTIME_PCT_UNMEASURED = 98.5;
+const FLEET_HASHRATE_TH_UNMEASURED = 182_000;
+
 interface MarketDataHourlyStep {
   run<T>(name: string, fn: () => T | Promise<T>): Promise<T>;
   sendEvent(id: string, payload: { name: string; data: Record<string, unknown> }): Promise<unknown>;
@@ -93,11 +112,17 @@ async function marketDataHourlyHandler({
 
   await step.run("persist-mining-metric", async () => {
     try {
-      // Compute a simple hashprice trend from the previous row.
+      // Compute a simple hashprice trend from the previous row, and carry the
+      // unmeasured fleet columns forward from it (see the write below).
       const previous = await prisma.miningMetric.findFirst({
         orderBy: { takenAt: "desc" },
-        select: { hashprice: true },
+        select: { hashprice: true, uptimePct: true, deployedHashrate: true },
       });
+
+      const carried = {
+        uptimePct: previous?.uptimePct?.toNumber() ?? null,
+        deployedHashrate: previous?.deployedHashrate?.toNumber() ?? null,
+      };
 
       // Decimal → number at the read boundary before arithmetic.
       const prevHashprice = previous?.hashprice?.toNumber() ?? null;
@@ -114,8 +139,22 @@ async function marketDataHourlyHandler({
           // Source: `getEnergyCostUsdPerKwh()` — env override or industry default.
           // Provenance is `Manual` (or `Attested` once the partner pipeline lands).
           energyCost: energyCost.usdPerKwh,
-          uptimePct: 98.5, // placeholder until real uptime feed
-          deployedHashrate: 182_000, // TH/s placeholder
+          // ── Fleet telemetry: carried over, NEVER re-invented ──────────────
+          // These two columns are NOT measured: no pool integration and no
+          // uptime feed exist (see src/lib/mining/pool-provider.ts). They used
+          // to be written as literals (98.5 / 182_000) on EVERY row, which is
+          // the one thing this codebase treats as the worst failure available:
+          // a fabricated constant that acquires a timestamp by passing through
+          // the database, becoming indistinguishable from a measurement.
+          //
+          // The schema declares both NOT NULL, so writing `null` would need a
+          // migration and would break every reader (LLM context, investor PDF).
+          // Until that migration lands, we carry the previous row's value
+          // forward instead of minting a fresh-looking constant, and every
+          // reader must keep tagging them `estimated` — never `attested`
+          // (src/lib/agents/loaders/mining.ts:132-141 already does).
+          uptimePct: carried.uptimePct ?? FLEET_UPTIME_PCT_UNMEASURED,
+          deployedHashrate: carried.deployedHashrate ?? FLEET_HASHRATE_TH_UNMEASURED,
           miningMarginScore: marginScore,
           hashpriceTrendPct: Math.round(hashpriceTrendPct * 100) / 100,
           operationalConfidence: computeOperationalConfidence(marginScore, btc.usd_24h_change),

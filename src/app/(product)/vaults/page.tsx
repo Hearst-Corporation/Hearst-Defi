@@ -79,7 +79,7 @@ export default async function VaultsPage() {
     );
   }
 
-  const { snapshot, capacity, strategies, runtime } = data;
+  const { snapshot, capacity, strategies, terms, runtime } = data;
 
   return (
     <Series1Page>
@@ -139,8 +139,28 @@ export default async function VaultsPage() {
             ),
             hint: "convertToAssets(1 share)",
           },
-          { label: "Term", value: "24 months", hint: "BTC delivered at maturity" },
-          { label: "Minimum ticket", value: "$250k", hint: "60-day soft lock-up" },
+          // Term and minimum ticket come from the backend factsheet, not from
+          // literals: both used to be typed here ("24 months" / "$250k") while
+          // /api/v1/product/factsheet already served them, so a spec change
+          // would have moved one screen and left this one asserting the old
+          // number. When the factsheet is unavailable the cell states the
+          // motive — it never falls back to the previous hardcoded string.
+          {
+            label: "Term",
+            value: wiredMetric(
+              selectExposedFromWired(terms, (t) => t.productDurationMonths),
+              (m) => `${m} months`,
+            ),
+            hint: "BTC delivered at maturity",
+          },
+          {
+            label: "Minimum ticket",
+            value: wiredMetric(
+              selectExposedFromWired(terms, (t) => t.minimumDepositUsdc),
+              (v) => formatUsdcAmount(BigInt(v)),
+            ),
+            hint: "60-day soft lock-up",
+          },
           { label: "Distribution", value: "None", hint: "No periodic cash, no fixed rate" },
         ]}
       />
@@ -259,7 +279,12 @@ export default async function VaultsPage() {
           <Series1Panel>
             <Series1PanelHeader title="Maturity & BTC delivery" />
             <Series1RowList>
-              <Series1Row label="Term" value="24 months" hint="From subscription settlement" />
+              <Series1WiredRow
+                label="Term"
+                read={selectExposedFromWired(terms, (t) => t.productDurationMonths)}
+                render={(m) => `${m} months`}
+                hint="From subscription settlement"
+              />
               <Series1Row label="Delivered in" value="BTC" hint="Accumulated reserve, at maturity" />
               <Series1Row
                 label="Periodic distribution"

@@ -28,10 +28,12 @@
 import "server-only";
 
 import {
+  getProductFactsheetFromBackend,
   getVaultFromBackend,
   getVaultStrategiesFromBackend,
   isBackendError,
   type Envelope,
+  type FactsheetTerms,
   type VaultDTO,
   type VaultStrategiesDTO,
   type VaultSnapshot,
@@ -46,6 +48,10 @@ export interface VaultPageDataOk {
   readonly snapshot: WiredFromBackend<VaultSnapshot>;
   readonly capacity: WiredFromBackend<VaultCapacityBlock>;
   readonly strategies: WiredFromBackend<readonly VaultStrategy[]>;
+  /** Product terms (duration, minimum deposit, curtailment thresholds) as the
+   *  BACKEND reports them. The page used to print "24 months" / "$250k" as
+   *  literals; those are product facts with a source, and this is it. */
+  readonly terms: WiredFromBackend<FactsheetTerms>;
   /** Contract identity as reported by the backend — what actually answered. */
   readonly runtime: VaultDTO["runtime"];
   /** Composite, worst-field-first. Reported as-is; never upgraded. */
@@ -63,26 +69,47 @@ export type VaultPageData = VaultPageDataOk | VaultPageDataError;
 /**
  * Load /vaults.
  *
- * The two calls are independent, so they run concurrently — but a failure of
- * EITHER is a failure of the read path, not a partial success: if the vault
- * snapshot is unreachable, showing the pockets alone would imply the rest is
- * merely "absent". `Promise.all` rejects on the first, which is the honest
- * outcome here.
+ * The vault snapshot and the strategies are read together: a failure of EITHER
+ * is a failure of the read path, not a partial success — if the snapshot is
+ * unreachable, showing the pockets alone would imply the rest is merely
+ * "absent". `Promise.all` rejects on the first, which is the honest outcome.
+ *
+ * The factsheet is deliberately NOT in that group. It carries the product's
+ * written terms (duration, minimum ticket), which are a different kind of fact
+ * from the vault's live state: losing them should grey out two KPI cells, not
+ * blank the page. So it settles separately and degrades to an `unavailable`
+ * envelope carrying its own motive.
  */
 export async function loadVaultPageData(): Promise<VaultPageData> {
   try {
-    const [vault, strategies]: [Envelope<VaultDTO>, Envelope<VaultStrategiesDTO>] = await Promise.all([
-      getVaultFromBackend(),
-      getVaultStrategiesFromBackend(),
+    const [vaultAndStrategies, factsheetResult] = await Promise.all([
+      Promise.all([getVaultFromBackend(), getVaultStrategiesFromBackend()]) as Promise<
+        [Envelope<VaultDTO>, Envelope<VaultStrategiesDTO>]
+      >,
+      getProductFactsheetFromBackend().then(
+        (ok) => ({ ok: true as const, value: ok }),
+        (err: unknown) => ({ ok: false as const, error: err }),
+      ),
     ]);
 
+    const [vault, strategies] = vaultAndStrategies;
     const runtime = vault.data.runtime;
+
+    const terms: WiredFromBackend<FactsheetTerms> = factsheetResult.ok
+      ? resolvedToWired(factsheetResult.value.data.terms, factsheetResult.value.data.runtime)
+      : (logger.warn("vaults: factsheet unreachable", {
+          detail: isBackendError(factsheetResult.error)
+            ? `${factsheetResult.error.code} on ${factsheetResult.error.path}`
+            : String(factsheetResult.error),
+        }),
+        { status: "unavailable", reason: "backend:unreachable" });
 
     return {
       state: "ok",
       snapshot: resolvedToWired(vault.data.snapshot, runtime),
       capacity: resolvedToWired(vault.data.capacity, runtime),
       strategies: resolvedToWired(strategies.data.strategies, strategies.data.runtime),
+      terms,
       runtime,
       compositeStatus: vault.meta.status,
     };
