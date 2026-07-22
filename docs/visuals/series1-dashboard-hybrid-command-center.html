@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Series 1 Hybrid Command Center — Hearst Connect</title>
+<style>
+  :root {
+    --accent: #A7FB90;
+    --accent-strong: color-mix(in srgb, var(--accent) 85%, #fff);
+    --accent-soft: color-mix(in srgb, var(--accent) 15%, transparent);
+    
+    --bg-deep: #09090b;
+    --bg-surface: color-mix(in srgb, var(--bg-deep) 70%, #18181b);
+    
+    --fg-strong: #ffffff;
+    --fg-muted: #a1a1aa;
+    --fg-faint: #52525b;
+    
+    --hairline: rgba(255, 255, 255, 0.08);
+    --hairline-faint: rgba(255, 255, 255, 0.04);
+    
+    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background-color: var(--bg-deep);
+    color: var(--fg-muted);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cockpit-wrapper {
+    width: 100%;
+    max-width: 1440px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Structural elements - anti-box */
+  .panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Header Compact */
+  .c-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+  }
+  
+  .c-header .title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg-strong);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--hairline-faint);
+    border: 1px solid var(--hairline);
+    color: var(--fg-muted);
+  }
+  .status-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fg-faint);
+  }
+  .status-badge.accent {
+    color: var(--accent-strong);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .status-badge.accent .dot {
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+  }
+
+  .btn {
+    background: transparent;
+    color: var(--fg-strong);
+    border: 1px solid var(--hairline);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: var(--hairline-faint); }
+
+  /* 2. Hero-Dashboard Fusion */
+  .hero-panel {
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    min-height: 380px;
+  }
+  
+  .ambient-grid {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image: 
+      linear-gradient(to right, var(--hairline-faint) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--hairline-faint) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .ambient-glow {
+    position: absolute; top: 10%; left: 30%; width: 40%; height: 80%;
+    background: radial-gradient(ellipse, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Hero Left */
+  .hero-left {
+    padding: 32px;
+    border-right: 1px solid var(--hairline);
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .dp-group { display: flex; flex-direction: column; gap: 8px; }
+  .dp-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-faint); }
+  .dp-val { font-family: var(--font-mono); font-size: 32px; color: var(--fg-strong); line-height: 1; }
+  .dp-val.muted { color: var(--fg-faint); font-size: 24px; }
+  .dp-hint { font-size: 11px; color: var(--fg-muted); }
+
+  /* Hero Center */
+  .hero-center {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+
+  /* Hero Right */
+  .hero-right {
+    padding: 32px 24px;
+    border-left: 1px solid var(--hairline);
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .rail-block {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .rail-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px dotted var(--hairline);
+  }
+  .rail-row:last-child { border-bottom: none; }
+  .rail-lbl { color: var(--fg-muted); }
+  .rail-v { font-family: var(--font-mono); color: var(--fg-strong); }
+
+  /* 3. Data Rail */
+  .data-rail {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    background: color-mix(in srgb, var(--bg-deep) 80%, #18181b);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .rail-cell {
+    padding: 16px 20px;
+    border-right: 1px solid var(--hairline);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .rail-cell:last-child { border-right: none; }
+  .rc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); }
+  .rc-val { font-family: var(--font-mono); font-size: 14px; color: var(--fg-strong); }
+  .rc-hint { font-size: 10px; color: var(--fg-muted); }
+
+  /* 4. Second Level Grid */
+  .second-level {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .module {
+    background: var(--bg-surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .module-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-muted); }
+
+  /* Trajectory Chart Placeholder */
+  .chart-empty {
+    flex: 1; min-height: 200px;
+    border: 1px dashed var(--hairline);
+    border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    background: color-mix(in srgb, var(--bg-deep) 40%, transparent);
+  }
+
+  /* Operations Timeline */
+  .timeline {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 24px 0;
+    position: relative;
+  }
+  .timeline::before {
+    content: ''; position: absolute; top: 32px; left: 24px; right: 24px; height: 1px;
+    background: var(--hairline); z-index: 0;
+  }
+  .t-node {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    text-align: center; width: 80px;
+  }
+  .t-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--bg-deep); border: 2px solid var(--hairline);
+  }
+  .t-dot.active { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 30%, transparent); }
+  .t-title { font-size: 11px; font-weight: 600; color: var(--fg-strong); }
+  .t-desc { font-size: 10px; color: var(--fg-faint); }
+
+  /* 5. Footer Strip */
+  .footer-strip {
+    display: flex; justify-content: space-between;
+    padding: 16px 24px;
+    font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+    color: var(--fg-faint); letter-spacing: 0.05em;
+    border-top: 1px solid var(--hairline);
+    margin-top: 24px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="cockpit-wrapper">
+
+  <!-- 1. Header Compact -->
+  <header class="panel c-header">
+    <div class="title">
+      <span style="color: var(--accent);">//</span> Hearst Bitcoin Reserve Vault — Series 1
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div class="status-badge"><div class="dot"></div>Legacy Mode</div>
+      <div class="status-badge"><div class="dot"></div>v2.1 Address TBD</div>
+      <button class="btn">View proof status</button>
+    </div>
+  </header>
+
+  <!-- 2. Hero-Dashboard Fusion -->
+  <section class="panel hero-panel">
+    <div class="ambient-grid"></div>
+    <div class="ambient-glow"></div>
+
+    <!-- Hero Left: Inventory -->
+    <div class="hero-left">
+      <div class="dp-group">
+        <div class="dp-label" style="color: var(--accent);">Bitcoin Inventory</div>
+        <div class="dp-val muted">— BTC</div>
+        <div class="status-badge" style="width: fit-content; margin-top: 4px;"><div class="dot"></div> Not yet reported</div>
+        <div class="dp-hint" style="margin-top: 8px;">Delivered at maturity. Not a coupon.</div>
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <div class="dp-label">Capital Deployed</div>
+          <div class="dp-val" style="font-size: 20px; margin-top: 4px;">— USDC</div>
+        </div>
+        <div>
+          <div class="dp-label">Term</div>
+          <div class="dp-val" style="font-size: 20px; margin-top: 4px;">— / 24 <span style="font-size: 12px; color: var(--fg-faint);">mo</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Center: Visual Spine -->
+    <div class="hero-center">
+      <svg viewBox="0 0 600 300" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+        <!-- Input -->
+        <text x="0" y="153" fill="#a1a1aa" font-family="monospace" font-size="10">CAPITAL</text>
+        <path d="M 55 150 L 120 150" stroke="#52525b" stroke-width="1.5" stroke-dasharray="2 2" />
+        
+        <!-- Splitting -->
+        <path d="M 120 150 C 140 150, 140 80, 180 80 L 300 80" stroke="#52525b" stroke-width="1.5"/>
+        <path d="M 120 150 L 300 150" stroke="#A7FB90" stroke-width="2"/>
+        <path d="M 120 150 C 140 150, 140 220, 180 220 L 300 220" stroke="#52525b" stroke-width="1.5"/>
+        
+        <!-- Nodes -->
+        <circle cx="120" cy="150" r="3" fill="#52525b" />
+        
+        <!-- Labels -->
+        <text x="180" y="70" fill="#a1a1aa" font-family="monospace" font-size="10">B1 MINING (40%)</text>
+        <text x="180" y="140" fill="#A7FB90" font-family="monospace" font-size="10">B2 BTC RESERVE (27%)</text>
+        <text x="180" y="210" fill="#a1a1aa" font-family="monospace" font-size="10">B3 OPERATING (33%)</text>
+        
+        <!-- Values -->
+        <text x="310" y="83" fill="#ffffff" font-family="monospace" font-size="10">— TH/s</text>
+        <text x="310" y="223" fill="#ffffff" font-family="monospace" font-size="10">— USDC</text>
+        
+        <!-- Mining Converging -->
+        <path d="M 350 80 C 400 80, 400 150, 450 150" stroke="#52525b" stroke-width="1.5" stroke-dasharray="2 4"/>
+        
+        <!-- Accumulation Curve -->
+        <path d="M 310 150 L 450 150" stroke="#A7FB90" stroke-width="2" />
+        <path d="M 450 150 C 500 150, 520 100, 580 80" stroke="#A7FB90" stroke-width="3"/>
+        <circle cx="580" cy="80" r="5" fill="#A7FB90" />
+        
+        <!-- Output -->
+        <text x="510" y="65" fill="#ffffff" font-family="monospace" font-size="11">MATURITY</text>
+      </svg>
+    </div>
+
+    <!-- Hero Right: Context & Allocation -->
+    <div class="hero-right">
+      <div class="rail-block">
+        <div class="dp-label" style="margin-bottom: 8px;">Pocket Allocation</div>
+        <div style="display: flex; width: 100%; height: 6px; border-radius: 3px; overflow: hidden; background: var(--bg-deep);">
+          <div style="width: 40%; background: #52525b;"></div>
+          <div style="width: 27%; background: #A7FB90;"></div>
+          <div style="width: 33%; background: #3f3f46;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 10px; font-family: var(--font-mono); color: var(--fg-faint); margin-top: 4px;">
+          <span>40%</span><span>27%</span><span>33%</span>
+        </div>
+      </div>
+
+      <div class="rail-block">
+        <div class="dp-label" style="margin-bottom: 8px;">Mining Register</div>
+        <div class="rail-row"><span class="rail-lbl">Mining state</span><span class="rail-v">—</span></div>
+        <div class="rail-row"><span class="rail-lbl">Reported hashrate</span><span class="rail-v">— TH/s</span></div>
+        <div class="rail-row"><span class="rail-lbl">Last report</span><span class="rail-v">—</span></div>
+      </div>
+
+      <div class="rail-block">
+        <div class="dp-label" style="margin-bottom: 8px;">Contract & Proof</div>
+        <div class="rail-row"><span class="rail-lbl">Allocation mode</span><span class="rail-v">Advisory</span></div>
+        <div class="rail-row"><span class="rail-lbl">Proof status</span><span class="rail-v" style="color: var(--fg-faint);">Not yet indexed</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Data Rail Horizontal Strip -->
+  <div class="data-rail">
+    <div class="rail-cell"><span class="rc-label">Deployed</span><span class="rc-val">— USDC</span></div>
+    <div class="rail-cell"><span class="rc-label">Total Shares</span><span class="rc-val">—</span></div>
+    <div class="rail-cell"><span class="rc-label">NAV / Share</span><span class="rc-val">— USDC</span><span class="rc-hint">Est.</span></div>
+    <div class="rail-cell"><span class="rc-label">Term</span><span class="rc-val">— / 24</span></div>
+    <div class="rail-cell"><span class="rc-label">Mining State</span><span class="rc-val">—</span></div>
+    <div class="rail-cell"><span class="rc-label">Last Report</span><span class="rc-val">—</span></div>
+    <div class="rail-cell"><span class="rc-label">Proof</span><span class="rc-val" style="color: var(--fg-faint);">Unavailable</span></div>
+    <div class="rail-cell"><span class="rc-label">Wallet</span><span class="rc-val">Linked</span><span class="rc-hint">0x…1234</span></div>
+  </div>
+
+  <!-- 4. Second Level Zones -->
+  <div class="second-level">
+    
+    <!-- Zone A: Reserve Trajectory -->
+    <div class="module">
+      <div style="display: flex; justify-content: space-between;">
+        <span class="module-title">Reserve Trajectory</span>
+        <span class="status-badge accent"><div class="dot"></div> Delivery at maturity</span>
+      </div>
+      <div class="chart-empty">
+        <div style="color: var(--fg-faint); font-family: var(--font-mono); font-size: 11px;">[ ACCUMULATION CURVE TBD ]</div>
+        <div style="font-size: 11px; color: var(--fg-muted);">Awaiting v2.1 deployment & mining reports</div>
+      </div>
+    </div>
+
+    <!-- Zone B: Operations & Proof Timeline -->
+    <div class="module">
+      <div style="display: flex; justify-content: space-between;">
+        <span class="module-title">Operations & Evidence Ledger</span>
+      </div>
+      
+      <div style="flex: 1; display: flex; align-items: center; padding: 0 12px;">
+        <div class="timeline" style="width: 100%;">
+          <div class="t-node">
+            <div class="t-dot"></div>
+            <div class="t-title">Capital In</div>
+            <div class="t-desc">Deposit</div>
+          </div>
+          <div class="t-node">
+            <div class="t-dot"></div>
+            <div class="t-title">Allocate</div>
+            <div class="t-desc">B1/B2/B3</div>
+          </div>
+          <div class="t-node">
+            <div class="t-dot"></div>
+            <div class="t-title">Mining</div>
+            <div class="t-desc">Reports</div>
+          </div>
+          <div class="t-node">
+            <div class="t-dot"></div>
+            <div class="t-title">Proof</div>
+            <div class="t-desc">Events</div>
+          </div>
+          <div class="t-node">
+            <div class="t-dot"></div>
+            <div class="t-title" style="color: var(--fg-muted);">Delivery</div>
+            <div class="t-desc">Maturity</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 5. Footer Provenance Strip -->
+  <footer class="footer-strip">
+    <div>NETWORK: BASE SEPOLIA // CHAIN ID: 84532</div>
+    <div>CONTRACT: LEGACY VAULT // V2.1 TBD</div>
+    <div>DATA PROVENANCE: WIRED PIPELINE // OFF-CHAIN MODE</div>
+  </footer>
+
+</div>
+
+</body>
+</html>
