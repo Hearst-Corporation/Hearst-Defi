@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Series 1 Layout Proposal — Gemini HUD Edition</title>
+<style>
+  :root {
+    --accent: #A7FB90;
+    --bg-deep: #09090b;
+    --fg-strong: #ffffff;
+    --fg-muted: #a1a1aa;
+    --fg-faint: #52525b;
+    --hairline: rgba(255, 255, 255, 0.06);
+    --hairline-faint: rgba(255, 255, 255, 0.03);
+    
+    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background-color: var(--bg-deep);
+    color: var(--fg-muted);
+    font-family: var(--font-sans);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Structural HUD lines - NO BOXES */
+  .hud-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-left: 1px solid var(--hairline);
+    border-right: 1px solid var(--hairline);
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Grid background */
+  .ambient-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(to right, var(--hairline-faint) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--hairline-faint) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .ambient-glow {
+    position: absolute;
+    top: 30%;
+    left: 40%;
+    width: 800px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(167, 251, 144, 0.04), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Top Navigation */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--hairline);
+    position: relative;
+    z-index: 10;
+  }
+  
+  .brand {
+    font-weight: 700;
+    color: var(--fg-strong);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: -0.02em;
+  }
+
+  .brand-glyph {
+    width: 24px; height: 24px;
+    background: var(--accent);
+    color: var(--bg-deep);
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 12px;
+    border-radius: 4px;
+  }
+
+  /* Hero Section - Naked Typography */
+  .hero-layer {
+    position: relative;
+    z-index: 10;
+    padding: 64px 48px 0;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-value {
+    font-family: var(--font-mono);
+    font-size: clamp(64px, 8vw, 120px);
+    font-weight: 400;
+    color: var(--fg-strong);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin: 16px 0;
+  }
+
+  .hero-caption {
+    font-size: 14px;
+    max-width: 48ch;
+    line-height: 1.6;
+  }
+
+  /* The Monolithic Diagram */
+  .diagram-layer {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    transform: translateY(-40%);
+    z-index: 5;
+    padding: 0 48px;
+  }
+
+  .data-point {
+    position: absolute;
+    font-family: var(--font-mono);
+  }
+
+  .dp-label {
+    font-size: 10px;
+    color: var(--fg-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .dp-value {
+    font-size: 20px;
+    color: var(--fg-strong);
+    font-weight: 400;
+  }
+
+  /* Bottom Metadata HUD */
+  .hud-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--hairline);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: relative;
+    z-index: 10;
+    background: color-mix(in srgb, var(--bg-deep) 80%, transparent);
+    backdrop-filter: blur(10px);
+  }
+
+  .hud-cell {
+    padding: 24px 48px;
+    border-right: 1px solid var(--hairline);
+  }
+  
+  .hud-cell:last-child {
+    border-right: none;
+  }
+
+  /* Terminal Status Bar */
+  .terminal-bar {
+    border-top: 1px solid var(--hairline);
+    padding: 12px 48px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    display: flex;
+    justify-content: space-between;
+    letter-spacing: 0.05em;
+  }
+  
+  .terminal-live { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-glyph">H</div>
+    Hearst Connect
+  </div>
+  <div style="font-family: var(--font-mono); font-size: 11px; color: var(--fg-faint);">
+    <span style="color: var(--fg-strong);">SERIES 1</span> // COCKPIT
+  </div>
+</header>
+
+<div class="hud-container">
+  <div class="ambient-grid"></div>
+  <div class="ambient-glow"></div>
+
+  <!-- Hero Typography Overlay -->
+  <div class="hero-layer">
+    <div class="eyebrow">Bitcoin Inventory</div>
+    <div class="hero-value">— BTC</div>
+    <div class="hero-caption">
+      Not a coupon. A Bitcoin reserve.<br>
+      Accumulated via real mining production and delivered at maturity.
+    </div>
+  </div>
+
+  <!-- Absolute Positioned Monolithic Diagram -->
+  <div class="diagram-layer">
+    <svg viewBox="0 0 1200 400" width="100%" height="400" preserveAspectRatio="xMidYMid meet">
+      <!-- Crosshairs & structural lines -->
+      <line x1="0" y1="200" x2="1200" y2="200" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4 4" />
+      <line x1="800" y1="0" x2="800" y2="400" stroke="rgba(255,255,255,0.04)" stroke-width="1" />
+      
+      <!-- Flow: USDC to Pockets -->
+      <path d="M 0 200 L 200 200" fill="none" stroke="#52525b" stroke-width="2" />
+      
+      <!-- B1: Mining Power (40%) -->
+      <path d="M 200 200 C 250 200, 250 100, 300 100 L 450 100" fill="none" stroke="#52525b" stroke-width="2" />
+      <!-- B2: BTC Reserve (27%) -->
+      <path d="M 200 200 L 450 200" fill="none" stroke="#A7FB90" stroke-width="2" />
+      <!-- B3: Operating Reserve (33%) -->
+      <path d="M 200 200 C 250 200, 250 300, 300 300 L 450 300" fill="none" stroke="#52525b" stroke-width="2" />
+
+      <!-- Nodes -->
+      <circle cx="200" cy="200" r="4" fill="#ffffff" />
+      
+      <!-- Mining Output converging to Curve -->
+      <path d="M 450 100 C 550 100, 550 200, 600 200" fill="none" stroke="#52525b" stroke-width="2" stroke-dasharray="2 4" />
+      
+      <!-- The Accumulation Curve -->
+      <path d="M 600 200 C 750 180, 900 120, 1100 80" fill="none" stroke="#A7FB90" stroke-width="3" />
+      <circle cx="1100" cy="80" r="6" fill="#A7FB90" />
+      
+      <!-- Data Annotations embedded in SVG -->
+      <text x="0" y="185" fill="#a1a1aa" font-family="monospace" font-size="10" letter-spacing="1">CAPITAL DEPLOYED</text>
+      <text x="0" y="225" fill="#ffffff" font-family="monospace" font-size="14">— USDC</text>
+
+      <text x="300" y="85" fill="#a1a1aa" font-family="monospace" font-size="10">B1 MINING POWER (40%)</text>
+      <text x="300" y="185" fill="#A7FB90" font-family="monospace" font-size="10">B2 BTC RESERVE (27%)</text>
+      <text x="300" y="285" fill="#a1a1aa" font-family="monospace" font-size="10">B3 OPERATING RES. (33%)</text>
+
+      <text x="470" y="105" fill="#ffffff" font-family="monospace" font-size="14">— TH/s</text>
+      <text x="470" y="305" fill="#ffffff" font-family="monospace" font-size="14">— USDC</text>
+
+      <text x="1115" y="84" fill="#ffffff" font-family="monospace" font-size="14">MATURITY</text>
+      <text x="1115" y="100" fill="#52525b" font-family="monospace" font-size="10">DELIVERY</text>
+
+      <!-- Curve Axis Label -->
+      <text x="810" y="190" fill="#52525b" font-family="monospace" font-size="10">ACCUMULATION TRAJECTORY</text>
+    </svg>
+  </div>
+
+  <!-- HUD Footer Metrics -->
+  <div class="hud-footer">
+    <div class="hud-cell">
+      <div class="dp-label">Term Progress</div>
+      <div class="dp-value">— / 24</div>
+    </div>
+    <div class="hud-cell">
+      <div class="dp-label">Allocation Mode</div>
+      <div class="dp-value">Advisory</div>
+    </div>
+    <div class="hud-cell">
+      <div class="dp-label">Mining State</div>
+      <div class="dp-value">—</div>
+    </div>
+    <div class="hud-cell">
+      <div class="dp-label">Last Report</div>
+      <div class="dp-value">—</div>
+    </div>
+  </div>
+</div>
+
+<footer class="terminal-bar">
+  <div>ID: 0x…TBD // NETWORK: BASE SEPOLIA</div>
+  <div class="terminal-live">● SYSTEM ACTIVE // LEGACY MODE</div>
+  <div>EVIDENCE: WAITING FOR V2.1</div>
+</footer>
+
+</body>
+</html>
