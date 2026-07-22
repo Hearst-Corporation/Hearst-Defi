@@ -1,22 +1,16 @@
 /**
- * Series 1 — the two rules that cannot be expressed as utility classes.
+ * Series 1 — shell-scoped rules that cannot be expressed as utility classes.
  *
- * The bespoke token layer that used to live here (--s1-bg / shell / panel /
- * inset, shadow triplets, accent washes) is gone. The investor shell now runs
- * on Catalyst primitives and the Tailwind zinc ramp, exactly like the rest of
- * the product: depth comes from SidebarLayout's raised content card, colour
- * from zinc, and the Hearst accent appears only as a signal —
- * monogram, Live tag, timeline marker, allocation bar.
+ * Shell surface fusion (2026-07-23): the zinc ramp + `.dark` variants are
+ * gone. Everything below consumes the `--ct-*` tokens — the same grammar as
+ * series1-dashboard — so the investor shell no longer carries a parallel
+ * visual identity (DS doctrine §3 dark-only, §13 no mini-DS).
  */
 
 /* Row lists draw their own separators: a border on every child but the first
    is not expressible as a utility on the parent. */
 .s1-row-list > * + * {
-  border-top: 1px solid --alpha(var(--color-zinc-950) / 5%);
-}
-
-:where(.dark) .s1-row-list > * + * {
-  border-top-color: --alpha(var(--color-white) / 5%);
+  border-top: 1px solid var(--ct-border-soft);
 }
 
 /* Empty chart wells read as a plotting surface rather than blank padding.
@@ -25,26 +19,28 @@
   background-image:
     repeating-linear-gradient(
       180deg,
-      --alpha(var(--color-zinc-950) / 5%) 0 1px,
+      var(--ct-border-soft) 0 1px,
       transparent 1px 25%
     ),
     repeating-linear-gradient(
       90deg,
-      --alpha(var(--color-zinc-950) / 3%) 0 1px,
+      color-mix(in srgb, var(--ct-border-soft) 60%, transparent) 0 1px,
       transparent 1px 16.66%
     );
 }
 
-:where(.dark) .s1-chart-well {
-  background-image:
-    repeating-linear-gradient(
-      180deg,
-      --alpha(var(--color-white) / 5%) 0 1px,
-      transparent 1px 25%
-    ),
-    repeating-linear-gradient(
-      90deg,
-      --alpha(var(--color-white) / 3%) 0 1px,
-      transparent 1px 16.66%
-    );
+/* SidebarLayout (vendored Catalyst) hard-codes a white/zinc gutter and a
+   white/zinc content card. Re-skinning it here — scoped under the .s1-shell
+   wrapper Series1Shell renders — keeps the fix inside the series1-shell
+   perimeter instead of forking a shared primitive. Same depth model
+   (gutter → raised card), DS colours: gutter = canvas (--ct-bg-deep), card =
+   the canon raised surface with its ring and elevated shadow. */
+.s1-shell > div {
+  background-color: var(--ct-bg-deep);
+}
+
+.s1-shell #main-content > div {
+  background-color: color-mix(in srgb, var(--ct-bg-deep) 60%, var(--ct-surface-page));
+  box-shadow: var(--ct-shadow-elevated);
+  --tw-ring-color: var(--ct-border);
 }

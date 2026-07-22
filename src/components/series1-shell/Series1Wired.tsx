@@ -8,9 +8,10 @@
  * way: an RPC outage must never look like "no data", and a contract that isn't
  * deployed must never look like a zero.
  *
- * Deliberately NOT `@/components/catalyst/wired-chip`: that chip is built on
- * `--ct-*` tokens, which the Series 1 shell does not use. The vocabulary below
- * mirrors its labels so both surfaces say the same thing about the same motive.
+ * Kept separate from `@/components/catalyst/wired-chip` for its row/inline
+ * shapes, but both now speak the same `--ct-*` token grammar (shell surface
+ * fusion, 2026-07-23). The vocabulary below mirrors its labels so both
+ * surfaces say the same thing about the same motive.
  */
 import type { ReactNode } from "react";
 
@@ -126,13 +127,13 @@ export function sourceLabel(source: string): string {
 export function Series1Provenance({ read }: { read: Series1Wired<unknown> }) {
   if (read.status === "unavailable") {
     return (
-      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+      <span className="text-[10px] text-(--ct-text-faint)">
         {reasonLabel(read.reason)}
       </span>
     );
   }
   return (
-    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+    <span className="text-[10px] text-(--ct-text-faint)">
       {sourceLabel(read.source)} · read {new Date(read.readAt).toISOString().slice(11, 16)} UTC
     </span>
   );
@@ -159,17 +160,17 @@ export function Series1WiredRow<T>({
   const ok = read.status === "wired";
   return (
     <div className="flex items-start justify-between gap-4 px-5 py-4">
-      <span className="text-sm text-zinc-500 dark:text-zinc-400">{label}</span>
+      <span className="text-sm text-(--ct-text-muted)">{label}</span>
       <span className="min-w-0 text-right">
         <span
           className={cn(
             "block text-sm font-semibold tabular-nums",
-            ok ? "text-zinc-950 dark:text-white" : "text-zinc-500 dark:text-zinc-400",
+            ok ? "text-(--ct-text-strong)" : "text-(--ct-text-faint)",
           )}
         >
           {ok ? render(read.data) : "—"}
         </span>
-        <span className="mt-0.5 block text-[10px] font-normal text-zinc-500 dark:text-zinc-400">
+        <span className="mt-0.5 block text-[10px] font-normal text-(--ct-text-faint)">
           {ok ? hint : reasonLabel(read.reason)}
         </span>
       </span>
