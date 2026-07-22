@@ -180,72 +180,79 @@ export function KycAppShell({ children }: { children: ReactNode }) {
     <div className="kyc-app-root kyc-cockpit-shell min-h-dvh text-zinc-950">
       <style jsx global>{`
         .kyc-cockpit-shell {
-          --kyc-cockpit-canvas: color-mix(in srgb, var(--ct-bg-deep) 18%, white);
-          --kyc-cockpit-frame: color-mix(in srgb, var(--ct-bg-deep) 4%, white);
-          --kyc-cockpit-panel: color-mix(in srgb, var(--ct-bg-deep) 8%, white);
-          --kyc-cockpit-inset: color-mix(in srgb, var(--ct-bg-deep) 9%, white);
-          --kyc-cockpit-line: color-mix(in srgb, var(--ct-bg-deep) 16%, transparent);
-          --kyc-cockpit-accent: color-mix(in srgb, var(--ct-accent) 48%, var(--ct-bg-deep));
+          --kyc-cockpit-canvas: color-mix(in srgb, var(--ct-bg-deep) 34%, white);
+          --kyc-cockpit-frame: color-mix(in srgb, var(--ct-bg-deep) 15%, white);
+          --kyc-cockpit-panel: color-mix(in srgb, var(--ct-bg-deep) 18%, white);
+          --kyc-cockpit-inset: color-mix(in srgb, var(--ct-bg-deep) 13%, white);
+          --kyc-cockpit-line: color-mix(in srgb, var(--ct-bg-deep) 34%, white 12%);
+          --kyc-cockpit-accent: color-mix(in srgb, var(--ct-accent) 62%, var(--ct-bg-deep));
           background:
-            radial-gradient(circle at 92% -8%, color-mix(in srgb, var(--ct-accent) 11%, transparent), transparent 31rem),
+            radial-gradient(circle at 90% -12%, color-mix(in srgb, var(--ct-accent) 16%, transparent), transparent 34rem),
+            radial-gradient(circle at 8% -18%, color-mix(in srgb, var(--ct-accent) 7%, transparent), transparent 28rem),
             var(--kyc-cockpit-canvas);
           overflow-x: clip;
         }
         .kyc-cockpit-shell .kyc-cockpit-sidebar {
-          background: color-mix(in srgb, var(--ct-bg-deep) 8%, white);
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--ct-accent) 7%, transparent), transparent 9rem),
+            color-mix(in srgb, var(--ct-bg-deep) 24%, white);
           border-color: var(--kyc-cockpit-line);
+          box-shadow:
+            inset -1px 0 0 color-mix(in srgb, white 28%, transparent),
+            14px 0 32px -28px color-mix(in srgb, var(--ct-bg-deep) 56%, transparent);
         }
         .kyc-cockpit-shell .kyc-cockpit-frame {
           background:
-            linear-gradient(145deg, color-mix(in srgb, var(--ct-accent) 4%, transparent), transparent 28rem),
+            linear-gradient(145deg, color-mix(in srgb, var(--ct-accent) 8%, transparent), transparent 28rem),
             var(--kyc-cockpit-frame);
-          box-shadow: var(--ct-shadow-soft);
+          box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 58%, transparent),
+            inset 0 -1px 0 color-mix(in srgb, black 8%, transparent),
+            0 20px 42px -30px color-mix(in srgb, var(--ct-bg-deep) 46%, transparent);
           border-color: var(--kyc-cockpit-line);
         }
         .kyc-cockpit-shell .kyc-cockpit-section {
           border-color: var(--kyc-cockpit-line);
         }
-        .kyc-cockpit-shell .kyc-cockpit-frame {
-          box-shadow:
-            inset 0 1px 0 color-mix(in srgb, white 80%, transparent),
-            0 18px 48px -28px color-mix(in srgb, var(--ct-bg-deep) 42%, transparent);
-        }
         .kyc-cockpit-shell .kyc-cockpit-panel,
         .kyc-cockpit-shell .kyc-cockpit-chart,
         .kyc-cockpit-shell .kyc-cockpit-kpi {
           background:
-            linear-gradient(135deg, color-mix(in srgb, var(--ct-accent) 3%, transparent), transparent 16rem),
+            linear-gradient(135deg, color-mix(in srgb, var(--ct-accent) 7%, transparent), transparent 17rem),
             var(--kyc-cockpit-panel);
-          box-shadow: inset 0 1px 0 color-mix(in srgb, white 70%, transparent), var(--ct-shadow-soft);
+          box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 44%, transparent),
+            inset 0 -1px 0 color-mix(in srgb, black 7%, transparent),
+            0 14px 30px -24px color-mix(in srgb, var(--ct-bg-deep) 42%, transparent);
           border: 1px solid var(--kyc-cockpit-line);
         }
         .kyc-cockpit-shell .kyc-cockpit-chart figcaption,
         .kyc-cockpit-shell .kyc-cockpit-panel > div:first-child {
-          border-color: var(--kyc-cockpit-line);
+          border-color: color-mix(in srgb, var(--kyc-cockpit-line) 84%, var(--ct-bg-deep));
         }
         .kyc-cockpit-shell .kyc-cockpit-empty {
-          background: color-mix(in srgb, var(--ct-bg-deep) 3%, white);
-          border-color: color-mix(in srgb, var(--ct-bg-deep) 22%, transparent);
+          background: var(--kyc-cockpit-inset);
+          border-color: color-mix(in srgb, var(--kyc-cockpit-line) 72%, var(--ct-bg-deep));
         }
         .kyc-cockpit-shell .kyc-cockpit-kpi > div,
         .kyc-cockpit-shell .kyc-cockpit-kpi dl {
-          background: var(--kyc-cockpit-line);
+          background: color-mix(in srgb, var(--kyc-cockpit-line) 58%, transparent);
         }
         .kyc-cockpit-shell .kyc-cockpit-kpi > div > div,
         .kyc-cockpit-shell .kyc-cockpit-kpi dl > div {
-          background: color-mix(in srgb, var(--ct-bg-deep) 4%, white);
+          background: color-mix(in srgb, var(--ct-bg-deep) 16%, white);
         }
         .kyc-cockpit-shell .kyc-cockpit-kpi > div > div:first-child {
           background:
-            linear-gradient(140deg, color-mix(in srgb, var(--ct-accent) 13%, transparent), transparent 18rem),
-            color-mix(in srgb, var(--ct-bg-deep) 7%, white);
+            linear-gradient(140deg, color-mix(in srgb, var(--ct-accent) 17%, transparent), transparent 18rem),
+            color-mix(in srgb, var(--ct-bg-deep) 13%, white);
         }
       `}</style>
       <aside className="kyc-cockpit-sidebar fixed inset-y-0 left-0 z-30 hidden w-64 border-r lg:block">
         <Sidebar pathname={pathname} />
       </aside>
 
-      <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between border-b border-zinc-950/8 bg-white/95 px-4 backdrop-blur dark:border-white/8 dark:bg-zinc-900/95 lg:hidden">
+      <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between border-b border-(--kyc-cockpit-line) bg-[color-mix(in_srgb,var(--kyc-cockpit-frame)_94%,transparent)] px-4 backdrop-blur lg:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
