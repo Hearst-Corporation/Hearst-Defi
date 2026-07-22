@@ -10,6 +10,7 @@
 @source not "../../README.md";
 @source not "../../.claude";
 @source not "../../scripts";
+@source not "../../.worktrees";
 
 /* Tailwind v4 `dark:` variant — class-based (activates only under a `.dark`
    ancestor). The app itself is dark-only and does NOT use `dark:` utilities, so
