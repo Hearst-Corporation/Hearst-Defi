@@ -36,3 +36,17 @@ for (const pid of pids) {
     // Process déjà mort ou non killable — on ignore.
   }
 }
+
+// Vérifier que le port est réellement libéré (zombie UE macOS peut rester LISTEN).
+const stillBusy = pidsOnPort(PORT);
+if (stillBusy.length > 0) {
+  console.error(
+    `[free-port] ERREUR: le port ${PORT} reste occupé par PID ${stillBusy.join(", ")} ` +
+      `(souvent un next-server zombie stat=UE). kill -9 ne suffit pas.`,
+  );
+  console.error(
+    `[free-port] → Redémarre le Mac, ou lance en attendant:\n` +
+      `   NODE_OPTIONS=--max-http-header-size=65536 pnpm exec next dev -p 4106`,
+  );
+  process.exit(1);
+}

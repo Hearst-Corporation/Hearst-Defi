@@ -55,4 +55,17 @@ onlyBuiltDependencies:
   - protobufjs
 
 allowBuilds:
+  '@prisma/engines': true
+  '@reown/appkit': true
+  '@sentry/cli': true
+  better-sqlite3: true
+  bufferutil: true
+  core-js: true
+  electron-winstaller: true
+  es5-ext: true
+  esbuild: true
+  keccak: true
   prisma: true
+  sharp: true
+  unrs-resolver: true
+  utf-8-validate: true
