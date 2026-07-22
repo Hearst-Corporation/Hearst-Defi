@@ -7135,3 +7135,37 @@ main#main-content>.admin-doc.admin-doc-shell {
   color: var(--ct-status-danger, var(--ct-text-strong));
   margin: 0;
 }
+
+/* =============================================================================
+   SERIES 1 DASHBOARD — DS ACCENT LAYER (scoped)
+
+   DECISION (Adrien, 2026-07-22): /dashboard follows the visual direction of the
+   Hearst Qatar Management Cockpit design system, INCLUDING its accent — Pantone
+   1955 C. An earlier pass applied the DS grammar but kept the Hearst green and
+   documented that "the hue does not transfer". That was incoherent: an accent
+   IS part of a visual direction, not a detachable detail. This resolves it.
+
+   SCOPE — deliberately local, and why:
+   --ct-accent (#A7FB90) is the product-wide Hearst brand. It is asserted by
+   scripts/ds-token-drift.mjs (BRAND REGRESSION on any other value) and consumed
+   by /portfolio, /vaults, /proof-center, /profile and every admin surface.
+   Overriding it globally would repaint the whole product and fail that gate.
+   The bordeaux is therefore scoped to `.s1-ds` — the Series 1 dashboard root
+   (Series1DashboardPage) — and nothing outside that subtree can see it.
+
+   Values are the DS ramp verbatim (design-system.html §02 "Accent — Pantone
+   1955 C"). A token DEFINITION is the one place a literal is legitimate.
+   ============================================================================= */
+
+.s1-ds {
+  --ct-s1ds-accent-400: #c76c78;  /* dark-mode text tone (DS: text-accent-400) */
+  --ct-s1ds-accent-500: #ab4653;  /* CTA fill / donut soft */
+  --ct-s1ds-accent-600: #96233f;  /* progress fill, curve, energized bar */
+
+  /* Semantic aliases — components consume THESE, never the ramp directly, so
+     the mapping retunes in one place. Mirrors the --ct-accent-* shape. */
+  --ct-s1ds-accent: var(--ct-s1ds-accent-600);
+  --ct-s1ds-accent-strong: var(--ct-s1ds-accent-400);
+  --ct-s1ds-accent-soft: color-mix(in oklab, var(--ct-s1ds-accent-500) 15%, transparent);
+  --ct-s1ds-border-accent: color-mix(in oklab, var(--ct-s1ds-accent-500) 30%, transparent);
+}

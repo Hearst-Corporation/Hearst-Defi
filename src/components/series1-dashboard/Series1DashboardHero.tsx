@@ -21,9 +21,12 @@
 // carrying the hierarchy. That is the difference between a cockpit band and a
 // table, and it is why the pattern is safe here.
 //
-// Accent: green `--ct-accent` (Hearst brand, CI-locked in ds-token-drift.mjs).
-// The DS's bordeaux is the Qatar programme's accent; the GRAMMAR transfers,
-// the hue does not.
+// Accent: the DS accent, Pantone 1955 C, via the scoped `--s1-ds-*` layer
+// (series1-ds-accent.css). An accent is PART of a visual direction, not a
+// detachable detail — an earlier pass applied the DS grammar while keeping the
+// Hearst green and claimed "the hue does not transfer". That was incoherent
+// and is resolved here. The product-wide `--ct-accent` green is untouched:
+// it is the brand, CI-asserted, and consumed by every other surface.
 
 import type { ReactNode } from "react";
 
@@ -64,7 +67,7 @@ export function Series1DashboardHero({
       {/* Programme line — above the band, on the card's own ground. */}
       <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)] pb-[var(--ct-space-4)]">
         <p
-          className="m-0 font-semibold uppercase tracking-[0.12em] text-[var(--ct-accent-strong)]"
+          className="m-0 font-semibold uppercase tracking-[0.12em] text-[var(--ct-s1ds-accent-strong)]"
           style={{ fontSize: "var(--ct-text-2xs)" }}
         >
           {eyebrow}
@@ -92,7 +95,7 @@ export function Series1DashboardHero({
           >
             <span
               aria-hidden
-              className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+              className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-s1ds-accent)]"
             />
             {label}
           </p>

@@ -114,7 +114,7 @@ export function Series1Provenance({ read }: { read: Series1Wired<unknown> }) {
       className="inline-flex items-center gap-[var(--ct-space-2)] text-[var(--ct-text-faint)]"
       style={{ fontSize: "var(--ct-text-nano)" }}
     >
-      <span aria-hidden className="inline-block size-1 shrink-0 rounded-full bg-[var(--ct-accent)]" />
+      <span aria-hidden className="inline-block size-1 shrink-0 rounded-full bg-[var(--ct-s1ds-accent)]" />
       {label} · read {new Date(read.readAt).toISOString().slice(11, 16)} UTC
     </span>
   );

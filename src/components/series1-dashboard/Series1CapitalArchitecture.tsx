@@ -86,7 +86,7 @@ export function Series1CapitalFlow({ className }: { className?: string }) {
                 <span
                   className={
                     isLast
-                      ? "flex size-7 shrink-0 items-center justify-center rounded-md font-semibold tabular-nums text-[var(--ct-accent-strong)] ring-1 ring-[var(--ct-border-accent)]"
+                      ? "flex size-7 shrink-0 items-center justify-center rounded-md font-semibold tabular-nums text-[var(--ct-s1ds-accent-strong)] ring-1 ring-[var(--ct-s1ds-border-accent)]"
                       : "flex size-7 shrink-0 items-center justify-center rounded-md bg-[color-mix(in_srgb,var(--ct-bg-deep)_55%,var(--ct-surface-page))] font-semibold tabular-nums text-[var(--ct-text-muted)]"
                   }
                   style={{ fontSize: "var(--ct-text-nano)" }}

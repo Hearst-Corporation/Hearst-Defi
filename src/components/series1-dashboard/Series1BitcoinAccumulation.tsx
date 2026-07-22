@@ -32,8 +32,8 @@ export function Series1BitcoinAccumulation({
       }
     >
       {/* DS chart header: title + description + hairline rule. The dot marks
-          this as the accent's series (matches --ct-chart-curve-color, which
-          is --ct-accent) — signal on the label, not a fill on the card. */}
+          this as the accent's series, in the DS accent (Pantone 1955 C via the
+          scoped --ct-s1ds-* layer) — signal on the label, not a fill. */}
       <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)]">
         <h3
           className="m-0 flex items-center gap-[var(--ct-space-2)] font-semibold text-[var(--ct-text-strong)]"
@@ -41,7 +41,7 @@ export function Series1BitcoinAccumulation({
         >
           <span
             aria-hidden
-            className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+            className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-s1ds-accent)]"
           />
           Accumulated Bitcoin
         </h3>
@@ -109,7 +109,7 @@ function ChartEmptyState({ motive }: { motive: string | null }) {
       </p>
       {motive ? (
         <p
-          className="m-0 mt-[var(--ct-space-4)] border-t border-[var(--ct-border-accent)] pt-[var(--ct-space-3)] text-[var(--ct-text-faint)]"
+          className="m-0 mt-[var(--ct-space-4)] border-t border-[var(--ct-s1ds-border-accent)] pt-[var(--ct-space-3)] text-[var(--ct-text-faint)]"
           style={{ fontSize: "var(--ct-text-nano)" }}
         >
           <span className="font-semibold text-[var(--ct-text-muted)]">{motive}</span>

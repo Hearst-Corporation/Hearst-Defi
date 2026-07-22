@@ -18,10 +18,18 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
-/** Page root — one vertical rhythm for every section of the dashboard. */
+/**
+ * Page root — one vertical rhythm, and the scope of the DS accent.
+ *
+ * `.s1-ds` is what makes the Qatar bordeaux (Pantone 1955 C) resolve inside
+ * this subtree and nowhere else — see series1-ds-accent.css. The product-wide
+ * `--ct-accent` green is deliberately untouched: it is the Hearst brand,
+ * asserted by scripts/ds-token-drift.mjs, and consumed by /portfolio, /vaults,
+ * /proof-center, /profile and every admin surface.
+ */
 export function Series1DashboardPage({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-w-0 flex-col gap-[var(--ct-space-6)]">{children}</div>
+    <div className="s1-ds flex min-w-0 flex-col gap-[var(--ct-space-6)]">{children}</div>
   );
 }
 
