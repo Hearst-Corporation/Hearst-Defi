@@ -13,10 +13,8 @@
 
 export const dynamic = "force-dynamic";
 
-import { Card } from "@/components/catalyst/card";
 import { ProvenanceBadge } from "@/components/catalyst/provenance-badge";
-import { ProofCenterHubLayout } from "@/components/proof-center/proof-center-hub-layout";
-import { ProductPageHeader } from "@/components/connect/product-page-header";
+import { KycPageTitle, KycPanel, KycSection } from "@/components/catalyst/kyc-page";
 import { cn } from "@/lib/cn";
 import { loadProofCenterHubData } from "@/lib/proof-center/hub-data";
 import type {
@@ -53,17 +51,17 @@ function formatFreshness(iso: string | null): string {
 
 function ProofBlockCard({ block }: { block: Series1ProofBlock }) {
   return (
-    <Card material="flat" className="p-(--ct-space-5)" contentClassName="flex flex-col gap-(--ct-space-3)">
+    <KycPanel className="p-5">
       <div className="flex items-start justify-between gap-(--ct-space-3)">
         <div className="flex flex-col gap-(--ct-space-1)">
-          <span className="ct-bento-label leading-none">{block.eyebrow}</span>
-          <h3 className="m-0 text-[length:var(--ct-text-base)] font-semibold text-[var(--ct-text-strong)]">
+          <span className="text-xs font-semibold uppercase tracking-uppercase text-zinc-500 dark:text-zinc-400">{block.eyebrow}</span>
+          <h3 className="m-0 text-sm font-semibold text-zinc-950 dark:text-white">
             {block.title}
           </h3>
         </div>
         <ProvenanceBadge kind={block.provenance} />
       </div>
-      <div className="flex items-center justify-between gap-(--ct-space-3) border-t border-[var(--ct-border)] pt-(--ct-space-3)">
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-950/8 pt-3 dark:border-white/10">
         <span className={cn("text-[length:var(--ct-text-sm)] font-medium", stateTone[block.state])}>
           {stateLabel[block.state]}
         </span>
@@ -73,16 +71,16 @@ function ProofBlockCard({ block }: { block: Series1ProofBlock }) {
             : `${block.evidenceCount} evidence · ${formatFreshness(block.lastUpdated)}`}
         </span>
       </div>
-    </Card>
+    </KycPanel>
   );
 }
 
 function ProofFreshnessTimeline({ entries }: { entries: ProofFreshnessEntry[] }) {
   return (
-    <Card material="flat" className="p-(--ct-space-5)" contentClassName="flex flex-col gap-(--ct-space-4)">
+    <KycPanel className="p-5">
       <div className="flex flex-col gap-(--ct-space-1)">
-        <span className="ct-bento-label leading-none">Source recency</span>
-        <h3 className="m-0 text-[length:var(--ct-text-base)] font-semibold text-[var(--ct-text-strong)]">
+        <span className="text-xs font-semibold uppercase tracking-uppercase text-zinc-500 dark:text-zinc-400">Source recency</span>
+        <h3 className="m-0 text-sm font-semibold text-zinc-950 dark:text-white">
           Proof Freshness
         </h3>
       </div>
@@ -116,7 +114,7 @@ function ProofFreshnessTimeline({ entries }: { entries: ProofFreshnessEntry[] })
           </li>
         ))}
       </ul>
-    </Card>
+    </KycPanel>
   );
 }
 
@@ -125,21 +123,17 @@ export default async function ProductProofCenterPage() {
   const { series1Proof, proofFreshness, coldEmpty } = hubData;
 
   return (
-    <div className="flex flex-col gap-(--ct-space-6)">
-      {!coldEmpty && (
-        <section
-          aria-labelledby="series1-proof-heading"
-          className="rounded-2xl border border-[var(--ct-border)] bg-surface-page p-5 lg:p-6"
-        >
-          <ProductPageHeader
-            titleLead="Reserve Vault"
-            titleAccent="Series 1"
-            contextLabel="Institutional Proof · BTC Accumulation"
-            className="mb-(--ct-space-5)"
-          />
-          <h2 id="series1-proof-heading" className="sr-only">
-            Series 1 institutional proof blocks
-          </h2>
+    <div className="flex flex-col gap-10">
+      <KycPageTitle
+        title="Proof Center"
+        description="Source evidence for mining, reserve, custody and delivery across the Series 1 lifecycle."
+      />
+      <KycSection
+        index="01"
+        title="Proof register"
+        description="Every record is presented with its current source provenance and freshness."
+      >
+        {!coldEmpty ? (
           <div className="grid grid-cols-1 gap-(--ct-space-4) sm:grid-cols-2 xl:grid-cols-3">
             {series1Proof
               .filter((b) => b.kind !== "freshness")
@@ -148,17 +142,20 @@ export default async function ProductProofCenterPage() {
               ))}
             <ProofFreshnessTimeline entries={proofFreshness} />
           </div>
-          <p className="mt-(--ct-space-5) text-[length:var(--ct-text-2xs)] leading-relaxed text-[var(--ct-text-faint)]">
+        ) : (
+          <KycPanel className="p-8 text-center">
+            <p className="text-sm font-medium text-zinc-950 dark:text-white">Proof records are not available yet</p>
+            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Evidence appears when the vault sources are connected and the first operating reports are recorded.</p>
+          </KycPanel>
+        )}
+        <p className="mt-5 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
             Series 1 accumulates Bitcoin over a 24-month term and settles at
             maturity. Delivery evidence appears after a maturity settlement is
             recorded. Estimated accumulation is disclosed as a range and is not
             guaranteed. Each proof block above shows its own source provenance;
             blocks read &ldquo;Not yet available&rdquo; until a source is recorded.
-          </p>
-        </section>
-      )}
-
-      <ProofCenterHubLayout variant="product" {...hubData} />
+        </p>
+      </KycSection>
     </div>
   );
 }

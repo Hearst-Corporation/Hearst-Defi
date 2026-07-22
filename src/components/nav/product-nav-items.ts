@@ -26,31 +26,56 @@ export type NavItem = {
 };
 
 /**
- * Investor-facing navigation (UI V2 — PROMPT 227).
+ * Investor-facing navigation for Bitcoin Reserve Vault — Series 1.
  *
- * Three rail entries: Dashboard · Bitcoin · Profile.
- * Proof, Mining, Vault, Invest, Allocation removed from primary rail.
- * Secondary routes preserved: /mining, /portfolio/activity, /proof-center, /vaults/.../invest
+ * Every core investor surface is directly reachable from the KYC shell sidebar.
+ * Documents & KYC resolves to /profile (account, verification, documents).
  */
 export const PRODUCT_NAV: NavItem[] = [
   {
-    id: "dashboard",
-    label: "Dashboard",
+    id: "overview",
+    label: "Overview",
     href: "/dashboard",
     icon: "LayoutDashboard",
   },
   {
-    id: "bitcoin",
-    label: "Bitcoin",
+    id: "bitcoin-reserve",
+    label: "Bitcoin Reserve",
     railLabel: "Bitcoin",
     href: "/btc",
     icon: "Bitcoin",
   },
   {
-    id: "profile",
-    label: "Profile",
+    id: "portfolio",
+    label: "Portfolio",
+    href: "/portfolio",
+    icon: "PieChart",
+  },
+  {
+    id: "vaults",
+    label: "Vaults",
+    href: "/vaults",
+    icon: "Vault",
+  },
+  {
+    id: "proof-center",
+    label: "Proof Center",
+    railLabel: "Proofs",
+    href: "/proof-center",
+    icon: "ShieldCheck",
+  },
+  {
+    id: "mining",
+    label: "Mining",
+    href: "/mining",
+    icon: "Pickaxe",
+  },
+  {
+    id: "documents-kyc",
+    label: "Documents & KYC",
+    railLabel: "Documents",
     href: "/profile",
-    icon: "User",
+    icon: "FileText",
   },
 ];
 
