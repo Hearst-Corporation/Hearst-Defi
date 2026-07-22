@@ -39,7 +39,6 @@ const AUTHORITY_SURFACES = [
   "src/components/ui/README.md",
   "docs/CATALYST_CANON_REFERENCE.md",
   "docs/DS_SINGLE_SOURCE_OF_TRUTH.md",
-  ".cursor/rules/design-system.mdc",
 ];
 
 /**
