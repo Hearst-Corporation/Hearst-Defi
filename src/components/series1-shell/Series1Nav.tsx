@@ -45,9 +45,18 @@ export function Series1Nav({
     <nav className="flex h-full min-h-0 flex-col" aria-label="Investor navigation">
       <div className="border-b p-5" style={{ borderColor: "var(--s1-line)" }}>
         <Link href="/dashboard" className="flex items-center gap-3">
+          {/* Monogram: a dark plate edged in accent, not a green tile. The
+              accent survives as the letter and the border — signal, not paint. */}
           <span
-            className="flex size-9 items-center justify-center rounded-lg text-sm font-bold"
-            style={{ background: "var(--s1-accent)", color: "#08130a" }}
+            className="flex size-9 items-center justify-center rounded-lg border text-sm font-bold"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0)), var(--s1-panel-elevated)",
+              borderColor: "var(--s1-accent-line)",
+              color: "var(--s1-accent)",
+              boxShadow:
+                "inset 0 1px 0 var(--s1-highlight), 0 0 12px -4px rgba(167,251,144,0.22)",
+            }}
           >
             H
           </span>
@@ -75,17 +84,24 @@ export function Series1Nav({
                   "relative flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 )}
                 style={{
+                  // Active state carries its weight in the raised neutral fill;
+                  // the accent is left to the 1px marker alone.
                   background: current
-                    ? "linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0)), var(--s1-panel-soft)"
+                    ? "linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0)), var(--s1-panel-elevated)"
                     : "transparent",
                   color: current ? "var(--s1-text)" : "var(--s1-muted)",
-                  boxShadow: current ? "inset 0 1px 0 var(--s1-highlight)" : undefined,
+                  boxShadow: current
+                    ? "inset 0 1px 0 var(--s1-highlight), 0 8px 18px -14px rgba(0,0,0,0.8)"
+                    : undefined,
                 }}
               >
                 {current ? (
                   <span
-                    className="absolute inset-y-2 -left-4 w-0.5 rounded-full"
-                    style={{ background: "var(--s1-accent)" }}
+                    className="absolute inset-y-2.5 -left-4 w-px rounded-full"
+                    style={{
+                      background: "var(--s1-accent)",
+                      boxShadow: "0 0 8px -1px rgba(167,251,144,0.45)",
+                    }}
                   />
                 ) : null}
                 <Icon className="size-5 shrink-0" />

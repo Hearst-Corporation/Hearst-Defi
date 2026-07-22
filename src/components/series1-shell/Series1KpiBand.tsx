@@ -26,11 +26,14 @@ export function Series1KpiBand({
           className="relative min-w-0 px-6 py-7 lg:col-span-4"
           style={{
             background:
-              "radial-gradient(120% 130% at 0% 0%, var(--s1-glow), transparent 70%), linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0) 14rem), var(--s1-panel-elevated)",
+              "linear-gradient(160deg, rgba(255,255,255,0.055), rgba(255,255,255,0) 14rem), var(--s1-panel-elevated)",
             boxShadow: "inset 0 1px 0 var(--s1-highlight)",
           }}
         >
-          <p className="text-xs font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--s1-accent)" }}>
+          {/* Label is a metric name, not a status — it reads muted like every
+              other label in the band. The hero earns its rank from the raised
+              plane and the value's type scale, not from a coloured caption. */}
+          <p className="text-xs font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--s1-muted)" }}>
             {hero.label}
           </p>
           <div className="mt-3 truncate text-4xl font-semibold tracking-tight tabular-nums sm:text-5xl">

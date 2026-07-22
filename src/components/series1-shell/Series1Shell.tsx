@@ -34,11 +34,11 @@ export function Series1Shell({ children }: { children: ReactNode }) {
       <aside
         className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r lg:block"
         style={{
-          // Rail: accent warmth at the top fading out by the first third, then
-          // the shell tone. The shadow triplet detaches it from the canvas so
-          // the content plane reads as sitting behind it, not beside it.
+          // Rail: a neutral light fall at the top, then the shell tone. The
+          // green wash that used to sit here read as a tint on the whole rail;
+          // the accent now lives only on the monogram and the active marker.
           background:
-            "linear-gradient(180deg, rgba(167,251,144,0.045), rgba(255,255,255,0) 14rem), var(--s1-shell)",
+            "linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0) 14rem), var(--s1-shell)",
           borderColor: "var(--s1-line-strong)",
           boxShadow: "var(--s1-sidebar-shadow)",
         }}
@@ -64,7 +64,7 @@ export function Series1Shell({ children }: { children: ReactNode }) {
           <Menu className="size-5" />
         </button>
         <div className="min-w-0 text-center">
-          <p className="text-xs font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--s1-accent)" }}>
+          <p className="text-xs font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--s1-muted)" }}>
             Series 1
           </p>
           <p className="truncate text-sm font-semibold">{activeLabel}</p>
@@ -79,7 +79,7 @@ export function Series1Shell({ children }: { children: ReactNode }) {
             className="fixed inset-y-0 left-0 z-50 flex h-dvh max-h-dvh w-full max-w-80 flex-col overflow-hidden shadow-2xl"
             style={{
               background:
-                "linear-gradient(180deg, rgba(167,251,144,0.045), rgba(255,255,255,0) 14rem), var(--s1-shell)",
+                "linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0) 14rem), var(--s1-shell)",
             }}
           >
             <div className="absolute top-3 right-3 z-10">

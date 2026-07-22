@@ -14,40 +14,52 @@
  */
 
 :root {
-  --s1-bg: #0b0d0c;
-  --s1-shell: #101312;
-  --s1-panel: #141817;
-  --s1-panel-soft: #181d1b;
-  /* Recessed plane: sits BELOW the panel fill (chart bodies, metric cells). */
-  --s1-inset: #0f1312;
-  /* Raised plane: the one cell that reads as lifted (KPI hero). */
-  --s1-panel-elevated: #171c1a;
-  --s1-line: rgba(231, 240, 227, 0.09);
+  /* Plane ladder. Each step is a real luminance jump (~+4 on the 0-255 scale
+     between neighbours) so canvas / shell / panel / inset never collapse into
+     one dark sheet. The hue stays the same cool green-grey throughout — depth
+     comes from lightness, not from tinting each plane differently. */
+  --s1-bg: #070908;
+  --s1-shell: #0e1211;
+  --s1-panel: #171c1a;
+  --s1-panel-soft: #1c2220;
+  /* Recessed plane: sits BELOW the panel fill (chart bodies, metric cells).
+     Pushed under the shell tone so a well reads as cut into the panel, while
+     staying clear of the canvas it must not be confused with. */
+  --s1-inset: #0c100f;
+  /* Raised plane: the one cell that reads as lifted (KPI hero). Distinct from
+     the panel without turning into a light SaaS card. */
+  --s1-panel-elevated: #212826;
+  --s1-line: rgba(231, 240, 227, 0.1);
   /* Stronger hairline for panel edges / header rules that must stay readable. */
-  --s1-line-strong: rgba(231, 240, 227, 0.14);
+  --s1-line-strong: rgba(231, 240, 227, 0.18);
   --s1-text: #eef2ee;
   --s1-muted: #93a199;
   --s1-accent: #a7fb90;
   --s1-accent-soft: rgba(167, 251, 144, 0.14);
+  /* Accent reduced to an edge: borders and halos only, never a fill. */
+  --s1-accent-line: rgba(167, 251, 144, 0.3);
   --s1-warning: #f5b566;
   --s1-radius: 14px;
 
   /* ── Depth primitives ─────────────────────────────────────────────────── */
   /* Top bevel: a hair of light catching the upper edge of a raised surface. */
-  --s1-highlight: rgba(255, 255, 255, 0.055);
+  --s1-highlight: rgba(255, 255, 255, 0.07);
   /* Bottom shade: the surface's own thickness, grounding it on the canvas. */
-  --s1-shade: rgba(0, 0, 0, 0.28);
-  /* Accent bloom used behind the canvas — presence, never a colour wash. */
-  --s1-glow: rgba(167, 251, 144, 0.055);
+  --s1-shade: rgba(0, 0, 0, 0.42);
+  /* Accent bloom used behind the canvas — presence, never a colour wash.
+     Cut hard: at the previous value the green read as a tint over the whole
+     upper canvas rather than as a light source somewhere off-screen. */
+  --s1-glow: rgba(167, 251, 144, 0.022);
   --s1-shadow: 0 20px 48px -28px rgba(0, 0, 0, 0.6);
-  /* Panel volume = inset highlight + inset shade + soft outer drop. */
+  /* Panel volume = inset highlight + inset shade + a deeper outer drop, which
+     is what actually separates the panel from the canvas behind it. */
   --s1-shadow-panel:
     inset 0 1px 0 var(--s1-highlight),
     inset 0 -1px 0 var(--s1-shade),
-    0 18px 38px -26px rgba(0, 0, 0, 0.62);
+    0 24px 48px -28px rgba(0, 0, 0, 0.78);
   /* Recessed surfaces invert the bevel: shade on top, highlight at the base. */
   --s1-shadow-inset:
-    inset 0 1px 2px rgba(0, 0, 0, 0.34),
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
     inset 0 -1px 0 var(--s1-highlight);
   /* Detaches the fixed rail from the scrolling canvas. */
   --s1-sidebar-shadow:
@@ -62,8 +74,8 @@
      --s1-bg stays the last layer so it remains the honest fallback. */
   background:
     radial-gradient(circle at 88% -14%, var(--s1-glow), transparent 38rem),
-    radial-gradient(circle at 6% -10%, rgba(167, 251, 144, 0.028), transparent 30rem),
-    linear-gradient(180deg, var(--s1-shell) 0%, var(--s1-bg) 42rem),
+    radial-gradient(circle at 6% -10%, rgba(255, 255, 255, 0.014), transparent 30rem),
+    linear-gradient(180deg, var(--s1-shell) 0%, var(--s1-bg) 34rem),
     var(--s1-bg);
   background-attachment: fixed;
   color: var(--s1-text);
