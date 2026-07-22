@@ -21,19 +21,20 @@
 //    per-block badges;
 //  - no return projection, no yield/APY, no take-profit mechanics here.
 
-import { BentoPageShell } from "@/components/catalyst/bento";
+import {
+  KycChartSurface,
+  KycEmptyChart,
+  KycHeroKpiBand,
+  KycPageTitle,
+  KycPanel,
+  KycSection,
+} from "@/components/catalyst/kyc-page";
 import { requireInvestor } from "@/lib/auth/require-investor";
 import { getInvestorUiDataSource, getFixtureInvestorUiDataSource } from "@/features/investor-ui/data-source";
-import { DataNotConfigured, PageErrorState } from "@/features/investor-ui/components/states/data-states";
+import { PageErrorState } from "@/features/investor-ui/components/states/data-states";
 import { isBackendError } from "@/lib/backend";
-import { Card } from "@/components/catalyst/card";
 import type { HcSourceStatus } from "@/components/dataviz/his";
 import type { DataStatus } from "@/features/investor-ui/types/common";
-import {
-  AllInCostVsSpot,
-  ReserveRunwayChart,
-  type ReserveRunwayData,
-} from "@/features/investor-ui/components/reserve-cockpit";
 
 import { getBtcPageData } from "./_data/get-btc-page-data";
 import { buildAccumulationSeries } from "@/features/investor-ui/charts/accumulation-series";
@@ -45,17 +46,10 @@ import {
   toProvenance,
 } from "@/features/investor-ui/format-btc";
 
-import { AccumulationChartSignature } from "@/features/investor-ui/components/accumulation-chart-signature";
-import { BtcHeroBand } from "./_components/btc-hero-band";
-import { BtcCompositionPanel } from "./_components/btc-composition-panel";
-import { BtcOpsRow } from "./_components/btc-ops-row";
-
-import "../dashboard/dashboard-signature.css";
-
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Bitcoin · Hearst Connect",
+  title: "Bitcoin Reserve · Hearst Bitcoin Reserve Vault — Series 1",
 };
 
 /**
@@ -133,9 +127,13 @@ export default async function BtcPage({
       ? `hearst-connect-backend did not respond (${err.code}${err.status ? `, HTTP ${err.status}` : ""}).`
       : "The data source failed unexpectedly.";
     return (
-      <BentoPageShell testId="btc-page">
+      <div data-testid="btc-page" className="flex flex-col gap-10">
+        <KycPageTitle
+          title="Bitcoin Reserve"
+          description="Your attributed Bitcoin register, backed by the program reserve and mining ledger."
+        />
         <PageErrorState title="Bitcoin position unavailable" detail={detail} />
-      </BentoPageShell>
+      </div>
     );
   }
 
@@ -187,91 +185,73 @@ export default async function BtcPage({
   const coverageMonths = reserve.value?.electricityCoveredMonths ?? null;
   const runwayPeriod =
     accumulationPoints[accumulationPoints.length - 1]?.period ?? "Current";
-  const runwayData: ReserveRunwayData | null =
-    ownershipUnavailable || coverageMonths == null
-      ? null
-      : { points: [{ period: runwayPeriod, coverageMonths }] };
-  const runwaySource = dataStatusToSource(
-    ownershipUnavailable ? "NOT_CONFIGURED" : reserve.status,
-  );
-
-  // All-in mining cost vs BTC spot: the backend exposes no per-month
-  // cost/spot series yet, so this block reads honestly "not enough history"
-  // (null) — never a fabricated cost curve. Wire real points here the day
-  // the cost/spot source lands.
-  const costSpotPoints = null;
-
   return (
-    <BentoPageShell testId="btc-page">
-      {/* No page title — the KPI band IS the header (cockpit pass). */}
-      <div className="dash-signature flex min-w-0 flex-col gap-[var(--ct-space-5)]">
-        {/* Zone 1 — BTC KPI band + orange orb */}
-        {ownershipUnavailable ? (
-          <Card className="w-full p-[var(--ct-space-5)]">
-            <DataNotConfigured
-              label="Bitcoin position"
-              detail="PermissionedDynaVault v2.1 is not deployed yet."
-            />
-          </Card>
-        ) : (
-          <BtcHeroBand
-            attributedBtc={attributedBtc}
-            vaultReserveBtc={vaultReserveBtc}
-            miningProducedBtc={miningProducedBtc}
-            currentValueUsd={currentValueUsd}
-            monthsElapsed={monthsElapsed}
-            monthsTotal={monthsTotal}
-            attributionProvenance={toProvenance(attribution.status)}
-            productionProvenance={productionProvenance}
-          />
-        )}
-
-        {/* Zone 2 — signature chart (orange) + composition donut.
-            .dash-row-main absorbs the free viewport height (cockpit fit). */}
-        <div className="dash-row-main flex flex-col lg:flex-row gap-[var(--ct-space-5)] lg:items-stretch min-h-0">
-          <div className="flex-[7] min-w-0">
-            <AccumulationChartSignature
-              points={accumulationPoints}
-              currentMonth={monthsElapsed}
-              totalMonths={monthsTotal}
-              provenance={productionProvenance}
-              tone="btc"
-            />
-          </div>
-          <div className="flex-[4] min-w-0">
-            <BtcCompositionPanel
-              pockets={pockets}
-              totalBtc={totalBtc}
-              provenance={toProvenance(
-                ownershipUnavailable ? "NOT_CONFIGURED" : dashboard.allocation.status,
-              )}
-            />
-          </div>
-        </div>
-
-        {/* Zone 2b — reserve operations: all-in mining cost vs spot +
-            electricity runway funded by the B3 Reserve USDC pocket. Both are
-            reserve-cockpit blocks; each renders its own honest DataUnavailable
-            state when its source hasn't resolved (no fabricated series). */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--ct-space-5)] items-stretch">
-          <AllInCostVsSpot points={costSpotPoints} source="configured" />
-          <ReserveRunwayChart data={runwayData} source={runwaySource} />
-        </div>
-
-        {/* Zone 3 — uniform ops band: sources · ledger · maturity · custody */}
-        <BtcOpsRow
-          production={production}
-          events={data.extra.events}
-          custody={custody}
-          monthsElapsed={ownershipUnavailable ? null : monthsElapsed}
-          monthsTotal={monthsTotal}
+    <div data-testid="btc-page" className="flex flex-col gap-10">
+      <KycPageTitle
+        title="Bitcoin Reserve"
+        meta={`As of ${formatIsoDateTime(data.generatedAt)} · Methodology v3.0`}
+        description="Your attributed Bitcoin register, backed by the program reserve and mining ledger."
+      />
+      <KycSection>
+        <KycHeroKpiBand
+          hero={{
+            label: ownershipUnavailable ? "Bitcoin position" : "Attributed BTC",
+            value: ownershipUnavailable ? "Not configured" : attributedBtc ?? "—",
+            hint: ownershipUnavailable ? "PermissionedDynaVault v2.1 has not been posted." : "Investor-attributed Bitcoin balance",
+          }}
+          metrics={[
+            { label: "Vault reserve", value: vaultReserveBtc ?? "—", hint: "Program BTC reserve" },
+            { label: "Mining produced", value: miningProducedBtc ?? "—", hint: "Cumulative program ledger" },
+            { label: "Current value", value: currentValueUsd ?? "—", hint: "Reported valuation" },
+            { label: "Term progress", value: monthsElapsed != null ? `${monthsElapsed}/${monthsTotal}` : "—", hint: "Months elapsed" },
+            { label: "Reserve runway", value: coverageMonths != null ? `${coverageMonths.toFixed(1)} mo` : "—", hint: "B3 coverage estimate" },
+            { label: "Custody", value: custody.value ? "Reported" : "Awaiting", hint: "Evidence source" },
+          ]}
         />
+      </KycSection>
 
-        {/* Compliance line — unified footer shared with /dashboard (P0.7) */}
-        <p className="ct-metric-caption m-0 px-[var(--ct-space-1)]">
-          As of {formatIsoDateTime(data.generatedAt)} · Methodology v3.0 · Accumulated BTC delivered at maturity — not guaranteed
-        </p>
-      </div>
-    </BentoPageShell>
+      <KycSection index="01" title="Accumulation register" description="Bitcoin credits become visible after they are indexed from mining operations.">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+          <KycChartSurface className="lg:col-span-8" title="Attributed BTC over time" description="Mining credits attributed to the current investor position.">
+            <KycEmptyChart
+              label={accumulationPoints.length < 2 ? "Accumulation history is not available yet" : "Light chart migration pending"}
+              detail={accumulationPoints.length < 2 ? "The ledger chart appears after mining credits are indexed." : "The resolved series is available; its light chart is being migrated without reusing the legacy cockpit renderer."}
+            />
+          </KycChartSurface>
+          <KycPanel className="lg:col-span-4">
+            <div className="border-b border-zinc-950/8 px-5 py-4 dark:border-white/10"><p className="text-xs font-semibold uppercase tracking-uppercase text-zinc-500 dark:text-zinc-400">Allocation basis</p></div>
+            <dl className="divide-y divide-zinc-950/8 px-5 dark:divide-white/10">
+              {(pockets ?? []).map((pocket) => (
+                <div key={pocket.pocket} className="flex items-center justify-between gap-4 py-4">
+                  <dt className="text-sm text-zinc-500 dark:text-zinc-400">{pocket.pocket} · {pocket.label}</dt>
+                  <dd className="text-sm font-semibold tabular-nums text-zinc-950 dark:text-white">{((pocket.actualBps ?? pocket.targetBps) / 100).toFixed(0)}%</dd>
+                </div>
+              ))}
+              {pockets == null ? <p className="py-5 text-sm text-zinc-500 dark:text-zinc-400">Allocation becomes available when the vault is configured.</p> : null}
+            </dl>
+          </KycPanel>
+        </div>
+      </KycSection>
+
+      <KycSection index="02" title="Reserve & custody" description="Supporting evidence is presented as separate records, not as a synthetic return projection.">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <KycChartSurface title="Acquisition cost vs spot" description="Requires matched monthly cost and BTC spot observations.">
+            <KycEmptyChart label="Cost history is not available yet" detail="No resolved monthly cost and BTC spot observation pair is available." />
+          </KycChartSurface>
+          <KycChartSurface title="Reserve runway" description="Electricity coverage funded by B3 Reserve USDC.">
+            <KycEmptyChart label={coverageMonths == null ? "Reserve runway is not available yet" : `${coverageMonths.toFixed(1)} months of reported coverage`} detail={coverageMonths == null ? "Coverage appears when reserve and operating-burn sources are available." : "Coverage is an estimate at current burn and is not guaranteed."} />
+          </KycChartSurface>
+          <KycPanel>
+            <div className="border-b border-zinc-950/8 px-5 py-4 dark:border-white/10"><p className="text-xs font-semibold uppercase tracking-uppercase text-zinc-500 dark:text-zinc-400">Custody & delivery</p></div>
+            <dl className="divide-y divide-zinc-950/8 px-5 dark:divide-white/10">
+              <div className="flex justify-between gap-4 py-4"><dt className="text-sm text-zinc-500 dark:text-zinc-400">Custody evidence</dt><dd className="text-sm font-semibold text-zinc-950 dark:text-white">{custody.value ? "Reported" : "Awaiting"}</dd></div>
+              <div className="flex justify-between gap-4 py-4"><dt className="text-sm text-zinc-500 dark:text-zinc-400">Delivery</dt><dd className="text-sm font-semibold text-zinc-950 dark:text-white">At maturity</dd></div>
+              <div className="flex justify-between gap-4 py-4"><dt className="text-sm text-zinc-500 dark:text-zinc-400">Ledger events</dt><dd className="text-sm font-semibold text-zinc-950 dark:text-white">{data.extra.events.value?.length ?? "—"}</dd></div>
+            </dl>
+          </KycPanel>
+        </div>
+      </KycSection>
+      <p className="text-xs leading-5 text-zinc-500 dark:text-zinc-400">Accumulated BTC is delivered at maturity. Reported valuations and reserve coverage are not guaranteed.</p>
+    </div>
   );
 }
