@@ -126,11 +126,31 @@ describe("loadHourlyValueSnapshots", () => {
 
     expect(navSnapshotFindManyMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { investorId: "inv-1", takenAt: { gte: since } },
+        where: {
+          investorId: "inv-1",
+          takenAt: { gte: since },
+          source: { in: ["computed"] },
+        },
       }),
     );
     expect(rows).toHaveLength(2);
     expect(rows[1]?.valueUsdc).toBe(11.01);
+  });
+
+  it("queries with a source allowlist that excludes dev_seed / demo rows", async () => {
+    navSnapshotFindManyMock.mockResolvedValue([]);
+
+    await loadHourlyValueSnapshots("inv-1", new Date("2026-06-01T00:00:00Z"));
+
+    const call = navSnapshotFindManyMock.mock.calls[0]?.[0] as {
+      where: { source?: { in?: string[] } };
+    };
+    const sources = call.where.source?.in;
+    // Structural seed guard: only cron-written sources are ever charted.
+    expect(Array.isArray(sources)).toBe(true);
+    expect(sources).not.toContain("dev_seed");
+    expect(sources).not.toContain("demo_timeline");
+    expect(sources).toContain("computed");
   });
 
   it("returns empty array when InvestorNavSnapshot table is missing (P2021)", async () => {

@@ -6,6 +6,10 @@ import type { HourlyValueSnapshot } from "@/lib/portfolio/value-series";
 
 const HOUR_MS = 60 * 60 * 1000;
 
+// Structural seed guard: only sources written by the real hourly cron are ever
+// served as portfolio history — dev_seed/demo_timeline rows can never leak in.
+export const AUTHORITATIVE_NAV_SNAPSHOT_SOURCES = ["computed"] as const;
+
 /** UTC hour bucket — one print per investor per hour. */
 export function truncateToUtcHour(d: Date): Date {
   return new Date(
@@ -204,7 +208,12 @@ export async function loadHourlyValueSnapshots(
 ): Promise<HourlyValueSnapshot[]> {
   try {
     const rows = await prisma.investorNavSnapshot.findMany({
-      where: { investorId, takenAt: { gte: since } },
+      // Seed guard: only authoritative cron prints — a reappeared seed row is never charted.
+      where: {
+        investorId,
+        takenAt: { gte: since },
+        source: { in: [...AUTHORITATIVE_NAV_SNAPSHOT_SOURCES] },
+      },
       orderBy: { takenAt: "asc" },
       select: { takenAt: true, valueUsdc: true },
       take: 8760 + 1,

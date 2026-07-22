@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { authoritativeVaultSnapshotWhere } from "@/lib/data/snapshot-sources";
 import {
   runProductConstructionPipeline,
   isProductConstructionError,
@@ -493,6 +494,8 @@ async function runGenerateChartSpec(input: unknown): Promise<{
       },
     }),
     prisma.vaultSnapshot.findMany({
+      // Seed guard: authoritative sources only — a reappeared demo_seed row is never charted.
+      where: authoritativeVaultSnapshotWhere(),
       orderBy: { takenAt: "asc" },
       take: 30,
       select: {
@@ -1012,6 +1015,8 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
           },
         }),
         prisma.vaultSnapshot.findFirst({
+          // Seed guard: authoritative sources only — a reappeared demo_seed row is never served.
+          where: authoritativeVaultSnapshotWhere(),
           orderBy: { takenAt: "desc" },
           select: {
             takenAt: true,

@@ -2,6 +2,7 @@ import "server-only";
 
 import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/db";
+import { authoritativeVaultSnapshotWhere } from "@/lib/data/snapshot-sources";
 import { logger } from "@/lib/logger";
 import { fetchBtcPrice } from "@/lib/data/btc-price";
 import { fetchHashprice } from "@/lib/data/hashprice";
@@ -100,7 +101,9 @@ export interface RebalancingSignalResult {
 
 export async function loadVaultStateForSignal(): Promise<VaultStateForSignal> {
   const [latestSnapshot, latestMining, btc, hp] = await Promise.all([
+    // Seed guard: authoritative sources only — a reappeared demo_seed row is never served.
     prisma.vaultSnapshot.findFirst({
+      where: authoritativeVaultSnapshotWhere(),
       orderBy: { takenAt: "desc" },
       include: { allocations: true },
     }),

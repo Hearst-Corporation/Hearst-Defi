@@ -3,6 +3,7 @@ import "server-only";
 import { revalidateTag } from "next/cache";
 
 import { inngest } from "@/lib/inngest/client";
+import { authoritativeVaultSnapshotWhere } from "@/lib/data/snapshot-sources";
 import { loadCustody } from "@/lib/data/custody";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
@@ -21,9 +22,10 @@ import { isDuplicate, markComplete } from "@/lib/idempotency";
  * vault must never produce a "live" snapshot.
  *
  * Inherited fields (APY range, risk scores, mode, allocations) come from the
- * most recent existing VaultSnapshot so we never invent financial parameters
- * that belong to the engine/agent layer. When no prior snapshot exists, neutral
- * zeros are used and allocations are omitted.
+ * most recent AUTHORITATIVE VaultSnapshot (seed/demo sources excluded) so we
+ * never invent financial parameters that belong to the engine/agent layer.
+ * When no authoritative prior snapshot exists, the job skips the write rather
+ * than fabricating zero scores.
  */
 export const CUSTODY_SNAPSHOT_HOURLY_ID = "custody-snapshot-hourly" as const;
 export const CUSTODY_SNAPSHOT_HOURLY_CRON = "5 * * * *" as const;
@@ -76,20 +78,33 @@ export async function custodySnapshotHourlyHandler({
   // ─── Step 2: load latest snapshot to inherit engine-derived fields ─────────
   // APY range, risk scores, mode, and allocations come from the previous
   // VaultSnapshot — they are owned by the engine/agent layer and must not be
-  // invented here. If no prior snapshot exists, neutral zeros are used.
+  // invented here. Seed guard: only authoritative sources are inherited, so a
+  // reappeared demo_seed row can never be laundered into a "live" snapshot.
   const previous = await step.run("load-latest-snapshot", () =>
     prisma.vaultSnapshot.findFirst({
+      where: authoritativeVaultSnapshotWhere(),
       orderBy: { takenAt: "desc" },
       include: { allocations: true },
     }),
   );
 
-  const inheritedApyLow    = previous?.currentApyLow    ?? 0;
-  const inheritedApyHigh   = previous?.currentApyHigh   ?? 0;
-  const inheritedStressed  = previous?.stressedApy      ?? 0;
-  const inheritedRisk      = previous?.riskScore        ?? 0;
-  const inheritedMining    = previous?.miningMarginScore ?? 0;
-  const inheritedMode      = previous?.mode             ?? "balanced";
+  // The engine-owned columns are non-nullable in the schema, so with no
+  // authoritative prior snapshot we cannot inherit — and inventing zero
+  // APY/risk scores would fabricate financial parameters. Skip the write.
+  if (previous === null) {
+    logger.info(
+      "[custody-snapshot-hourly] no authoritative prior snapshot — skipping write (refusing to invent engine fields)",
+    );
+    await markComplete(CUSTODY_SNAPSHOT_HOURLY_ID, now);
+    return { skipped: true, reason: "no_authoritative_prior_snapshot" };
+  }
+
+  const inheritedApyLow    = previous.currentApyLow;
+  const inheritedApyHigh   = previous.currentApyHigh;
+  const inheritedStressed  = previous.stressedApy;
+  const inheritedRisk      = previous.riskScore;
+  const inheritedMining    = previous.miningMarginScore;
+  const inheritedMode      = previous.mode;
 
   // ─── Step 3: persist live snapshot ────────────────────────────────────────
   const snapshotId = await step.run("persist-snapshot", async () => {

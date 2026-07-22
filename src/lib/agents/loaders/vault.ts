@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import type { InvestorMemoProvenance } from "@/lib/agents/investor-memo";
 import type { ProvenanceTag } from "@/lib/agents/schemas";
 import { evaluateFreshness, STALE_THRESHOLDS } from "@/lib/data/freshness";
+import { authoritativeVaultSnapshotWhere } from "@/lib/data/snapshot-sources";
 import { isLiveTimelineSource } from "@/lib/data/timeline-snapshot";
 import { loadCoverageForVault } from "@/lib/agents/loaders/coverage";
 import type { CoverageViewProvenance } from "@/lib/engine/coverage-view";
@@ -101,7 +102,11 @@ export async function loadMemoInput(
   const period = currentPeriod();
 
   const [snapshot, coverage] = await Promise.all([
-    prisma.vaultSnapshot.findFirst({ orderBy: { takenAt: "desc" } }),
+    // Seed guard: authoritative sources only — a reappeared demo_seed row is never served.
+    prisma.vaultSnapshot.findFirst({
+      where: authoritativeVaultSnapshotWhere(),
+      orderBy: { takenAt: "desc" },
+    }),
     // Coverage view carries its own live/estimated/pending/invalid provenance
     // (never fabricates a number). We read it ONLY to qualify the coverage
     // section of the memo — non-negotiable #2.

@@ -67,6 +67,21 @@ const stepShim = {
     Promise.resolve(fn()),
 };
 
+// ─── Fixture: authoritative prior snapshot (no allocations) ──────────────────
+const PREVIOUS_SNAPSHOT = {
+  id:                "prev-id",
+  takenAt:           new Date(),
+  aumUsdc:           { toNumber: () => 1_000_000 },
+  currentApyLow:     { toNumber: () => 9 },
+  currentApyHigh:    { toNumber: () => 12 },
+  stressedApy:       { toNumber: () => 6 },
+  riskScore:         3,
+  miningMarginScore: 72,
+  mode:              "balanced",
+  source:            "computed",
+  allocations:       [] as unknown[],
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("custodySnapshotHourly Inngest function", () => {
@@ -182,6 +197,7 @@ describe("custodySnapshotHourly Inngest function", () => {
   it("creates a VaultSnapshot with source='live' when vault has real funds", async () => {
     const LIVE_RESERVES = 1_500_000;
 
+    vaultSnapshotFindFirstMock.mockResolvedValueOnce(PREVIOUS_SNAPSHOT);
     loadCustodyMock.mockResolvedValueOnce({
       provenance:        "live",
       configured:        true,
@@ -232,6 +248,7 @@ describe("custodySnapshotHourly Inngest function", () => {
 
     for (const amount of [AMOUNT_A, AMOUNT_B]) {
       vaultSnapshotCreateMock.mockClear();
+      vaultSnapshotFindFirstMock.mockResolvedValueOnce(PREVIOUS_SNAPSHOT);
       loadCustodyMock.mockResolvedValueOnce({
         provenance:        "live",
         configured:        true,
@@ -254,7 +271,7 @@ describe("custodySnapshotHourly Inngest function", () => {
     }
   });
 
-  it("does NOT create allocations when no previous snapshot exists", async () => {
+  it("skips write when no AUTHORITATIVE prior snapshot exists (refuses to invent engine fields)", async () => {
     loadCustodyMock.mockResolvedValueOnce({
       provenance:        "live",
       configured:        true,
@@ -263,7 +280,31 @@ describe("custodySnapshotHourly Inngest function", () => {
       totalUsdcReserves: 1_000_000,
       accounts:          [],
     });
-    vaultSnapshotFindFirstMock.mockResolvedValueOnce(null); // no prior snapshot
+    vaultSnapshotFindFirstMock.mockResolvedValueOnce(null); // no authoritative prior snapshot
+
+    const { custodySnapshotHourlyHandler } = await import(
+      "@/lib/inngest/functions/custody-snapshot-hourly"
+    );
+
+    const result = await custodySnapshotHourlyHandler({ step: stepShim });
+
+    // Engine-owned columns are non-nullable — with nothing to inherit, the job
+    // must skip rather than fabricate zero APY/risk scores.
+    expect(result).toEqual({ skipped: true, reason: "no_authoritative_prior_snapshot" });
+    expect(vaultSnapshotCreateMock).not.toHaveBeenCalled();
+    expect(allocationCreateManyMock).not.toHaveBeenCalled();
+  });
+
+  it("does NOT create allocations when the previous snapshot has none", async () => {
+    loadCustodyMock.mockResolvedValueOnce({
+      provenance:        "live",
+      configured:        true,
+      asOf:              new Date().toISOString(),
+      accountsCount:     1,
+      totalUsdcReserves: 1_000_000,
+      accounts:          [],
+    });
+    vaultSnapshotFindFirstMock.mockResolvedValueOnce(PREVIOUS_SNAPSHOT); // no allocations
 
     const { custodySnapshotHourlyHandler } = await import(
       "@/lib/inngest/functions/custody-snapshot-hourly"
@@ -274,6 +315,32 @@ describe("custodySnapshotHourly Inngest function", () => {
     expect(vaultSnapshotCreateMock).toHaveBeenCalledTimes(1);
     // No allocations to inherit → createMany must not be called
     expect(allocationCreateManyMock).not.toHaveBeenCalled();
+  });
+
+  it("loads the prior snapshot with a source allowlist that excludes demo_seed", async () => {
+    loadCustodyMock.mockResolvedValueOnce({
+      provenance:        "live",
+      configured:        true,
+      asOf:              new Date().toISOString(),
+      accountsCount:     1,
+      totalUsdcReserves: 1_000_000,
+      accounts:          [],
+    });
+    vaultSnapshotFindFirstMock.mockResolvedValueOnce(PREVIOUS_SNAPSHOT);
+
+    const { custodySnapshotHourlyHandler } = await import(
+      "@/lib/inngest/functions/custody-snapshot-hourly"
+    );
+
+    await custodySnapshotHourlyHandler({ step: stepShim });
+
+    const findCall = vaultSnapshotFindFirstMock.mock.calls[0] as unknown as [
+      { where?: { source?: { in?: string[] } } },
+    ];
+    const sources = findCall?.[0]?.where?.source?.in;
+    expect(Array.isArray(sources)).toBe(true);
+    expect(sources).not.toContain("demo_seed");
+    expect(sources).toContain("live");
   });
 
   it("inherits and recalculates allocations from previous snapshot", async () => {

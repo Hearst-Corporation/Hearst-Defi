@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
+import { authoritativeVaultSnapshotWhere } from "@/lib/data/snapshot-sources";
 import { resolveProvenance } from "@/lib/portfolio/provenance";
 import { chatOutputViolation } from "@/lib/llm/output-guard";
 import type { Provenance } from "@/components/ui/provenance-badge";
@@ -155,6 +156,8 @@ export async function buildPortfolioContextBlock(
       take: 100,
     }),
     prisma.vaultSnapshot.findFirst({
+      // Seed guard: authoritative sources only — a reappeared demo_seed row is never served.
+      where: authoritativeVaultSnapshotWhere(),
       orderBy: { takenAt: "desc" },
       select: { takenAt: true, allocations: true },
     }),
