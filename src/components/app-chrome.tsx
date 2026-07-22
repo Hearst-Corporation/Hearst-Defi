@@ -58,7 +58,9 @@ export function AppChrome({
   if (bare) {
     return (
       <div className="min-h-dvh bg-(--ct-bg-deep)">
-        {children}
+        {/* Bare routes have no shell, so they carry the document's <main> and
+            the skip-link target themselves. */}
+        <main id="main-content">{children}</main>
         {/* Public surfaces ("/" and /legal/*) carry the full institutional
             footer; auth funnels stay footer-free. */}
         {isFooterBareRoute(pathname) ? <AppFooter variant="full" /> : null}

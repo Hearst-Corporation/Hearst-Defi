@@ -59,7 +59,12 @@ export default function RootLayout({
         </a>
         <AppChrome masterAgentEnabled={FEATURE_FLAGS.CHAT_MASTER_AGENT}>
           <PrivyProvider appId={isDevAuthBypass() ? "" : PRIVY_APP_ID}>
-            <main id="main-content">{children}</main>
+            {/* No <main> wrapper here: the shells own the document's single
+                <main>. Wrapping children in one nested a second <main> inside
+                SidebarLayout's, which cost the Catalyst layout its viewport
+                reference — the page stopped scrolling. #main-content is the
+                skip-link target and now lives on the shell's own <main>. */}
+            {children}
             <ClientToaster />
           </PrivyProvider>
           <Analytics />

@@ -309,13 +309,15 @@ export function KycAppShell({ children }: { children: ReactNode }) {
         </Headless.Dialog>
       ) : null}
 
-      <div className="min-w-0 lg:pl-64">
+      {/* Admin's single <main> and skip-link target — the root layout no longer
+          wraps children in one. */}
+      <main id="main-content" className="min-w-0 lg:pl-64">
         <div className="p-4 sm:p-6 lg:p-2">
           <div className="kyc-cockpit-frame mx-auto max-w-[1600px] rounded-xl border p-5 sm:p-7 lg:p-10">
             {children}
           </div>
         </div>
-      </div>
+      </main>
 
       <button
         type="button"
