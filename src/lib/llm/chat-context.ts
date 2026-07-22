@@ -135,8 +135,13 @@ export async function buildPortfolioContextBlock(
       where: { investorId: investor.id },
       orderBy: { subscribedAt: "desc" },
       select: {
+        // `accruedYieldUsdc` is deliberately NOT selected. No process computes
+        // that column (it holds its `@default(0)`; only demo fixtures write
+        // it), and Series 1 pays no yield — summing it here used to inflate
+        // "Valeur totale" and feed a merged realized+accrued figure the model
+        // then restated in prose as fact. Same contract as
+        // `loadPortfolio()` post-0082a3ea: principal is the value.
         principalUsdc: true,
-        accruedYieldUsdc: true,
       },
       take: 100,
     }),
@@ -159,55 +164,69 @@ export async function buildPortfolioContextBlock(
   // chats) still covers a brand-new user; this block stays portfolio-specific.
   if (positions.length === 0) return null;
 
-  // --- Total value (principal + accrued) ---------------------------------
-  const totalValueUsdc = positions.reduce(
-    (sum, p) => sum + toNumber(p.principalUsdc) + toNumber(p.accruedYieldUsdc),
-    0,
-  );
+  // --- Deployed capital (principal only) ----------------------------------
+  // The old "Valeur totale" added `accruedYieldUsdc` on top — a column nothing
+  // computes — so the model stated an inflated value as fact. Principal is the
+  // one figure the ledger actually holds; it is labelled as what it is
+  // (capital deployed), not as a mark-to-book value nobody measures.
+  const deployedUsdc = positions.reduce((sum, p) => sum + toNumber(p.principalUsdc), 0);
 
-  // --- Value accumulated YTD (realised ledger + accrued, like loadPortfolio) ---
-  // v3.0: this is BTC-accumulation value to date, NOT a distributed yield.
-  const totalYieldYtdUsdc =
-    ytdTxs.reduce((sum, t) => sum + toNumber(t.amountUsdc), 0) +
-    positions.reduce((sum, p) => sum + toNumber(p.accruedYieldUsdc), 0);
+  // --- Realized payouts YTD (ledger rows ONLY) -----------------------------
+  // Same contract as `loadPortfolio().realizedYtdUsdc` post-0082a3ea: dollars
+  // that actually left the vault. The accrued leg is gone — merging the two
+  // produced one number no reader (least of all an LLM restating it in prose)
+  // could take apart. A 0 here is a real measurement: no payout happened.
+  const realizedYtdUsdc = ytdTxs.reduce((sum, t) => sum + toNumber(t.amountUsdc), 0);
 
-  // Provenance: positions are read live, but their freshness is bounded by the
-  // latest vault snapshot when one exists. No snapshot within the SLO → stale.
+  // Freshness of the vault-global snapshot. It bounds how current the
+  // vault-level lines below are; it says nothing about the ledger rows above,
+  // which are read live.
   const snapshotFresh =
     latestSnapshot != null &&
     now.getTime() - latestSnapshot.takenAt.getTime() <= PORTFOLIO_SNAPSHOT_MS &&
     now.getTime() - latestSnapshot.takenAt.getTime() >= 0;
 
-  // `resolveProvenance` collapses source + freshness to a canonical kind; with
-  // a fresh snapshot it stays "live", otherwise it falls through to "stale".
   const valueProvenance: Provenance = resolveProvenance(
     "live",
     latestSnapshot?.takenAt ?? null,
     "live",
   );
-  // YTD yield mixes realised (live ledger) + accrued (estimated) → "estimated"
-  // when fresh, "stale" when the underlying snapshot is stale.
-  const yieldProvenance: Provenance = snapshotFresh ? "estimated" : "stale";
 
   const lines: string[] = [];
   lines.push(
-    `- Valeur totale : ${fmtUsdc(totalValueUsdc)} USDC (${qualifierLabel(valueProvenance)})`,
+    `- Capital deploye : ${fmtUsdc(deployedUsdc)} USDC (${qualifierLabel(valueProvenance)}) — principal du ledger`,
   );
   lines.push(
-    `- Valeur accumulee YTD : ${fmtUsdc(totalYieldYtdUsdc)} USDC (${qualifierLabel(yieldProvenance)}) — accumulation BTC vers la maturite`,
+    realizedYtdUsdc > 0
+      ? `- Paiements recus YTD : ${fmtUsdc(realizedYtdUsdc)} USDC (live) — lignes de ledger reelles`
+      : `- Paiements recus YTD : aucun paiement enregistre (live)`,
+  );
+  // Series 1 accumulates BTC to maturity: no yield accrues and no periodic
+  // distribution exists. Stated as a product fact so the model answers the
+  // inevitable question instead of inventing a figure or a date.
+  lines.push(
+    `- Accrual : non applicable — Series 1 accumule du BTC vers la maturite, aucun rendement periodique`,
   );
 
-  // --- Allocation breakdown (vault-level) ---------------------------------
+  // --- Allocation breakdown (vault snapshot — NON-AUTHORITATIVE) -----------
+  // `VaultSnapshot.allocations` uses the legacy four-sleeve taxonomy and is
+  // written by a cron/seed, while the UI reads the contract's B1/B2/B3 target
+  // via the backend. The two are not reconciled, so the snapshot must never be
+  // stated as the live allocation — the model gets it as an explicitly dated,
+  // non-authoritative reading, or an honest "not reported" when absent/stale.
   const allocations = latestSnapshot?.allocations ?? [];
-  if (allocations.length > 0) {
-    const allocProvenance: Provenance = snapshotFresh ? "live" : "stale";
+  if (allocations.length > 0 && snapshotFresh) {
     const parts = allocations.map((a) => {
       const label = ALLOCATION_LABELS[a.bucket] ?? a.bucket;
       const pct = Math.round(toNumber(a.pct) * 10) / 10;
       return `${label} ${pct}%`;
     });
     lines.push(
-      `- Allocation : ${parts.join(", ")} (${qualifierLabel(allocProvenance)})`,
+      `- Allocation (snapshot vault du ${fmtDate(latestSnapshot!.takenAt)}, non contractuelle) : ${parts.join(", ")}`,
+    );
+  } else {
+    lines.push(
+      `- Allocation : non rapportee — cible contractuelle B1 40% / B2 27% / B3 33% (spec, pas une mesure)`,
     );
   }
 

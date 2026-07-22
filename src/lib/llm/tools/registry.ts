@@ -1041,7 +1041,10 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
             `  - hashprice_usd_th_day: ${latestMiningMetric.hashprice.toString()}`,
             `  - difficulty: ${latestMiningMetric.difficulty.toString()}`,
             `  - energy_cost_usd_kwh: ${latestMiningMetric.energyCost.toString()}`,
-            `  - uptime_pct: ${latestMiningMetric.uptimePct.toString()}`,
+            // uptimePct is NOT measured — no pool/uptime feed exists; the cron
+            // carries the previous row forward. Qualified inline so the model
+            // cannot restate it as an observed figure.
+            `  - uptime_pct: ${latestMiningMetric.uptimePct.toString()} (unmeasured — no uptime feed; carried value, not an observation)`,
             `  - mining_margin_score: ${latestMiningMetric.miningMarginScore}`,
           ]
         : [
@@ -1051,10 +1054,15 @@ export const ADMIN_READ_TOOLS: readonly AdminReadToolDefinition[] = [
 
       const snapshotLines = latestVaultSnapshot
         ? [
-            "- VAULT SNAPSHOT (latest)",
+            // Labelled "database snapshot", dated, and explicitly not
+            // reconciled: the UI reads the vault's on-chain totalAssets via
+            // the backend, and no process reconciles the two. Without this
+            // qualifier the model has restated the DB figure as the vault's
+            // AUM while the adjacent panel showed the chain's number.
+            "- VAULT SNAPSHOT (latest — database record, NOT reconciled with on-chain totalAssets; the contract's own figure may differ)",
             `  - taken_at: ${formatIso(latestVaultSnapshot.takenAt)}`,
-            `  - aum_usdc: ${latestVaultSnapshot.aumUsdc.toString()}`,
-            `  - apy_target_range: ${formatPercent(Number(latestVaultSnapshot.currentApyLow))} to ${formatPercent(Number(latestVaultSnapshot.currentApyHigh))}`,
+            `  - aum_usdc: ${latestVaultSnapshot.aumUsdc.toString()} (db snapshot as of taken_at, not an on-chain read)`,
+            `  - apy_target_range: ${formatPercent(Number(latestVaultSnapshot.currentApyLow))} to ${formatPercent(Number(latestVaultSnapshot.currentApyHigh))} (operator TARGET, not a realized return)`,
             `  - stressed_apy_pct: ${formatPercent(Number(latestVaultSnapshot.stressedApy))}`,
             `  - risk_score: ${latestVaultSnapshot.riskScore}`,
             `  - mining_margin_score: ${latestVaultSnapshot.miningMarginScore}`,
