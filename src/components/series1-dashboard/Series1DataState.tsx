@@ -24,8 +24,15 @@ import { reasonLabel, type Series1Wired } from "@/components/series1-shell/Serie
 export type { Series1Wired };
 export { reasonLabel };
 
-/** The em dash used wherever a value did not resolve. Never a zero. */
-export const EMPTY_VALUE = "—";
+/**
+ * What a cell shows when its read did not resolve. Never a zero.
+ *
+ * A bare em dash was the first choice, and it read as a broken band: a row of
+ * lone hyphens where figures should be says "this UI is missing something",
+ * not "this value has not been reported". Two words state the same fact and
+ * stay legible at the label tier the muted cells render at.
+ */
+export const EMPTY_VALUE = "Not reported";
 
 /**
  * Render a wired read's value, or the empty slot. `render` only runs on the

@@ -52,6 +52,11 @@ export function Series1MetricDeck({
             >
               {metric.label}
             </dt>
+            {/* 18px: six cells of EQUAL weight sitting under a hero band read
+                as data, not as six competing headlines. At 24px long values
+                ("1.0000 USDC / share") truncated in a 6-column grid. */}
+            {/* Unresolved cells drop to the label tier — an 18px em dash reads
+                as loud as a real figure and makes the band look broken. */}
             <dd
               className={cn(
                 "m-0 mt-[var(--ct-space-1)] truncate font-semibold tracking-tight tabular-nums",
@@ -59,7 +64,12 @@ export function Series1MetricDeck({
                   ? "text-[var(--ct-text-faint)]"
                   : "text-[var(--ct-text-strong)]",
               )}
-              style={{ fontSize: "var(--ct-text-3xl-fixed)", lineHeight: 1.15 }}
+              style={{
+                fontSize: metric.muted
+                  ? "var(--ct-text-2xs)"
+                  : "var(--ct-text-xl-fixed)",
+                lineHeight: 1.2,
+              }}
             >
               {metric.value}
             </dd>

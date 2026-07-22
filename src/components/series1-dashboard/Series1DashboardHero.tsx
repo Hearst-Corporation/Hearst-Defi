@@ -1,12 +1,18 @@
 // Series1DashboardHero — the DS `HeroKpiBand`.
 //
-// Reproduces the Qatar cockpit recipe exactly (design-system.html §09):
-//   - a 12-column grid: hero `col-span-4`, secondaries `col-span-8 lg:grid-cols-3`
+// Follows the Qatar cockpit recipe (design-system.html §09):
+//   - a 12-column grid: hero `col-span-4 row-span-2`, six secondaries
+//     `col-span-4` each — ALL of them direct children of the same grid, so
+//     every cell shares the same row tracks
 //   - separators are `gap-px` over a `white/5` ground, NEVER drawn borders —
 //     that is what gives the grid without a drawn line
-//   - hero label in `uppercase tracking-[0.12em]` accent
-//   - hero number `text-4xl→6xl font-semibold tracking-tight tabular-nums`
+//   - hero number `font-semibold tracking-tight tabular-nums` at the 40px tier
 //   - the whole band is welded INSIDE one surfaceRaised card
+//
+// The DS puts the secondaries in their own nested grid. That is the one place
+// this diverges, and deliberately: a nested subgrid's height is independent of
+// the hero cell's, so the gap-px ground only painted where the two happened to
+// overlap and the hairlines stopped halfway down the band.
 //
 // Note on `gap-px`: the dashboard canon banned it (F2) because the old
 // Series1KpiBand used it on SEVEN BARE CELLS, so the gutter was the only
@@ -65,25 +71,44 @@ export function Series1DashboardHero({
         </p>
       </div>
 
-      {/* The band itself: gap-px over a white/5 ground = the DS separator. */}
-      <div className="grid gap-px bg-[var(--ct-border-soft)] lg:grid-cols-12">
-        {/* Hero cell — col-span-4. */}
-        <div className="min-w-0 bg-[var(--ct-surface-raised)] px-[var(--ct-space-6)] py-[var(--ct-space-6)] lg:col-span-4">
+      {/* The band: ONE grid, every cell a DIRECT child.
+          The previous version nested the six secondaries in their own <dl>
+          grid. That subgrid's total height is independent of the hero cell's,
+          so the gap-px ground only showed where both happened to overlap —
+          the separators stopped halfway down and the band looked broken.
+          A single 12-column grid makes every cell share the same row tracks,
+          so the hairlines run the full height. */}
+      <div className="grid gap-px bg-[var(--ct-border-soft)] sm:grid-cols-2 lg:grid-cols-12">
+        {/* Hero cell — col-span-4, spanning both secondary rows. */}
+        <div className="flex min-w-0 flex-col justify-center bg-[var(--ct-surface-raised)] px-[var(--ct-space-6)] py-[var(--ct-space-6)] sm:col-span-2 lg:col-span-4 lg:row-span-2">
+          {/* Label in the normal register, NOT uppercase: the programme line
+              above is already an eyebrow, and two stacked letter-spaced caps
+              made the hero read as a header with nothing under it. */}
           <p
-            className="m-0 font-medium uppercase tracking-[0.12em] text-[var(--ct-text-muted)]"
+            className="m-0 font-medium text-[var(--ct-text-muted)]"
             style={{ fontSize: "var(--ct-text-2xs)" }}
           >
             {label}
           </p>
-          <div
-            className={cn(
-              "mt-[var(--ct-space-3)] font-semibold tracking-tight tabular-nums",
-              muted ? "text-[var(--ct-text-faint)]" : "text-[var(--ct-text-strong)]",
-            )}
-            style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1 }}
-          >
-            {value}
-          </div>
+          {/* An unresolved hero renders its STATE in words, not a 40px em dash
+              — a lone giant hyphen is what made this cell look empty while the
+              secondary "12.00 USDC" dominated the band. The dominant figure
+              must stay dominant, including when it has no value yet. */}
+          {muted ? (
+            <p
+              className="m-0 mt-[var(--ct-space-3)] font-semibold tracking-tight text-[var(--ct-text-faint)]"
+              style={{ fontSize: "var(--ct-text-3xl-fixed)", lineHeight: 1.1 }}
+            >
+              Not yet reported
+            </p>
+          ) : (
+            <div
+              className="mt-[var(--ct-space-3)] font-semibold tracking-tight tabular-nums text-[var(--ct-text-strong)]"
+              style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1 }}
+            >
+              {value}
+            </div>
+          )}
           <p
             className="m-0 mt-[var(--ct-space-3)] leading-relaxed text-[var(--ct-text-muted)]"
             style={{ fontSize: "var(--ct-text-2xs)" }}
@@ -93,30 +118,41 @@ export function Series1DashboardHero({
           {trailing ? <div className="mt-[var(--ct-space-2)]">{trailing}</div> : null}
         </div>
 
-        {/* Secondary cells — col-span-8, three across. */}
-        <dl className="grid min-w-0 grid-cols-1 gap-px bg-[var(--ct-border-soft)] sm:grid-cols-2 lg:col-span-8 lg:grid-cols-3">
-          {context.map((item) => (
+        {/* Secondary cells — DIRECT children of the 12-col grid, 4 columns
+            each, so they share the hero's row tracks and the hairlines line up. */}
+        {context.map((item) => (
             <div
               key={item.label}
-              className="min-w-0 bg-[var(--ct-surface-raised)] px-[var(--ct-space-5)] py-[var(--ct-space-4)]"
+              className="min-w-0 bg-[var(--ct-surface-raised)] px-[var(--ct-space-5)] py-[var(--ct-space-4)] lg:col-span-4"
             >
-              <dt
+              <p
                 className="m-0 font-medium text-[var(--ct-text-muted)]"
                 style={{ fontSize: "var(--ct-text-2xs)" }}
               >
                 {item.label}
-              </dt>
-              <dd
+              </p>
+              {/* 18px, not 24px: a secondary cell must READ as secondary. At
+                  the display tier they competed with the hero number and long
+                  strings ("Legacy vault · v2.1 address TBD") truncated. The DS
+                  band works because one figure dominates.
+                  An unresolved cell drops to the label tier: a big em dash is
+                  visual noise that reads as loud as a real figure. */}
+              <p
                 className={cn(
                   "m-0 mt-[var(--ct-space-1)] truncate font-semibold tracking-tight tabular-nums",
                   item.muted
                     ? "text-[var(--ct-text-faint)]"
                     : "text-[var(--ct-text-strong)]",
                 )}
-                style={{ fontSize: "var(--ct-text-3xl-fixed)", lineHeight: 1.15 }}
+                style={{
+                  fontSize: item.muted
+                    ? "var(--ct-text-2xs)"
+                    : "var(--ct-text-xl-fixed)",
+                  lineHeight: 1.2,
+                }}
               >
                 {item.value}
-              </dd>
+              </p>
               {item.hint ? (
                 <p
                   className="m-0 mt-[var(--ct-space-1)] truncate text-[var(--ct-text-faint)]"
@@ -127,7 +163,6 @@ export function Series1DashboardHero({
               ) : null}
             </div>
           ))}
-        </dl>
       </div>
     </section>
   );

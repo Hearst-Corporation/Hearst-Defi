@@ -16,7 +16,7 @@ import {
   formatBps,
   formatBtcFromSats,
   formatHashrateTh,
-  formatNavPerShare,
+  formatUsdcRaw,
   formatShareAmount,
   formatUsdcAmount,
   selectWired,
@@ -64,15 +64,22 @@ const POCKETS: readonly { id: "B1" | "B2" | "B3"; label: string }[] = [
 /** Policy allocation in bps — a SPEC CONSTANT, never a measurement. */
 const POLICY_TARGET_BPS: readonly number[] = [4000, 2700, 3300];
 
-/** Contract mode as an investor-facing sentence. */
-function vaultModeLabel(mode: "v2" | "legacy" | "not_configured"): string {
+/**
+ * Contract mode split into a SHORT value and its qualifier. A KPI value slot
+ * holds one term; the caveat belongs in the hint, otherwise the cell truncates
+ * ("Legacy vault · v2.1 addre…") and says nothing.
+ */
+function vaultModeCell(mode: "v2" | "legacy" | "not_configured"): {
+  value: string;
+  hint: string;
+} {
   switch (mode) {
     case "v2":
-      return "PermissionedDynaVault v2.1";
+      return { value: "DynaVault v2.1", hint: "Active deployment" };
     case "legacy":
-      return "Legacy vault · v2.1 address TBD";
+      return { value: "Legacy vault", hint: "v2.1 address not posted yet" };
     case "not_configured":
-      return "Contract not configured";
+      return { value: "Not configured", hint: "No address on this network" };
   }
 }
 
@@ -157,8 +164,8 @@ export function Series1Dashboard({
           },
           {
             label: "Contract",
-            value: vaultModeLabel(mode),
-            hint: "Active deployment",
+            value: vaultModeCell(mode).value,
+            hint: vaultModeCell(mode).hint,
           },
           {
             label: "Reported hashrate",
@@ -237,13 +244,17 @@ export function Series1Dashboard({
               hint: "Total subscribed",
             },
             {
+              // `formatNavPerShare` appends "USDC / share", which truncates in
+              // a 6-column cell. The unit is constant, so it belongs in the
+              // hint; the raw formatter is shared with /vaults and /portfolio
+              // and is deliberately left untouched.
               label: "NAV per share",
               value: wiredValue(
                 selectWired(core, (c) => c.navPerShare),
-                (v) => formatNavPerShare(v),
+                (v) => formatUsdcRaw(v, 4),
               ),
               muted: isUnresolved(core),
-              hint: "convertToAssets(1 share)",
+              hint: "USDC / share",
             },
             {
               label: "Electricity",
