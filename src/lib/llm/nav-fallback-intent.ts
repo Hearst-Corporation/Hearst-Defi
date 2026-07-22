@@ -90,7 +90,7 @@ const LP_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   {
     key: "portfolio",
     re: new RegExp(
-      `\\b(${NAV_VERB}.*(portefeuille|portfolio)|mon portefeuille|my portfolio|voir mon allocation|tableau de bord)\\b`,
+      `\\b(${NAV_VERB}.*(portefeuille|portfolio)|mon portefeuille|my portfolio|voir mon allocation)\\b`,
       "i",
     ),
   },
@@ -246,8 +246,6 @@ export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   "admin-proof-center-full": ["proof center admin complet"],
   "admin-governance-allowlist": ["allowlist", "liste blanche", "adresses autorisées"],
   "admin-governance-propose": ["proposer", "nouvelle proposition", "propose"],
-  "admin-agents": ["agents", "console agents"],
-  "admin-agents-new": ["nouvel agent", "créer un agent"],
   "admin-audit": ["audit", "journal d'audit", "traçabilité"],
   "admin-distributions": ["distributions admin", "gestion des distributions"],
   "admin-feedback": ["feedback", "retours"],
@@ -274,8 +272,8 @@ export interface CanonicalNavMatrixRow {
 export const NAV_CANONICAL_MATRIX: readonly CanonicalNavMatrixRow[] = [
   {
     canonicalDestination: "dashboard",
-    destinationKey: "portfolio",
-    route: "/portfolio",
+    destinationKey: "overview",
+    route: "/dashboard",
     aliasesFr: ["dashboard", "tableau de bord", "mon dashboard", "ma page"],
     aliasesEn: ["dashboard", "my dashboard"],
     typos: ["dashbord"],

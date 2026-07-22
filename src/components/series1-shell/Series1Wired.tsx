@@ -111,24 +111,7 @@ export function Series1WiredRow<T>({
   );
 }
 
-/**
- * Discreet block-level notice for a whole panel whose source did not resolve.
- * Deliberately a quiet line, not a dominant error card: an unconfigured
- * contract is the expected state today, not an incident.
- */
-export function Series1Unavailable({
-  reason,
-  detail,
-}: {
-  reason: string;
-  detail?: string;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-1 px-6 py-8 text-center">
-      <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{reasonLabel(reason)}</p>
-      {detail ? (
-        <p className="max-w-sm text-xs leading-5 text-zinc-500 dark:text-zinc-400">{detail}</p>
-      ) : null}
-    </div>
-  );
-}
+// Series1Unavailable (block-level notice dumping the adapter's raw `detail`)
+// was removed: the panels that used it now render the policy ring plus one
+// investor-worded motive line — the adapter's ops vocabulary (env vars, deploy
+// steps) stays off investor surfaces.

@@ -72,6 +72,9 @@ const PRIMARY_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/admin/proof-center/full/page.tsx",
   // Agent canvas — bespoke live workspace surface.
   "src/app/admin/agent-canvas/[canvasId]/page.tsx",
+  // Bare-canvas redirect — no UI at all (a canvas needs an id; keyword nav
+  // without one lands here and is sent to the admin dashboard).
+  "src/app/admin/agent-canvas/page.tsx",
   // Vault creation — multi-step wizard with its own framing.
   "src/app/admin/vaults/new/page.tsx",
   // Construction report print page — standalone print/PDF layout (light theme,

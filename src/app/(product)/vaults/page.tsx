@@ -26,8 +26,8 @@ import { Series1KpiBand } from "@/components/series1-shell/Series1KpiBand";
 import { Series1Page, Series1PageTitle, Series1Section } from "@/components/series1-shell/Series1Page";
 import { Series1Panel, Series1PanelHeader, Series1Row, Series1RowList } from "@/components/series1-shell/Series1Panel";
 import {
+  reasonLabel,
   Series1Provenance,
-  Series1Unavailable,
   Series1WiredRow,
 } from "@/components/series1-shell/Series1Wired";
 import { Series1Timeline } from "@/components/series1-shell/Series1Timeline";
@@ -128,24 +128,30 @@ export default async function VaultsPage() {
               })}
             </Series1RowList>
           ) : (
-            <div className="flex flex-col items-center gap-4 p-6">
+            <div className="flex flex-col gap-5 p-6">
               {/* Spec constant (40/27/33) shown as the configured target while
                   the live strategies() read is unavailable — labeled policy,
-                  never a measurement. */}
+                  never a measurement. `bars` fills the panel width with one
+                  gauge per pocket instead of floating a small donut in space. */}
               <HcCompositionRing
                 aria-label="Series 1 policy allocation target: B1 40%, B2 27%, B3 33%"
                 palette="categorical"
+                size={210}
+                bars
                 centerLabel="Policy target"
-                centerValue="40 / 27 / 33"
+                centerValue="40/27/33"
                 segments={POLICY_TARGET_BPS.map((bps, i) => ({
                   label: `${POCKET_LABELS[i]?.id ?? `S${i}`} · ${POCKET_LABELS[i]?.label ?? "Strategy"}`,
                   value: bps / 100,
                 }))}
               />
-              <p className="text-center text-[10px] text-zinc-500 dark:text-zinc-400">
-                Configured policy split — not a live allocation.
+              {/* Investor copy, not ops copy: the adapter's raw detail names
+                  env vars and deploy steps — that vocabulary stays off this
+                  surface. */}
+              <p className="border-t border-zinc-950/5 pt-4 text-xs leading-5 text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+                Configured policy split — not a live allocation. {reasonLabel(strategies.reason)}: the measured
+                pocket allocation appears once the v2.1 contract is deployed.
               </p>
-              <Series1Unavailable reason={strategies.reason} detail={strategies.detail} />
             </div>
           )}
         </Series1Panel>

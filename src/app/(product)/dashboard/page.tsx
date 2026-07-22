@@ -34,8 +34,8 @@ import { Series1KpiBand } from "@/components/series1-shell/Series1KpiBand";
 import { Series1Page, Series1PageTitle, Series1Section } from "@/components/series1-shell/Series1Page";
 import { Series1Panel, Series1PanelHeader, Series1Row, Series1RowList } from "@/components/series1-shell/Series1Panel";
 import {
+  reasonLabel,
   Series1Provenance,
-  Series1Unavailable,
   Series1WiredRow,
 } from "@/components/series1-shell/Series1Wired";
 import { Series1Timeline } from "@/components/series1-shell/Series1Timeline";
@@ -141,7 +141,10 @@ export default async function DashboardPage() {
             className="lg:col-span-8"
             title="Accumulated BTC through the term"
             description="Mining credits indexed from the program ledger."
-            status={placeholderStatus(mining)}
+            // Never "live": this surface renders placeholder copy, not a
+            // series — a wired mining read earns "Placeholder", not a Live
+            // pill over a panel that still displays no measured data.
+            status={mining.status === "wired" ? "mock" : placeholderStatus(mining)}
             label="Accumulation history is not available yet"
             detail="The contract reports a cumulative total, not a per-month series. A curve appears once the ledger indexes monthly credits."
           />
@@ -217,24 +220,29 @@ export default async function DashboardPage() {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-4 p-6">
+              <div className="flex flex-col gap-5 p-6">
                 {/* The POLICY target is a spec constant (40/27/33), honestly
                     renderable while the live strategies() read is unavailable —
-                    labeled as the configured target, never as a measurement. */}
+                    labeled as the configured target, never as a measurement.
+                    `bars` fills the panel width with one gauge per pocket. */}
                 <HcCompositionRing
                   aria-label="Series 1 policy allocation target: B1 40%, B2 27%, B3 33%"
                   palette="categorical"
+                  size={190}
+                  bars
                   centerLabel="Policy target"
-                  centerValue="40 / 27 / 33"
+                  centerValue="40/27/33"
                   segments={POLICY_TARGET_BPS.map((bps, i) => ({
                     label: `${POCKET_LABELS[i]?.id ?? `S${i}`} · ${POCKET_LABELS[i]?.label ?? "Strategy"}`,
                     value: bps / 100,
                   }))}
                 />
-                <p className="text-center text-[10px] text-zinc-500 dark:text-zinc-400">
-                  Configured policy split — not a live allocation.
+                {/* Investor copy — the adapter's raw detail (env vars, deploy
+                    steps) stays off this surface. */}
+                <p className="border-t border-zinc-950/5 pt-4 text-xs leading-5 text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+                  Configured policy split — not a live allocation. {reasonLabel(strategies.reason)}: the measured
+                  pocket allocation appears once the v2.1 contract is deployed.
                 </p>
-                <Series1Unavailable reason={strategies.reason} detail={strategies.detail} />
               </div>
             )}
           </Series1Panel>

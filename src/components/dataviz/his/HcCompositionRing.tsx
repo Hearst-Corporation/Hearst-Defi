@@ -76,9 +76,11 @@ export function HcCompositionRing({
   const total = segments.reduce((sum, s) => sum + Math.max(0, s.value), 0);
   const cx = size / 2;
   const cy = size / 2;
-  const r = 66;
+  const strokeWidth = Math.max(12, Math.round(size * 0.1));
+  // Radius follows `size` so the prop actually scales the donut (it used to be
+  // a constant 66, which turned larger sizes into pure padding).
+  const r = (size - strokeWidth) / 2 - 2;
   const circumference = 2 * Math.PI * r;
-  const strokeWidth = 16;
 
   let acc = 0; // preceding fraction → rotation start
 
@@ -134,7 +136,8 @@ export function HcCompositionRing({
             x={cx}
             y={cy - 2}
             textAnchor="middle"
-            fontSize={20}
+            // Scales with the donut so the value never crowds the hole.
+            fontSize={Math.max(16, Math.round(size * 0.11))}
             fontWeight={800}
             fill="var(--ct-text-primary)"
             style={{ fontVariantNumeric: "tabular-nums" }}
@@ -145,9 +148,9 @@ export function HcCompositionRing({
         {centerLabel && (
           <text
             x={cx}
-            y={cy + 16}
+            y={cy + Math.max(16, Math.round(size * 0.1))}
             textAnchor="middle"
-            fontSize={9}
+            fontSize={Math.max(9, Math.round(size * 0.055))}
             fill="var(--ct-text-muted)"
             style={{ textTransform: "uppercase", letterSpacing: "0.12em" }}
           >

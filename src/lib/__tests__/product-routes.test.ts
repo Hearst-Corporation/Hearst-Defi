@@ -57,6 +57,7 @@ function trackedOnly(routes: readonly string[]): string[] {
 const EXPECTED_ROUTES = [
   "/",
   "/admin",
+  "/admin/agent-canvas",
   "/admin/agent-canvas/[canvasId]",
   "/admin/agentic",
   "/admin/audit",
@@ -100,6 +101,7 @@ const EXPECTED_ROUTES = [
   "/admin/vaults/[id]",
   "/admin/vaults/[id]/edit",
   "/admin/vaults/new",
+  "/agent-canvas",
   "/agent-canvas/[canvasId]",
   "/apply",
   "/apply/confirmed",

@@ -141,7 +141,10 @@ export default async function ProductProofCenterPage() {
                   </span>
                   <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">{block.title}</h3>
                 </div>
-                <Series1ProvenanceTag status="configured" />
+                {/* Once v2.1 deploys, "Not configured" would contradict the
+                    footer's "No record indexed yet" — the footer alone carries
+                    the state then. */}
+                {v2Deployed ? null : <Series1ProvenanceTag status="configured" />}
               </div>
               <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-950/5 pt-3 dark:border-white/10">
                 <span className="text-[10px] tracking-tight text-zinc-500 dark:text-zinc-400">{block.event}</span>

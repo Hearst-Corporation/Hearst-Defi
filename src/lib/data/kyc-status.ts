@@ -1,7 +1,6 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
-import { investorHasKycInquiry } from "@/lib/onboarding/kyc-gate";
 
 /**
  * Investor-facing KYC status, read from the DB — never asserted.
@@ -29,8 +28,14 @@ export async function readInvestorKycStatus(userId: string): Promise<InvestorKyc
     if (investor?.kycStatus === "rejected") return "rejected";
 
     // pending (or no investor row yet): started iff an inquiry was claimed.
-    const started = await investorHasKycInquiry(userId);
-    return started ? "in_review" : "not_started";
+    // Queried directly — NOT via kyc-gate's investorHasKycInquiry, which
+    // deliberately swallows a missing KycInquiry table into `false`. Here a
+    // failed read must surface as `unavailable`, never as "Not yet started".
+    const inquiry = await prisma.kycInquiry.findFirst({
+      where: { userId },
+      select: { inquiryId: true },
+    });
+    return inquiry != null ? "in_review" : "not_started";
   } catch {
     return "unavailable";
   }
