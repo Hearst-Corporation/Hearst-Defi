@@ -20,9 +20,6 @@ const BARE_EXACT = new Set<string>([
 // /apply renders standalone: the qualification chamber carries its own inline
 // assistant panel (ApplyAssistantPanel), so it must NOT get the Cockpit chat
 // rail. /legal/* uses its own LegalLayout.
-// NOTE: /preview is deliberately NOT bare — the shell previews exist to show
-// the real KYC application shell (sidebar, header, drawer, assistant dock),
-// so they must render inside ConnectShell like every product surface.
 const BARE_PREFIXES = ["/legal", "/apply"] as const;
 
 function isBareRoute(pathname: string): boolean {
