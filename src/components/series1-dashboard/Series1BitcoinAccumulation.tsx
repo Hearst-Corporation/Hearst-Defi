@@ -31,12 +31,18 @@ export function Series1BitcoinAccumulation({
         "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]"
       }
     >
-      {/* DS chart header: title + description + hairline rule. */}
+      {/* DS chart header: title + description + hairline rule. The dot marks
+          this as the accent's series (matches --ct-chart-curve-color, which
+          is --ct-accent) — signal on the label, not a fill on the card. */}
       <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)]">
         <h3
-          className="m-0 font-semibold text-[var(--ct-text-strong)]"
+          className="m-0 flex items-center gap-[var(--ct-space-2)] font-semibold text-[var(--ct-text-strong)]"
           style={{ fontSize: "var(--ct-text-sm)" }}
         >
+          <span
+            aria-hidden
+            className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+          />
           Accumulated Bitcoin
         </h3>
         <p
@@ -79,9 +85,11 @@ function PlotWell({ children }: { children: ReactNode }) {
 }
 
 /**
- * Honest empty state. A baseline rule marks where the series will sit — chrome
- * only, at hairline opacity, so it never implies a data series (the DS bans
- * decor behind figures; a single axis line is structure, not decor).
+ * Honest empty state. Chrome only — never implies a data series (the DS bans
+ * decor behind figures). The motive divider carries a faint accent tint
+ * (--ct-border-accent) rather than the plain hairline: it stands in for the
+ * spot where the accent-coloured curve (--ct-chart-curve-color) will render
+ * once the ledger indexes a series. Signal on the chrome, not fake data.
  */
 function ChartEmptyState({ motive }: { motive: string | null }) {
   return (
@@ -101,7 +109,7 @@ function ChartEmptyState({ motive }: { motive: string | null }) {
       </p>
       {motive ? (
         <p
-          className="m-0 mt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-3)] text-[var(--ct-text-faint)]"
+          className="m-0 mt-[var(--ct-space-4)] border-t border-[var(--ct-border-accent)] pt-[var(--ct-space-3)] text-[var(--ct-text-faint)]"
           style={{ fontSize: "var(--ct-text-nano)" }}
         >
           <span className="font-semibold text-[var(--ct-text-muted)]">{motive}</span>

@@ -83,11 +83,17 @@ export function Series1DashboardHero({
         <div className="flex min-w-0 flex-col justify-center bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] sm:col-span-2 lg:col-span-4 lg:row-span-2">
           {/* Label in the normal register, NOT uppercase: the programme line
               above is already an eyebrow, and two stacked letter-spaced caps
-              made the hero read as a header with nothing under it. */}
+              made the hero read as a header with nothing under it. A small
+              accent dot marks this as the ONE figure the page is about —
+              signal, not a colour fill on the label itself. */}
           <p
-            className="m-0 font-medium text-[var(--ct-text-muted)]"
+            className="m-0 flex items-center gap-[var(--ct-space-2)] font-medium text-[var(--ct-text-muted)]"
             style={{ fontSize: "var(--ct-text-2xs)" }}
           >
+            <span
+              aria-hidden
+              className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+            />
             {label}
           </p>
           {/* An unresolved hero renders its STATE in words, not a 40px em dash

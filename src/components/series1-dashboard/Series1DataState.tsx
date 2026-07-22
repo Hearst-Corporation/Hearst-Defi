@@ -102,15 +102,19 @@ export function Series1DataState({
 /**
  * Provenance line for a resolved read: which contract answered, and when.
  * On an unresolved read it says nothing — the group motive already did.
+ *
+ * The dot only renders here, on a genuinely resolved read — it signals "this
+ * is live," never a decorative default on an empty/unresolved state.
  */
 export function Series1Provenance({ read }: { read: Series1Wired<unknown> }) {
   if (read.status !== "wired") return null;
   const label = read.source === "v2" ? "PermissionedDynaVault v2.1" : "Legacy vault";
   return (
     <span
-      className="text-[var(--ct-text-faint)]"
+      className="inline-flex items-center gap-[var(--ct-space-2)] text-[var(--ct-text-faint)]"
       style={{ fontSize: "var(--ct-text-nano)" }}
     >
+      <span aria-hidden className="inline-block size-1 shrink-0 rounded-full bg-[var(--ct-accent)]" />
       {label} · read {new Date(read.readAt).toISOString().slice(11, 16)} UTC
     </span>
   );
