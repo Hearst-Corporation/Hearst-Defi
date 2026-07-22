@@ -190,17 +190,73 @@ export function KycAppShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="kyc-app-root min-h-dvh bg-zinc-100 text-zinc-950 dark:bg-black dark:text-white">
+    <div className="kyc-app-root kyc-cockpit-shell min-h-dvh text-zinc-950">
       <style jsx global>{`
         html.kyc-front,
         html.kyc-front body {
           height: auto !important;
           min-height: 100dvh !important;
           overflow: visible !important;
-          background: #f4f4f5 !important;
+          background: color-mix(in srgb, var(--ct-bg-deep) 14%, white) !important;
+        }
+        .kyc-cockpit-shell {
+          --kyc-cockpit-canvas: color-mix(in srgb, var(--ct-bg-deep) 14%, white);
+          --kyc-cockpit-frame: color-mix(in srgb, var(--ct-bg-deep) 7%, white);
+          --kyc-cockpit-panel: color-mix(in srgb, var(--ct-bg-deep) 5%, white);
+          --kyc-cockpit-inset: color-mix(in srgb, var(--ct-bg-deep) 9%, white);
+          --kyc-cockpit-line: color-mix(in srgb, var(--ct-bg-deep) 16%, transparent);
+          --kyc-cockpit-accent: color-mix(in srgb, var(--ct-accent) 48%, var(--ct-bg-deep));
+          background:
+            radial-gradient(circle at 92% -8%, color-mix(in srgb, var(--ct-accent) 11%, transparent), transparent 31rem),
+            var(--kyc-cockpit-canvas);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-sidebar {
+          background: color-mix(in srgb, var(--ct-bg-deep) 8%, white);
+          border-color: var(--kyc-cockpit-line);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-frame {
+          background:
+            linear-gradient(145deg, color-mix(in srgb, var(--ct-accent) 4%, transparent), transparent 28rem),
+            var(--kyc-cockpit-frame);
+          box-shadow: var(--ct-shadow-soft);
+          border-color: var(--kyc-cockpit-line);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-page-title,
+        .kyc-cockpit-shell .kyc-cockpit-section {
+          border-color: var(--kyc-cockpit-line);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-panel,
+        .kyc-cockpit-shell .kyc-cockpit-chart,
+        .kyc-cockpit-shell .kyc-cockpit-kpi {
+          background:
+            linear-gradient(135deg, color-mix(in srgb, var(--ct-accent) 3%, transparent), transparent 16rem),
+            var(--kyc-cockpit-panel);
+          box-shadow: inset 0 1px 0 color-mix(in srgb, white 70%, transparent), var(--ct-shadow-soft);
+          border: 1px solid var(--kyc-cockpit-line);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-chart figcaption,
+        .kyc-cockpit-shell .kyc-cockpit-panel > div:first-child {
+          border-color: var(--kyc-cockpit-line);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-empty {
+          background: color-mix(in srgb, var(--ct-bg-deep) 3%, white);
+          border-color: color-mix(in srgb, var(--ct-bg-deep) 22%, transparent);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-kpi > div,
+        .kyc-cockpit-shell .kyc-cockpit-kpi dl {
+          background: var(--kyc-cockpit-line);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-kpi > div > div,
+        .kyc-cockpit-shell .kyc-cockpit-kpi dl > div {
+          background: color-mix(in srgb, var(--ct-bg-deep) 4%, white);
+        }
+        .kyc-cockpit-shell .kyc-cockpit-kpi > div > div:first-child {
+          background:
+            linear-gradient(140deg, color-mix(in srgb, var(--ct-accent) 13%, transparent), transparent 18rem),
+            color-mix(in srgb, var(--ct-bg-deep) 7%, white);
         }
       `}</style>
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-white dark:bg-zinc-900 lg:block">
+      <aside className="kyc-cockpit-sidebar fixed inset-y-0 left-0 z-30 hidden w-64 border-r lg:block">
         <Sidebar pathname={pathname} />
       </aside>
 
@@ -241,7 +297,7 @@ export function KycAppShell({ children }: { children: ReactNode }) {
 
       <main className="min-w-0 lg:pl-64">
         <div className="min-h-[calc(100dvh-0.5rem)] p-4 sm:p-6 lg:p-2">
-          <div className="mx-auto min-h-[calc(100dvh-1rem)] max-w-[1600px] rounded-xl bg-white p-5 shadow-sm ring-1 ring-zinc-950/8 sm:p-7 lg:p-10 dark:bg-zinc-900 dark:ring-white/10">
+          <div className="kyc-cockpit-frame mx-auto min-h-[calc(100dvh-1rem)] max-w-[1600px] rounded-xl border p-5 sm:p-7 lg:p-10">
             {children}
           </div>
         </div>

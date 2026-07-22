@@ -14,7 +14,7 @@ export function KycPageTitle({
   description?: ReactNode;
 }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+    <header className="kyc-cockpit-page-title flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
       <div className="min-w-0">
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">{title}</h1>
         {description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-600 dark:text-zinc-300">{description}</p> : null}
@@ -44,7 +44,7 @@ export function KycSection({
 }) {
   const headed = Boolean(index || title || description || actions);
   return (
-    <section className={cn(headed && "border-t border-zinc-950/8 pt-8 dark:border-white/10", className)}>
+    <section className={cn("kyc-cockpit-section", headed && "pt-8", className)}>
       {headed ? (
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
           <div>
@@ -69,7 +69,7 @@ export function KycPanel({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={cn("overflow-hidden rounded-xl bg-zinc-50/80 ring-1 ring-zinc-950/8 dark:bg-zinc-950/35 dark:ring-white/10", className)}>{children}</div>;
+  return <div className={cn("kyc-cockpit-panel overflow-hidden rounded-xl", className)}>{children}</div>;
 }
 
 export function KycChartSurface({
@@ -86,8 +86,8 @@ export function KycChartSurface({
   className?: string;
 }) {
   return (
-    <figure className={cn("flex h-full min-h-72 flex-col rounded-xl bg-zinc-50/80 p-5 ring-1 ring-zinc-950/8 dark:bg-zinc-950/35 dark:ring-white/10 sm:p-6", className)}>
-      <figcaption className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b border-zinc-950/8 pb-4 dark:border-white/10">
+    <figure className={cn("kyc-cockpit-chart flex h-full min-h-72 flex-col rounded-xl p-5 sm:p-6", className)}>
+      <figcaption className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b pb-4">
         <div>
           <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">{title}</h3>
           {description ? <p className="mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400">{description}</p> : null}
@@ -107,7 +107,7 @@ export function KycEmptyChart({
   detail: string;
 }) {
   return (
-    <div className="flex min-h-40 flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-zinc-300 bg-white px-6 text-center dark:border-zinc-700 dark:bg-zinc-900">
+    <div className="kyc-cockpit-empty flex min-h-40 flex-1 flex-col items-center justify-center rounded-lg border border-dashed px-6 text-center">
       <p className="text-sm font-medium text-zinc-950 dark:text-white">{label}</p>
       <p className="mt-1 max-w-sm text-xs leading-5 text-zinc-500 dark:text-zinc-400">{detail}</p>
     </div>
@@ -122,16 +122,16 @@ export function KycHeroKpiBand({
   metrics: Array<{ label: string; value: ReactNode; hint?: ReactNode }>;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl bg-zinc-50/80 ring-1 ring-zinc-950/8 dark:bg-zinc-950/35 dark:ring-white/10">
-      <div className="grid gap-px bg-zinc-950/8 lg:grid-cols-12 dark:bg-white/10">
-        <div className="bg-white px-6 py-7 lg:col-span-4 dark:bg-zinc-900">
+    <div className="kyc-cockpit-kpi overflow-hidden rounded-xl">
+      <div className="grid gap-px lg:grid-cols-12">
+        <div className="px-6 py-7 lg:col-span-4">
           <p className="text-xs font-semibold uppercase tracking-uppercase text-emerald-600 dark:text-emerald-400">{hero.label}</p>
           <div className="mt-3 truncate text-4xl font-semibold tracking-tight tabular-nums text-zinc-950 sm:text-5xl dark:text-white">{hero.value}</div>
           <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">{hero.hint}</p>
         </div>
-        <dl className="grid grid-cols-2 gap-px bg-zinc-950/8 lg:col-span-8 lg:grid-cols-3 dark:bg-white/10">
+        <dl className="grid grid-cols-2 gap-px lg:col-span-8 lg:grid-cols-3">
           {metrics.map((metric) => (
-            <div key={metric.label} className="bg-white px-4 py-4 dark:bg-zinc-900">
+            <div key={metric.label} className="px-4 py-4">
               <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{metric.label}</dt>
               <dd className="mt-1 truncate text-xl font-semibold tracking-tight tabular-nums text-zinc-950 dark:text-white">{metric.value}</dd>
               {metric.hint ? <p className="mt-0.5 truncate text-[10px] text-zinc-400 dark:text-zinc-500">{metric.hint}</p> : null}
