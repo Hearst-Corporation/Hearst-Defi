@@ -22,11 +22,11 @@ export function Series1ProvenanceTag({ status }: { status: Series1Provenance }) 
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-[0.08em] uppercase ring-1",
         isLive
-          ? "text-[#a7fb90] ring-[#a7fb90]/30"
+          ? "text-(--ct-accent-strong) ring-(--ct-border-accent)"
           : "text-zinc-500 ring-zinc-950/10 dark:text-zinc-400 dark:ring-white/10",
       )}
     >
-      {isLive ? <span className="size-1.5 rounded-full bg-[#a7fb90]" /> : null}
+      {isLive ? <span className="size-1.5 rounded-full bg-(--ct-accent)" /> : null}
       {PROVENANCE_LABEL[status]}
     </span>
   );

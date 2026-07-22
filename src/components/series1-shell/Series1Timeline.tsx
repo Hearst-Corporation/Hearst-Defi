@@ -17,7 +17,7 @@ export function Series1Timeline({ steps }: { steps: Series1TimelineStep[] }) {
                 className={
                   state === "upcoming"
                     ? "flex size-7 shrink-0 items-center justify-center rounded-md bg-zinc-100 text-xs font-semibold text-zinc-500 tabular-nums dark:bg-white/5 dark:text-zinc-400"
-                    : "flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold text-[#a7fb90] tabular-nums ring-1 ring-[#a7fb90]/30"
+                    : "flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold text-(--ct-accent-strong) tabular-nums ring-1 ring-(--ct-border-accent)"
                 }
               >
                 {String(index + 1).padStart(2, "0")}

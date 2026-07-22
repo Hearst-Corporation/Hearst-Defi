@@ -1,1 +1,1 @@
-export { DashboardAssetsBoard } from "./assets-board";
+export { AdminDashboard } from "./AdminDashboard";

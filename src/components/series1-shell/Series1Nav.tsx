@@ -58,7 +58,7 @@ export function Series1Nav({ pathname }: { pathname: string }) {
         <div className="flex items-center gap-2 px-2 py-1">
           {/* Monogram: dark plate, accent letter and edge — the accent is a
               signal here, never a filled tile. */}
-          <span className="flex size-8 items-center justify-center rounded-lg bg-zinc-800 text-sm font-bold text-[#a7fb90] ring-1 ring-[#a7fb90]/30">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-zinc-800 text-sm font-bold text-(--ct-accent-strong) ring-1 ring-(--ct-border-accent)">
             H
           </span>
           <div className="min-w-0">
