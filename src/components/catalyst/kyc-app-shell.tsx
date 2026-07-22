@@ -3,7 +3,7 @@
 import * as Headless from "@headlessui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ComponentType, type ReactNode } from "react";
+import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import {
   BarChart3,
   Bitcoin,
@@ -176,6 +176,24 @@ export function KycAppShell({ children }: { children: ReactNode }) {
     ? ADMIN_SECTIONS.find((section) => isActive(pathname, section.href))?.label ?? "Admin"
     : PRODUCT_NAV.find((item) => isActive(pathname, item.href))?.label ?? "Overview";
 
+  // Explicit scroll lock while the mobile drawer is open — Headless UI's own
+  // lock is not enough here because .kyc-cockpit-shell sets its own overflow
+  // (overflow-x: clip below), so we pin html/body directly and restore the
+  // exact prior inline value on cleanup (never assume it was "").
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+    };
+  }, [mobileOpen]);
+
   return (
     <div className="kyc-app-root kyc-cockpit-shell min-h-dvh text-zinc-950">
       <style jsx global>{`
@@ -277,14 +295,16 @@ export function KycAppShell({ children }: { children: ReactNode }) {
 
       {mobileOpen ? (
         <Headless.Dialog open={mobileOpen} onClose={setMobileOpen} className="lg:hidden">
-          <Headless.DialogBackdrop className="fixed inset-0 z-40 bg-black/30" />
-          <Headless.DialogPanel className="fixed inset-y-0 left-0 z-50 w-full max-w-80 bg-white shadow-2xl dark:bg-zinc-900">
+          <Headless.DialogBackdrop className="fixed inset-0 z-40 bg-black/35" />
+          <Headless.DialogPanel className="fixed inset-y-0 left-0 z-50 flex h-dvh max-h-dvh w-full max-w-80 flex-col overflow-hidden bg-[var(--kyc-cockpit-frame)] shadow-2xl">
             <div className="absolute right-3 top-3 z-10">
               <Headless.CloseButton className="flex size-11 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-950/5 dark:hover:bg-white/5">
                 <ChevronLeft className="size-5" />
               </Headless.CloseButton>
             </div>
-            <Sidebar pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <Sidebar pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+            </div>
           </Headless.DialogPanel>
         </Headless.Dialog>
       ) : null}
