@@ -49,8 +49,9 @@ export interface PortfolioDashboard {
   depositUsdc: number;
   /** Sum of principal + accrued (current mark-to-book value). */
   currentValueUsdc: number;
-  /** Sum of accrued (unpaid) yield. */
-  accruedUsdc: number;
+  /** Sum of accrued (unpaid) yield. `null` when nothing computes it — which is
+   *  every production path for Series 1 (see PortfolioData.accruedYieldUsdc). */
+  accruedUsdc: number | null;
   /** Yield actually paid out to date (sum of distributions). */
   distributedUsdc: number;
   /** currentValue vs deposit, in pct (0 when no deposit). */
@@ -68,8 +69,9 @@ export interface PortfolioDashboard {
   vaultCapacityUsdc: number | null;
   /** Subscription date of the first active position (null when none). */
   subscribedAt: Date | null;
-  /** Next scheduled distribution boundary. */
-  nextDistributionAt: Date;
+  /** Next scheduled distribution boundary. `null` for a product with no
+   *  periodic distribution — Series 1 pays none. */
+  nextDistributionAt: Date | null;
   /** Position status of the first active position. */
   status: PortfolioPosition["status"] | null;
   /** Value-over-time series (real NAV prints or reconstructed anchors). */
@@ -117,7 +119,9 @@ export const loadPortfolioDashboard = cache(
         shareClass: null,
         depositUsdc: 0,
         currentValueUsdc: 0,
-        accruedUsdc: 0,
+        // null, not 0: no position means nothing accrues, and nothing computes
+        // this figure anyway. A 0 would read as a measured nil accrual.
+        accruedUsdc: null,
         distributedUsdc: 0,
         totalChangePct: 0,
         apyLow: null,

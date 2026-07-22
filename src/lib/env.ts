@@ -368,6 +368,15 @@ const serverEnvSchema = z.object({
       "HEARST_PUBLISHER_PRIVATE_KEY must be a 0x-prefixed 64-hex secp256k1 private key",
     )
     .optional(),
+  // NOTE — `KEEPER_PRIVATE_KEY` is deliberately NOT declared here. It is
+  // validated with the same regex, via `z.custom`, at its single point of use
+  // (`src/lib/chain/keeper.ts` → `KeeperPrivateKeySchema` / `resolveKeeperKey`),
+  // where a missing or malformed key disarms the keeper (`key_missing` /
+  // `key_malformed`) instead of failing the whole process at boot. That is the
+  // right shape for a key only the keeper path needs: validating it here would
+  // make an unrelated route fail to start because a signing key it never uses
+  // is malformed. An audit that greps only this file will conclude the key is
+  // unvalidated — it is not; see keeper.test.ts for the coverage.
   // ── MySwarms / crewai-engine (external agentic orchestration backend) ──────
   // Hearst Connect drives the external CrewAI engine over HTTP (kickoff→poll,
   // Bearer auth). ALL optional: when SWARMS_ENGINE is off (default) these are

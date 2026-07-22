@@ -45,6 +45,18 @@ import {
   type DashboardDTO,
 } from "@/lib/backend";
 
+/**
+ * These two throw because the ENDPOINT does not exist, not because the wiring
+ * was forgotten. `hearst-connect-backend` serves no `/api/v1/profile` and no
+ * AI-experts route (verified 2026-07-22), so there is nothing to call.
+ *
+ * The fix is a backend one. It must NOT be worked around here by adding a
+ * frontend `/api/profile` route: `/profile` and `/portfolio` are Server
+ * Components that read their loaders directly, so such a route would have no
+ * caller — the exact shape of the 11 dead routes this codebase just removed.
+ * Throwing keeps the gap visible instead of papering over it with a second
+ * read path.
+ */
 const NOT_WIRED_MESSAGE =
   "BackendInvestorUiDataSource: getProfile/getAiExperts are not wired to hearst-connect-backend yet (no /api/v1/profile or AI-experts screen endpoint exists) — see docs/backend-integration.md.";
 

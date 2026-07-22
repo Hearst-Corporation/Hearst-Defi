@@ -20,7 +20,7 @@ import {
   coercePortfolioDate,
   resolveProvenance,
 } from "@/lib/portfolio/provenance";
-import { computeYtdYieldUsdc } from "@/lib/portfolio/yield-ytd";
+import { buildYtdPayoutBreakdown } from "@/lib/portfolio/yield-ytd";
 import { series1DisplayName } from "@/lib/vaults/series1";
 import type { HourlyValueSnapshot, ValueSeriesTx } from "@/lib/portfolio/value-series";
 import {
@@ -120,10 +120,27 @@ export interface PortfolioData {
   totalValueUsdc: number;
   /** Total principal deployed (sum of position.principalUsdc). */
   deployedUsdc: number;
-  /** Total accrued yield across all positions. */
-  accruedYieldUsdc: number;
-  totalYieldYtdUsdc: number;
-  nextDistributionAt: Date;
+  /**
+   * Sum of `Position.accruedYieldUsdc`.
+   *
+   * `null` in every production path: no process computes that column (it holds
+   * its `@default(0)`), and Series 1 is a BTC-accumulation note that pays no
+   * yield. Null, not 0 — "nothing is calculated" is not "we measured nil".
+   * Kept so a legacy consumer can label it explicitly; never summed into a
+   * realized figure.
+   */
+  accruedYieldUsdc: number | null;
+  /**
+   * Distributions and claims ACTUALLY PAID since Jan 1 UTC, from ledger rows.
+   * A `0` is a real measurement. Renamed from `totalYieldYtdUsdc`, which used
+   * to be `realized + accrued` — a sum no reader could take apart.
+   */
+  realizedYtdUsdc: number;
+  /**
+   * `null` for products that do not distribute — which is Series 1. The former
+   * `nextEndOfMonth()` invented a date on a note with no periodic cash.
+   */
+  nextDistributionAt: Date | null;
   recentTransactions: PortfolioTransaction[];
   /** Ledger rows for the 12-month value chart (deposit / payout anchors). */
   valueChartTransactions: ValueSeriesTx[];
@@ -266,13 +283,18 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
   const investor = await getInvestor();
 
   if (!investor) {
+    // No investor record for this session. The scalar zeros below are the
+    // honest shape of an EMPTY portfolio (no positions ⇒ nothing deployed),
+    // and `source: "fallback"` tells consumers not to read them as measured
+    // holdings. What must not be invented here is a yield figure or a
+    // distribution date, so both are null.
     return {
       positions: [],
       totalValueUsdc: 0,
       deployedUsdc: 0,
-      accruedYieldUsdc: 0,
-      totalYieldYtdUsdc: 0,
-      nextDistributionAt: nextEndOfMonth(),
+      accruedYieldUsdc: null,
+      realizedYtdUsdc: 0,
+      nextDistributionAt: null,
       recentTransactions: [],
       valueChartTransactions: [],
       hourlyValueSnapshots: [],
@@ -369,9 +391,14 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
 
   const totalValueUsdc = positions.reduce((sum, p) => sum + p.valueUsdc, 0);
 
+  // Realized payouts and accrual are kept apart at the source. `productAccrues`
+  // is false because Series 1 pays no yield and nothing computes the accrued
+  // column — so the breakdown's accrued leg resolves to null rather than to a
+  // sum of default zeros presented as a measurement.
   const ytdPayoutRows = ytdTxs.map((t) => ({ amountUsdc: toNumber(t.amountUsdc) }));
-  const accruedPendingUsdc = positions.reduce((sum, p) => sum + p.accruedYieldUsdc, 0);
-  const totalYieldYtdUsdc = computeYtdYieldUsdc(ytdPayoutRows, accruedPendingUsdc);
+  const ytdBreakdown = buildYtdPayoutBreakdown(ytdPayoutRows, null, {
+    productAccrues: false,
+  });
 
   const valueChartTransactions: ValueSeriesTx[] = chartTxs.map((t) => ({
     type: t.type as ValueSeriesTx["type"],
@@ -406,15 +433,18 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
   );
 
   const deployedUsdc = positions.reduce((sum, p) => sum + p.principalUsdc, 0);
-  const accruedYieldUsdc = positions.reduce((sum, p) => sum + p.accruedYieldUsdc, 0);
 
   return {
     positions,
     totalValueUsdc,
     deployedUsdc,
-    accruedYieldUsdc,
-    totalYieldYtdUsdc,
-    nextDistributionAt: nextEndOfMonth(),
+    // Not summed from the positions: adding a column of `@default(0)` rows
+    // yields a confident 0 for a quantity nothing calculates.
+    accruedYieldUsdc: ytdBreakdown.accruedUsdc,
+    realizedYtdUsdc: ytdBreakdown.realizedUsdc,
+    // Series 1 has no periodic distribution. `nextEndOfMonth()` used to invent
+    // one, which put a fabricated date on a product that pays none.
+    nextDistributionAt: null,
     recentTransactions,
     valueChartTransactions,
     hourlyValueSnapshots: valueSeries,
