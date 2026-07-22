@@ -56,6 +56,10 @@ docs/audit/*.md
 
 # Ephemeral agent worktrees
 .claude/worktrees/
+.worktrees/
+
+# Scratch / audit artifacts (screenshots, dumps) — never committed
+tmp/
 
 # Playwright MCP screenshots / snapshots
 .playwright-mcp/

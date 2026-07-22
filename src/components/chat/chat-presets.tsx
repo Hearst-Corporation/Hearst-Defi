@@ -49,9 +49,9 @@ const ADMIN_PRESETS: readonly Preset[] = [
 const LP_PRESETS: readonly Preset[] = [
   {
     id: "yield-explainer",
-    label: "Explain the yield",
+    label: "How the reserve is built",
     prompt:
-      "[[canvas:lp-yield-explainer]] Explain how this vault generates its yield.",
+      "[[canvas:lp-yield-explainer]] Explain how this vault builds its Bitcoin reserve.",
   },
   {
     id: "risk-assessment",

@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Hearst Connect — Institutional Bitcoin Accumulation, Backed by Mining",
   description:
-    "Hearst Mining Note: real Bitcoin mining accumulates BTC over a 24-month term, delivered at maturity. No periodic distribution, no fixed APY — estimated outcomes are disclosed as a range, not guaranteed. Accredited investors only.",
+    "Hearst Mining Note: real Bitcoin mining accumulates BTC over a 24-month term, delivered at maturity. No periodic distribution, no fixed rate — estimated outcomes are disclosed as a range, not guaranteed. Accredited investors only.",
 };
 
 export default async function LandingPage() {

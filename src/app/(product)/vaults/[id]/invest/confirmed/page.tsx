@@ -121,7 +121,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
       width="narrow"
       titleLead="Deposit"
       titleAccent="confirmed"
-      contextLabel="Investment Flow"
+      contextLabel="Subscription"
       description={
         <span className="text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]">
           {isSimulated
@@ -319,7 +319,9 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
           </Button>
         ) : null}
         <Button variant="ghost" size="md" asChild className="w-full">
-          <Link href={INVEST_SELECT_PATH}>View other products</Link>
+          {/* Series 1 is the single product — "other products" would send the
+              investor back to the vault they just subscribed to. */}
+          <Link href={INVEST_SELECT_PATH}>Back to the vault</Link>
         </Button>
       </div>
 

@@ -42,7 +42,7 @@ export function InvestFlowShell({
   title,
   titleLead,
   titleAccent,
-  contextLabel = "Investment Flow",
+  contextLabel = "Subscription",
   description,
   lead,
   media,

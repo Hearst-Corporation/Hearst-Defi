@@ -1,7 +1,7 @@
 @import "../charts-shared.css";
 
 /* =============================================================================
-   portfolio.css — Hearst Yield Vault investor cockpit (page-scoped)
+   portfolio.css — Hearst Bitcoin Reserve Vault investor cockpit (page-scoped)
 
    EDITING RULES (enforced by convention, not lint):
    - COLORS / SURFACES: var(--ct-*) only. No raw hex/rgb. color-mix() ratios are

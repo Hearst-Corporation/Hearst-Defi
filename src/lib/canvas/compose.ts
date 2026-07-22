@@ -477,37 +477,43 @@ function composeOutreach(
 }
 
 function composeLpYieldExplainer(objective: string | undefined): CanvasSection[] {
+  // Series 1 is a BTC-accumulation mining note (methodology v3.0): it pays no
+  // periodic cash, carries no rate, and delivers the accumulated Bitcoin at
+  // maturity. This canvas previously described the retired yield product
+  // ("Monthly USDC distributions to LPs", badged Attested) — a distribution
+  // promise the product does not make. Rewritten to the reserve-construction
+  // narrative.
   const intro = guarded(
     objective?.trim()
-      ? `Here is how the yield works, focused on: ${objective.trim()}`
-      : "Here is how the vault generates its yield, step by step.",
-    "Here is how the vault generates its yield, step by step.",
+      ? `Here is how the Bitcoin reserve is built, focused on: ${objective.trim()}`
+      : "Here is how the vault builds its Bitcoin reserve, step by step.",
+    "Here is how the vault builds its Bitcoin reserve, step by step.",
   );
   return [
     {
       id: "lp-yield-sources",
-      title: "Where the yield comes from",
+      title: "How the reserve is built",
       status: "ready",
       intro,
       fields: [
         {
           key: "source",
           label: "Primary source",
-          value: "Bitcoin mining revenue-share, paid into a USDC reserve.",
+          value: "Real Bitcoin mining production, allocated across three on-chain pockets (B1 mining power, B2 BTC reserve, B3 operating reserve).",
           provenance: "Attested",
           editable: false,
         },
         {
           key: "distribution",
           label: "Distributions",
-          value: "Monthly USDC distributions to LPs.",
+          value: "None. The note makes no periodic cash distribution — the accumulated Bitcoin is delivered at maturity of the 24-month term.",
           provenance: "Attested",
           editable: false,
         },
         {
           key: "target",
-          label: "Target range",
-          value: `${VAULT_YIELD.apyTarget.low}-${VAULT_YIELD.apyTarget.high}% (range, not a point)`,
+          label: "Estimated outcome",
+          value: "Expressed as a range of accumulated BTC — never a single figure, never a rate, and not guaranteed.",
           provenance: "Estimated",
           editable: false,
         },
@@ -521,7 +527,7 @@ function composeLpYieldExplainer(objective: string | undefined): CanvasSection[]
         {
           id: "lp-opt-assumptions",
           label: "Show the assumptions",
-          effect: { kind: "prefill_chat", prompt: "What assumptions underlie the target yield range?" },
+          effect: { kind: "prefill_chat", prompt: "What assumptions underlie the estimated BTC accumulation range?" },
         },
       ],
       // Read-only canvas: zero write actions by construction.

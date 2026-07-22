@@ -19,7 +19,10 @@
  */
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+
+import { getSession } from "@/lib/auth/session";
 
 import {
   HcChartCard,
@@ -112,7 +115,16 @@ function CardHeader({ title, trailing }: { title: string; trailing?: ReactNode }
   );
 }
 
-export default function PortfolioPreviewPage() {
+export default async function PortfolioPreviewPage() {
+  // GATE — this sandbox exposes the SEPARATE leverage-research vocabulary
+  // (borrow / LTV / LLTV / Morpho / collateral) which is banned on every
+  // Series 1 investor surface. The file header claimed this route was gated;
+  // it was not, so an investor could reach it directly. Non-admins now get a
+  // 404: the research surface stays available to the team without ever being
+  // an investor-reachable page.
+  const session = await getSession();
+  if (session?.role !== "admin") notFound();
+
   const pocketTotal = POCKETS.reduce((s, p) => s + p.value, 0);
   // Per-asset ring segments (green / orange / blue) — matches the pocket-card identity colours.
   const pocketRing = POCKETS.map((p, i) => ({

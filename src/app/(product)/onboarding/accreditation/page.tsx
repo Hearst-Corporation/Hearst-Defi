@@ -35,7 +35,7 @@ export default function AccreditationPage() {
             <p className="ct-bento-label">Onboarding · Step 1 of 3</p>
             <h1 className="h1">Investor accreditation</h1>
             <p className="body-sm text-pretty">
-              Hearst Yield Vault is offered exclusively to accredited investors
+              The Hearst Bitcoin Reserve Vault is offered exclusively to accredited investors
               under SEC Rule 506(c) and eligible participants under Cayman
               Islands law. Please confirm each statement below.
             </p>

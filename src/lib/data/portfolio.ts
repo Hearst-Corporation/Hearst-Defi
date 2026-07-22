@@ -21,6 +21,7 @@ import {
   resolveProvenance,
 } from "@/lib/portfolio/provenance";
 import { computeYtdYieldUsdc } from "@/lib/portfolio/yield-ytd";
+import { series1DisplayName } from "@/lib/vaults/series1";
 import type { HourlyValueSnapshot, ValueSeriesTx } from "@/lib/portfolio/value-series";
 import {
   loadHourlyValueSnapshots,
@@ -341,7 +342,9 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
 
     const apyLowBps = p.vaultDeployment?.targetApyLowBps ?? null;
     const apyHighBps = p.vaultDeployment?.targetApyHighBps ?? null;
-    const vaultName = p.vaultDeployment?.name ?? null;
+    // Investor-facing name resolves through the Series 1 module: the stored
+    // column still holds the retired "Hearst Yield Vault" label.
+    const vaultName = series1DisplayName(p.vaultDeployment?.name);
 
     const status = p.status as "active" | "matured" | "exited";
 
@@ -456,7 +459,7 @@ export const loadInvestorDistributions = cache(
       amountUsdc: toNumber(t.amountUsdc),
       occurredAt: t.occurredAt,
       txHash: t.txHash,
-      vaultName: t.position?.vaultDeployment?.name ?? undefined,
+      vaultName: series1DisplayName(t.position?.vaultDeployment?.name),
     }));
   },
 );
@@ -535,7 +538,7 @@ export async function loadPosition(
 
   const apyLowBps = raw.vaultDeployment?.targetApyLowBps ?? null;
   const apyHighBps = raw.vaultDeployment?.targetApyHighBps ?? null;
-  const vaultName = raw.vaultDeployment?.name ?? null;
+  const vaultName = series1DisplayName(raw.vaultDeployment?.name);
   const vaultTicker = raw.vaultDeployment?.ticker ?? "HYV-A";
   const softLockupDays = raw.vaultDeployment?.softLockupDays ?? 0;
   const capacityUsdc = raw.vaultDeployment

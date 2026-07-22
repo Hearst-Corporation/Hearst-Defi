@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
+import { SERIES1_NAME } from "@/lib/vaults/series1";
 
 /**
  * Unified institutional footer — one component, two densities.
@@ -38,10 +39,9 @@ const LEGAL_LINKS = [
   { href: "/legal/disclaimer" as const, label: "Risk Disclosure" },
 ] as const;
 
-// apyRangeLabel is computed per-projection (src/lib/engine/projection.ts), not a
-// stable constant available to a static footer. Render a generic, honest label
-// with no invented number.
-const APY_RANGE = "APY range";
+// Series 1 pays no rate and makes no periodic distribution, so the footer
+// states the delivery term instead of any rate label.
+const TERM_LABEL = "24-month term · delivered in BTC";
 
 interface AppFooterProps {
   variant?: "full" | "compact";
@@ -81,7 +81,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
           <span aria-hidden className="app-footer__diamond text-[var(--ct-accent)]">
             ◆
           </span>
-          Hearst Yield Vault
+          {SERIES1_NAME}
         </span>
       </footer>
     );
@@ -95,10 +95,10 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
       <div className="app-footer__grid">
         <section className="app-footer__col">
           <p className="text-[length:var(--ct-text-micro)] uppercase tracking-wider text-[var(--ct-text-muted)]">
-            Hearst Yield Vault
+            {SERIES1_NAME}
           </p>
           <p className="app-footer__lede text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">
-            Mining-backed structured yield. Cayman SPV.
+            Mining-backed Bitcoin reserve. Cayman SPV.
           </p>
         </section>
 
@@ -140,7 +140,7 @@ export function AppFooter({ variant = "full" }: AppFooterProps) {
             <ProvenanceBadge kind="live" variant="strip" />
             Vault live
           </span>
-          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">{APY_RANGE}</span>
+          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">{TERM_LABEL}</span>
           <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Base · testnet</span>
         </section>
       </div>

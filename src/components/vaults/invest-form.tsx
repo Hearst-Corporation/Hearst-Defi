@@ -12,7 +12,6 @@ import {
   BentoLabel,
 } from "@/components/catalyst/bento";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
-import { ApyRange } from "@/components/catalyst/apy-range";
 import { Ptai } from "@/components/catalyst/ptai";
 import { kycLabel } from "@/lib/profile/kyc-display";
 import { DepositSummary } from "@/components/vaults/deposit-summary";
@@ -43,6 +42,7 @@ import {
   formatUsdcGrouped,
   shareClassCode,
 } from "@/lib/vaults/product-display";
+import { series1DisplayName } from "@/lib/vaults/series1";
 
 type CtaState =
   | "no_wallet"
@@ -136,7 +136,7 @@ function buildPtai(
       `No periodic cash distribution — BTC accumulates across the three pockets: mining power 40%, BTC pouch 27%, USDC reserve 33%. Take-profit realises BTC at configured price tiers; the mining pocket is curtailed below the configured BTC threshold (Methodology v3.0).`,
 
     impact:
-      `Estimated return ${vault.apyLow.toFixed(1)}–${vault.apyHigh.toFixed(1)}% expressed as a range in accumulated BTC — not distributed, not guaranteed. Accumulated BTC is delivered at maturity of the ${PRODUCT_TERM_MONTHS}-month term. Indicative testnet estimate, subject to assumptions — see methodology v3.0.`,
+      `Estimated outcome is expressed as a RANGE of accumulated BTC — never a single figure, never a rate, not distributed and not guaranteed. The accumulated Bitcoin reserve is delivered at maturity of the ${PRODUCT_TERM_MONTHS}-month term. Indicative testnet estimate, subject to assumptions — see methodology v3.0.`,
   };
 }
 
@@ -151,15 +151,10 @@ function InvestTermsStrip({ vault }: { vault: VaultProduct }) {
     <dl className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-lg overflow-hidden border border-[var(--ct-border-soft)] bg-[var(--ct-border-soft)]">
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
         <dt className="ct-bento-label text-[var(--ct-text-faint)]">
-          Est. yield range
+          Term
         </dt>
-        <dd>
-          <ApyRange
-            low={vault.apyLow}
-            high={vault.apyHigh}
-            precision={1}
-            className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums"
-          />
+        <dd className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums">
+          24 months · BTC at maturity
         </dd>
       </div>
       <div className="flex flex-col gap-1.5 p-4 bg-surface-inset">
@@ -497,7 +492,7 @@ function InvestFormUnconfigured({
             <label className="flex items-start gap-3 cursor-default opacity-[var(--ct-opacity-60)]">
               <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-[var(--ct-border)] bg-surface-inset" />
               <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)] leading-snug">
-                I have reviewed and accept the term sheet for {vault.name}.
+                I have reviewed and accept the term sheet for {series1DisplayName(vault.name)}.
               </span>
             </label>
             <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] leading-relaxed mt-2 ml-7">
@@ -809,7 +804,7 @@ function InvestFormLive({
                   >
                     term sheet
                   </Link>{" "}
-                  for {vault.name}.
+                  for {series1DisplayName(vault.name)}.
                 </span>
               </label>
               <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] leading-relaxed mt-2 ml-7">
@@ -843,7 +838,7 @@ function InvestFormLive({
                 <div className="flex flex-col">
                   <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Vault</span>
-                    <span className="text-[var(--ct-text-strong)] font-semibold">{vault.name}</span>
+                    <span className="text-[var(--ct-text-strong)] font-semibold">{series1DisplayName(vault.name)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Share class</span>
@@ -858,13 +853,10 @@ function InvestFormLive({
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
-                    <span className="text-[var(--ct-text-faint)]">Est. yield range</span>
-                    <ApyRange
-                      low={vault.apyLow}
-                      high={vault.apyHigh}
-                      precision={1}
-                      className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] tabular-nums"
-                    />
+                    <span className="text-[var(--ct-text-faint)]">Term</span>
+                    <span className="text-[var(--ct-text-strong)] tabular-nums">
+                      24 months · delivered in BTC
+                    </span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-2 border-b border-[var(--ct-border-soft)] text-[length:var(--ct-text-xs)]">
                     <span className="text-[var(--ct-text-faint)]">Lock-up</span>

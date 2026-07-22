@@ -5,6 +5,7 @@ import { cache } from "react";
 import type { HcValuePoint } from "@/components/dataviz/his";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
 import { formatUsdFull } from "@/lib/vaults/product-display";
+import { series1DisplayName } from "@/lib/vaults/series1";
 
 import type { AgentSignal } from "@/app/(product)/portfolio/preview/_charts/agent-signal-card";
 import type { ExitPathRow } from "@/app/(product)/portfolio/preview/_charts/exit-paths";
@@ -542,7 +543,10 @@ export const loadPortfolioCockpit = cache(
       positionsCount: d.positions.length,
       positionsSummary: d.positions.map((p) => ({
         id: p.id,
-        vaultName: p.vaultName ?? "Yield Vault",
+        // Series 1 identity. The DB column still holds the retired
+        // "Hearst Yield Vault" name, so the investor label is resolved
+        // through the Series 1 module rather than read off the row.
+        vaultName: series1DisplayName(p.vaultName),
         valueUsdc: p.valueUsdc,
       })),
     };
