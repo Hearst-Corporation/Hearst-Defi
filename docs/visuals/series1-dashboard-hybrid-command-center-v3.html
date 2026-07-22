@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Series 1 Hybrid Command Center V3 — Hearst Connect</title>
+<style>
+  /* CORE TOKENS FROM DS */
+  :root, html.dark {
+    /* Hearst Green Accent */
+    --color-accent-400: #bdfc9f;
+    --color-accent-500: #A7FB90;
+    --color-accent-600: #75b065;
+    --color-accent-700: #547d48;
+    
+    /* BTC Orange */
+    --color-btc-500: #f7931a;
+    --color-btc-soft: color-mix(in srgb, var(--color-btc-500) 15%, transparent);
+    
+    /* USDC Blue */
+    --color-usdc-500: #7aa2ff;
+    --color-usdc-soft: color-mix(in srgb, var(--color-usdc-500) 15%, transparent);
+
+    /* Zinc Neutrals (oklch exact from DS) */
+    --color-zinc-50:  oklch(98.5% 0 none);
+    --color-zinc-100: oklch(96.7% 0.001 286.375);
+    --color-zinc-200: oklch(92% 0.004 286.32);
+    --color-zinc-300: oklch(87.1% 0.006 286.286);
+    --color-zinc-400: oklch(70.5% 0.015 286.067);
+    --color-zinc-500: oklch(55.2% 0.016 285.938);
+    --color-zinc-600: oklch(44.2% 0.017 285.786);
+    --color-zinc-700: oklch(37% 0.013 285.805);
+    --color-zinc-800: oklch(27.4% 0.006 286.033);
+    --color-zinc-900: oklch(21% 0.006 285.885);
+    --color-zinc-950: oklch(14.1% 0.005 285.823);
+
+    /* Status */
+    --color-red-400:   oklch(70.4% 0.191 22.216);
+    --color-red-500:   oklch(63.7% 0.237 25.331);
+    --color-amber-400: oklch(82.8% 0.189 84.429);
+    --color-green-400: oklch(79.2% 0.209 151.711);
+
+    /* Typography */
+    --font-sans: 'Satoshi Variable', 'Geist', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, monospace;
+    
+    --text-hero:        3rem;     --lh-hero: 1;
+    --text-page-title:  1.25rem;  --lh-page-title: 1.75rem;
+    --text-heading:     1.25rem;  --lh-heading: 2rem;
+    --text-kpi:         1.5rem;   --lh-kpi: 2rem;
+    --text-subheading:  .875rem;  --lh-subheading: 1.5rem;
+    --text-body:        .875rem;  --lh-body: 1.5rem;
+    --text-sm:          .8125rem; --lh-sm: 1.25rem;
+    --text-xs:          .75rem;   --lh-xs: 1.25rem;
+    --text-2xs:         .6875rem; --lh-2xs: 1.15;
+    --tracking-label:   .12em;
+
+    /* Spacing & Radius */
+    --space-1: .25rem; --space-2: .5rem;  --space-3: .75rem; --space-4: 1rem;
+    --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem;
+    --radius-md: .375rem; --radius-lg: .5rem; --radius-xl: .75rem; --radius-full: 9999px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1);
+
+    /* Dark Mode Roles */
+    --page-bg: var(--color-zinc-950);
+    --panel-bg: var(--color-zinc-900);
+    --panel-bg-alt: color-mix(in oklab, var(--color-zinc-950) 50%, transparent);
+    --fg-strong: #fff;
+    --fg-muted: var(--color-zinc-400);
+    --fg-soft: var(--color-zinc-500);
+    --hairline: color-mix(in oklab, #fff 10%, transparent);
+    --hairline-faint: color-mix(in oklab, #fff 5%, transparent);
+    --separator: var(--color-zinc-800);
+    
+    --accent-text: var(--color-accent-500);
+    --accent-fill: var(--color-accent-500);
+    --accent-wash: color-mix(in oklab, var(--color-accent-500) 15%, transparent);
+    --accent-ring: color-mix(in oklab, var(--color-accent-500) 40%, transparent);
+    --hover-wash: color-mix(in oklab, #fff 5%, transparent);
+    
+    --dc-halo-near: var(--color-accent-600);
+    --dc-halo-far: var(--color-zinc-950);
+    --dc-halo-strength: 15%;
+  }
+
+  /* BASE */
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  body {
+    background: var(--page-bg); color: var(--fg-strong);
+    font-family: var(--font-sans); font-size: var(--text-body); line-height: var(--lh-body);
+    -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+    padding: var(--space-6); display: flex; flex-direction: column; align-items: center;
+    min-height: 100vh;
+  }
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; padding: 0; }
+
+  /* TYPOGRAPHY */
+  .t-hero { font-size: var(--text-hero); line-height: var(--lh-hero); font-weight: 600; letter-spacing: -.025em; }
+  .t-page-title { font-size: var(--text-page-title); line-height: var(--lh-page-title); font-weight: 600; letter-spacing: -.025em; }
+  .t-heading { font-size: var(--text-heading); line-height: var(--lh-heading); font-weight: 600; }
+  .t-subheading { font-size: var(--text-subheading); line-height: var(--lh-subheading); font-weight: 600; }
+  .t-body { font-size: var(--text-body); line-height: var(--lh-body); }
+  .t-body-sm { font-size: var(--text-sm); line-height: var(--lh-sm); }
+  .t-xs { font-size: var(--text-xs); line-height: var(--lh-xs); }
+  .t-kpi { font-size: var(--text-kpi); line-height: var(--lh-kpi); font-weight: 600; letter-spacing: -.025em; }
+  .t-eyebrow { font-size: var(--text-xs); font-weight: 600; letter-spacing: var(--tracking-label); text-transform: uppercase; }
+  .mono { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: -.01em; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .ink { color: var(--fg-strong); }
+  .ink-2 { color: var(--fg-muted); }
+  .ink-3 { color: var(--fg-soft); }
+  .ink-accent { color: var(--accent-text); }
+  .ink-btc { color: var(--color-btc-500); }
+  .ink-usdc { color: var(--color-usdc-500); }
+
+  /* LAYOUT */
+  .stack { display: flex; flex-direction: column; }
+  .row { display: flex; align-items: center; }
+  .row-top { display: flex; align-items: flex-start; }
+  .between { justify-content: space-between; }
+  .center { justify-content: center; align-items: center; }
+  .g-1{gap:var(--space-1)}.g-2{gap:var(--space-2)}.g-3{gap:var(--space-3)}.g-4{gap:var(--space-4)}.g-6{gap:var(--space-6)}.g-8{gap:var(--space-8)}
+  .p-4{padding:var(--space-4)}.p-5{padding:var(--space-5)}.p-6{padding:var(--space-6)}
+  .mt-2{margin-top:var(--space-2)}.mt-4{margin-top:var(--space-4)}.mt-6{margin-top:var(--space-6)}
+  .mb-2{margin-bottom:var(--space-2)}.mb-4{margin-bottom:var(--space-4)}
+  .w-full { width: 100%; }
+  .max-w-screen { max-width: 1440px; width: 100%; }
+  
+  .grid { display: grid; gap: var(--space-4); }
+  .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .grid-hero { grid-template-columns: 320px 1fr 320px; }
+
+  /* SURFACES */
+  .panel {
+    border-radius: var(--radius-xl); background: var(--panel-bg);
+    box-shadow: 0 0 0 1px color-mix(in oklab, #fff 10%, transparent);
+    overflow: hidden;
+  }
+  .surface-hero {
+    border-radius: var(--radius-xl);
+    background: linear-gradient(to bottom, var(--color-zinc-900), color-mix(in oklab, var(--color-zinc-900) 60%, transparent));
+    box-shadow: 0 0 0 1px color-mix(in oklab, #fff 10%, transparent);
+    position: relative;
+  }
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+    border-bottom: 1px solid var(--hairline-faint); padding: var(--space-4) var(--space-5);
+  }
+  .panel-body { padding: var(--space-5); }
+  .panel-footer { padding: var(--space-4) var(--space-5); border-top: 1px solid var(--hairline-faint); background: var(--panel-bg-alt); }
+  .divider { height: 1px; background: var(--hairline-faint); width: 100%; }
+  .divide-y > * + * { border-top: 1px solid var(--hairline-faint); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    border-radius: var(--radius-lg); border: 1px solid transparent; cursor: pointer;
+    font-size: var(--text-body); font-weight: 600; padding: calc(var(--space-2) - 1px) calc(var(--space-3) - 1px);
+    transition: all 0.2s; background: transparent;
+  }
+  .btn-sm { padding: calc(var(--space-1) - 1px) calc(var(--space-2) - 1px); font-size: var(--text-xs); }
+  .btn-outline { color: #fff; border-color: color-mix(in oklab, #fff 15%, transparent); }
+  .btn-outline:hover { background: var(--hover-wash); }
+  .btn-accent-outline { color: var(--accent-text); border-color: var(--accent-ring); background: var(--accent-wash); }
+  .btn-accent-outline:hover { background: color-mix(in oklab, var(--color-accent-500) 25%, transparent); }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex; align-items: center; gap: .375rem;
+    border-radius: var(--radius-md); padding: .125rem .375rem;
+    font-size: var(--text-xs); font-weight: 500; white-space: nowrap;
+  }
+  .badge-dot { width: .375rem; height: .375rem; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .badge-outline { background: color-mix(in oklab, #fff 5%, transparent); color: var(--color-zinc-400); box-shadow: inset 0 0 0 1px var(--hairline); }
+  .badge-accent { color: var(--color-accent-500); background: var(--accent-wash); box-shadow: inset 0 0 0 1px var(--accent-ring); }
+  .badge-btc { color: var(--color-btc-500); background: var(--color-btc-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-btc-500) 30%, transparent); }
+  .badge-warning { background: color-mix(in oklab, var(--color-amber-400) 10%, transparent); color: var(--color-amber-400); }
+
+  /* KPI BAND (Data Rail) */
+  .kpi-band {
+    display: grid; width: 100%; gap: 1px; background: var(--separator);
+    border-radius: var(--radius-xl); overflow: hidden;
+    box-shadow: 0 0 0 1px color-mix(in oklab, #fff 10%, transparent);
+    grid-template-columns: repeat(auto-fit, minmax(min(11rem,100%),1fr));
+  }
+  .kpi-cell { background: var(--panel-bg); padding: var(--space-4); min-width: 0; }
+  .kpi-label { font-size: var(--text-xs); font-weight: 500; color: var(--fg-muted); display: flex; align-items: center; gap: var(--space-2); }
+  .kpi-value { margin-top: var(--space-2); font-size: var(--text-kpi); font-weight: 600; letter-spacing: -.025em; color: var(--fg-strong); }
+  .kpi-hint { margin-top: .125rem; font-size: var(--text-2xs); color: var(--fg-soft); }
+
+  /* HERO SPINE SPECIFICS */
+  .dc-halo {
+    position: absolute; inset-inline: 0; top: 0; height: 100%; pointer-events: none;
+    background: radial-gradient(50% 50% at 50% 50%,
+      color-mix(in oklab, var(--dc-halo-near) var(--dc-halo-strength), transparent) 0%,
+      color-mix(in oklab, var(--dc-halo-far) calc(var(--dc-halo-strength) / 2), transparent) 50%,
+      transparent 100%);
+    z-index: 0;
+  }
+  .ambient-grid {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image: 
+      linear-gradient(to right, var(--hairline-faint) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--hairline-faint) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+  }
+  .hero-spine-svg { width: 100%; height: 100%; min-height: 300px; position: relative; z-index: 1; overflow: visible; }
+  
+  /* ALLOCATION BAR */
+  .cap-bar { position: relative; height: .5rem; width: 100%; overflow: hidden; border-radius: var(--radius-full); background: var(--color-zinc-800); display: flex; }
+  .cap-bar .segment { height: 100%; }
+  .cap-bar .seg-1 { background: var(--color-accent-500); width: 40%; }
+  .cap-bar .seg-2 { background: var(--color-btc-500); width: 27%; }
+  .cap-bar .seg-3 { background: var(--color-zinc-600); width: 33%; }
+  .legend-key { display: inline-flex; align-items: center; gap: .375rem; font-size: var(--text-xs); color: var(--fg-muted); }
+  .legend-swatch { width: .5rem; height: .5rem; border-radius: var(--radius-full); flex-shrink: 0; }
+
+  /* CHARTS */
+  .chart-frame { position: relative; width: 100%; height: 180px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .grid-line { stroke: var(--color-zinc-500); stroke-opacity: .15; stroke-width: 1; stroke-dasharray: 4 4; }
+  .axis-text { fill: var(--color-zinc-500); font-size: 10px; font-family: var(--font-mono); }
+  .maturity-line { stroke: var(--color-zinc-400); stroke-width: 1; stroke-dasharray: 2 2; }
+  .maturity-label { fill: var(--color-zinc-400); font-size: 10px; font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.05em; }
+
+  /* STEPPER */
+  .stepper { display: flex; justify-content: space-between; position: relative; width: 100%; padding: var(--space-4) 0; }
+  .stepper::before {
+    content: ''; position: absolute; top: 36px; left: 32px; right: 32px; height: 2px;
+    background: var(--color-zinc-800); z-index: 0;
+  }
+  .step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: var(--space-3); width: 80px; text-align: center; }
+  .step-icon {
+    width: 40px; height: 40px; border-radius: var(--radius-full);
+    background: var(--color-zinc-900); border: 2px solid var(--color-zinc-700);
+    display: grid; place-items: center; color: var(--color-zinc-500);
+    transition: all 0.3s ease; box-shadow: 0 0 0 4px var(--panel-bg);
+  }
+  .step.is-complete .step-icon { border-color: var(--color-accent-500); color: var(--color-accent-500); background: var(--accent-wash); }
+  .step.is-active .step-icon { border-color: var(--color-btc-500); color: var(--color-btc-500); background: var(--color-btc-soft); box-shadow: 0 0 0 4px var(--panel-bg), 0 0 12px var(--color-btc-soft); }
+  .step-title { font-size: var(--text-xs); font-weight: 600; color: var(--fg-strong); }
+  .step-desc { font-size: var(--text-2xs); color: var(--fg-soft); }
+  .step.is-pending .step-title { color: var(--fg-muted); }
+
+  /* ICONS */
+  .icon-sm { width: 16px; height: 16px; }
+  .icon-md { width: 20px; height: 20px; }
+  .icon-lg { width: 24px; height: 24px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .grid-hero { grid-template-columns: 1fr; }
+    .hero-spine-svg { min-height: 200px; }
+    .stepper { flex-direction: column; align-items: flex-start; gap: var(--space-6); padding-left: var(--space-4); }
+    .stepper::before { top: 24px; bottom: 24px; left: 35px; width: 2px; height: auto; right: auto; }
+    .step { flex-direction: row; width: auto; text-align: left; }
+    .step-icon { width: 32px; height: 32px; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="max-w-screen stack g-6">
+
+  <!-- 1. Header -->
+  <header class="panel panel-header">
+    <div class="row g-3">
+      <div class="row center" style="width: 32px; height: 32px; border-radius: 8px; background: var(--accent-wash); color: var(--accent-text);">
+        <svg class="icon-md" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="12" fill="currentColor"/>
+          <path d="M8 7h2v4h4V7h2v10h-2v-4h-4v4H8V7z" fill="#09090b"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="t-heading" style="font-size: 1rem; line-height: 1.2;">Hearst Bitcoin Reserve Vault</h1>
+        <div class="t-xs ink-3 mono mt-1">SERIES 1 // HYBRID COMMAND CENTER</div>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="badge badge-outline"><div class="badge-dot"></div>Legacy Mode</div>
+      <div class="badge badge-warning"><div class="badge-dot"></div>v2.1 Address TBD</div>
+      <button class="btn btn-sm btn-accent-outline">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        View Proof Status
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. Hero Visual Spine -->
+  <section class="surface-hero grid-hero">
+    <div class="ambient-grid"></div>
+    <div class="dc-halo"></div>
+
+    <!-- Hero Left: Inventory & Capital -->
+    <div class="p-6 stack between" style="position: relative; z-index: 1; border-right: 1px solid var(--hairline-faint);">
+      <div class="stack g-2">
+        <div class="t-eyebrow ink-btc row g-2">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="12" fill="currentColor"/>
+            <path d="M16.66 10.56C16.89 9.06 15.5 8.22 13.8 7.66L14.42 5.16L13.14 4.84L12.54 7.24C12.2 7.16 11.86 7.08 11.52 7L12.14 4.6L10.86 4.28L10.24 6.68C9.94 6.6 9.66 6.54 9.38 6.46L9.38 6.46L7.66 6.04L7.32 7.32C7.32 7.32 8.26 7.5 8.2 7.52C8.7 7.64 8.8 7.96 8.78 8.26L7.96 11.54C8.02 11.56 8.08 11.58 8.16 11.62L8.06 11.6C7.94 12.08 7.76 12.44 7.26 12.32C7.28 12.3 6.34 12.08 6.34 12.08L5.66 13.52L7.3 13.92C7.62 14 7.94 14.1 8.26 14.18L7.64 16.68L8.92 17L9.54 14.58C9.88 14.68 10.22 14.76 10.54 14.84L9.92 17.34L11.2 17.66L11.84 15.16C13.92 15.6 15.48 15.34 15.98 13.54C16.38 12.1 15.82 11.3 14.74 10.82C15.46 10.66 16.02 10.18 16.16 9.16V9.16ZM14.4 13.4C14.1 14.58 12.12 14.04 11.16 13.8L11.66 11.8C12.62 12.04 14.7 12.22 14.4 13.4ZM14.72 9.86C14.46 10.86 12.82 10.42 12 10.2L12.46 8.36C13.28 8.58 14.98 8.86 14.72 9.86Z" fill="#09090b"/>
+          </svg>
+          Bitcoin Inventory
+        </div>
+        <div class="t-hero ink-3 tabular">— <span class="t-body ink-3">BTC</span></div>
+        <div class="row g-2 mt-2">
+          <div class="badge badge-outline"><div class="badge-dot"></div>Not yet reported</div>
+        </div>
+        <div class="t-xs ink-3 mt-2">Delivered at maturity. Not a coupon. A Bitcoin reserve.</div>
+      </div>
+      
+      <div class="stack g-6 mt-8">
+        <div class="stack g-1">
+          <div class="t-eyebrow ink-usdc row g-2">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="12" fill="currentColor"/>
+              <path d="M12 5v14m-3-9a3 3 0 013-3h0a3 3 0 013 3v0a3 3 0 01-3 3h0a3 3 0 00-3 3v0a3 3 0 003 3h0a3 3 0 003-3" stroke="#09090b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Capital Deployed
+          </div>
+          <div class="t-kpi tabular">— <span class="t-body ink-3">USDC</span></div>
+        </div>
+        <div class="stack g-1">
+          <div class="t-eyebrow ink-2 row g-2">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Term
+          </div>
+          <div class="t-kpi tabular">— / 24 <span class="t-body ink-3">MO</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Center: SVG Flow -->
+    <div class="p-6 row center" style="position: relative; z-index: 1;">
+      <svg class="hero-spine-svg" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="grad-usdc-accent" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="var(--color-usdc-500)" stop-opacity="0.2" />
+            <stop offset="100%" stop-color="var(--color-accent-500)" stop-opacity="1" />
+          </linearGradient>
+          <linearGradient id="grad-accent-btc" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="var(--color-accent-500)" stop-opacity="1" />
+            <stop offset="100%" stop-color="var(--color-btc-500)" stop-opacity="1" />
+          </linearGradient>
+          <filter id="glow-btc" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+          <filter id="glow-accent" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+
+        <!-- Input USDC -->
+        <text x="0" y="153" fill="var(--color-usdc-500)" font-family="var(--font-sans)" font-weight="600" font-size="10" letter-spacing="1">USDC IN</text>
+        <path d="M 65 150 L 120 150" stroke="var(--color-usdc-500)" stroke-width="2" stroke-dasharray="4 4" opacity="0.6" />
+        <circle cx="120" cy="150" r="4" fill="var(--color-usdc-500)" />
+
+        <!-- Splitting Paths -->
+        <!-- B1 Mining (Top) -->
+        <path d="M 120 150 C 150 150, 150 70, 200 70 L 320 70" stroke="url(#grad-usdc-accent)" stroke-width="2" fill="none" />
+        <circle cx="200" cy="70" r="3" fill="var(--color-accent-500)" />
+        <text x="210" y="60" fill="var(--color-accent-500)" font-family="var(--font-sans)" font-weight="600" font-size="9" letter-spacing="1">B1 MINING (40%)</text>
+        <text x="330" y="73" fill="#fff" font-family="var(--font-mono)" font-size="11">— <tspan fill="var(--color-zinc-500)" font-size="9">TH/s</tspan></text>
+
+        <!-- B2 BTC Reserve (Middle) -->
+        <path d="M 120 150 L 320 150" stroke="url(#grad-accent-btc)" stroke-width="3" fill="none" filter="url(#glow-accent)" />
+        <circle cx="200" cy="150" r="4" fill="var(--color-btc-500)" />
+        <text x="210" y="140" fill="var(--color-btc-500)" font-family="var(--font-sans)" font-weight="600" font-size="9" letter-spacing="1">B2 BTC RESERVE (27%)</text>
+        
+        <!-- B3 Operating (Bottom) -->
+        <path d="M 120 150 C 150 150, 150 230, 200 230 L 320 230" stroke="var(--color-zinc-700)" stroke-width="2" fill="none" />
+        <circle cx="200" cy="230" r="3" fill="var(--color-zinc-600)" />
+        <text x="210" y="220" fill="var(--color-zinc-500)" font-family="var(--font-sans)" font-weight="600" font-size="9" letter-spacing="1">B3 OPERATING (33%)</text>
+        <text x="330" y="233" fill="#fff" font-family="var(--font-mono)" font-size="11">— <tspan fill="var(--color-zinc-500)" font-size="9">USDC</tspan></text>
+
+        <!-- Mining Converging to BTC -->
+        <path d="M 370 70 C 420 70, 420 150, 470 150" stroke="var(--color-accent-500)" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.6" />
+        
+        <!-- Accumulation Curve -->
+        <path d="M 320 150 L 470 150" stroke="var(--color-btc-500)" stroke-width="3" fill="none" filter="url(#glow-btc)" />
+        <path d="M 470 150 C 520 150, 530 90, 580 70" stroke="var(--color-btc-500)" stroke-width="4" fill="none" filter="url(#glow-btc)" />
+        
+        <!-- Maturity Node -->
+        <circle cx="580" cy="70" r="6" fill="var(--color-btc-500)" />
+        <circle cx="580" cy="70" r="12" fill="none" stroke="var(--color-btc-500)" stroke-width="1" opacity="0.5" />
+        <text x="510" y="55" fill="#fff" font-family="var(--font-sans)" font-weight="600" font-size="10" letter-spacing="1">MATURITY</text>
+      </svg>
+    </div>
+
+    <!-- Hero Right: Context & Allocation -->
+    <div class="p-6 stack g-8" style="position: relative; z-index: 1; border-left: 1px solid var(--hairline-faint);">
+      
+      <!-- Allocation Block -->
+      <div class="stack g-3">
+        <div class="t-eyebrow ink-2 row g-2">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21H3V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 9L15 15L11 11L3 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Allocation
+        </div>
+        <div class="cap-bar">
+          <div class="segment seg-1"></div>
+          <div class="segment seg-2"></div>
+          <div class="segment seg-3"></div>
+        </div>
+        <div class="row between">
+          <div class="legend-key"><div class="legend-swatch" style="background: var(--color-accent-500);"></div>40%</div>
+          <div class="legend-key"><div class="legend-swatch" style="background: var(--color-btc-500);"></div>27%</div>
+          <div class="legend-key"><div class="legend-swatch" style="background: var(--color-zinc-600);"></div>33%</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Mining Register -->
+      <div class="stack g-3">
+        <div class="t-eyebrow ink-2 row g-2">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21.21 15.89A10 10 0 118.11 2.79l3.44 3.44a5.18 5.18 0 00-4.3 4.3l-3.44-3.44a10 10 0 0013.1 13.1l-3.44-3.44a5.18 5.18 0 004.3-4.3l3.44 3.44z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15.5 8.5l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Mining Register
+        </div>
+        <div class="stack divide-y">
+          <div class="row between py-2"><span class="t-body-sm ink-2">Mining state</span><span class="t-body-sm ink tabular">—</span></div>
+          <div class="row between py-2"><span class="t-body-sm ink-2">Reported hashrate</span><span class="t-body-sm ink tabular">— <span class="ink-3">TH/s</span></span></div>
+          <div class="row between py-2"><span class="t-body-sm ink-2">Last report</span><span class="t-body-sm ink tabular">—</span></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Contract & Proof -->
+      <div class="stack g-3">
+        <div class="t-eyebrow ink-2 row g-2">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Contract & Proof
+        </div>
+        <div class="stack divide-y">
+          <div class="row between py-2"><span class="t-body-sm ink-2">Allocation mode</span><span class="t-body-sm ink">Advisory</span></div>
+          <div class="row between py-2"><span class="t-body-sm ink-2">Proof status</span><span class="t-body-sm ink-3">Not yet indexed</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. Data Rail (KPI Band) -->
+  <div class="kpi-band">
+    <div class="kpi-cell">
+      <div class="kpi-label">
+        <svg class="icon-sm ink-usdc" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="12" fill="currentColor"/>
+          <path d="M12 5v14m-3-9a3 3 0 013-3h0a3 3 0 013 3v0a3 3 0 01-3 3h0a3 3 0 00-3 3v0a3 3 0 003 3h0a3 3 0 003-3" stroke="#09090b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Deployed
+      </div>
+      <div class="kpi-value">— <span class="t-body ink-3">USDC</span></div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">
+        <svg class="icon-sm ink-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Total Shares
+      </div>
+      <div class="kpi-value">—</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">
+        <svg class="icon-sm ink-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        NAV / Share
+      </div>
+      <div class="kpi-value">— <span class="t-body ink-3">USDC</span></div>
+      <div class="kpi-hint">Est.</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">
+        <svg class="icon-sm ink-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Term
+      </div>
+      <div class="kpi-value">— / 24 <span class="t-body ink-3">MO</span></div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">
+        <svg class="icon-sm ink-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21.21 15.89A10 10 0 118.11 2.79l3.44 3.44a5.18 5.18 0 00-4.3 4.3l-3.44-3.44a10 10 0 0013.1 13.1l-3.44-3.44a5.18 5.18 0 004.3-4.3l3.44 3.44z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15.5 8.5l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Mining State
+      </div>
+      <div class="kpi-value">—</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">
+        <svg class="icon-sm ink-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Proof
+      </div>
+      <div class="kpi-value ink-3" style="font-size: 1.125rem;">Unavailable</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">
+        <svg class="icon-sm ink-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 6v12a2 2 0 002 2h14v-4H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18 12a2 2 0 100 4 2 2 0 000-4z" fill="currentColor"/>
+        </svg>
+        Wallet
+      </div>
+      <div class="kpi-value" style="font-size: 1.125rem;">Linked</div>
+      <div class="kpi-hint mono">0x…1234</div>
+    </div>
+  </div>
+
+  <!-- 4. Second Level Grid -->
+  <div class="grid-2 w-full">
+    
+    <!-- Zone A: Reserve Trajectory -->
+    <div class="panel stack">
+      <div class="panel-header">
+        <span class="t-eyebrow ink-2">Reserve Trajectory</span>
+        <div class="badge badge-btc"><div class="badge-dot"></div> Delivery at maturity</div>
+      </div>
+      <div class="panel-body grow stack center" style="position: relative; min-height: 240px; background: var(--page-bg);">
+        <!-- Faux Chart Grid -->
+        <svg width="100%" height="100%" style="position: absolute; inset: 0;">
+          <line x1="0" y1="20%" x2="100%" y2="20%" class="grid-line" />
+          <line x1="0" y1="40%" x2="100%" y2="40%" class="grid-line" />
+          <line x1="0" y1="60%" x2="100%" y2="60%" class="grid-line" />
+          <line x1="0" y1="80%" x2="100%" y2="80%" class="grid-line" />
+          
+          <!-- Maturity Line -->
+          <line x1="85%" y1="0" x2="85%" y2="100%" class="maturity-line" />
+          <text x="86%" y="15" class="maturity-label">MATURITY</text>
+        </svg>
+        
+        <!-- Empty State Premium -->
+        <div class="stack center g-2" style="position: relative; z-index: 1;">
+          <svg class="icon-lg ink-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21H3V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 9L15 15L11 11L3 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+          </svg>
+          <div class="t-eyebrow ink-3 mt-2">[ AWAITING ON-CHAIN TELEMETRY ]</div>
+          <div class="t-xs ink-3">V2.1 deployment & mining reports pending</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone B: Operations & Evidence Ledger -->
+    <div class="panel stack">
+      <div class="panel-header">
+        <span class="t-eyebrow ink-2">Operations & Evidence Ledger</span>
+      </div>
+      <div class="panel-body grow row center">
+        
+        <div class="stepper">
+          <!-- Step 1 -->
+          <div class="step is-complete">
+            <div class="step-icon">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="step-title">USDC In</div>
+              <div class="step-desc">Deposit</div>
+            </div>
+          </div>
+          <!-- Step 2 -->
+          <div class="step is-complete">
+            <div class="step-icon">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="step-title">Allocate</div>
+              <div class="step-desc">B1/B2/B3</div>
+            </div>
+          </div>
+          <!-- Step 3 -->
+          <div class="step is-active">
+            <div class="step-icon">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21.21 15.89A10 10 0 118.11 2.79l3.44 3.44a5.18 5.18 0 00-4.3 4.3l-3.44-3.44a10 10 0 0013.1 13.1l-3.44-3.44a5.18 5.18 0 004.3-4.3l3.44 3.44z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M15.5 8.5l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-title">Mining</div>
+              <div class="step-desc ink-btc">Waiting</div>
+            </div>
+          </div>
+          <!-- Step 4 -->
+          <div class="step is-pending">
+            <div class="step-icon">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="12" fill="currentColor"/>
+                <path d="M16.66 10.56C16.89 9.06 15.5 8.22 13.8 7.66L14.42 5.16L13.14 4.84L12.54 7.24C12.2 7.16 11.86 7.08 11.52 7L12.14 4.6L10.86 4.28L10.24 6.68C9.94 6.6 9.66 6.54 9.38 6.46L9.38 6.46L7.66 6.04L7.32 7.32C7.32 7.32 8.26 7.5 8.2 7.52C8.7 7.64 8.8 7.96 8.78 8.26L7.96 11.54C8.02 11.56 8.08 11.58 8.16 11.62L8.06 11.6C7.94 12.08 7.76 12.44 7.26 12.32C7.28 12.3 6.34 12.08 6.34 12.08L5.66 13.52L7.3 13.92C7.62 14 7.94 14.1 8.26 14.18L7.64 16.68L8.92 17L9.54 14.58C9.88 14.68 10.22 14.76 10.54 14.84L9.92 17.34L11.2 17.66L11.84 15.16C13.92 15.6 15.48 15.34 15.98 13.54C16.38 12.1 15.82 11.3 14.74 10.82C15.46 10.66 16.02 10.18 16.16 9.16V9.16ZM14.4 13.4C14.1 14.58 12.12 14.04 11.16 13.8L11.66 11.8C12.62 12.04 14.7 12.22 14.4 13.4ZM14.72 9.86C14.46 10.86 12.82 10.42 12 10.2L12.46 8.36C13.28 8.58 14.98 8.86 14.72 9.86Z" fill="#09090b"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-title">BTC Reserve</div>
+              <div class="step-desc">Pending</div>
+            </div>
+          </div>
+          <!-- Step 5 -->
+          <div class="step is-pending">
+            <div class="step-icon">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-title">Proof</div>
+              <div class="step-desc">Not indexed</div>
+            </div>
+          </div>
+          <!-- Step 6 -->
+          <div class="step is-pending">
+            <div class="step-icon">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-title">Delivery</div>
+              <div class="step-desc">Maturity</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 5. Footer Provenance Strip -->
+  <footer class="w-full row between mt-4 pt-4" style="border-top: 1px solid var(--hairline-faint);">
+    <div class="mono ink-3">NETWORK: BASE SEPOLIA // CHAIN ID: 84532</div>
+    <div class="mono ink-3">CONTRACT: LEGACY VAULT // V2.1 TBD</div>
+    <div class="mono ink-3">DATA PROVENANCE: WIRED PIPELINE // OFF-CHAIN MODE</div>
+  </footer>
+
+</div>
+
+</body>
+</html>
