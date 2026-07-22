@@ -54,11 +54,11 @@ function PlotWell({ children }: { children: ReactNode }) {
 function ChartEmptyState({ motive }: { motive: string | null }) {
   return (
     <div className="flex w-full max-w-[46ch] flex-col items-center text-center">
-      <div className="mb-[var(--ct-space-5)] w-full">
-        <div className="h-px w-full bg-[var(--ct-border-soft)]" />
-        <div className="-mt-px flex items-center justify-end gap-[var(--ct-space-2)]">
-          <span className="h-px w-12 bg-[var(--ct-border-accent)]" />
-          <span className="inline-block size-1.5 rounded-full bg-[var(--ct-accent)]" />
+      <div className="mb-[var(--ct-space-5)] w-full px-[var(--ct-space-2)]">
+        <div className="relative h-4 w-full">
+          <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[var(--ct-border-soft)]" />
+          <span className="absolute right-0 top-1/2 h-px w-14 -translate-y-1/2 bg-[var(--ct-border-accent)]" />
+          <span className="absolute right-14 top-1/2 inline-block size-1.5 -translate-y-1/2 rounded-full bg-[var(--ct-accent)]" />
         </div>
       </div>
       <p

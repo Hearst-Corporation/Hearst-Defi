@@ -212,7 +212,7 @@ export function Series1Dashboard({
           curve) beside ONE allocation card, not a stack of equal-width
           sections. Matches the cockpit reference: wide chart left, Capacity
           mix-equivalent card right. */}
-      <div className="grid min-w-0 grid-cols-1 gap-[var(--ct-space-5)] xl:grid-cols-[2fr_1fr]">
+      <div className="grid w-full min-w-0 grid-cols-1 gap-[var(--ct-space-5)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Series1BitcoinAccumulation motive={miningMotive} />
         <Series1CapitalArchitecture
           pockets={pocketAllocations}
@@ -228,7 +228,7 @@ export function Series1Dashboard({
         title="Mining register and reserve"
         description="Operational reports, kept separate from the investor outcome."
       >
-        <div className="grid min-w-0 grid-cols-1 gap-[var(--ct-space-4)] lg:grid-cols-3">
+        <div className="grid w-full min-w-0 grid-cols-1 gap-[var(--ct-space-4)] lg:grid-cols-3">
           <Series1CapitalFlow />
           <Series1MiningRegister
             title="Mining register"

@@ -45,40 +45,49 @@ export function Series1DashboardHero({
       </div>
 
       <div className="px-[var(--ct-space-6)] pb-[var(--ct-space-6)] pt-[var(--ct-space-4)]">
-        <div className="grid min-w-0 gap-0 overflow-hidden rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_72%,var(--ct-surface-page))] lg:grid-cols-[1.15fr_1fr]">
-          <div className="flex min-w-0 flex-col justify-center border-b border-[var(--ct-border-soft)] px-[var(--ct-space-5)] py-[var(--ct-space-5)] lg:border-b-0 lg:border-r">
-            <p
-              className="m-0 flex items-center gap-[var(--ct-space-2)] font-medium text-[var(--ct-text-muted)]"
-              style={{ fontSize: "var(--ct-text-2xs)" }}
-            >
-              <span
-                aria-hidden
-                className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
-              />
-              {label}
-            </p>
-            {muted ? (
+        <div className="grid w-full min-w-0 gap-0 overflow-hidden rounded-[var(--ct-radius-lg)] border border-[var(--ct-border-soft)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_72%,var(--ct-surface-page))] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+          <div className="flex min-h-[15.5rem] min-w-0 flex-col justify-between border-b border-[var(--ct-border-soft)] px-[var(--ct-space-5)] py-[var(--ct-space-5)] lg:border-b-0 lg:border-r">
+            <div className="min-w-0">
               <p
-                className="m-0 mt-[var(--ct-space-3)] font-medium text-[var(--ct-text-faint)]"
+                className="m-0 flex items-center gap-[var(--ct-space-2)] font-medium text-[var(--ct-text-muted)]"
                 style={{ fontSize: "var(--ct-text-2xs)" }}
               >
-                Not yet reported
+                <span
+                  aria-hidden
+                  className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+                />
+                {label}
               </p>
-            ) : (
-              <div
-                className="mt-[var(--ct-space-3)] font-semibold tracking-tight tabular-nums text-[var(--ct-text-strong)]"
-                style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1 }}
+              {muted ? (
+                <p
+                  className="m-0 mt-[var(--ct-space-3)] inline-flex items-center gap-[var(--ct-space-2)] rounded-[var(--ct-radius-sm)] border border-[var(--ct-border-accent)] bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] px-[var(--ct-space-3)] py-[var(--ct-space-1)] font-semibold text-[var(--ct-text-muted)]"
+                  style={{ fontSize: "var(--ct-text-xs)" }}
+                >
+                  <span aria-hidden className="inline-block size-1 rounded-full bg-[var(--ct-accent)]" />
+                  Not yet reported
+                </p>
+              ) : (
+                <div
+                  className="mt-[var(--ct-space-3)] font-semibold tracking-tight tabular-nums text-[var(--ct-text-strong)]"
+                  style={{ fontSize: "var(--ct-text-hero)", lineHeight: 1 }}
+                >
+                  {value}
+                </div>
+              )}
+            </div>
+            <div className="mt-[var(--ct-space-4)] min-w-0">
+              <p
+                className="m-0 max-w-[56ch] leading-relaxed text-[var(--ct-text-muted)]"
+                style={{ fontSize: "var(--ct-text-2xs)" }}
               >
-                {value}
-              </div>
-            )}
-            <p
-              className="m-0 mt-[var(--ct-space-3)] max-w-[56ch] leading-relaxed text-[var(--ct-text-muted)]"
-              style={{ fontSize: "var(--ct-text-2xs)" }}
-            >
-              {caption}
-            </p>
-            {trailing ? <div className="mt-[var(--ct-space-2)]">{trailing}</div> : null}
+                {caption}
+              </p>
+              {trailing ? (
+                <div className="mt-[var(--ct-space-2)] min-w-0 overflow-hidden [&_span]:max-w-full [&_span]:flex-wrap">
+                  {trailing}
+                </div>
+              ) : null}
+            </div>
           </div>
           <div className="grid min-w-0 grid-cols-1 gap-0 sm:grid-cols-2">
             {context.map((item) => (
@@ -104,9 +113,9 @@ export function Series1DashboardHero({
                 )}
                 style={{
                   fontSize: item.muted
-                    ? "var(--ct-text-2xs)"
-                    : "var(--ct-text-xl-fixed)",
-                  lineHeight: 1.2,
+                    ? "var(--ct-text-xs)"
+                    : "var(--ct-text-2xl-fixed)",
+                  lineHeight: 1.15,
                 }}
               >
                 {item.value}

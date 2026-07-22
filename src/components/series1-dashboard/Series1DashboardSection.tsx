@@ -3,7 +3,11 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export function Series1DashboardPage({ children }: { children: ReactNode }) {
-  return <div className="flex min-w-0 flex-col gap-[var(--ct-space-5)]">{children}</div>;
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-[var(--ct-space-5)] overflow-x-hidden">
+      {children}
+    </div>
+  );
 }
 
 export function Series1DashboardSection({
