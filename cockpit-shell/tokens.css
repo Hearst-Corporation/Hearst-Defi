@@ -72,10 +72,12 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
   width: 100%;
-  overflow: hidden;
   background: var(--ct-bg-deep);
+  /* height:100% + overflow:hidden (Electron-era "no top-level scroll" lock)
+     removed 2026-07-22: the no-scroll doctrine was retired 2026-06-21 (see
+     cockpit.css "DÉFORCÉ") and the Catalyst shells scroll the document. The
+     lock silently killed page scrolling on every route. */
 }
 #__next, body > div { background: var(--ct-bg-deep); }
 
