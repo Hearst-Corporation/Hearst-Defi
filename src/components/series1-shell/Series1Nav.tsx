@@ -45,7 +45,12 @@ export function Series1Nav({ pathname }: { pathname: string }) {
   const renderItem = (item: Series1NavItem) => {
     const Icon = item.icon;
     return (
-      <SidebarItem key={item.id} href={item.href} current={matchesNavPath(pathname, item.href)}>
+      <SidebarItem
+        key={item.id}
+        href={item.href}
+        current={matchesNavPath(pathname, item.href)}
+        className="rounded-(--ct-radius-md) [&&_[data-current=true]]:bg-[color-mix(in_srgb,var(--ct-accent)_8%,transparent)] [&&_[data-current=true]]:text-(--ct-text-strong) [&&_[data-current=true]_*[data-slot=icon]]:fill-(--ct-accent-strong)"
+      >
         <Icon data-slot="icon" />
         <SidebarLabel>{item.label}</SidebarLabel>
       </SidebarItem>
@@ -55,16 +60,12 @@ export function Series1Nav({ pathname }: { pathname: string }) {
   return (
     <Sidebar>
       <SidebarHeader>
-        {/* Brand block — DS registry grammar: the wordmark carries the weight,
-            the programme line sits under it as an eyebrow (12px uppercase,
-            tracking-[0.12em]) in the accent. The monogram is a raised plate
-            with an accent edge: the accent is a SIGNAL, never a filled tile. */}
         <div className="flex items-center gap-3 px-2 py-1.5">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-(--ct-surface-raised) text-sm font-bold text-(--ct-accent-strong) ring-1 ring-(--ct-border-accent)">
             H
           </span>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold tracking-tight text-zinc-950 dark:text-white">
+            <div className="truncate text-sm font-semibold tracking-tight text-(--ct-text-strong)">
               Hearst
             </div>
             <div className="mt-0.5 truncate text-[10px] font-semibold tracking-[0.12em] text-(--ct-accent-strong) uppercase">

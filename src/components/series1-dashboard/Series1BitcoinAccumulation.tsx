@@ -1,19 +1,3 @@
-// Series1BitcoinAccumulation — the DS `ChartSurface`.
-//
-// design-system.html §10 defines a chart block as ONE surfaceRaised carrying:
-//   title (16px semibold) → description (14px muted) → 1px rule → plot area.
-// One frame. No nested panel, no well inside a well.
-//
-// The first rebuild stacked THREE: Series1DashboardCard → Series1DashboardInset
-// → the module's own `ReserveBlockFrame` (itself a framed card). That is the
-// "carte dans carte dans carte" / "tunnel noir" in the screenshot.
-//
-// Fix: this component IS the chart surface, and the plot area renders the
-// honest empty state directly instead of delegating to a module that draws its
-// own card. `BtcAccumulationCurve` stays the canonical renderer for the day the
-// ledger indexes a monthly series — it is composed bare, at that point, inside
-// this same frame rather than around it.
-
 import type { ReactNode } from "react";
 
 export function Series1BitcoinAccumulation({
@@ -31,9 +15,6 @@ export function Series1BitcoinAccumulation({
         "overflow-hidden rounded-[var(--ct-radius-xl)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] shadow-[var(--ct-shadow-elevated)] ring-1 ring-[var(--ct-border)]"
       }
     >
-      {/* DS chart header: title + description + hairline rule. The dot marks
-          this as the accent's series, in the DS accent (Pantone 1955 C via the
-          scoped --ct-s1ds-* layer) — signal on the label, not a fill. */}
       <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)]">
         <h3
           className="m-0 flex items-center gap-[var(--ct-space-2)] font-semibold text-[var(--ct-text-strong)]"
@@ -41,7 +22,7 @@ export function Series1BitcoinAccumulation({
         >
           <span
             aria-hidden
-            className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-s1ds-accent)]"
+            className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
           />
           Accumulated Bitcoin
         </h3>
@@ -55,7 +36,6 @@ export function Series1BitcoinAccumulation({
         <div className="mt-[var(--ct-space-4)] h-px bg-[var(--ct-border-soft)]" />
       </div>
 
-      {/* Plot area — a sunken well, ONE level deep, holding the honest state. */}
       <PlotWell>
         <ChartEmptyState motive={motive} />
       </PlotWell>
@@ -63,37 +43,24 @@ export function Series1BitcoinAccumulation({
   );
 }
 
-/**
- * The plot ground. Recessed below the card (DS surfaceSunken), sized like a
- * real chart slot (the DS pins CostRevenueChart at 260px) so the empty state
- * occupies a plotting surface rather than an arbitrary black rectangle.
- *
- * 80% toward --ct-bg-deep — deeper than the card's own 65%, same ratio as
- * `Series1DashboardInset` — so the well still reads as a recess now that the
- * card itself sits on a deep-panel fill instead of a lightened one.
- *
- * No ring here: a well recedes by FILL alone. A ring on top of the outer
- * card's own ring drew two nested borders at the same corner radius — the
- * "cage-in-cage" a sunken well must never produce (DS D5).
- */
 function PlotWell({ children }: { children: ReactNode }) {
   return (
-    <div className="m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_80%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)]">
+    <div className="m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center rounded-[var(--ct-radius-lg)] bg-[color-mix(in_srgb,var(--ct-bg-deep)_82%,var(--ct-surface-page))] px-[var(--ct-space-6)] py-[var(--ct-space-6)] ring-1 ring-[color-mix(in_srgb,var(--ct-border-soft)_80%,transparent)]">
       {children}
     </div>
   );
 }
 
-/**
- * Honest empty state. Chrome only — never implies a data series (the DS bans
- * decor behind figures). The motive divider carries a faint accent tint
- * (--ct-border-accent) rather than the plain hairline: it stands in for the
- * spot where the accent-coloured curve (--ct-chart-curve-color) will render
- * once the ledger indexes a series. Signal on the chrome, not fake data.
- */
 function ChartEmptyState({ motive }: { motive: string | null }) {
   return (
-    <div className="flex max-w-[46ch] flex-col items-center text-center">
+    <div className="flex w-full max-w-[46ch] flex-col items-center text-center">
+      <div className="mb-[var(--ct-space-5)] w-full">
+        <div className="h-px w-full bg-[var(--ct-border-soft)]" />
+        <div className="-mt-px flex items-center justify-end gap-[var(--ct-space-2)]">
+          <span className="h-px w-12 bg-[var(--ct-border-accent)]" />
+          <span className="inline-block size-1.5 rounded-full bg-[var(--ct-accent)]" />
+        </div>
+      </div>
       <p
         className="m-0 font-medium text-[var(--ct-text-muted)]"
         style={{ fontSize: "var(--ct-text-2xs)" }}
@@ -109,7 +76,7 @@ function ChartEmptyState({ motive }: { motive: string | null }) {
       </p>
       {motive ? (
         <p
-          className="m-0 mt-[var(--ct-space-4)] border-t border-[var(--ct-s1ds-border-accent)] pt-[var(--ct-space-3)] text-[var(--ct-text-faint)]"
+          className="m-0 mt-[var(--ct-space-4)] border-t border-[var(--ct-border-accent)] pt-[var(--ct-space-3)] text-[var(--ct-text-faint)]"
           style={{ fontSize: "var(--ct-text-nano)" }}
         >
           <span className="font-semibold text-[var(--ct-text-muted)]">{motive}</span>

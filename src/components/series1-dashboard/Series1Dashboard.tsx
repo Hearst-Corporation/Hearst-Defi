@@ -8,7 +8,7 @@
 // The canon defects this composition fixes:
 //   F1  every surface is a Series1Dashboard* primitive: cards sit on a deep
 //       fill (--ct-bg-deep mixed into --ct-surface-page) and wells recess
-//       deeper still. No #000 card (--ct-surface-card).
+//       deeper still.
 //   F2  the spreadsheet KPI band is gone — one hero band carries every
 //       top-line metric; nothing is stacked as a second, redundant KPI deck.
 //   F3  motives are collapsed to ONE line per group via `groupMotive`,
@@ -228,7 +228,7 @@ export function Series1Dashboard({
         title="Mining register and reserve"
         description="Operational reports, kept separate from the investor outcome."
       >
-        <div className="grid min-w-0 grid-cols-1 gap-[var(--ct-space-4)] lg:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-1 gap-[var(--ct-space-3)] lg:grid-cols-3">
           <Series1CapitalFlow />
           <Series1MiningRegister
             title="Mining register"
@@ -320,7 +320,7 @@ export function Series1Dashboard({
       </Series1DashboardSection>
 
       <p
-        className="m-0 max-w-[80ch] leading-relaxed text-[var(--ct-text-faint)]"
+        className="m-0 leading-relaxed text-[var(--ct-text-faint)]"
         style={{ fontSize: "var(--ct-text-nano)" }}
       >
         Accumulated BTC is delivered at maturity. Allocation, reserve and mining figures

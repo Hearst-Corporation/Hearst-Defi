@@ -1,43 +1,11 @@
-// Series 1 dashboard — section + card grammar.
-//
-// This module owns the SURFACE LADDER for the investor dashboard
-// (docs/front-dashboard-zero-rebuild-canon.md §4). The rebuilt screen renders
-// nothing that is not one of these primitives, so the ladder cannot drift
-// panel by panel the way it did in `series1-shell`.
-//
-//   L1 shell   --ct-surface-page    the raised card SidebarLayout already draws
-//   L2 card    --ct-bg-deep mix     a deep, clean cockpit panel — separated
-//                                   from L1 by ring + shadow, not by being a
-//                                   LIGHTER fill (that read as flat/"gris sale").
-//   L3 inset   deeper --ct-bg-deep  RECESSES below L2 — wells, not content.
-//
-// No zinc, no `dark:`, no raw hex, no --ct-surface-card (#000). Colour comes
-// from --ct-* tokens only; the app is dark-only.
-
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
-/**
- * Page root — one vertical rhythm, and the scope of the DS accent.
- *
- * `.s1-ds` is what makes the Qatar bordeaux (Pantone 1955 C) resolve inside
- * this subtree and nowhere else — see series1-ds-accent.css. The product-wide
- * `--ct-accent` green is deliberately untouched: it is the Hearst brand,
- * asserted by scripts/ds-token-drift.mjs, and consumed by /portfolio, /vaults,
- * /proof-center, /profile and every admin surface.
- */
 export function Series1DashboardPage({ children }: { children: ReactNode }) {
-  return (
-    <div className="s1-ds flex min-w-0 flex-col gap-[var(--ct-space-6)]">{children}</div>
-  );
+  return <div className="flex min-w-0 flex-col gap-[var(--ct-space-5)]">{children}</div>;
 }
 
-/**
- * A titled band of the page. The numeric index is deliberately dropped: the
- * old "01 / 02 / 03" chips made a three-block page read like a form, not like
- * an instrument register.
- */
 export function Series1DashboardSection({
   title,
   description,
@@ -54,13 +22,8 @@ export function Series1DashboardSection({
   const headed = Boolean(title || description || actions);
   return (
     <section className={cn("flex min-w-0 flex-col", className)}>
-      {/* DS section head (design-system.html §08): a top hairline, then
-          `sec-head` = optional index pill + 16px semibold title, then the
-          description indented under it. The rule above each section is what
-          gives the document its register — sections are separated by a filet,
-          not by whitespace alone. */}
       {headed ? (
-        <div className="mb-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-5)]">
+        <div className="mb-[var(--ct-space-3)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-4)]">
           <div className="flex flex-wrap items-start justify-between gap-x-[var(--ct-space-6)] gap-y-[var(--ct-space-2)]">
             <div className="min-w-0">
               {title ? (
@@ -91,19 +54,6 @@ export function Series1DashboardSection({
   );
 }
 
-/**
- * L2 content card — the Qatar cockpit `surfaceRaised`, rendered as a cockpit
- * panel rather than a lightened plate.
- *
- * Separation from the page comes from the RING (--ct-border, white/10) and
- * the SHADOW (--ct-shadow-elevated) — never from the fill being lighter than
- * --ct-surface-page. A fill mixed toward --ct-bg-deep is what reads as a
- * deep, clean cockpit panel; --ct-surface-raised (a page tint lightened by
- * text-strong) is what read as "gris sale" / flat.
- *
- * Never --ct-surface-card (#000000, pure black, no depth cue left for the
- * wells inside it to recede further).
- */
 export function Series1DashboardCard({
   children,
   className,
@@ -125,13 +75,6 @@ export function Series1DashboardCard({
   );
 }
 
-/**
- * Card header — the DS `panel-heading`: a 12px uppercase micro-label at
- * `tracking-[0.12em]` in the MUTED tone, over a faint hairline. The DS uses
- * the eyebrow register for panel titles, not a semibold body-size heading —
- * that is what makes a cockpit panel read as an instrument label rather than
- * as a document subtitle.
- */
 export function Series1DashboardCardHeader({
   title,
   caption,
@@ -164,16 +107,6 @@ export function Series1DashboardCardHeader({
   );
 }
 
-/**
- * L3 inset — the Qatar cockpit `surfaceSunken`.
- *
- * The DS recipe is `bg-zinc-950/50 + ring white/5`: a well is DARKER than the
- * card holding it, so it recedes. `--ct-surface-inset` (#15191C) is lighter
- * than the card, which made every well read as a second raised plate — the
- * "cage-in-cage" effect. A deeper mix toward --ct-bg-deep than the card uses
- * (80% here vs. the card's 65%) keeps the well legibly darker without
- * touching --ct-surface-card (#000, no room left to recede further).
- */
 export function Series1DashboardInset({
   children,
   className,
@@ -193,12 +126,6 @@ export function Series1DashboardInset({
   );
 }
 
-/**
- * A label/value row. Separators are drawn by the row itself (`border-t` on
- * every row but the first) rather than by a `gap-px` grid whose gutter shows
- * through — that grid is what made the old KPI band read as a spreadsheet
- * (canon F2).
- */
 export function Series1DashboardRow({
   label,
   value,

@@ -1,16 +1,3 @@
-// Series1CapitalArchitecture — how subscribed capital is governed.
-//
-// DS grammar (design-system.html §06/§09/§10): the cockpit hierarchy pairs a
-// wide chart with ONE allocation card at a 2:1 ratio — not two peer cards of
-// its own. `Series1CapitalArchitecture` is now that single card (the ring);
-// the former "Capital flow" second card is `Series1CapitalFlow` below,
-// rendered instead in the registry section next to the mining/reserve cards,
-// so the 2:1 row stays chart-plus-one-instrument like the target screenshot.
-//
-// Honesty: when the live `strategies()` read is unavailable, the POLICY target
-// (40/27/33, VAULT_SPEC_V2.1 §6) is a spec constant and may be shown — but
-// only ever LABELLED as the configured target, never as a measurement.
-
 import { HcCompositionRing } from "@/components/dataviz/his";
 
 import {
@@ -42,10 +29,10 @@ export function Series1CapitalArchitecture({
       <div className="flex flex-1 flex-col items-center justify-center px-[var(--ct-space-6)] py-[var(--ct-space-5)]">
         <HcCompositionRing
           segments={pockets.map((p) => ({
-            label: `${p.id} · ${p.label}`,
+            label: p.id === "B1" ? `${p.id} · ${p.label}` : `${p.id} · ${p.label.replace("Reserve", "Res.")}`,
             value: p.value,
           }))}
-          palette="categorical"
+          palette="accent"
           size={180}
           centerLabel={policyNotice ? "Policy target" : "Measured"}
           centerValue="40/27/33"
@@ -80,13 +67,11 @@ export function Series1CapitalFlow({ className }: { className?: string }) {
           const isLast = index === FLOW_STEPS.length - 1;
           return (
             <li key={step.label} className="flex gap-[var(--ct-space-4)]">
-              {/* Rail: numbered plate + connector. The accent marks the
-                  terminal step (delivery) — one signal, not a filled column. */}
               <div className="flex flex-col items-center">
                 <span
                   className={
                     isLast
-                      ? "flex size-7 shrink-0 items-center justify-center rounded-md font-semibold tabular-nums text-[var(--ct-s1ds-accent-strong)] ring-1 ring-[var(--ct-s1ds-border-accent)]"
+                      ? "flex size-7 shrink-0 items-center justify-center rounded-md font-semibold tabular-nums text-[var(--ct-accent-strong)] ring-1 ring-[var(--ct-border-accent)]"
                       : "flex size-7 shrink-0 items-center justify-center rounded-md bg-[color-mix(in_srgb,var(--ct-bg-deep)_55%,var(--ct-surface-page))] font-semibold tabular-nums text-[var(--ct-text-muted)]"
                   }
                   style={{ fontSize: "var(--ct-text-nano)" }}
