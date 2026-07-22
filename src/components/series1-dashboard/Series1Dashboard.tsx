@@ -5,20 +5,22 @@
 // the rebuilt surface. It performs NO I/O: the architecture guard forbids this
 // tree from touching `@/lib/data/*`, Prisma, viem or ethers (canon F9).
 //
-// The three canon defects this composition fixes:
+// The canon defects this composition fixes:
 //   F1  every surface is a Series1Dashboard* primitive: cards sit on a deep
 //       fill (--ct-bg-deep mixed into --ct-surface-page) and wells recess
 //       deeper still. No #000 card (--ct-surface-card).
-//   F2  the spreadsheet KPI band is gone — hero + metric deck instead.
+//   F2  the spreadsheet KPI band is gone — one hero band carries every
+//       top-line metric; nothing is stacked as a second, redundant KPI deck.
 //   F3  motives are collapsed to ONE line per group via `groupMotive`,
 //       instead of being printed as the value of every KPI.
+//   F4  hierarchy follows the cockpit reference: hero band, then chart (2fr)
+//       beside ONE allocation card (1fr), then the registry section — not a
+//       vertical stack of equal-width administrative sections.
 
 import {
   formatBps,
   formatBtcFromSats,
   formatHashrateTh,
-  formatUsdcRaw,
-  formatShareAmount,
   formatUsdcAmount,
   selectWired,
 } from "@/lib/chain/wired-view";
@@ -38,6 +40,7 @@ import type { VaultMode } from "@/lib/chain/vault-mode";
 import { Series1BitcoinAccumulation } from "./Series1BitcoinAccumulation";
 import {
   Series1CapitalArchitecture,
+  Series1CapitalFlow,
   type Series1Pocket,
 } from "./Series1CapitalArchitecture";
 import {
@@ -52,7 +55,6 @@ import {
   Series1DashboardPage,
   Series1DashboardSection,
 } from "./Series1DashboardSection";
-import { Series1MetricDeck } from "./Series1MetricDeck";
 import { Series1MiningRegister } from "./Series1MiningRegister";
 
 /** The three Mining Note pockets, by strategy index (VAULT_SPEC_V2.1 §6). */
@@ -206,91 +208,12 @@ export function Series1Dashboard({
         />
       ) : null}
 
-      <Series1DashboardSection
-        title="Reserve position"
-        description="Each figure carries its own read. Nothing is estimated in place of a value that did not resolve."
-      >
-        <Series1MetricDeck
-          metrics={[
-            {
-              label: "BTC earned",
-              value: wiredValue(
-                selectWired(mining, (m) => m.totalBtcEarnedSats),
-                (s) => formatBtcFromSats(s),
-              ),
-              muted: isUnresolved(mining),
-              hint: "Cumulative on-chain",
-            },
-            {
-              label: "Last report",
-              value: wiredValue(
-                selectWired(mining, (m) => m.lastReportTime),
-                (t) =>
-                  t > 0n
-                    ? new Date(Number(t) * 1000).toISOString().slice(0, 10)
-                    : "Never",
-              ),
-              muted: isUnresolved(mining),
-              hint: "Keeper operation",
-            },
-            {
-              label: "Shares in circulation",
-              value: wiredValue(
-                selectWired(core, (c) => ({
-                  shares: c.totalShares,
-                  decimals: c.shareDecimals,
-                })),
-                (v) => formatShareAmount(v.shares, v.decimals),
-              ),
-              muted: isUnresolved(core),
-              hint: "Total subscribed",
-            },
-            {
-              // `formatNavPerShare` appends "USDC / share", which truncates in
-              // a 6-column cell. The unit is constant, so it belongs in the
-              // hint; the raw formatter is shared with /vaults and /portfolio
-              // and is deliberately left untouched.
-              label: "NAV per share",
-              value: wiredValue(
-                selectWired(core, (c) => c.navPerShare),
-                (v) => formatUsdcRaw(v, 4),
-              ),
-              muted: isUnresolved(core),
-              hint: "USDC / share",
-            },
-            {
-              label: "Electricity",
-              value: wiredValue(
-                selectWired(elec, (e) => e.canPay),
-                (c) => (c ? "Payable" : "On cooldown"),
-              ),
-              muted: isUnresolved(elec),
-              hint: "Funded from B3",
-            },
-            {
-              label: "Contract state",
-              value: wiredValue(
-                selectWired(core, (c) => c.paused),
-                (p) => (p === null ? "Not exposed" : p ? "Paused" : "Active"),
-              ),
-              muted: isUnresolved(core),
-              hint: "Pausable read",
-            },
-          ]}
-        />
-      </Series1DashboardSection>
-
-      <Series1DashboardSection
-        title="Bitcoin accumulation"
-        description="Production credited to the reserve through the 24-month term."
-      >
+      {/* Chart + allocation, 2:1 — one dominant instrument (the accumulation
+          curve) beside ONE allocation card, not a stack of equal-width
+          sections. Matches the cockpit reference: wide chart left, Capacity
+          mix-equivalent card right. */}
+      <div className="grid min-w-0 grid-cols-1 gap-[var(--ct-space-4)] xl:grid-cols-[2fr_1fr]">
         <Series1BitcoinAccumulation motive={miningMotive} />
-      </Series1DashboardSection>
-
-      <Series1DashboardSection
-        title="Capital architecture"
-        description="Capital is governed by the Series 1 policy allocation: B1 Mining Power, B2 BTC Reserve and B3 Operating Reserve."
-      >
         <Series1CapitalArchitecture
           pockets={pocketAllocations}
           policyNotice={
@@ -299,13 +222,14 @@ export function Series1Dashboard({
               : "the measured pocket allocation appears once the v2.1 contract is deployed"
           }
         />
-      </Series1DashboardSection>
+      </div>
 
       <Series1DashboardSection
-        title="Operations, reserve and proof"
-        description="Operational reports are kept separate from the investor outcome so every number retains its source and meaning."
+        title="Mining register and reserve"
+        description="Operational reports, kept separate from the investor outcome."
       >
-        <div className="grid min-w-0 grid-cols-1 gap-[var(--ct-space-4)] lg:grid-cols-2">
+        <div className="grid min-w-0 grid-cols-1 gap-[var(--ct-space-4)] lg:grid-cols-3">
+          <Series1CapitalFlow />
           <Series1MiningRegister
             title="Mining register"
             caption="Reported on-chain by the keeper"
