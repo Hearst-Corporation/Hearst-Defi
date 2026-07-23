@@ -39,7 +39,7 @@ export function Series1DashboardHero({
   return (
     <section className={surfaceClassName("hero")}>
       <div className={surfaceHeroAccentLine} />
-      <div className="px-(--ct-space-6) pb-(--ct-space-4) pt-(--ct-space-5)">
+      <div className="px-(--ct-space-6) pt-(--ct-space-6) pb-(--ct-space-4)">
         <p
           className="m-0 font-semibold uppercase tracking-[0.12em] text-(--ct-accent-strong)"
           style={{ fontSize: "var(--ct-text-2xs)" }}
@@ -92,12 +92,12 @@ export function Series1DashboardHero({
             ) : null}
           </div>
         </div>
-        <div className="grid min-w-0 grid-cols-1 gap-0 sm:grid-cols-2 lg:px-(--ct-space-2) lg:pb-(--ct-space-4)">
+        <div className="grid h-full min-w-0 auto-rows-fr grid-cols-1 content-stretch gap-0 sm:grid-cols-2">
           {context.map((item) => (
             <div
               key={item.label}
               className={cn(
-                "min-w-0 px-(--ct-space-4) py-(--ct-space-3)",
+                "flex min-w-0 flex-col justify-center px-(--ct-space-4) py-(--ct-space-3)",
                 "border-t border-(--ct-border-soft) sm:nth-[-n+2]:border-t-0 sm:odd:border-r",
               )}
             >
