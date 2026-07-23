@@ -58,6 +58,7 @@ allowBuilds:
   '@prisma/engines': true
   '@reown/appkit': true
   '@sentry/cli': true
+  '@swc/core': false
   better-sqlite3: true
   bufferutil: true
   core-js: true

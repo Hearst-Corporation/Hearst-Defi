@@ -127,3 +127,6 @@ ds-bundle/
 # Telegram machine-price generated artifact (regenerated on demand)
 telegram-machines.html
 .sweep/
+
+# Storybook build output — regenerated on demand, never committed
+storybook-static/

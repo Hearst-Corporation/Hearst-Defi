@@ -1,7 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-mcp.json",
-  "_comment": "MCP servers VERSIONNES pour ce projet. Aucun secret inline — les tokens viennent de l'environnement (.env.local / shell), jamais commités. Trio pertinent au repo : figma-dev-mode (lock DS), playwright (e2e/visual-review), supabase (DB, read-only). Le serveur perso 'cortex' reste dans ~/.claude.json (global), hors repo.",
+  "_comment": "MCP servers VERSIONNES pour ce projet. Aucun secret inline — les tokens viennent de l'environnement (.env.local / shell), jamais commités. figma-dev-mode (lock DS), playwright (e2e/visual-review), supabase (DB, read-only), hearst-defi-storybook (Design Studio local, port 6106 — 6007 était déjà occupé par un autre process sur ce disque — lancer `pnpm storybook` avant utilisation). Le serveur perso 'cortex' reste dans ~/.claude.json (global), hors repo.",
   "mcpServers": {
+    "hearst-defi-storybook": {
+      "type": "http",
+      "url": "http://localhost:6106/mcp"
+    },
     "figma-dev-mode": {
       "type": "http",
       "url": "http://127.0.0.1:3845/mcp"
