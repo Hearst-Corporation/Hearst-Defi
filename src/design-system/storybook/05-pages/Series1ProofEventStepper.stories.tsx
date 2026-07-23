@@ -1,10 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect } from "storybook/test";
 
 // Zero-copy: the real product composition, imported as-is (this session's own
 // commit ad35cd99 — the stepper that replaced the static PROOF_EVENTS grid).
 import { Series1ProofEventStepper } from "@/components/proof-center/series1-proof-event-stepper";
-import { Series1Panel, Series1PanelHeader } from "@/components/series1-shell/Series1Panel";
 import type {
   Series1ProofEventNodeModel,
   Series1ProofStepperState,
@@ -83,56 +81,5 @@ export const NetworkMismatch: Story = {
       envelopeStatus: "live",
       events: [node({ chainId: 1, provenance: { networkKind: "network_mismatch", label: "Network mismatch" } })],
     },
-  },
-};
-
-const LIVE_STATE: Series1ProofStepperState = {
-  envelopeStatus: "live",
-  events: [node({ id: "a" }), node({ id: "b", blockNumber: "48965895", logIndex: 2 })],
-};
-
-// Shell/content contract — `fullSurface` (default) owns exactly ONE coque:
-// the component's own Series1Panel, and nothing nested inside it.
-export const FullSurfaceSingleCoque: Story = {
-  name: "Contract: fullSurface = one coque",
-  args: { state: LIVE_STATE },
-  play: async ({ canvasElement, canvas }) => {
-    const list = await canvas.findByRole("list", { name: "Indexed Series 1 events" });
-    await expect(list).toBeVisible();
-    // Exactly one bordered/rounded shell around the content — no cage-in-cage.
-    const coques = canvasElement.querySelectorAll('[class*="rounded-(--ct-radius-xl)"]');
-    await expect(coques.length).toBe(1);
-    await expect(coques[0]?.contains(list)).toBe(true);
-  },
-};
-
-// Shell/content contract — `embedded` renders content ONLY: the parent owns
-// the panel, the header, and the padding. The stepper must not ship any
-// surface of its own (no border, no radius, no panel header).
-export const EmbeddedInParentPanel: Story = {
-  name: "Contract: embedded = parent owns surface",
-  render: () => (
-    <Series1Panel>
-      <Series1PanelHeader
-        title="Parent-owned header"
-        description="The page owns this coque; the stepper is content only."
-      />
-      <div className="px-5 py-5">
-        <Series1ProofEventStepper state={LIVE_STATE} variant="embedded" />
-      </div>
-    </Series1Panel>
-  ),
-  play: async ({ canvasElement, canvas }) => {
-    const list = await canvas.findByRole("list", { name: "Indexed Series 1 events" });
-    await expect(list).toBeVisible();
-    // Only the parent's coque exists — the embedded stepper added none.
-    const coques = canvasElement.querySelectorAll('[class*="rounded-(--ct-radius-xl)"]');
-    await expect(coques.length).toBe(1);
-    // The stepper did not render its own duplicate header.
-    await expect(canvas.queryByText("Proof event stepper")).toBeNull();
-    await expect(canvas.getByText("Parent-owned header")).toBeVisible();
-    // No parasitic scroll container inside the content.
-    const scrollers = canvasElement.querySelectorAll('[class*="overflow-y-auto"], [class*="max-h-"]');
-    await expect(scrollers.length).toBe(0);
   },
 };

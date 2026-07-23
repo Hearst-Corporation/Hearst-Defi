@@ -192,47 +192,7 @@ function Series1ProofEventNotConfigured({ reason }: { reason: "simulated_rejecte
   );
 }
 
-/**
- * Shell/content contract (Design Studio, Phase 2): the parent controls the
- * surface, the child controls the content.
- *
- * - `fullSurface` (default): the stepper ships its own Series1Panel coque —
- *   the historical behavior, for pages that drop it bare into a Series1Section.
- * - `embedded`: content only (header-less step list / empty states). The
- *   parent owns the Series1Panel, its header, and its padding.
- */
-export type Series1ProofEventStepperVariant = "fullSurface" | "embedded";
-
-function Series1ProofEventStepperContent({ state }: { state: Series1ProofStepperState }) {
-  if (state.envelopeStatus === "live") {
-    return (
-      <ol className="flex flex-col" aria-label="Indexed Series 1 events">
-        {state.events.map((event, i) => (
-          <Series1ProofEventNode key={event.id} event={event} isLast={i === state.events.length - 1} />
-        ))}
-      </ol>
-    );
-  }
-  if (state.envelopeStatus === "empty") return <Series1ProofEventEmptyState />;
-  if (state.envelopeStatus === "not_configured") {
-    return <Series1ProofEventNotConfigured reason={state.notConfiguredReason ?? "not_configured"} />;
-  }
-  if (state.envelopeStatus === "unavailable") return <Series1ProofEventUnavailable />;
-  return <Series1ProofEventUnavailable detail={state.errorDetail} />;
-}
-
-export function Series1ProofEventStepper({
-  state,
-  variant = "fullSurface",
-}: {
-  state: Series1ProofStepperState;
-  variant?: Series1ProofEventStepperVariant;
-}) {
-  if (variant === "embedded") {
-    // The parent owns the coque: no panel, no header, no padding of our own.
-    return <Series1ProofEventStepperContent state={state} />;
-  }
-
+export function Series1ProofEventStepper({ state }: { state: Series1ProofStepperState }) {
   return (
     <Series1Panel>
       <Series1PanelHeader
@@ -247,7 +207,21 @@ export function Series1ProofEventStepper({
         }
       />
       <div className="px-5 py-5">
-        <Series1ProofEventStepperContent state={state} />
+        {state.envelopeStatus === "live" ? (
+          <ol className="flex flex-col" aria-label="Indexed Series 1 events">
+            {state.events.map((event, i) => (
+              <Series1ProofEventNode key={event.id} event={event} isLast={i === state.events.length - 1} />
+            ))}
+          </ol>
+        ) : state.envelopeStatus === "empty" ? (
+          <Series1ProofEventEmptyState />
+        ) : state.envelopeStatus === "not_configured" ? (
+          <Series1ProofEventNotConfigured reason={state.notConfiguredReason ?? "not_configured"} />
+        ) : state.envelopeStatus === "unavailable" ? (
+          <Series1ProofEventUnavailable />
+        ) : (
+          <Series1ProofEventUnavailable detail={state.errorDetail} />
+        )}
       </div>
     </Series1Panel>
   );
