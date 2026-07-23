@@ -1,7 +1,7 @@
 "use client";
 
 import { type ComponentType } from "react";
-import { FileText, Landmark, LayoutDashboard, PieChart, ShieldCheck } from "lucide-react";
+import { BookMarked, FileText, Landmark, LayoutDashboard, PieChart, ShieldCheck } from "lucide-react";
 
 import {
   Sidebar,
@@ -22,15 +22,20 @@ type Series1NavItem = {
 };
 
 /**
- * The five investor surfaces. Bitcoin Reserve, Mining, Ledger and My Vaults
- * were folded in: their routes now redirect (see each route's page.tsx) rather
- * than standing as separate destinations, so the rail carries one entry per
- * real surface instead of a menu of near-duplicates.
+ * The six investor surfaces (PROMPT 027 target nav): Dashboard · Bitcoin
+ * Constitution · Vaults · Portfolio · Proof Center · Profile. Bitcoin Reserve,
+ * Mining, Ledger and My Vaults were folded in earlier: their routes redirect
+ * (see each route's page.tsx) rather than standing as separate destinations, so
+ * the rail carries one entry per real surface instead of a menu of
+ * near-duplicates. Admin, webhooks, diagnostics and the folded Portfolio
+ * sub-pages (/portfolio/yield, /portfolio/distributions) never appear here.
  *
+ * Rendered in two premium sections (product + Records); six items total.
  * Module-local: the arrays are rendered here and nowhere else.
  */
 const SERIES1_NAV: Series1NavItem[] = [
   { id: "overview", label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { id: "bitcoin-constitution", label: "Bitcoin Constitution", href: "/bitcoin-constitution", icon: BookMarked },
   { id: "vaults", label: "Series 1 Vault", href: "/vaults", icon: Landmark },
   { id: "portfolio", label: "My Position", href: "/portfolio", icon: PieChart },
 ];
