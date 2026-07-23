@@ -43,9 +43,9 @@ import type {
   VaultCore,
 } from "@/lib/chain/dynavault";
 
+import { Series1AllocationCockpit } from "./Series1AllocationCockpit";
 import { Series1BitcoinAccumulation } from "./Series1BitcoinAccumulation";
 import {
-  Series1CapitalArchitecture,
   Series1CapitalFlow,
   type Series1Pocket,
 } from "./Series1CapitalArchitecture";
@@ -180,6 +180,26 @@ export function Series1Dashboard({
         value: bps / 100,
       }));
 
+  // ── Allocation cockpit inputs — target is the spec constant; actual is the
+  // measured on-chain split ONLY when strategies() answered. Everything the
+  // dashboard loader does not carry (subscription cap/min, indexed proof
+  // events) is reported honestly as "not reported" / "no event yet", never as
+  // a fabricated figure.
+  const cockpitTarget: Series1Pocket[] = POLICY_TARGET_BPS.map((bps, i) => ({
+    id: POCKETS[i]?.id ?? "B1",
+    label: POCKETS[i]?.label ?? `Strategy ${i}`,
+    value: bps / 100,
+  }));
+  const cockpitActual: Series1Pocket[] | null = strategiesWired ? pocketAllocations : null;
+  // Series1Wired carries two statuses (wired | unavailable); "not_configured"
+  // is encoded in the reason string (e.g. "backend:not_configured:…").
+  const wiredStatus = (r: Series1Wired<unknown>): "live" | "not_configured" | "unavailable" =>
+    r.status === "wired"
+      ? "live"
+      : r.reason.includes("not_configured")
+        ? "not_configured"
+        : "unavailable";
+
   // ── Motives, collapsed per group (canon §5). Never printed per cell.
   const headlineMotive = groupMotive([mining, core, ops]);
   const miningMotive = groupMotive([mining]);
@@ -256,13 +276,29 @@ export function Series1Dashboard({
           mix-equivalent card right. */}
       <div className="grid w-full min-w-0 grid-cols-1 gap-[var(--ct-space-5)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Series1BitcoinAccumulation motive={miningMotive} />
-        <Series1CapitalArchitecture
-          pockets={pocketAllocations}
-          policyNotice={
-            strategiesWired
-              ? null
-              : "the measured pocket allocation appears once the v2.1 contract is deployed"
-          }
+        <Series1AllocationCockpit
+          target={cockpitTarget}
+          actual={cockpitActual}
+          actualMotive="the measured pocket allocation appears once the v2.1 contract is deployed"
+          sources={[
+            { label: "Vault", status: wiredStatus(core) },
+            { label: "Strategies", status: wiredStatus(strategies) },
+            { label: "Mining", status: wiredStatus(mining) },
+            { label: "Reserve", status: wiredStatus(elec) },
+          ]}
+          proof={{
+            // The dashboard loader does not carry indexed events; the Proof
+            // Center is the source of record. Shown honestly as "no event yet"
+            // rather than fabricating a snapshot.
+            lastEventLabel: null,
+            chainLabel: contractCell.hint.includes("fork") ? "Fork preprod" : null,
+          }}
+          subscription={{
+            // Cap / minimum are not exposed by this loader — reported as such,
+            // never as 0.
+            minimum: null,
+            hardCap: null,
+          }}
         />
       </div>
 
