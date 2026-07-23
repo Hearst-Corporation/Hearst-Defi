@@ -106,6 +106,7 @@ const EXPECTED_ROUTES = [
   "/apply",
   "/apply/confirmed",
   "/bitcoin",
+  "/bitcoin-constitution",
   "/btc",
   "/btc/ledger",
   "/dashboard",

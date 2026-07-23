@@ -21,7 +21,9 @@ import {
   type WhitelistStatus,
 } from "@/lib/chain/dynavault";
 import { formatShareAmount, formatUsdcAmount, selectWired } from "@/lib/chain/wired-view";
+import { loadPortfolio } from "@/lib/data/portfolio";
 
+import { RecentActivity } from "@/components/portfolio/recent-activity";
 import { Series1KpiBand } from "@/components/series1-shell/Series1KpiBand";
 import { Series1Page, Series1PageTitle, Series1Section } from "@/components/series1-shell/Series1Page";
 import { Series1Panel, Series1PanelHeader, Series1Row, Series1RowList } from "@/components/series1-shell/Series1Panel";
@@ -54,9 +56,10 @@ export default async function PortfolioPage() {
   // Only ask the chain about a user we can actually name. Without a wallet the
   // question is malformed, so we answer it ourselves rather than sending a
   // zero-address read that would come back looking like an empty position.
-  const [[shares, whitelist], terms]: [
+  const [[shares, whitelist], terms, portfolio]: [
     [Wired<UserShares>, Wired<WhitelistStatus>],
     Awaited<ReturnType<typeof loadPortfolioTerms>>,
+    Awaited<ReturnType<typeof loadPortfolio>>,
   ] = await Promise.all([
     wallet
       ? Promise.all([
@@ -65,6 +68,9 @@ export default async function PortfolioPage() {
         ])
       : Promise.resolve([NO_WALLET, NO_WALLET] as [Wired<UserShares>, Wired<WhitelistStatus>]),
     loadPortfolioTerms(),
+    // Contribution timeline / records source — the same ledger the retired
+    // /portfolio/activity route read. Consolidated here, no sub-page.
+    loadPortfolio(),
   ]);
 
   const hasPosition = shares.status === "wired" && shares.data.shares > 0n;
@@ -202,6 +208,81 @@ export default async function PortfolioPage() {
 
       <Series1Section
         index="02"
+        title="Contribution timeline"
+        description="Deposits, proceeds and withdrawals on your account, most recent first. Nothing is invented — an account with no posted activity shows an honest empty state."
+      >
+        {/* RecentActivity carries its own coque; drop it into the section
+            directly, no Series1Panel wrapper (parent controls surface — no
+            double coque). Absorbs the retired /portfolio/activity route. */}
+        <RecentActivity
+          transactions={portfolio.recentTransactions}
+          source={portfolio.source}
+          updatedAt={portfolio.updatedAt}
+        />
+      </Series1Section>
+
+      <Series1Section
+        index="03"
+        title="Records & proof"
+        description="Documents, exports and the on-chain evidence behind your position — secondary controls, not separate destinations."
+      >
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <Series1Panel>
+            <Series1PanelHeader
+              title="Documents & exports"
+              description="Statements and tax preview for your own ledger."
+            />
+            <Series1RowList>
+              <Series1Row
+                label="Tax preview"
+                value={
+                  <Link
+                    href="/portfolio/tax"
+                    className="text-(--ct-accent-strong) transition-colors hover:underline"
+                  >
+                    View YTD preview →
+                  </Link>
+                }
+                hint="1099 / CRS preview computed from your ledger"
+              />
+              <Series1Row
+                label="Statement export"
+                value="On request"
+                hint="Arranged through your relationship contact"
+              />
+            </Series1RowList>
+          </Series1Panel>
+
+          <Series1Panel>
+            <Series1PanelHeader
+              title="Proof"
+              description="Every claim is backed by an indexed on-chain event."
+            />
+            <Series1RowList>
+              <Series1Row
+                label="On-chain evidence"
+                value={
+                  <Link
+                    href="/proof-center"
+                    className="text-(--ct-accent-strong) transition-colors hover:underline"
+                  >
+                    Open Proof Center →
+                  </Link>
+                }
+                hint="Indexed events, provenance and chain / fork label"
+              />
+              <Series1Row
+                label="Provenance"
+                value="Chain-backed"
+                hint="Simulated or seed data is never shown as proof"
+              />
+            </Series1RowList>
+          </Series1Panel>
+        </div>
+      </Series1Section>
+
+      <Series1Section
+        index="04"
         title="Maturity & redemption"
         description="What happens at the end of the term, and how a redemption is arranged."
       >
@@ -209,9 +290,9 @@ export default async function PortfolioPage() {
           <Series1RowList>
             <Series1Row label="Delivery" value="In BTC" hint="Accumulated reserve, at maturity" />
             <Series1Row
-              label="Periodic distribution"
+              label="Periodic cash"
               value="None"
-              hint="The note pays no periodic cash and carries no fixed rate."
+              hint="The note pays no periodic cash and carries no fixed rate — BTC is delivered at maturity."
             />
             <Series1Row
               label="Redemption"
@@ -222,9 +303,9 @@ export default async function PortfolioPage() {
         </Series1Panel>
       </Series1Section>
 
-      <p className="text-xs leading-6 text-zinc-500 dark:text-zinc-400">
+      <p className="text-xs leading-6 text-(--ct-text-faint)">
         Financial figures reflect your own account only and carry their own provenance. This is a mining note: it
-        accumulates BTC over a 24-month term with no periodic cash distribution — accumulated BTC is delivered at
+        accumulates BTC over a 24-month term with no periodic cash — accumulated BTC is delivered at
         maturity. Forward figures are projections shown as a range under stated assumptions, not guaranteed.
       </p>
     </Series1Page>
