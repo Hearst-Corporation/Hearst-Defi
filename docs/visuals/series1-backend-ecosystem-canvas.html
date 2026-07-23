@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Series 1 — Backend Ecosystem Canvas · Hearst Connect</title>
+<style>
+  :root, html.dark {
+    --color-accent-400: #bdfc9f;
+    --color-accent-500: #A7FB90;
+    --color-accent-600: #75b065;
+    --color-accent-700: #547d48;
+
+    --color-btc-500: #f7931a;
+    --color-btc-soft: color-mix(in srgb, var(--color-btc-500) 15%, transparent);
+
+    --color-usdc-500: #7aa2ff;
+    --color-usdc-soft: color-mix(in srgb, var(--color-usdc-500) 15%, transparent);
+
+    --color-zinc-50:  oklch(98.5% 0 none);
+    --color-zinc-100: oklch(96.7% 0.001 286.375);
+    --color-zinc-200: oklch(92% 0.004 286.32);
+    --color-zinc-300: oklch(87.1% 0.006 286.286);
+    --color-zinc-400: oklch(70.5% 0.015 286.067);
+    --color-zinc-500: oklch(55.2% 0.016 285.938);
+    --color-zinc-600: oklch(44.2% 0.017 285.786);
+    --color-zinc-700: oklch(37% 0.013 285.805);
+    --color-zinc-800: oklch(27.4% 0.006 286.033);
+    --color-zinc-900: oklch(21% 0.006 285.885);
+    --color-zinc-950: oklch(14.1% 0.005 285.823);
+
+    --color-amber-400: oklch(82.8% 0.189 84.429);
+    --color-blue-400: oklch(70.7% 0.165 254.624);
+
+    --font-sans: 'Satoshi Variable', 'Geist', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
+
+    --page-bg: var(--color-zinc-950);
+    --panel-bg: color-mix(in oklab, var(--color-zinc-900) 92%, transparent);
+    --panel-bg-soft: color-mix(in oklab, var(--color-zinc-900) 60%, transparent);
+    --fg-strong: #fff;
+    --fg-muted: var(--color-zinc-400);
+    --fg-soft: var(--color-zinc-500);
+    --hairline: color-mix(in oklab, #fff 10%, transparent);
+    --hairline-faint: color-mix(in oklab, #fff 5%, transparent);
+
+    --accent-text: var(--color-accent-500);
+    --accent-wash: color-mix(in oklab, var(--color-accent-500) 12%, transparent);
+    --accent-ring: color-mix(in oklab, var(--color-accent-500) 35%, transparent);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background:
+      radial-gradient(ellipse 90% 60% at 20% -10%, color-mix(in oklab, var(--color-accent-500) 6%, transparent), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 100% 0%, color-mix(in oklab, var(--color-btc-500) 5%, transparent), transparent 55%),
+      var(--page-bg);
+    color: var(--fg-strong);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 5vw 96px;
+  }
+
+  .wrap { max-width: 1680px; margin: 0 auto; }
+
+  /* ── Header ───────────────────────────────────────────── */
+  .hero {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 24px; padding-bottom: 28px; margin-bottom: 40px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent-text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .hero-eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: var(--accent-text); box-shadow: 0 0 10px var(--color-accent-500); }
+  .hero h1 { font-size: 34px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+  .hero-thesis { margin-top: 10px; font-size: 15px; color: var(--fg-muted); max-width: 60ch; }
+  .hero-thesis strong { color: var(--fg-strong); font-weight: 600; }
+  .hero-meta { text-align: right; font-family: var(--font-mono); font-size: 11px; color: var(--fg-soft); line-height: 1.8; }
+  .hero-meta b { color: var(--fg-muted); font-weight: 600; }
+
+  /* ── Section chrome ───────────────────────────────────── */
+  .layer { margin-bottom: 56px; }
+  .layer-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px; }
+  .layer-num {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--fg-soft);
+    width: 22px; text-align: right;
+  }
+  .layer-title { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-strong); }
+  .layer-sub { font-size: 12px; color: var(--fg-soft); }
+
+  /* ── Flow canvas (SVG connectors + node cards) ───────────── */
+  .flow-canvas { position: relative; }
+  .flow-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+  .flow-grid {
+    position: relative; z-index: 1;
+    display: grid; gap: 18px;
+  }
+
+  .node {
+    position: relative;
+    background: var(--panel-bg);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 18px 20px;
+    backdrop-filter: blur(6px);
+    display: flex; flex-direction: column; gap: 8px;
+    transition: border-color .2s ease;
+  }
+  .node:hover { border-color: var(--accent-ring); }
+  .node--accent { border-color: color-mix(in oklab, var(--color-accent-500) 45%, transparent); box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-accent-500) 12%, transparent), 0 20px 50px -30px color-mix(in oklab, var(--color-accent-500) 40%, transparent); }
+  .node--btc { border-color: color-mix(in oklab, var(--color-btc-500) 40%, transparent); }
+  .node--dim { opacity: .78; }
+  .node--ghost { border-style: dashed; border-color: var(--hairline); background: transparent; }
+
+  .node-kicker { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .node-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-soft); }
+  .node-title { font-size: 15px; font-weight: 600; color: var(--fg-strong); letter-spacing: -.01em; }
+  .node-body { font-size: 12px; color: var(--fg-muted); line-height: 1.55; }
+  .node-facts { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
+  .node-fact { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; }
+  .node-fact dt { color: var(--fg-soft); }
+  .node-fact dd { font-family: var(--font-mono); color: var(--fg-strong); text-align: right; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 999px; border: 1px solid var(--hairline);
+    color: var(--fg-soft); white-space: nowrap;
+  }
+  .pill--live { color: var(--accent-text); border-color: var(--accent-ring); }
+  .pill--live::before { content: ""; width: 5px; height: 5px; border-radius: 999px; background: currentColor; box-shadow: 0 0 6px currentColor; }
+  .pill--stale { color: var(--color-amber-400); border-color: color-mix(in oklab, var(--color-amber-400) 40%, transparent); }
+  .pill--gap { color: var(--fg-soft); border-style: dashed; }
+  .pill--btc { color: var(--color-btc-500); border-color: color-mix(in oklab, var(--color-btc-500) 40%, transparent); }
+  .pill--fork { color: var(--color-blue-400); border-color: color-mix(in oklab, var(--color-blue-400) 40%, transparent); }
+
+  /* ── Layer 1 — Frontend row ───────────────────────────── */
+  .row-frontend .flow-grid { grid-template-columns: repeat(6, 1fr); }
+
+  /* ── Layer 2 — Transport / GPU1 / Fly ─────────────────── */
+  .row-transport .flow-grid { grid-template-columns: 1.1fr 1.3fr 1fr; gap: 22px; }
+  .transport-stack { display: flex; flex-direction: column; gap: 14px; }
+
+  /* ── Layer 3 — Chain / indexer / db ───────────────────── */
+  .row-core .flow-grid { grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+  .core-events { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .evt-chip { font-family: var(--font-mono); font-size: 10px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--hairline); color: var(--fg-muted); }
+  .evt-chip--decoded { color: var(--accent-text); border-color: var(--accent-ring); background: var(--accent-wash); }
+
+  /* ── Layer 4 — Oracles / mining inputs ────────────────── */
+  .row-oracles .flow-grid { grid-template-columns: repeat(5, 1fr); }
+
+  /* ── Layer 5 — Proof + Projections ────────────────────── */
+  .row-outputs .flow-grid { grid-template-columns: 1.2fr 1.4fr; gap: 24px; }
+
+  .proj-list { display: flex; flex-direction: column; gap: 10px; }
+  .proj-item { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; padding: 10px 0; border-top: 1px solid var(--hairline-faint); }
+  .proj-item:first-child { border-top: none; padding-top: 0; }
+  .proj-name { font-size: 12.5px; font-weight: 600; color: var(--fg-strong); }
+  .proj-formula { grid-column: 1 / -1; font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-soft); }
+  .proj-status { font-size: 10px; }
+
+  /* ── Exposure matrix ───────────────────────────────────── */
+  .exposure-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .exposure-card { border-radius: 14px; padding: 18px 20px; border: 1px solid var(--hairline); background: var(--panel-bg-soft); }
+  .exposure-card h3 { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+  .exposure-card h3::before { content: ""; width: 7px; height: 7px; border-radius: 2px; }
+  .exposure-card--b2b h3::before { background: var(--color-accent-500); }
+  .exposure-card--admin h3::before { background: var(--color-blue-400); }
+  .exposure-card--never h3::before { background: var(--color-zinc-400); }
+  .exposure-card--soon h3::before { background: var(--color-amber-400); }
+  .exposure-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .exposure-card li { font-size: 11.5px; color: var(--fg-muted); padding-left: 12px; position: relative; }
+  .exposure-card li::before { content: "—"; position: absolute; left: 0; color: var(--fg-soft); }
+
+  /* ── KPI families ──────────────────────────────────────── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .kpi-card { border-radius: 14px; padding: 16px 18px; border: 1px solid var(--hairline); background: var(--panel-bg); display: flex; flex-direction: column; gap: 10px; }
+  .kpi-fam { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-text); }
+  .kpi-card ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .kpi-card li { font-size: 11.5px; color: var(--fg-muted); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .kpi-card li b { color: var(--fg-strong); font-weight: 500; }
+
+  /* ── Footer note ───────────────────────────────────────── */
+  .foot-note {
+    margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--hairline);
+    font-size: 11.5px; color: var(--fg-soft); display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+  }
+  .foot-note b { color: var(--fg-muted); }
+
+  @media (max-width: 1400px) {
+    .row-frontend .flow-grid { grid-template-columns: repeat(3, 1fr); }
+    .row-oracles .flow-grid { grid-template-columns: repeat(3, 1fr); }
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 980px) {
+    .row-transport .flow-grid, .row-core .flow-grid, .row-outputs .flow-grid { grid-template-columns: 1fr; }
+    .exposure-grid { grid-template-columns: repeat(2, 1fr); }
+    .row-frontend .flow-grid, .row-oracles .flow-grid, .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════════════════ HERO ═══════════════════════ -->
+  <header class="hero">
+    <div>
+      <p class="hero-eyebrow">Series 1 · Bitcoin Reserve Vault</p>
+      <h1>Backend ecosystem &amp; B2B intelligence map</h1>
+      <p class="hero-thesis"><strong>Not yield. Bitcoin inventory.</strong> A Bitcoin reserve built through a mining strategy, exposed through a proof-backed backend, never a distribution or coupon product.</p>
+    </div>
+    <div class="hero-meta">
+      <div><b>Backend</b> hearst-connect-backend · GPU1 · 127.0.0.1:3901</div>
+      <div><b>Fork chain</b> hearst-chain.fly.dev · chainId 31337</div>
+      <div><b>Status as of</b> 2026-07-23</div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════ LAYER 1 — FRONTEND ═══════════════════════ -->
+  <section class="layer row-frontend">
+    <div class="layer-head">
+      <span class="layer-num">01</span>
+      <span class="layer-title">Frontend — Hearst Connect</span>
+      <span class="layer-sub">what the investor and admin cockpits render, and what each consumes</span>
+    </div>
+    <div class="flow-canvas">
+      <div class="flow-grid">
+        <div class="node node--accent">
+          <div class="node-kicker"><span class="node-label">Investor</span><span class="pill pill--live">Live</span></div>
+          <div class="node-title">/dashboard</div>
+          <div class="node-body">Series 1 hero, pocket allocation, mining register.</div>
+          <div class="node-facts"><div class="node-fact"><dt>consumes</dt><dd>vault · strategies · mining · factsheet</dd></div></div>
+        </div>
+        <div class="node node--accent">
+          <div class="node-kicker"><span class="node-label">Investor</span><span class="pill pill--live">Live</span></div>
+          <div class="node-title">/proof-center</div>
+          <div class="node-body">Series1ProofEventStepper — indexed events only.</div>
+          <div class="node-facts"><div class="node-fact"><dt>consumes</dt><dd>series1/events</dd></div></div>
+        </div>
+        <div class="node">
+          <div class="node-kicker"><span class="node-label">Investor</span><span class="pill pill--stale">Prisma-direct</span></div>
+          <div class="node-title">/portfolio</div>
+          <div class="node-body">Position, distributions, nav — reads Prisma, not the backend.</div>
+          <div class="node-facts"><div class="node-fact"><dt>consumes</dt><dd>Investor · Position · NavSnapshot</dd></div></div>
+        </div>
+        <div class="node">
+          <div class="node-kicker"><span class="node-label">Investor</span><span class="pill pill--live">Live</span></div>
+          <div class="node-title">/vaults</div>
+          <div class="node-body">Product selection, term sheet, deposit flow.</div>
+          <div class="node-facts"><div class="node-fact"><dt>consumes</dt><dd>vault · factsheet</dd></div></div>
+        </div>
+        <div class="node">
+          <div class="node-kicker"><span class="node-label">Investor</span><span class="pill pill--stale">Prisma-direct</span></div>
+          <div class="node-title">/profile</div>
+          <div class="node-body">Identity, KYC state.</div>
+          <div class="node-facts"><div class="node-fact"><dt>consumes</dt><dd>profile (unwired) · Investor</dd></div></div>
+        </div>
+        <div class="node node--dim">
+          <div class="node-kicker"><span class="node-label">Admin</span><span class="pill pill--gap">Mixed</span></div>
+          <div class="node-title">Admin cockpit</div>
+          <div class="node-body">Proof center, diagnostics, mining register — reads DB directly + some backend calls.</div>
+          <div class="node-facts"><div class="node-fact"><dt>consumes</dt><dd>runtime · MiningMetric · Prisma</dd></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ LAYER 2 — TRANSPORT / GPU1 / FLY ═══════════════════════ -->
+  <section class="layer row-transport">
+    <div class="layer-head">
+      <span class="layer-num">02</span>
+      <span class="layer-title">Transport, runtime &amp; the fork</span>
+      <span class="layer-sub">GPU1 is the real backend · Fly hosts only the preprod chain fork, never the API</span>
+    </div>
+    <div class="flow-canvas">
+      <svg class="flow-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="M 33 20 C 40 40, 40 40, 50 50" stroke="var(--color-accent-500)" stroke-width=".25" fill="none" opacity=".35" vector-effect="non-scaling-stroke"/>
+        <path d="M 50 50 C 60 60, 60 60, 66 78" stroke="var(--color-blue-400)" stroke-width=".25" fill="none" opacity=".3" vector-effect="non-scaling-stroke" stroke-dasharray="1 1.4"/>
+      </svg>
+      <div class="flow-grid">
+        <div class="node">
+          <div class="node-kicker"><span class="node-label">Transport</span><span class="pill pill--live">Tunnel</span></div>
+          <div class="node-title">connect-api.hearst.app</div>
+          <div class="node-body">Cloudflare tunnel, managed via the Cloudflare API — independent of GPU1's local cloudflared config.</div>
+          <div class="node-facts">
+            <div class="node-fact"><dt>auth</dt><dd>Bearer session token</dd></div>
+            <div class="node-fact"><dt>probe</dt><dd>profile 200 · dashboard LIVE</dd></div>
+          </div>
+        </div>
+        <div class="node node--accent">
+          <div class="node-kicker"><span class="node-label">Backend runtime</span><span class="pill pill--live">GPU1</span></div>
+          <div class="node-title">hearst-connect-backend</div>
+          <div class="node-body">node:http, no framework · independent repo · Prisma read-only, 7 models, 9 call sites, zero writes.</div>
+          <div class="node-facts">
+            <div class="node-fact"><dt>host</dt><dd>127.0.0.1:3901</dd></div>
+            <div class="node-fact"><dt>providerMode</dt><dd>gpu1-supabase</dd></div>
+            <div class="node-fact"><dt>/health</dt><dd>{"status":"ok"}</dd></div>
+            <div class="node-fact"><dt>/ready</dt><dd>{ready, db, latencyMs}</dd></div>
+          </div>
+        </div>
+        <div class="node node--btc" style="border-style: dashed;">
+          <div class="node-kicker"><span class="node-label">Chain fork</span><span class="pill pill--fork">Fly.dev</span></div>
+          <div class="node-title">hearst-chain.fly.dev</div>
+          <div class="node-body">Preprod fork only — <b style="color:var(--fg-strong)">never the backend API</b>. Sleeps on autosleep; indexed rows persist regardless.</div>
+          <div class="node-facts">
+            <div class="node-fact"><dt>chainId</dt><dd>31337</dd></div>
+            <div class="node-fact"><dt>contract</dt><dd>0xA783…B146</dd></div>
+            <div class="node-fact"><dt>mode</dt><dd>v2-fork</dd></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ LAYER 3 — CHAIN / INDEXER / DB ═══════════════════════ -->
+  <section class="layer row-core">
+    <div class="layer-head">
+      <span class="layer-num">03</span>
+      <span class="layer-title">Chain events, indexer &amp; database</span>
+      <span class="layer-sub">the one producer of on-chain history — no client rebuilds history from fixtures</span>
+    </div>
+    <div class="flow-canvas">
+      <div class="flow-grid">
+        <div class="node">
+          <div class="node-kicker"><span class="node-label">Contract</span><span class="pill pill--fork">v2.1</span></div>
+          <div class="node-title">DynaVault event log</div>
+          <div class="node-body">14 event names in the ABI union. Only 3 get typed decoding today.</div>
+          <div class="core-events">
+            <span class="evt-chip evt-chip--decoded">Deposit</span>
+            <span class="evt-chip evt-chip--decoded">Redeem</span>
+            <span class="evt-chip evt-chip--decoded">ElectricityPaid</span>
+            <span class="evt-chip">StrategyAdded</span>
+            <span class="evt-chip">Rebalance</span>
+            <span class="evt-chip">VaultSwapped</span>
+            <span class="evt-chip">MiningMetricsReported</span>
+            <span class="evt-chip">CurtailmentTriggered</span>
+            <span class="evt-chip">+6 more (raw only)</span>
+          </div>
+        </div>
+        <div class="node node--accent">
+          <div class="node-kicker"><span class="node-label">Indexer</span><span class="pill pill--live">Bounded runs</span></div>
+          <div class="node-title">Series1 chain-event indexer</div>
+          <div class="node-body">One invocation = one window = exit. No loop, no scheduler. Cursor advances only after the full window persists.</div>
+          <div class="node-facts">
+            <div class="node-fact"><dt>idempotency</dt><dd>(chainId, txHash, logIndex)</dd></div>
+            <div class="node-fact"><dt>indexed today</dt><dd>6 events · chainId 31337</dd></div>
+            <div class="node-fact"><dt>replay</dt><dd>skip, never duplicate</dd></div>
+          </div>
+        </div>
+        <div class="node">
+          <div class="node-kicker"><span class="node-label">Database</span><span class="pill pill--live">Supabase</span></div>
+          <div class="node-title">Shared Postgres — not duplicated</div>
+          <div class="node-body">Same instance the frontend's own Prisma layer reads.</div>
+          <div class="node-facts">
+            <div class="node-fact"><dt>Series1ChainEvent</dt><dd>6 rows · fork-marked</dd></div>
+            <div class="node-fact"><dt>Position (real)</dt><dd>1 of 7 · $11, txHash present</dd></div>
+            <div class="node-fact"><dt>NavSnapshot</dt><dd>96 rows · 100% seeded</dd></div>
+            <div class="node-fact"><dt>MiningMetric</dt><dd>424 rows · stale since 07-07</dd></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ LAYER 4 — ORACLES / MINING INPUTS ═══════════════════════ -->
+  <section class="layer row-oracles">
+    <div class="layer-head">
+      <span class="layer-num">04</span>
+      <span class="layer-title">Oracles &amp; mining inputs</span>
+      <span class="layer-sub">what enters the system, and what it is not yet allowed to prove</span>
+    </div>
+    <div class="flow-canvas">
+      <div class="flow-grid">
+        <div class="node node--btc">
+          <div class="node-kicker"><span class="node-label">Oracle</span><span class="pill pill--btc">BTC price</span></div>
+          <div class="node-title">Coingecko</div>
+          <div class="node-body">Spot BTC/USD — feeds reserve valuation, hashprice.</div>
+        </div>
+        <div class="node">
+          <div class="node-kicker"><span class="node-label">Oracle</span><span class="pill pill--gap">Difficulty</span></div>
+          <div class="node-title">mempool.space</div>
+          <div class="node-body">Network difficulty — live hashprice computation input.</div>
+        </div>
+        <div class="node node--dim">
+          <div class="node-kicker"><span class="node-label">Telemetry</span><span class="pill pill--stale">Stale · dead cron</span></div>
+          <div class="node-title">MiningMetric (DB)</div>
+          <div class="node-body">hashprice, difficulty, btcPrice, energyCost, uptime — since 07-07, unrefreshed.</div>
+        </div>
+        <div class="node node--dim">
+          <div class="node-kicker"><span class="node-label">Custody</span><span class="pill pill--gap">Not populated</span></div>
+          <div class="node-title">Fireblocks attestation</div>
+          <div class="node-body">Field exists (BtcCustody), no value populated yet.</div>
+        </div>
+        <div class="node node--ghost">
+          <div class="node-kicker"><span class="node-label">Future</span><span class="pill pill--gap">Not indexed</span></div>
+          <div class="node-title">MiningMetricsReported</div>
+          <div class="node-body">Blocking gap: no typed decoding → no monthly BTC ledger yet.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ LAYER 5 — PROOF + PROJECTIONS ═══════════════════════ -->
+  <section class="layer row-outputs">
+    <div class="layer-head">
+      <span class="layer-num">05</span>
+      <span class="layer-title">Proof output &amp; what's projectable</span>
+      <span class="layer-sub">proved on-chain vs. calculable from what exists today — never invented</span>
+    </div>
+    <div class="flow-canvas">
+      <div class="flow-grid">
+        <div class="node node--accent">
+          <div class="node-kicker"><span class="node-label">Proof Center</span><span class="pill pill--live">Shipped</span></div>
+          <div class="node-title">Series1ProofEventStepper</div>
+          <div class="node-body">Real indexed events, ordered by blockNumber/logIndex. Fork provenance labelled, never presented as mainnet. Simulated data rejected before render.</div>
+          <div class="node-facts">
+            <div class="node-fact"><dt>live</dt><dd>real events, sorted</dd></div>
+            <div class="node-fact"><dt>empty</dt><dd>genuinely no events</dd></div>
+            <div class="node-fact"><dt>unavailable</dt><dd>outage, not a claim</dd></div>
+            <div class="node-fact"><dt>not_configured</dt><dd>incl. simulated-rejected</dd></div>
+          </div>
+        </div>
+        <div class="node">
+          <div class="node-kicker"><span class="node-label">Projections</span><span class="pill pill--gap">Formula-backed, no fake yield</span></div>
+          <div class="node-title">What can be calculated today</div>
+          <div class="proj-list">
+            <div class="proj-item">
+              <span class="proj-name">Allocation drift</span><span class="proj-status pill pill--live">available</span>
+              <span class="proj-formula">actualBps − targetBps (VaultStrategy.driftBps)</span>
+            </div>
+            <div class="proj-item">
+              <span class="proj-name">Reserve coverage / runway</span><span class="proj-status pill pill--live">available</span>
+              <span class="proj-formula">reserveUsdc / monthlyElectricityCost</span>
+            </div>
+            <div class="proj-item">
+              <span class="proj-name">Fork provenance ratio</span><span class="proj-status pill pill--live">available</span>
+              <span class="proj-formula">count(chainId=31337) / count(events) — today: 1.0</span>
+            </div>
+            <div class="proj-item">
+              <span class="proj-name">Proof / event completeness</span><span class="proj-status pill pill--live">available</span>
+              <span class="proj-formula">distinct eventName observed / 14</span>
+            </div>
+            <div class="proj-item">
+              <span class="proj-name">Reserve build rate · cost per BTC</span><span class="proj-status pill pill--gap">not available</span>
+              <span class="proj-formula">needs production.monthly — no indexer producer yet</span>
+            </div>
+            <div class="proj-item">
+              <span class="proj-name">Break-even hashprice</span><span class="proj-status pill pill--gap">not available</span>
+              <span class="proj-formula">btcRevenuePerTh has no source field</span>
+            </div>
+            <div class="proj-item">
+              <span class="proj-name">Maturity readiness (composite)</span><span class="proj-status pill pill--gap">not available</span>
+              <span class="proj-formula">blocked by reserve build rate — no fake composite score</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ EXPOSURE ═══════════════════════ -->
+  <section class="layer">
+    <div class="layer-head">
+      <span class="layer-num">06</span>
+      <span class="layer-title">What's exposable</span>
+      <span class="layer-sub">who sees what, and what never leaves the backend</span>
+    </div>
+    <div class="exposure-grid">
+      <div class="exposure-card exposure-card--b2b">
+        <h3 style="color:var(--accent-text)">Expose to B2B client</h3>
+        <ul>
+          <li>Vault status, totalAssets, minimumDepositAtomic</li>
+          <li>Product term, factsheet allocation targets</li>
+          <li>chainId / fork label, on every event</li>
+          <li>Indexed proof events — full field set</li>
+          <li>On-chain allocation + drift</li>
+          <li>Profile identity, eligibility state</li>
+          <li>Honest empty / unavailable states</li>
+        </ul>
+      </div>
+      <div class="exposure-card exposure-card--admin">
+        <h3 style="color:var(--color-blue-400)">Admin only</h3>
+        <ul>
+          <li>Raw DB counts, indexer cursor state</li>
+          <li>/ready latency, DB reachability</li>
+          <li>Backend runtime: commitSha, providerMode, uptime</li>
+          <li>Chain RPC health, codePresent</li>
+          <li>Full MiningMetric telemetry (pre-revalidation)</li>
+          <li>Data hygiene classifications</li>
+          <li>Dev-bypass / review account existence</li>
+        </ul>
+      </div>
+      <div class="exposure-card exposure-card--never">
+        <h3 style="color:var(--fg-muted)">Never expose</h3>
+        <ul>
+          <li>SESSION_SIGNING_KEY, DATABASE_URL, KEEPER_PRIVATE_KEY</li>
+          <li>Raw admin-bypass mechanics</li>
+          <li>Full internal emails beyond legitimate admin need</li>
+          <li>Non-validated projections presented as facts</li>
+          <li>Seed/demo rows presented as real activity</li>
+        </ul>
+      </div>
+      <div class="exposure-card exposure-card--soon">
+        <h3 style="color:var(--color-amber-400)">Not available yet</h3>
+        <ul>
+          <li>Monthly BTC accumulation ledger</li>
+          <li>Any mainnet event — today, fork only</li>
+          <li>Audited maturity delivery actuals</li>
+          <li>Production custody attestation</li>
+          <li>Full BTC reserve trajectory curve</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ KPI CATALOG ═══════════════════════ -->
+  <section class="layer">
+    <div class="layer-head">
+      <span class="layer-num">07</span>
+      <span class="layer-title">KPI catalog — five families</span>
+      <span class="layer-sub">full definitions with formula + confidence in docs/series1/kpi-catalog.md</span>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <span class="kpi-fam">A · Reserve / Inventory</span>
+        <ul>
+          <li>BTC reserve built <b>live</b></li>
+          <li>Reserve build rate <b>gap</b></li>
+          <li>Capital deployed <b>live</b></li>
+          <li>Maturity delivery estimate <b>partial</b></li>
+          <li>Reserve coverage ratio <b>live</b></li>
+        </ul>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-fam">B · Mining Economics</span>
+        <ul>
+          <li>Hashprice (2 sources!) <b>stale</b></li>
+          <li>Deployed hashrate <b>stale</b></li>
+          <li>Energy cost <b>live</b></li>
+          <li>Cost-to-BTC conversion <b>gap</b></li>
+          <li>Break-even hashprice <b>gap</b></li>
+        </ul>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-fam">C · Capital Allocation</span>
+        <ul>
+          <li>Policy target B1/B2/B3 <b>live</b></li>
+          <li>On-chain allocation <b>live</b></li>
+          <li>Allocation drift <b>live</b></li>
+          <li>Reserve runway <b>live</b></li>
+        </ul>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-fam">D · Proof / Provenance</span>
+        <ul>
+          <li>Indexed events count <b>live</b></li>
+          <li>Last indexed block <b>live</b></li>
+          <li>Proof completeness <b>live</b></li>
+          <li>Fork provenance ratio <b>live</b></li>
+          <li>Replay / idempotence <b>admin</b></li>
+        </ul>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-fam">E · Risk / Operations</span>
+        <ul>
+          <li>DB health <b>admin</b></li>
+          <li>RPC health <b>admin</b></li>
+          <li>Indexer freshness <b>admin</b></li>
+          <li>Stale telemetry flag <b>live</b></li>
+          <li>Network mismatch <b>live</b></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot-note">
+    <span><b>Companion docs</b> — docs/series1/backend-ecosystem-map.md (architecture) · docs/series1/kpi-catalog.md (formulas)</span>
+    <span><b>Doctrine</b> — docs/design-system/DS_DOCTRINE_LOCKED.md §11: not yield, not APY-as-promise, not distribution</span>
+  </footer>
+
+</div>
+</body>
+</html>
