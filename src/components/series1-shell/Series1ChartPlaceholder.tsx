@@ -43,6 +43,7 @@ export function Series1ChartPlaceholder({
   label,
   detail,
   className,
+  variant = "fullSurface",
 }: {
   title: string;
   description?: ReactNode;
@@ -50,11 +51,19 @@ export function Series1ChartPlaceholder({
   label: string;
   detail: string;
   className?: string;
+  /**
+   * Shell/content contract: `fullSurface` (default) ships its own hairline
+   * frame; `embedded` renders header + chart well only, for a parent that
+   * already owns the Series1Panel coque.
+   */
+  variant?: "fullSurface" | "embedded";
 }) {
   return (
     <figure
       className={cn(
-        "flex h-full min-h-72 flex-col overflow-hidden rounded-(--ct-radius-xl) border border-(--ct-border-soft)",
+        "flex h-full min-h-72 flex-col",
+        variant === "fullSurface" &&
+          "overflow-hidden rounded-(--ct-radius-xl) border border-(--ct-border-soft)",
         className,
       )}
     >

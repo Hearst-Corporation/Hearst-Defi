@@ -33,6 +33,15 @@ interface VaultChainReadoutProps {
    *  compare. `null` = no snapshot attributes an AUM to this vault, which is
    *  not the same as a measured zero. */
   dbAumUsdc: number | null;
+  /**
+   * Shell/content contract (Design Studio, Phase 2): the parent controls the
+   * surface, the child controls the content.
+   * - `fullSurface` (default): renders its own coque, aligned on the KycPanel
+   *   grammar of its host page (rounded-xl, soft hairline, card fill — no
+   *   shadow: dense row panels are flat by canon).
+   * - `embedded`: content only (header + rows); the parent owns the panel.
+   */
+  variant?: "fullSurface" | "embedded";
 }
 
 const ROW =
@@ -42,7 +51,10 @@ const DT = "text-[length:var(--ct-text-sm)] text-[var(--ct-text-muted)]";
 const DD = "flex min-w-0 items-center gap-3";
 const VALUE = "text-[length:var(--ct-text-sm)] font-medium tabular-nums";
 
-export async function VaultChainReadout({ dbAumUsdc }: VaultChainReadoutProps) {
+export async function VaultChainReadout({
+  dbAumUsdc,
+  variant = "fullSurface",
+}: VaultChainReadoutProps) {
   const target = getVaultTarget();
   const core = await readVaultCore();
 
@@ -61,7 +73,16 @@ export async function VaultChainReadout({ dbAumUsdc }: VaultChainReadoutProps) {
     );
 
   return (
-    <section className="flex flex-col overflow-hidden rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)]">
+    <section
+      className={
+        variant === "embedded"
+          ? // The parent owns the coque — content only.
+            "flex flex-col"
+          : // Own coque, aligned on the host page's KycPanel grammar. Flat:
+            // dense row panels carry no shadow (anti "plaques identiques").
+            "flex flex-col overflow-hidden rounded-xl border border-(--ct-border-soft) bg-(--ct-surface-card)"
+      }
+    >
       <BentoHeader
         title="On-chain State"
         subtitle={`Read from the vault contract · Base Sepolia · chain ${CHAIN_ID}`}
