@@ -88,8 +88,10 @@ export interface DashboardDuration {
 export interface DashboardSubscriptionCapacity {
   readonly tvlCapAtomic: string | null;
   readonly availableCapacityAtomic: string | null;
-  /** WHOLE USDC (e.g. "100000" = $100,000), from FactsheetTerms — NOT 6dp
-   *  atomic. Null stays null, never 0. */
+  /** ATOMIC USDC 6dp string despite the field name — the contract invariant is
+   *  minimumDepositUsdc === minimumDepositAtomic = whole × 10^6 (contracts.ts
+   *  :124-129). Format with formatUsdcAmount, never as a whole number. Null
+   *  stays null, never 0. */
   readonly minimumDepositUsdc: string | null;
 }
 

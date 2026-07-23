@@ -223,9 +223,13 @@ export function Series1Dashboard({
   const capData = subscriptionCapacity.status === "wired" ? subscriptionCapacity.data : null;
   const cockpitSubscription = {
     hardCap: capData?.tvlCapAtomic != null ? formatUsdcAmount(BigInt(capData.tvlCapAtomic)) : null,
+    // minimumDepositUsdc is ATOMIC 6dp despite the name (contract invariant:
+    // byte-identical to minimumDepositAtomic = whole × 10^6). Format it the
+    // same way as the cap — NOT as a whole number (that read $250,000 as
+    // $250,000,000,000, the runtime bug PROMPT 032 caught).
     minimum:
       capData?.minimumDepositUsdc != null
-        ? `$${Number(capData.minimumDepositUsdc).toLocaleString("en-US")}`
+        ? formatUsdcAmount(BigInt(capData.minimumDepositUsdc))
         : null,
   };
 
