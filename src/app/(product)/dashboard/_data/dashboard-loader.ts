@@ -30,6 +30,7 @@ import {
   getMiningElectricityFromBackend,
   getMiningOnchainFromBackend,
   getProductFactsheetFromBackend,
+  getSeries1EventsFromBackend,
   getVaultFromBackend,
   getVaultStrategiesFromBackend,
   isBackendError,
@@ -82,6 +83,26 @@ export interface DashboardDuration {
   readonly months: bigint;
 }
 
+/** Subscription capacity — atomic strings preserved (never parsed to float);
+ *  any absent field is null (not 0), so the surface can say "not reported". */
+export interface DashboardSubscriptionCapacity {
+  readonly tvlCapAtomic: string | null;
+  readonly availableCapacityAtomic: string | null;
+  /** WHOLE USDC (e.g. "100000" = $100,000), from FactsheetTerms — NOT 6dp
+   *  atomic. Null stays null, never 0. */
+  readonly minimumDepositUsdc: string | null;
+}
+
+/** Last indexed proof event summary — null fields when nothing is indexed. */
+export interface DashboardProofSnapshot {
+  readonly eventCount: number;
+  readonly lastEventName: string | null;
+  readonly lastTxHash: string | null;
+  readonly lastBlockNumber: string | null;
+  readonly lastIndexedAt: string | null;
+  readonly chainId: number | null;
+}
+
 export interface DashboardPageDataOk {
   readonly state: "ok";
   readonly core: WiredFromBackend<DashboardCore>;
@@ -90,6 +111,8 @@ export interface DashboardPageDataOk {
   readonly elec: WiredFromBackend<DashboardElec>;
   readonly ops: WiredFromBackend<DashboardOps>;
   readonly duration: WiredFromBackend<DashboardDuration>;
+  readonly subscriptionCapacity: WiredFromBackend<DashboardSubscriptionCapacity>;
+  readonly proofSnapshot: WiredFromBackend<DashboardProofSnapshot>;
   readonly runtimeMode: string;
 }
 
@@ -118,12 +141,16 @@ function isoToUnix(iso: string): bigint {
  * top-line figure to show and the whole surface is an honest error.
  */
 export async function loadDashboardPageData(): Promise<DashboardPageData> {
-  const [vaultR, strategiesR, miningR, elecR, factsheetR] = await Promise.allSettled([
+  const [vaultR, strategiesR, miningR, elecR, factsheetR, eventsR] = await Promise.allSettled([
     getVaultFromBackend(),
     getVaultStrategiesFromBackend(),
     getMiningOnchainFromBackend(),
     getMiningElectricityFromBackend(),
     getProductFactsheetFromBackend(),
+    // Proof snapshot source. Bounded read (most-recent-first per the contract),
+    // 1 is enough for "last event"; count comes from the same envelope only
+    // when it answers — an unavailable read never reports a count of 0.
+    getSeries1EventsFromBackend(1),
   ]);
 
   if (vaultR.status === "rejected") {
@@ -238,6 +265,59 @@ export async function loadDashboardPageData(): Promise<DashboardPageData> {
         )
       : unreachable("factsheet", factsheetR.reason);
 
+  // ── Subscription capacity — cap/available from the vault's `capacity` block
+  // (already read above), minimum from the factsheet terms. Atomic strings are
+  // carried verbatim; a null field stays null so the surface reports "not
+  // reported" rather than a fabricated 0. The block is available whenever the
+  // vault answered (it always did — an unreachable vault is the early error
+  // return); the minimum is spliced in only when the factsheet also answered.
+  const capacityWired = resolvedToWired(vault.data.capacity, runtime);
+  const factsheetTermsWired =
+    factsheetR.status === "fulfilled"
+      ? resolvedToWired(factsheetR.value.data.terms, factsheetR.value.data.runtime)
+      : unreachable<{ minimumDepositUsdc: string | null }>("factsheet", factsheetR.reason);
+  const subscriptionCapacity: WiredFromBackend<DashboardSubscriptionCapacity> =
+    selectExposedFromWired(capacityWired, (c) => ({
+      tvlCapAtomic: c.tvlCap,
+      availableCapacityAtomic: c.availableCapacity,
+      // FactsheetTerms exposes the minimum as WHOLE USDC (minimumDepositUsdc,
+      // e.g. "100000" = $100,000) — the atomic 6dp field lives on the vault
+      // snapshot, not here. Carried verbatim as the reported whole-USDC string;
+      // null stays null (never coerced to 0).
+      minimumDepositUsdc:
+        factsheetTermsWired.status === "wired" ? factsheetTermsWired.data.minimumDepositUsdc : null,
+    }));
+
+  // ── Proof snapshot — the last indexed event. The backend returns events
+  // most-recent-first (contracts.ts:576), so events[0] is the last. No sort is
+  // performed here; when order ever matters beyond "latest", the Proof Center
+  // (which reads 200 and sorts) remains the source of record. An unavailable
+  // read never reports a count of 0 — it stays unavailable.
+  const proofSnapshot: WiredFromBackend<DashboardProofSnapshot> =
+    eventsR.status === "fulfilled"
+      ? selectExposedFromWired(
+          // The Resolved<events[]> block carries its own status/value/reason;
+          // resolvedToWired reads honesty from the block, and only chainId /
+          // contractAddress from this runtime-like arg (used on the wired
+          // branch for provenance, unused by this snapshot's fields).
+          resolvedToWired(eventsR.value.data.events, {
+            chainId: runtime.chainId,
+            contractAddress: runtime.contractAddress,
+          }),
+          (events) => {
+            const last = events[0] ?? null;
+            return {
+              eventCount: events.length,
+              lastEventName: last?.eventName ?? null,
+              lastTxHash: last?.txHash ?? null,
+              lastBlockNumber: last?.blockNumber ?? null,
+              lastIndexedAt: last?.indexedAt ?? null,
+              chainId: last?.chainId ?? null,
+            };
+          },
+        )
+      : unreachable("series1-events", eventsR.reason);
+
   return {
     state: "ok",
     core,
@@ -246,6 +326,8 @@ export async function loadDashboardPageData(): Promise<DashboardPageData> {
     elec,
     ops,
     duration,
+    subscriptionCapacity,
+    proofSnapshot,
     runtimeMode: runtime.mode,
   };
 }

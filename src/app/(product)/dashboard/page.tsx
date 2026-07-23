@@ -55,6 +55,8 @@ export default async function DashboardPage() {
     <Series1Dashboard
       core={data.core}
       strategies={data.strategies}
+      subscriptionCapacity={data.subscriptionCapacity}
+      proofSnapshot={data.proofSnapshot}
       mining={data.mining}
       elec={data.elec}
       ops={data.ops}

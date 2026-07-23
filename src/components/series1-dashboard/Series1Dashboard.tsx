@@ -137,6 +137,21 @@ export interface Series1DashboardProps {
   >;
   ops: Series1Envelope<OpsState>;
   duration: Series1Envelope<ProductDuration>;
+  // Allocation cockpit signals (PROMPT 031). Structural, envelope-wrapped like
+  // the rest — an absent field inside stays null, never a fabricated figure.
+  subscriptionCapacity: Series1Envelope<{
+    tvlCapAtomic: string | null;
+    availableCapacityAtomic: string | null;
+    minimumDepositUsdc: string | null;
+  }>;
+  proofSnapshot: Series1Envelope<{
+    eventCount: number;
+    lastEventName: string | null;
+    lastTxHash: string | null;
+    lastBlockNumber: string | null;
+    lastIndexedAt: string | null;
+    chainId: number | null;
+  }>;
   // `mode` is a plain string rather than `VaultMode`: it now carries whichever
   // mode the BACKEND reports actually answered ("v2-fork", "v2-mainnet", …),
   // which is a wider vocabulary than the frontend adapter's own three.
@@ -146,6 +161,8 @@ export interface Series1DashboardProps {
 export function Series1Dashboard({
   core,
   strategies,
+  subscriptionCapacity,
+  proofSnapshot,
   mining,
   elec,
   ops,
@@ -199,6 +216,30 @@ export function Series1Dashboard({
       : r.reason.includes("not_configured")
         ? "not_configured"
         : "unavailable";
+
+  // Subscription capacity (PROMPT 031): cap/available are 6dp atomic USDC;
+  // minimum is whole USDC. Any absent field → null on the surface ("not
+  // reported"), never a fabricated 0.
+  const capData = subscriptionCapacity.status === "wired" ? subscriptionCapacity.data : null;
+  const cockpitSubscription = {
+    hardCap: capData?.tvlCapAtomic != null ? formatUsdcAmount(BigInt(capData.tvlCapAtomic)) : null,
+    minimum:
+      capData?.minimumDepositUsdc != null
+        ? `$${Number(capData.minimumDepositUsdc).toLocaleString("en-US")}`
+        : null,
+  };
+
+  // Proof snapshot (PROMPT 031): last indexed event, honest empty when none.
+  const proofData = proofSnapshot.status === "wired" ? proofSnapshot.data : null;
+  const cockpitProof = {
+    lastEventLabel: proofData?.lastEventName ?? null,
+    chainLabel:
+      proofData?.chainId != null
+        ? proofData.chainId === 31337
+          ? "Fork preprod"
+          : `Chain ${proofData.chainId}`
+        : null,
+  };
 
   // ── Motives, collapsed per group (canon §5). Never printed per cell.
   const headlineMotive = groupMotive([mining, core, ops]);
@@ -286,19 +327,8 @@ export function Series1Dashboard({
             { label: "Mining", status: wiredStatus(mining) },
             { label: "Reserve", status: wiredStatus(elec) },
           ]}
-          proof={{
-            // The dashboard loader does not carry indexed events; the Proof
-            // Center is the source of record. Shown honestly as "no event yet"
-            // rather than fabricating a snapshot.
-            lastEventLabel: null,
-            chainLabel: contractCell.hint.includes("fork") ? "Fork preprod" : null,
-          }}
-          subscription={{
-            // Cap / minimum are not exposed by this loader — reported as such,
-            // never as 0.
-            minimum: null,
-            hardCap: null,
-          }}
+          proof={cockpitProof}
+          subscription={cockpitSubscription}
         />
       </div>
 
