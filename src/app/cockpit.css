@@ -35,7 +35,7 @@
      (valeurs strictement identiques — ex-doublons miroir retirés pour tuer le
      faux positif ds-token-drift, ils cascadent du shell). */
   --ct-text-strong:  rgba(255, 255, 255, 0.94);
-  --ct-text-muted:   rgba(245, 245, 245, 0.66);  /* WCAG AA: 0.55 → 0.66 */
+  --ct-text-muted:   rgba(245, 245, 245, 0.70);  /* WCAG AA: 0.55 → 0.66 → 0.70 (axe measured 4.3:1 at 0.66 for 11px bold .stat-label on deep bg — Storybook a11y runner) */
   --ct-text-faint:   rgba(245, 245, 245, 0.62);  /* WCAG AA: 0.40 → 0.62 */
   /* Hearst Flow DS — exact tokens surfaced by Figma MCP (`File cover`, node 2:1193). */
   --ct-figma-neutral: #747575;
@@ -217,9 +217,14 @@
   --ct-status-warning-soft: color-mix(in srgb, var(--ct-figma-status-warning) 10%, transparent);
   --ct-status-warning-border: color-mix(in srgb, var(--ct-figma-status-warning) 20%, transparent);
 
-  --ct-status-danger: var(--ct-figma-status-danger);
-  --ct-status-danger-soft: color-mix(in srgb, var(--ct-figma-status-danger) 10%, transparent);
-  --ct-status-danger-border: color-mix(in srgb, var(--ct-figma-status-danger) 20%, transparent);
+  /* WCAG AA pass (same rule as --ct-text-secondary above): the Figma value
+     #ba3f1d measures 3.46:1 on --ct-bg-deep — below the 4.5 AA floor for
+     body-size text, caught by the Storybook a11y runner. #f87171 is the
+     documented canon value (docs/DESIGN_SYSTEM.md §2) and measures ~7:1.
+     --ct-figma-status-danger stays untouched as the Figma reference. */
+  --ct-status-danger: #f87171;
+  --ct-status-danger-soft: color-mix(in srgb, #f87171 10%, transparent);
+  --ct-status-danger-border: color-mix(in srgb, #f87171 20%, transparent);
 
   --ct-status-info: #60a5fa;
   --ct-status-info-soft: rgba(96, 165, 250, 0.10);

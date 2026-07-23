@@ -125,6 +125,7 @@ export function Series1ProofEventNode({
       <div className="flex flex-col items-center">
         {/* Node — icon + status, always "indexed" (accent, checked) for a real event. */}
         <span
+          role="img"
           aria-label="indexed"
           className="relative z-10 flex size-7 shrink-0 items-center justify-center rounded-(--ct-radius-full) bg-(--ct-accent) text-(--ct-bg-deep)"
         >

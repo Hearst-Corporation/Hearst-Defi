@@ -60,7 +60,7 @@ const stripDotTone: Record<Provenance, string> = {
   estimated: "text-[var(--ct-text-muted)]",
   partial: "text-[var(--ct-text-muted)]",
   manual: "text-[var(--ct-text-body)]",
-  stale: "text-[var(--ct-text-muted)] opacity-[var(--ct-opacity-60)]",
+  stale: "text-[var(--ct-text-muted)] opacity-[var(--ct-opacity-70)]",
   simulated: "text-[var(--ct-text-muted)]",
 };
 
@@ -114,7 +114,9 @@ export function ProvenanceBadge({
   // "stale" repeats on many cards (e.g. an investor with no positions yet) and
   // reads as alarming when stacked. Keep the information, but render it quietly
   // (reduced opacity) so it stops competing with the numbers. All other kinds
-  // are unchanged.
+  // are unchanged. Opacity floor is 70 (not 60): 0.66 text-muted × 0.60
+  // measured 4.3:1 on --ct-bg-deep — below the 4.5 AA floor (caught by the
+  // Storybook a11y runner); × 0.70 measures ≥4.5 while keeping the mute.
   const muted = kind === "stale";
   const chromed = resolved !== "compact";
 
@@ -129,10 +131,10 @@ export function ProvenanceBadge({
             ? cn(
                 "provenance-badge--compact",
                 compactDotTone[kind],
-                muted && "opacity-[var(--ct-opacity-60)]",
+                muted && "opacity-[var(--ct-opacity-70)]",
               )
             : muted
-              ? "shrink-0 whitespace-nowrap opacity-[var(--ct-opacity-60)]"
+              ? "shrink-0 whitespace-nowrap opacity-[var(--ct-opacity-70)]"
               : "shrink-0 whitespace-nowrap"
         }
       >
