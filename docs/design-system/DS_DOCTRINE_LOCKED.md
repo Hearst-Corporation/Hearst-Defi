@@ -34,12 +34,13 @@
 
 ## 2. Sources utilisées
 
-- **`TradeAgent.html`** — introuvable sur ce disque (`find` exhaustif sur
-  `~/Dev/Hearst Corporation` : aucun résultat). **Ne peut donc pas servir de
-  grammaire de référence tant qu'il n'est pas fourni.** Si ce fichier existe
-  ailleurs (autre machine, lien externe), l'apporter avant la prochaine
-  révision de ce document — sinon cette source reste `UNAVAILABLE`, pas
-  silencieusement ignorée.
+- **`TradeAgent.html`** — RÉSOLU (2026-07-23) : le fichier vivait dans
+  `~/Downloads` (hors du périmètre du `find` initial limité à
+  `~/Dev/Hearst Corporation`). Vendoré dans
+  [`docs/design-system/tradeagent-design-system.html`](tradeagent-design-system.html)
+  (version du 2026-07-23, la plus récente des deux présentes dans
+  Downloads). Cette grammaire de référence est désormais reproductible
+  localement, comme ce document l'exigeait.
 - **Series1 Hybrid Command Center** (`Series1Dashboard.tsx` et modules
   associés) — direction visuelle de référence pour le dashboard investisseur.
 - **Tokens existants** — `src/app/cockpit.css` (source canonique runtime,
