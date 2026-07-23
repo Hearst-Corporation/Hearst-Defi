@@ -11,9 +11,25 @@ export function Series1DashboardPage({ children }: { children: ReactNode }) {
     <div
       className={cn(
         surfaceClassName("canvas"),
-        "flex w-full flex-col gap-[var(--ct-space-5)]",
+        // `relative isolate` scopes the halo stacking context to this page.
+        "relative isolate flex w-full flex-col gap-[var(--ct-space-5)]",
       )}
     >
+      {/* Ambient halo — the ROOT fix for the dead-flat ground. The light was
+          turned off at the token level (--ct-ambient-glow-bg-*: 0%) during the
+          anti-cage passes; DS_SHELL_CONTRACT §5 sanctions exactly one ambient
+          glow at shell level, and the validated direction is "lumière + verre
+          sombre — assombrir le verre, PAS retirer la lumière". Derived from
+          --ct-accent-ambient (a token), no new hex. Cards are opaque, so the
+          halo lives in the gutters — never behind a figure. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[38rem]"
+        style={{
+          background:
+            "radial-gradient(58% 46% at 50% 0%, color-mix(in srgb, var(--ct-accent-ambient) 22%, transparent) 0%, color-mix(in srgb, var(--ct-accent-ambient) 9%, transparent) 40%, transparent 72%)",
+        }}
+      />
       {children}
     </div>
   );
