@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { BentoBadge } from "@/components/catalyst/bento-badge";
 import { cn } from "@/lib/cn";
 
 import { Series1PanelHeader } from "./Series1Panel";
@@ -18,9 +19,14 @@ const PROVENANCE_LABEL: Record<Series1Provenance, string> = {
 export function Series1ProvenanceTag({ status }: { status: Series1Provenance }) {
   const isLive = status === "live";
   return (
-    <span
+    // Catalyst is the primitive; `flat` strips the bento border/fill/tracking so
+    // the delegated chip carries this tag's exact chrome — a ring pill, live-vs-
+    // idle tone, dot on live only. className (after) restores the geometry and
+    // tokens verbatim; rendering is unchanged.
+    <BentoBadge
+      variant="flat"
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-[0.08em] uppercase ring-1",
+        "items-center gap-1.5 rounded-full border-0 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] leading-normal whitespace-normal ring-1",
         isLive
           ? "text-(--ct-accent-strong) ring-(--ct-border-accent)"
           : "text-(--ct-text-muted) ring-(--ct-border-soft)",
@@ -28,7 +34,7 @@ export function Series1ProvenanceTag({ status }: { status: Series1Provenance }) 
     >
       {isLive ? <span className="size-1.5 rounded-full bg-(--ct-accent)" /> : null}
       {PROVENANCE_LABEL[status]}
-    </span>
+    </BentoBadge>
   );
 }
 

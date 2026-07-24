@@ -1,8 +1,19 @@
 /**
- * Composer 2.5 surface hierarchy — shared grammar for investor + operator dashboards.
+ * Composer 2.5 surface hierarchy — the DEPTH-CLASSNAME bridge for Series1 modules.
+ *
+ * DS convergence (target-map "Earth = Hearst"): the intended end-state is Catalyst
+ * <Card> as the single primitive authority, with this module reduced to the *depth*
+ * className layered on top. In practice the outer Series1 surfaces stay plain <div>s
+ * painted by `surfaceClassName()` because <Card>'s UNLAYERED `.ct-glass-panel`
+ * (`border`, `box-shadow: none`) and `.ct-card` (`padding`) rules override the
+ * utility-layer ring/shadow/bg these variants rely on — delegating the outer
+ * container would move pixels (see the notes in Series1DashboardSection /
+ * Series1Panel). This file is therefore NOT a component API and NOT a second
+ * surface authority: it is only the depth grammar, tokens-only, that those wrappers
+ * apply. Nested label/value rows converge on `Series1RowBase` (Series1Panel.tsx).
  *
  * Depth model (docs/front-dashboard-zero-rebuild-canon.md §4):
- *   canvas → page gutter, no shadow
+ *   canvas → page gutter, no shadow (not a card — plain wrapper)
  *   hero   → dominant band, elevated shadow, accent hairline
  *   primary / secondary / quiet → cards by visual weight
  *   inset  → wells recessed inside a parent card

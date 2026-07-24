@@ -63,7 +63,7 @@ import {
   Series1DashboardPage,
   Series1DashboardSection,
 } from "./Series1DashboardSection";
-import { Series1MiningRegister } from "./Series1MiningRegister";
+import { Series1MiningRegister, type Series1MiningGate } from "./Series1MiningRegister";
 
 /** The three Mining Note pockets, by strategy index (VAULT_SPEC_V2.1 §6). */
 const POCKETS: readonly { id: "B1" | "B2" | "B3"; label: string }[] = [
@@ -248,6 +248,24 @@ export function Series1Dashboard({
   // ── Motives, collapsed per group (canon §5). Never printed per cell.
   const headlineMotive = groupMotive([mining, core, ops]);
   const miningMotive = groupMotive([mining]);
+
+  // ── Mining register gate (endpoint-to-ui-matrix.md). `getMiningFromBackend`
+  // is admin-only and NOT READY — the keeper cron has been stale since
+  // 2026-07-07 — so the investor register must show a GATED state, not empty
+  // rows, whenever the telemetry is not genuinely live. We project the read's
+  // source health into the investor gate vocabulary: a "stale" reason (keeper
+  // behind) reads as stale; "not_configured" / anything else that did not
+  // answer reads accordingly; a resolved read is "live". No economic metric is
+  // ever synthesised here — the matrix forbids fabricating series the backend
+  // does not provide.
+  const miningGate: Series1MiningGate =
+    mining.status === "wired"
+      ? { state: "live" }
+      : mining.reason.includes("stale")
+        ? { state: "stale" }
+        : mining.reason.includes("not_configured")
+          ? { state: "not_configured" }
+          : { state: "unavailable" };
   const reserveMotive = groupMotive([elec]);
   const contractMotive = groupMotive([core, ops]);
 
@@ -260,6 +278,11 @@ export function Series1Dashboard({
         muted={isUnresolved(btcEarned)}
         caption="Accumulated BTC is the principal investor outcome and is delivered at maturity. Market price is contextual only; it is not a return projection."
         trailing={<Series1Provenance read={mining} />}
+        // The policy target (B1/B2/B3) is a spec constant — always honest,
+        // never a measurement — so the hero ring fills the left column with
+        // real composition rather than dead space. `cockpitTarget` is the same
+        // vector the allocation cockpit plots below.
+        allocation={cockpitTarget}
         context={[
           {
             label: "Capital deployed",
@@ -320,7 +343,15 @@ export function Series1Dashboard({
           sections. Matches the cockpit reference: wide chart left, Capacity
           mix-equivalent card right. */}
       <div className="grid w-full min-w-0 grid-cols-1 gap-[var(--ct-space-5)] xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <Series1BitcoinAccumulation motive={miningMotive} />
+        <Series1BitcoinAccumulation
+          // The one real scalar the contract exposes — the CUMULATIVE total,
+          // pre-formatted here so the card stays I/O-free. Null when the read
+          // did not resolve; the card renders that as "Not reported", never 0.
+          cumulativeLabel={
+            btcEarned.status === "wired" ? formatBtcFromSats(btcEarned.data) : null
+          }
+          motive={miningMotive}
+        />
         <Series1AllocationCockpit
           target={cockpitTarget}
           actual={cockpitActual}
@@ -348,6 +379,10 @@ export function Series1Dashboard({
             caption="Reported on-chain by the keeper"
             trailing={<Series1Provenance read={mining} />}
             motive={miningMotive}
+            // Admin-only, NOT-READY telemetry (stale cron since 2026-07-07):
+            // a non-live gate replaces the rows with an honest withheld notice
+            // rather than a band of empty "Not reported" lines.
+            gate={miningGate}
             rows={[
               {
                 label: "BTC earned",

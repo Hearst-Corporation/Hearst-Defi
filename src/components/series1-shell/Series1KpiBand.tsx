@@ -33,6 +33,14 @@ export function Series1KpiBand({
           <p className="mt-2 text-xs text-(--ct-text-faint)">{hero.hint}</p>
         </div>
         <dl className="grid min-w-0 grid-cols-1 gap-px sm:grid-cols-2 lg:col-span-8 lg:grid-cols-3">
+          {/* NOT delegated to Metric variant="nested". The nested variant styles
+              its label with .stat-label (11px / bold / uppercase / widest
+              tracking) and its value with .stat-value (32px / extrabold /
+              --ct-accent GREEN). These band cells are label=13px/medium/muted,
+              value=19px/semibold/--ct-text-strong (white) — different on every
+              axis (size, weight, colour, casing). Wiring nested here would move
+              every pixel and repaint the value green, breaking the gap-px band
+              soldering. Rendu stable PRIME sur la convergence : left in place. */}
           {metrics.map((metric) => (
             <div
               key={metric.label}

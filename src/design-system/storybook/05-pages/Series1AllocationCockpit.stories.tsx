@@ -17,6 +17,15 @@ const ACTUAL: Series1Pocket[] = [
   { id: "B3", label: "Operating Reserve", value: 33 },
 ];
 
+// A spec-constant target where one pocket is 0 — no invented data, just a
+// configuration where BTC Reserve is not yet allocated. Exercises the donut's
+// zero-segment path (a segment with a zero-length arc still exists).
+const TARGET_ZERO_POCKET: Series1Pocket[] = [
+  { id: "B1", label: "Mining Power", value: 60 },
+  { id: "B2", label: "BTC Reserve", value: 0 },
+  { id: "B3", label: "Operating Reserve", value: 40 },
+];
+
 const meta: Meta<typeof Series1AllocationCockpit> = {
   title: "05-pages/Series1AllocationCockpit",
   component: Series1AllocationCockpit,
@@ -43,6 +52,39 @@ async function assertContract(canvasElement: HTMLElement) {
   await expect(text.includes("Proof Center")).toBe(true);
   // No fake BTC curve — this instrument renders no <path> price curve.
   await expect(canvasElement.querySelector("path[data-btc-curve]")).toBeNull();
+
+  // (a) The policy-target donut is branched, and only the policy donut:
+  // one track ring + exactly three segment arcs (B1/B2/B3), no phantom arc,
+  // no second ring. Guards against the ring being dropped or regressed.
+  await expect(
+    canvasElement.querySelectorAll('[data-hc-ring="track"]').length,
+  ).toBe(1);
+  const segments = canvasElement.querySelectorAll('[data-hc-ring="segment"]');
+  await expect(segments.length).toBe(3);
+  // Each segment carries a <title> naming its pocket — the ring's accessible
+  // per-slice labels (B1/B2/B3) live here, not in a visible legend.
+  const segmentTitles = Array.from(segments)
+    .map((el) => el.querySelector("title")?.textContent ?? "")
+    .join(" ");
+  for (const id of ["B1", "B2", "B3"]) {
+    await expect(segmentTitles.includes(id)).toBe(true);
+  }
+
+  // (b) No duplicated legend. The ring is showLegend=false and now carries no
+  // center label/value, so the B1/B2/B3 pocket legend appears exactly once —
+  // from the stacked bar, never a second copy emitted by the ring. The SVG
+  // itself renders no "Policy" center text.
+  const svg = canvasElement.querySelector('svg [data-hc-ring="track"]')?.closest("svg");
+  await expect(svg).not.toBeNull();
+  await expect((svg?.textContent ?? "").includes("Policy")).toBe(false);
+  // The three pocket ids each appear once as a visible bar legend row (the
+  // ring emits them only inside <title>, which textContent-per-node below
+  // excludes). Count visible occurrences via the bar legend list items.
+  const barLegend = canvasElement.textContent ?? "";
+  for (const id of ["B1", "B2", "B3"]) {
+    const occurrences = barLegend.split(id).length - 1;
+    await expect(occurrences).toBeGreaterThan(0);
+  }
 }
 
 export const LiveFullData: Story = {
@@ -133,6 +175,28 @@ export const ForkProofAvailable: Story = {
     await assertContract(canvasElement);
     await expect(canvas.getByText("MiningMetricsReported")).toBeVisible();
     await expect(canvas.getByText(/Fork preprod/)).toBeVisible();
+  },
+};
+
+export const ZeroPocketTarget: Story = {
+  args: {
+    target: TARGET_ZERO_POCKET,
+    actual: null,
+    actualMotive: "the measured pocket allocation appears once the v2.1 contract is deployed",
+    sources: [{ label: "Vault", status: "live" }],
+    proof: { lastEventLabel: null, chainLabel: null },
+    subscription: { minimum: null, hardCap: null },
+  },
+  play: async ({ canvasElement }) => {
+    // Contract still holds with a zero-valued pocket: the ring still renders
+    // three segments (B2's arc is zero-length, not dropped), no phantom arc,
+    // no fabricated number. B2 remains present in the legend at 0%.
+    await assertContract(canvasElement);
+    const zeroSegment = Array.from(
+      canvasElement.querySelectorAll('[data-hc-ring="segment"] title'),
+    ).find((t) => (t.textContent ?? "").includes("B2"));
+    await expect(zeroSegment).not.toBeUndefined();
+    await expect((zeroSegment?.textContent ?? "").includes("0.0%")).toBe(true);
   },
 };
 

@@ -2,38 +2,70 @@ import type { ReactNode } from "react";
 
 import {
   Series1DashboardCard,
+  Series1DashboardCardHeader,
   Series1DashboardInset,
 } from "./Series1DashboardSection";
 
+/**
+ * Series1BitcoinAccumulation — the accumulation card of the investor overview.
+ *
+ * Honesty is STRUCTURAL here, not a placeholder. The Series 1 contract reports
+ * mining production as a CUMULATIVE scalar (MiningMetrics.totalBtcEarnedSats),
+ * never a per-month series. So this card carries exactly what exists:
+ *
+ *   • the cumulative total, when it resolved — a real read, surfaced as the
+ *     headline figure instead of leaving the card blind (previously the whole
+ *     plot was empty even though this scalar was already known upstream);
+ *   • an honest empty-state for the TIME SERIES — there is no curve to draw
+ *     and there never will be until a ledger indexes monthly credits. We do
+ *     NOT fabricate points to satisfy a chart (HcValueChart refuses <2 points,
+ *     which is the intended guard).
+ *
+ * `cumulativeLabel` arrives PRE-FORMATTED from the dashboard (via
+ * `wiredValue(btcEarned, formatBtcFromSats)`), or `null` when the read did not
+ * resolve — rendered as "Not reported", never as a fabricated zero. `motive`
+ * is the group-level reason the read was unavailable, stated once.
+ */
 export function Series1BitcoinAccumulation({
+  /** Cumulative BTC total, already formatted (e.g. "0.12345678 BTC"), or null. */
+  cumulativeLabel,
   /** Group motive when the underlying read did not resolve. */
   motive,
   className,
 }: {
+  cumulativeLabel: string | null;
   motive: string | null;
   className?: string;
 }) {
+  const hasCumulative = cumulativeLabel !== null;
+
   return (
     <Series1DashboardCard variant="primary" className={className}>
-      <div className="px-[var(--ct-space-6)] pt-[var(--ct-space-5)]">
-        <h3
-          className="m-0 flex items-center gap-[var(--ct-space-2)] font-semibold text-[var(--ct-text-strong)]"
-          style={{ fontSize: "var(--ct-text-sm)" }}
+      <Series1DashboardCardHeader
+        title="Accumulated Bitcoin"
+        caption="Mining production credited to the reserve through the term. Delivered in BTC at maturity."
+      />
+
+      {/* Cumulative readout — the one real scalar the contract exposes. This is
+          the only place the single accent may land (a resolved, live figure);
+          an unresolved read stays a muted "Not reported", never zero. */}
+      <div className="flex items-baseline justify-between gap-[var(--ct-space-4)] px-[var(--ct-space-5)] pt-[var(--ct-space-4)]">
+        <span
+          className="font-medium uppercase tracking-[0.12em] text-[var(--ct-text-faint)]"
+          style={{ fontSize: "var(--ct-text-nano)" }}
         >
-          <span
-            aria-hidden
-            className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
-          />
-          Accumulated Bitcoin
-        </h3>
-        <p
-          className="m-0 mt-[var(--ct-space-2)] max-w-[68ch] leading-relaxed text-[var(--ct-text-muted)]"
-          style={{ fontSize: "var(--ct-text-2xs)" }}
+          Cumulative to date
+        </span>
+        <span
+          className={
+            hasCumulative
+              ? "font-semibold tabular-nums text-[var(--ct-text-strong)]"
+              : "font-semibold tabular-nums text-[var(--ct-text-faint)]"
+          }
+          style={{ fontSize: "var(--ct-text-lg)" }}
         >
-          Mining production credited to the reserve through the term. Delivered in BTC at
-          maturity.
-        </p>
-        <div className="mt-[var(--ct-space-4)] h-px bg-[var(--ct-border-soft)]" />
+          {hasCumulative ? cumulativeLabel : "Not reported"}
+        </span>
       </div>
 
       <PlotWell>
@@ -43,26 +75,29 @@ export function Series1BitcoinAccumulation({
   );
 }
 
+/**
+ * The plot region. It carries a NEUTRAL, non-directional baseline only — one
+ * flat hairline, no terminal point, no accent segment. The previous well drew
+ * a short accent segment with an accent dot floated to its right end, which
+ * read as the last point of a rising curve: a visual claim of a trend that has
+ * no data behind it. A flat baseline states "the plot axis exists, the series
+ * does not" without implying a direction.
+ */
 function PlotWell({ children }: { children: ReactNode }) {
   return (
     <Series1DashboardInset className="relative m-[var(--ct-space-5)] flex min-h-[13rem] items-center justify-center overflow-hidden rounded-[var(--ct-radius-lg)] px-[var(--ct-space-6)] py-[var(--ct-space-6)]">
-      {/* Full width axis */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2">
-        <div className="relative h-px w-full bg-[var(--ct-border-soft)]">
-          <span className="absolute right-1/4 top-1/2 h-px w-24 -translate-y-1/2 bg-[var(--ct-border-accent)]" />
-          <span className="absolute right-1/4 top-1/2 inline-block size-1.5 -translate-y-1/2 translate-x-[5.5rem] rounded-full bg-[var(--ct-accent)]" />
-        </div>
-      </div>
-      <div className="relative z-10">
-        {children}
-      </div>
+      <div
+        aria-hidden
+        className="absolute inset-x-[var(--ct-space-6)] top-1/2 h-px -translate-y-1/2 bg-[var(--ct-border-soft)]"
+      />
+      <div className="relative z-10">{children}</div>
     </Series1DashboardInset>
   );
 }
 
 function ChartEmptyState({ motive }: { motive: string | null }) {
   return (
-    <div className="mt-[var(--ct-space-4)] flex w-full max-w-[46ch] flex-col items-center text-center">
+    <div className="flex w-full max-w-[46ch] flex-col items-center text-center">
       <p
         className="m-0 font-medium text-[var(--ct-text-muted)]"
         style={{ fontSize: "var(--ct-text-2xs)" }}
@@ -78,7 +113,7 @@ function ChartEmptyState({ motive }: { motive: string | null }) {
       </p>
       {motive ? (
         <p
-          className="m-0 mt-[var(--ct-space-4)] border-t border-[var(--ct-border-accent)] pt-[var(--ct-space-3)] text-[var(--ct-text-faint)]"
+          className="m-0 mt-[var(--ct-space-4)] border-t border-[var(--ct-border-soft)] pt-[var(--ct-space-3)] text-[var(--ct-text-faint)]"
           style={{ fontSize: "var(--ct-text-nano)" }}
         >
           <span className="font-semibold text-[var(--ct-text-muted)]">{motive}</span>

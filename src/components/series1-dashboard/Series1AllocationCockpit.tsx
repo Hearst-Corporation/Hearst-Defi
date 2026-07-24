@@ -15,7 +15,8 @@
 
 import Link from "next/link";
 
-import { HcStackedBar } from "@/components/dataviz/his";
+import { BentoBadge } from "@/components/catalyst/bento-badge";
+import { HcCompositionRing } from "@/components/dataviz/his";
 import { cn } from "@/lib/cn";
 import { surfaceNoticeWell } from "@/lib/ui/surface-classes";
 
@@ -24,7 +25,11 @@ import {
   Series1DashboardCardHeader,
 } from "./Series1DashboardSection";
 import { Series1DataState } from "./Series1DataState";
-import type { Series1Pocket } from "./Series1CapitalArchitecture";
+import {
+  AllocationBarEmpty,
+  AllocationBarRow,
+  type Series1Pocket,
+} from "./Series1CapitalArchitecture";
 
 /** Health of one upstream source, shown as a compact status chip. */
 export interface Series1SourceHealth {
@@ -94,13 +99,30 @@ export function Series1AllocationCockpit({
       />
 
       <div className="flex min-w-0 flex-1 flex-col gap-[var(--ct-space-5)] px-[var(--ct-space-6)] py-[var(--ct-space-5)]">
-        {/* 1 — Policy target (always known). */}
-        <AllocationBarRow
-          label="Policy target"
-          sub="VAULT_SPEC v2.1 §6 — configured, not a measurement"
-          pockets={target}
-          showLegend
-        />
+        {/* 1 — Policy target (always known). The ring reads the same real
+            spec-constant vector as the bar — composition at a glance, the bar
+            keeps the exact stacked split + legend. No invented total. */}
+        <div className="flex min-w-0 flex-col gap-[var(--ct-space-4)] sm:flex-row sm:items-center">
+          {/* The ring is pure composition — its center label/value used to echo
+              the adjacent "Policy target" bar heading verbatim, a semantic
+              doublon. Left bare, it reads as the shape; the bar owns the words. */}
+          <div className="shrink-0 self-center sm:self-start">
+            <HcCompositionRing
+              segments={target.map((p) => ({ label: `${p.id} · ${p.label}`, value: p.value }))}
+              size={132}
+              palette="categorical"
+              showLegend={false}
+              aria-label="Policy target allocation across the three Series 1 pockets"
+            />
+          </div>
+          <AllocationBarRow
+            className="min-w-0 flex-1"
+            label="Policy target"
+            sub="VAULT_SPEC v2.1 §6 — configured, not a measurement"
+            pockets={target}
+            showLegend
+          />
+        </div>
 
         {/* 2 — On-chain / actual, or an honest empty bar. */}
         {actual ? (
@@ -110,15 +132,7 @@ export function Series1AllocationCockpit({
             pockets={actual}
           />
         ) : (
-          <div>
-            <p
-              className="m-0 font-medium uppercase tracking-[0.12em] text-[var(--ct-text-faint)]"
-              style={{ fontSize: "var(--ct-text-nano)" }}
-            >
-              On-chain
-            </p>
-            <div className="mt-[var(--ct-space-2)] h-[12px] rounded-[var(--ct-radius-full)] ring-1 ring-inset ring-[var(--ct-border-soft)]" />
-          </div>
+          <AllocationBarEmpty label="On-chain" />
         )}
 
         {/* 3 — Drift per pocket, only when both inputs are real. */}
@@ -170,22 +184,28 @@ export function Series1AllocationCockpit({
           </p>
           <ul className="mt-[var(--ct-space-2)] flex flex-wrap gap-[var(--ct-space-2)]">
             {sources.map((s) => (
-              <li
-                key={s.label}
-                className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 ring-1 ring-inset ring-[var(--ct-border-soft)]"
-                style={{ fontSize: "var(--ct-text-nano)" }}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "size-1.5 rounded-full",
-                    s.status === "live"
-                      ? "bg-[var(--ct-accent)]"
-                      : "bg-[var(--ct-text-faint)]",
-                  )}
-                />
-                <span className="text-[var(--ct-text-muted)]">{s.label}</span>
-                <span className="text-[var(--ct-text-faint)]">· {STATUS_LABEL[s.status]}</span>
+              <li key={s.label} className="inline-flex">
+                {/* Catalyst is the primitive; `flat` strips the bento chrome so
+                    the delegated chip carries the exact source-health look — a
+                    hairline ring pill, no fill, dot tinted live vs. faint. The
+                    className (after) restores geometry and tone; pixels hold. */}
+                <BentoBadge
+                  variant="flat"
+                  className="items-center gap-1.5 rounded-full border-0 px-2 py-0.5 leading-normal whitespace-normal ring-1 ring-inset ring-[var(--ct-border-soft)]"
+                  style={{ fontSize: "var(--ct-text-nano)" }}
+                >
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "size-1.5 rounded-full",
+                      s.status === "live"
+                        ? "bg-[var(--ct-accent)]"
+                        : "bg-[var(--ct-text-faint)]",
+                    )}
+                  />
+                  <span className="text-[var(--ct-text-muted)]">{s.label}</span>
+                  <span className="text-[var(--ct-text-faint)]">· {STATUS_LABEL[s.status]}</span>
+                </BentoBadge>
               </li>
             ))}
           </ul>
@@ -262,45 +282,5 @@ export function Series1AllocationCockpit({
         </div>
       ) : null}
     </Series1DashboardCard>
-  );
-}
-
-/** One labelled allocation bar (shared shape with Series1CapitalArchitecture). */
-function AllocationBarRow({
-  label,
-  sub,
-  pockets,
-  showLegend = false,
-}: {
-  label: string;
-  sub: string;
-  pockets: readonly Series1Pocket[];
-  showLegend?: boolean;
-}) {
-  return (
-    <div className="min-w-0">
-      <div className="flex items-baseline justify-between gap-[var(--ct-space-4)]">
-        <p
-          className="m-0 font-medium uppercase tracking-[0.12em] text-[var(--ct-text-muted)]"
-          style={{ fontSize: "var(--ct-text-nano)" }}
-        >
-          {label}
-        </p>
-        <p
-          className="m-0 truncate text-[var(--ct-text-faint)]"
-          style={{ fontSize: "var(--ct-text-nano)" }}
-        >
-          {sub}
-        </p>
-      </div>
-      <HcStackedBar
-        className="mt-[var(--ct-space-2)]"
-        segments={pockets.map((p) => ({ label: `${p.id} · ${p.label}`, value: p.value }))}
-        palette="categorical"
-        height={12}
-        showLegend={showLegend}
-        aria-label={`${label}: allocation across the three Series 1 pockets`}
-      />
-    </div>
   );
 }

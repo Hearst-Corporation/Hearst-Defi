@@ -18,6 +18,7 @@
 
 import type { ReactNode } from "react";
 
+import { BentoBadge } from "@/components/catalyst/bento-badge";
 import { cn } from "@/lib/cn";
 import { reasonLabel, sourceLabel, type Series1Wired } from "@/components/series1-shell/Series1Wired";
 
@@ -128,12 +129,17 @@ export function Series1Provenance({ read }: { read: Series1Wired<unknown> }) {
   if (read.status !== "wired") return null;
   const label = sourceLabel(read.source);
   return (
-    <span
-      className="inline-flex items-center gap-[var(--ct-space-2)] text-[var(--ct-text-faint)]"
+    // Catalyst becomes the primitive; `flat` strips the bento chrome (border/bg/
+    // uppercase/padding) so the delegated chip renders as the same bare inline
+    // provenance line. className (after) restores the exact gap, weight and
+    // faint tone — pixels unchanged.
+    <BentoBadge
+      variant="flat"
+      className="gap-[var(--ct-space-2)] border-0 whitespace-normal font-normal leading-normal text-[var(--ct-text-faint)]"
       style={{ fontSize: "var(--ct-text-nano)" }}
     >
       <span aria-hidden className="inline-block size-1 shrink-0 rounded-full bg-[var(--ct-accent)]" />
       {label} · read {new Date(read.readAt).toISOString().slice(11, 16)} UTC
-    </span>
+    </BentoBadge>
   );
 }

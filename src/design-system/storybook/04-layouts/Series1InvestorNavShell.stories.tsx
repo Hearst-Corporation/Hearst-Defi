@@ -14,18 +14,15 @@ const meta: Meta<typeof Series1Nav> = {
 export default meta;
 type Story = StoryObj<typeof Series1Nav>;
 
-// The six investor surfaces this rail must expose (PROMPT 027), by label.
-const EXPECTED_LABELS = [
-  "Overview",
-  "Bitcoin Constitution",
-  "Series 1 Vault",
-  "My Position",
-  "Proof Center",
-  "Documents & KYC",
-];
+// The FOUR investor destinations this rail must expose (validated nav doctrine
+// 2026-07-24): Dashboard · Reserve · Proof · Profile. One flat rail.
+const EXPECTED_LABELS = ["Dashboard", "Reserve", "Proof", "Profile"];
 
-// Href prefixes that must NEVER be a destination in the investor rail:
-// admin, webhooks/API plumbing, and the folded (off-canon) Portfolio sub-pages.
+// The exact ordered destination set — the navigation surface, nothing else.
+const EXPECTED_HREFS = ["/dashboard", "/vaults", "/proof-center", "/profile"];
+
+// Href prefixes that must NEVER be a destination in the investor rail: admin,
+// webhooks/API plumbing, and the folded off-canon Portfolio sub-pages.
 const FORBIDDEN_HREF_PREFIXES = [
   "/admin",
   "/api/",
@@ -33,23 +30,33 @@ const FORBIDDEN_HREF_PREFIXES = [
   "/portfolio/distributions",
 ];
 
+// Destinations RETIRED from the rail by the validated doctrine — each folds
+// INTO one of the four (My Position → Dashboard, Bitcoin Constitution →
+// Reserve, Documents/KYC → Profile). They must not stand as their own link.
+const RETIRED_HREFS = ["/portfolio", "/bitcoin-constitution"];
+
+// Labels the rail must NOT show — the retired standalone entries and the plural
+// "Vaults" wording. "Series 1" is a header subtitle/badge, never a nav label.
+const RETIRED_LABELS = [
+  "My Position",
+  "Bitcoin Constitution",
+  "Documents & KYC",
+  "Series 1 Vault",
+  "Vaults",
+  "Overview",
+  "Portfolio",
+];
+
 // The contract is the set of link destinations + their visible labels, not the
 // raw innerHTML (which carries CSS classes and runtime Headless UI ids). We
 // assert on hrefs and accessible text only — the actual navigation surface.
-async function assertSixCleanItems(canvasElement: HTMLElement) {
+async function assertFourCleanItems(canvasElement: HTMLElement) {
   const links = Array.from(canvasElement.querySelectorAll("a[href]"));
-  // Exactly six navigable investor surfaces.
-  await expect(links.length).toBe(6);
+  // Exactly four navigable investor destinations — one flat rail.
+  await expect(links.length).toBe(4);
 
   const hrefs = links.map((a) => a.getAttribute("href") ?? "");
-  await expect(hrefs).toEqual([
-    "/dashboard",
-    "/bitcoin-constitution",
-    "/vaults",
-    "/portfolio",
-    "/proof-center",
-    "/profile",
-  ]);
+  await expect(hrefs).toEqual(EXPECTED_HREFS);
 
   // No admin, no webhook/API route, no promoted off-canon Portfolio sub-page.
   for (const href of hrefs) {
@@ -58,66 +65,62 @@ async function assertSixCleanItems(canvasElement: HTMLElement) {
     }
   }
 
-  // Every expected investor label is present as link text.
+  // Retired destinations do not stand alone in the rail.
+  for (const gone of RETIRED_HREFS) {
+    await expect(hrefs.includes(gone)).toBe(false);
+  }
+
   const linkText = links.map((a) => a.textContent ?? "").join(" | ");
+  // Every one of the four labels is present as link text.
   for (const label of EXPECTED_LABELS) {
     await expect(linkText.includes(label)).toBe(true);
+  }
+  // None of the retired labels leaks back in. ("Series 1" alone is allowed —
+  // it is the header subtitle — but never as "Series 1 Vault" nav wording.)
+  for (const gone of RETIRED_LABELS) {
+    await expect(linkText.includes(gone)).toBe(false);
   }
 }
 
 export const Default: Story = {
   args: { pathname: "/dashboard" },
   play: async ({ canvasElement }) => {
-    await assertSixCleanItems(canvasElement);
+    await assertFourCleanItems(canvasElement);
   },
 };
 
 export const ActiveDashboard: Story = {
   args: { pathname: "/dashboard" },
   play: async ({ canvasElement, canvas }) => {
-    await assertSixCleanItems(canvasElement);
-    const active = canvas.getByRole("link", { name: /Overview/ });
+    await assertFourCleanItems(canvasElement);
+    const active = canvas.getByRole("link", { name: /Dashboard/ });
     await expect(active).toHaveAttribute("data-current", "true");
   },
 };
 
-export const ActiveBitcoinConstitution: Story = {
-  args: { pathname: "/bitcoin-constitution" },
-  play: async ({ canvasElement, canvas }) => {
-    await assertSixCleanItems(canvasElement);
-    const active = canvas.getByRole("link", { name: /Bitcoin Constitution/ });
-    await expect(active).toHaveAttribute("data-current", "true");
-  },
-};
-
-export const ActiveVaults: Story = {
+export const ActiveReserve: Story = {
   args: { pathname: "/vaults" },
-  play: async ({ canvas }) => {
-    const active = canvas.getByRole("link", { name: /Series 1 Vault/ });
+  play: async ({ canvasElement, canvas }) => {
+    await assertFourCleanItems(canvasElement);
+    const active = canvas.getByRole("link", { name: /Reserve/ });
     await expect(active).toHaveAttribute("data-current", "true");
   },
 };
 
-export const ActivePortfolio: Story = {
-  args: { pathname: "/portfolio" },
-  play: async ({ canvas }) => {
-    const active = canvas.getByRole("link", { name: /My Position/ });
-    await expect(active).toHaveAttribute("data-current", "true");
-  },
-};
-
-export const ActiveProofCenter: Story = {
+export const ActiveProof: Story = {
   args: { pathname: "/proof-center" },
-  play: async ({ canvas }) => {
-    const active = canvas.getByRole("link", { name: /Proof Center/ });
+  play: async ({ canvasElement, canvas }) => {
+    await assertFourCleanItems(canvasElement);
+    const active = canvas.getByRole("link", { name: /Proof/ });
     await expect(active).toHaveAttribute("data-current", "true");
   },
 };
 
 export const ActiveProfile: Story = {
   args: { pathname: "/profile" },
-  play: async ({ canvas }) => {
-    const active = canvas.getByRole("link", { name: /Documents & KYC/ });
+  play: async ({ canvasElement, canvas }) => {
+    await assertFourCleanItems(canvasElement);
+    const active = canvas.getByRole("link", { name: /Profile/ });
     await expect(active).toHaveAttribute("data-current", "true");
   },
 };
@@ -126,7 +129,7 @@ export const NarrowViewport: Story = {
   args: { pathname: "/dashboard" },
   parameters: { viewport: { defaultViewport: "mobile1" } },
   play: async ({ canvasElement }) => {
-    await assertSixCleanItems(canvasElement);
+    await assertFourCleanItems(canvasElement);
   },
 };
 
@@ -134,6 +137,6 @@ export const WideViewport: Story = {
   args: { pathname: "/dashboard" },
   parameters: { viewport: { defaultViewport: "desktop" } },
   play: async ({ canvasElement }) => {
-    await assertSixCleanItems(canvasElement);
+    await assertFourCleanItems(canvasElement);
   },
 };

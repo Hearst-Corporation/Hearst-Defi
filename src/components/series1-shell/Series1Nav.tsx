@@ -1,13 +1,12 @@
 "use client";
 
 import { type ComponentType } from "react";
-import { BookMarked, FileText, Landmark, LayoutDashboard, PieChart, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Landmark, ShieldCheck, UserRound } from "lucide-react";
 
 import {
   Sidebar,
   SidebarBody,
   SidebarHeader,
-  SidebarHeading,
   SidebarItem,
   SidebarLabel,
   SidebarSection,
@@ -22,28 +21,29 @@ type Series1NavItem = {
 };
 
 /**
- * The six investor surfaces (PROMPT 027 target nav): Dashboard · Bitcoin
- * Constitution · Vaults · Portfolio · Proof Center · Profile. Bitcoin Reserve,
- * Mining, Ledger and My Vaults were folded in earlier: their routes redirect
- * (see each route's page.tsx) rather than standing as separate destinations, so
- * the rail carries one entry per real surface instead of a menu of
- * near-duplicates. Admin, webhooks, diagnostics and the folded Portfolio
- * sub-pages (/portfolio/yield, /portfolio/distributions) never appear here.
+ * The four investor destinations (validated nav doctrine 2026-07-24):
+ *   Dashboard · Reserve · Proof · Profile.
  *
- * Rendered in two premium sections (product + Records); six items total.
- * Module-local: the arrays are rendered here and nowhere else.
+ * One flat rail, no sub-sections — each entry is a real place a B2B investor
+ * goes, and everything else folds INTO one of them rather than standing alone:
+ *   - My Position (/portfolio)      → lives inside Dashboard.
+ *   - Documents / KYC / wallet      → live inside Profile.
+ *   - Bitcoin Constitution          → lives inside Reserve.
+ *   - "Series 1"                     → a subtitle/badge (see SidebarHeader),
+ *                                       never a nav label.
+ *
+ * "Reserve" is the product page — Hearst Bitcoin Reserve — Series 1. It points
+ * at /vaults (the existing product surface); the plural "Vaults" wording and
+ * the standalone /portfolio, /bitcoin-constitution rail entries are retired.
+ * Admin, webhooks and diagnostics never appear here.
+ *
+ * Module-local: the array is rendered here and nowhere else.
  */
 const SERIES1_NAV: Series1NavItem[] = [
-  { id: "overview", label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { id: "bitcoin-constitution", label: "Bitcoin Constitution", href: "/bitcoin-constitution", icon: BookMarked },
-  { id: "vaults", label: "Series 1 Vault", href: "/vaults", icon: Landmark },
-  { id: "portfolio", label: "My Position", href: "/portfolio", icon: PieChart },
-];
-
-/** Compliance surfaces — proof and paperwork, grouped away from the product. */
-const SERIES1_RECORDS_NAV: Series1NavItem[] = [
-  { id: "proof-center", label: "Proof Center", href: "/proof-center", icon: ShieldCheck },
-  { id: "documents-kyc", label: "Documents & KYC", href: "/profile", icon: FileText },
+  { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { id: "reserve", label: "Reserve", href: "/vaults", icon: Landmark },
+  { id: "proof", label: "Proof", href: "/proof-center", icon: ShieldCheck },
+  { id: "profile", label: "Profile", href: "/profile", icon: UserRound },
 ];
 
 export function Series1Nav({ pathname }: { pathname: string }) {
@@ -82,11 +82,6 @@ export function Series1Nav({ pathname }: { pathname: string }) {
 
       <SidebarBody>
         <SidebarSection>{SERIES1_NAV.map(renderItem)}</SidebarSection>
-
-        <SidebarSection>
-          <SidebarHeading>Records</SidebarHeading>
-          {SERIES1_RECORDS_NAV.map(renderItem)}
-        </SidebarSection>
       </SidebarBody>
     </Sidebar>
   );
