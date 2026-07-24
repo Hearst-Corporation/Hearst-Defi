@@ -127,13 +127,13 @@ export function sourceLabel(source: string): string {
 export function Series1Provenance({ read }: { read: Series1Wired<unknown> }) {
   if (read.status === "unavailable") {
     return (
-      <span className="text-[10px] text-(--ct-text-faint)">
+      <span className="text-[length:var(--ct-text-deci)] text-(--ct-text-faint)">
         {reasonLabel(read.reason)}
       </span>
     );
   }
   return (
-    <span className="text-[10px] text-(--ct-text-faint)">
+    <span className="text-[length:var(--ct-text-deci)] text-(--ct-text-faint)">
       {sourceLabel(read.source)} · read {new Date(read.readAt).toISOString().slice(11, 16)} UTC
     </span>
   );
@@ -170,7 +170,7 @@ export function Series1WiredRow<T>({
         >
           {ok ? render(read.data) : "—"}
         </span>
-        <span className="mt-0.5 block text-[10px] font-normal text-(--ct-text-faint)">
+        <span className="mt-0.5 block text-[length:var(--ct-text-deci)] font-normal text-(--ct-text-faint)">
           {ok ? hint : reasonLabel(read.reason)}
         </span>
       </span>

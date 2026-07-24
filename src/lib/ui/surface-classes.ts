@@ -31,16 +31,25 @@ export type SurfaceVariant =
   | "quiet"
   | "inset";
 
+// Cockpit remediation (Earth = Hearst): ONE depth hierarchy, not three stacked
+// strata. The shell content card now carries a single soft shadow, so the inner
+// surfaces step DOWN from there instead of each re-asserting an elevated shadow:
+//   hero      → the page thesis, the only dominant raised band (keeps elevated)
+//   primary   → present but calmer (depth, not elevated)
+//   secondary → borderless: hairline ring, no shadow (KPI/lists "peu encagés")
+//   quiet     → flat surface, no ring, no shadow (registers read as one plane)
+//   inset     → recessed well (unchanged)
+// Direction: "profondeur sans surcharge, listes borderless, aucun glow".
 const SURFACE_BASE: Record<SurfaceVariant, string> = {
   canvas: "min-w-0 overflow-x-hidden",
   hero:
     "min-w-0 overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_60%,var(--ct-surface-page))] shadow-(--ct-shadow-elevated) ring-1 ring-(--ct-border)",
   primary:
-    "flex min-w-0 flex-col overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] ring-1 ring-(--ct-border) shadow-(--ct-shadow-elevated)",
+    "flex min-w-0 flex-col overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_65%,var(--ct-surface-page))] ring-1 ring-(--ct-border-soft) shadow-(--ct-shadow-depth)",
   secondary:
-    "flex min-w-0 flex-col overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_75%,var(--ct-surface-page))] ring-1 ring-(--ct-border-soft) shadow-(--ct-shadow-soft)",
+    "flex min-w-0 flex-col overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_75%,var(--ct-surface-page))] ring-1 ring-(--ct-border-soft)",
   quiet:
-    "flex min-w-0 flex-col overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_85%,var(--ct-surface-page))] ring-1 ring-(--ct-border-soft)",
+    "flex min-w-0 flex-col overflow-hidden rounded-(--ct-radius-xl) bg-[color-mix(in_srgb,var(--ct-bg-deep)_85%,var(--ct-surface-page))]",
   inset:
     "min-w-0 bg-[color-mix(in_srgb,var(--ct-bg-deep)_90%,var(--ct-surface-page))] ring-1 ring-inset ring-(--ct-border-soft) shadow-(--ct-shadow-inset)",
 };

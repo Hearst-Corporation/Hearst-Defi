@@ -73,7 +73,7 @@ export function Series1Nav({ pathname }: { pathname: string }) {
             <div className="truncate text-sm font-semibold tracking-tight text-(--ct-text-strong)">
               Hearst
             </div>
-            <div className="mt-0.5 truncate text-[10px] font-semibold tracking-[0.12em] text-(--ct-accent-strong) uppercase">
+            <div className="mt-0.5 truncate text-[length:var(--ct-text-deci)] font-semibold tracking-[0.12em] text-(--ct-accent-strong) uppercase">
               Series 1
             </div>
           </div>

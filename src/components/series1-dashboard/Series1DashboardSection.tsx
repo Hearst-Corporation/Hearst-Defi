@@ -13,7 +13,9 @@ export function Series1DashboardPage({ children }: { children: ReactNode }) {
       className={cn(
         surfaceClassName("canvas"),
         // `relative isolate` scopes the halo stacking context to this page.
-        "relative isolate flex w-full flex-col gap-[var(--ct-space-5)]",
+        // `flex-1 min-h-full` fills the cockpit plane top-to-bottom instead of
+        // collapsing to content height (the dead-space-below fix).
+        "relative isolate flex min-h-full w-full flex-1 flex-col gap-[var(--ct-space-5)]",
       )}
     >
       {/* Ambient halo — the ROOT fix for the dead-flat ground. The light was
