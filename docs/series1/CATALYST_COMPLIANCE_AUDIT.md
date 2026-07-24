@@ -1,5 +1,17 @@
 # Series 1 — Catalyst Compliance Audit
 
+> **STALE — superseded 2026-07-25.** This audit's HEAD (`09dd0334`) predates commit
+> `51ae3b82` ("converge dashboard UI onto Catalyst, ship 4-item nav, add DS primitive
+> guard"), which executed the DS Target Map this doc calls for. The §4
+> "NEEDS_CATALYST_REFACTOR" table and the §11 "second parallel design-system via
+> surface-classes.ts" verdict no longer match current code: `Series1DashboardSection`
+> and `Series1Panel` now delegate to a documented, scoped preset layer
+> (`Series1Row`/`Series1RowList` over `surface-classes.ts` + `--ct-*`), and
+> `pnpm ds:guard:primitive` passes with 0 hits. Current state is tracked in
+> `docs/series1/COMPONENT_INTEGRATION_REGISTRY.md` and
+> `docs/series1/FRONTEND_ARCHITECTURE.md`. Kept below for historical record only —
+> do not use §4/§7/§11 to plan new work.
+
 > Audit read-only avant reconstruction des modules. **Aucun code touché, aucun commit.**
 > Statut : 2026-07-24 · HEAD `09dd0334` (= origin/main) · working tree = reconstruction
 > dashboard non commitée (15 fichiers) préservée.
