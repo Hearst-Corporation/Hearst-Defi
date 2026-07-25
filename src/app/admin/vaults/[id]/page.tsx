@@ -85,21 +85,29 @@ export default async function VaultDetailPage({ params }: PageProps) {
   const aumUsdc = vault.positions.reduce((sum, p) => sum + Number(p.principalUsdc), 0);
 
   const defaultShareClass = vault.shareClass;
-  const defaultSoftLockupDays = vault.softLockupDays;
 
   // Build a lookup from share-class code → lockupDays using the rows loaded
-  // above. Falls back to vault.softLockupDays when no matching ShareClass row
-  // exists (e.g. legacy positions created before ShareClass rows were seeded).
+  // above. When no matching ShareClass row exists (e.g. legacy positions
+  // created before ShareClass rows were seeded) the lock-up end is UNKNOWN —
+  // it is rendered as such, never fabricated from the vault default.
   const shareClassLockupMap = new Map<string, number>(
     vault.shareClasses.map((sc) => [sc.code, sc.lockupDays]),
   );
 
-  function classFromVaultKey(vaultKey: string): string {
-    return /class-([A-Z]+)$/.exec(vaultKey)?.[1] ?? defaultShareClass;
+  // Class derived from the position's vaultKey; when the key doesn't encode a
+  // class the vault-level default is used AND SAID ("(vault default)").
+  function classFromVaultKey(vaultKey: string): {
+    code: string;
+    fromVaultKey: boolean;
+  } {
+    const parsed = /class-([A-Z]+)$/.exec(vaultKey)?.[1];
+    return parsed
+      ? { code: parsed, fromVaultKey: true }
+      : { code: defaultShareClass, fromVaultKey: false };
   }
 
-  function lockupDaysForClass(classCode: string): number {
-    return shareClassLockupMap.get(classCode) ?? defaultSoftLockupDays;
+  function lockupDaysForClass(classCode: string): number | null {
+    return shareClassLockupMap.get(classCode) ?? null;
   }
   const kpiFacts = toVaultKpiFacts({
     targetApyLowBps: vault.targetApyLowBps,
@@ -228,9 +236,11 @@ export default async function VaultDetailPage({ params }: PageProps) {
                           confirmVariant: "primary",
                         }}
                       />
+                      {/* D3: recording a rejection signature is a legitimate
+                          decision, not a destructive act — grey trigger. */}
                       <VaultActionButton
                         label="Sign Rejection"
-                        variant="danger"
+                        variant="secondary"
                         action={rejectAction}
                         confirm={{
                           title: "Sign rejection?",
@@ -311,9 +321,12 @@ export default async function VaultDetailPage({ params }: PageProps) {
                       confirmVariant: "primary",
                     }}
                   />
+                  {/* D3: grey trigger — the DESTRUCTIVE emphasis lives in the
+                      confirm step below (confirmVariant danger + ticker
+                      confirm phrase), which stays red. */}
                   <VaultActionButton
                     label="Close Vault"
-                    variant="danger"
+                    variant="secondary"
                     action={closeAction}
                     confirm={{
                       title: "Close vault?",
@@ -338,10 +351,7 @@ export default async function VaultDetailPage({ params }: PageProps) {
             </div>
       }
     >
-        <VaultAdminKpiStrip
-          facts={kpiFacts}
-          showAumCard={vault.status === "live"}
-        />
+        <VaultAdminKpiStrip facts={kpiFacts} vaultStatus={vault.status} />
 
         {/* ON-CHAIN — the contract's real state, in blue, next to the Prisma
             aggregate above. The DB row and the chain are two different claims
@@ -383,8 +393,15 @@ export default async function VaultDetailPage({ params }: PageProps) {
           label="Approvals"
           title="Approvals"
           description={
+            // Quorum honesty: the quorum rule counts DISTINCT signers
+            // (signApproval / reconcileDeployment) — showing the raw approval
+            // count could read "2/2" without quorum. Distinct count first;
+            // the gap, when any, is spelled out.
             <span className="ct-metric-value mono text-[var(--ct-text-muted)]">
-              {approveCount} / {vault.requiredSigners} required
+              {distinctApproveCount} / {vault.requiredSigners} required
+              {approveCount !== distinctApproveCount
+                ? ` (${approveCount} signatures from ${distinctApproveCount} distinct signers)`
+                : ""}
             </span>
           }
         >
@@ -415,12 +432,13 @@ export default async function VaultDetailPage({ params }: PageProps) {
                 <code className="ct-metric-caption break-all mono text-[var(--ct-text-strong)]">
                   {actorWallet}
                 </code>
+                {/* D3: "not whitelisted" is a data state, not an error — grey. */}
                 <span
                   className={cn(
                     "ct-metric-caption font-semibold",
                     whitelist.includes(actorWallet)
                       ? "text-[var(--ct-accent)]"
-                      : "text-[var(--ct-status-danger)]",
+                      : "text-[var(--ct-text-muted)]",
                   )}
                 >
                   {whitelist.includes(actorWallet) ? "whitelisted" : "not whitelisted"}
@@ -447,12 +465,14 @@ export default async function VaultDetailPage({ params }: PageProps) {
                     {approval.signerWallet}
                   </td>
                   <td className={CELL}>
+                    {/* D3: a signed rejection is a legitimate recorded decision,
+                        not an error — strong grey, never danger red. */}
                     <span
                       className={cn(
                         "font-semibold",
                         approval.decision === "approve"
                           ? "text-[var(--ct-accent)]"
-                          : "text-[var(--ct-status-danger)]",
+                          : "text-[var(--ct-text-strong)]",
                       )}
                     >
                       {approval.decision}
@@ -493,17 +513,31 @@ export default async function VaultDetailPage({ params }: PageProps) {
               headers={["Investor", "Class", <span key="principal" className="text-right">Principal</span>, "Subscribed", "Lock-up ends"]}
               colWidths={["32%", "13%", "20%", "17%", "18%"]}
               renderRow={(pos) => {
-                const classCode = classFromVaultKey(pos.vaultKey);
-                const lockupEnd = new Date(
-                  pos.subscribedAt.getTime() +
-                    lockupDaysForClass(classCode) * 86_400_000,
-                );
+                const shareClass = classFromVaultKey(pos.vaultKey);
+                const lockupDays = lockupDaysForClass(shareClass.code);
+                // No matching ShareClass row → the lock-up end is UNKNOWN.
+                // Computing a date from the vault default would fabricate a
+                // contractual deadline; say what's missing instead.
+                const lockupEnd =
+                  lockupDays !== null
+                    ? new Date(
+                        pos.subscribedAt.getTime() + lockupDays * 86_400_000,
+                      )
+                    : null;
                 return (
                   <>
                     <td className={`${CELL} truncate text-[var(--ct-text-body)]`}>
                       {pos.investor.user.email}
                     </td>
-                    <td className={`${CELL} mono`}>{classCode}</td>
+                    <td className={`${CELL} mono`}>
+                      {shareClass.code}
+                      {!shareClass.fromVaultKey ? (
+                        <span className="text-[var(--ct-text-faint)]">
+                          {" "}
+                          (vault default)
+                        </span>
+                      ) : null}
+                    </td>
                     <td className={`${CELL_STRONG} text-right`}>
                       {formatUsdFull(Number(pos.principalUsdc))}
                     </td>
@@ -511,7 +545,9 @@ export default async function VaultDetailPage({ params }: PageProps) {
                       {pos.subscribedAt.toISOString().slice(0, 10)}
                     </td>
                     <td className={`${CELL} whitespace-nowrap`}>
-                      {lockupEnd.toISOString().slice(0, 10)}
+                      {lockupEnd
+                        ? lockupEnd.toISOString().slice(0, 10)
+                        : "— (share class missing)"}
                     </td>
                   </>
                 );

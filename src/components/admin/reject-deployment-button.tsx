@@ -52,7 +52,9 @@ export function RejectDeploymentButton({ action }: RejectDeploymentButtonProps) 
 
   return (
     <>
-      <Button variant="danger" size="sm" onClick={handleOpen}>
+      {/* D3: grey trigger — the destructive emphasis (this purges the round's
+          approval votes) stays on the modal's confirm button below. */}
+      <Button variant="secondary" size="sm" onClick={handleOpen}>
         Reject deployment
       </Button>
 

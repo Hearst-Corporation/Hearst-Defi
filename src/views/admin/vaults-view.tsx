@@ -1,15 +1,19 @@
 import Link from "next/link";
 
+import { AdminUrlTabFilter, type AdminUrlTab } from "@/components/admin/admin-url-tab-filter";
 import { VaultActionButton } from "@/components/admin/vault-action-button";
 import { VaultStatusPill } from "@/components/admin/vault-status-pill";
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
 import { pauseVault, resumeVault } from "@/app/admin/vaults/actions";
-import { buildVaultsKpiStrip } from "@/lib/admin/vaults-kpi-strip";
+import {
+  buildVaultsKpiStrip,
+  POSITION_SUM_PROVENANCE,
+  TARGET_RANGE_PROVENANCE,
+} from "@/lib/admin/vaults-kpi-strip";
 import { STRATEGY_LABELS } from "@/lib/constants/vault";
 import { prisma } from "@/lib/db";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
-import { cn } from "@/lib/cn";
 import {
-  Badge,
   Button,
   EmptyState,
   Kpi,
@@ -31,11 +35,14 @@ const FILTER_TABS = [
   { key: "live", label: "Live" },
   { key: "paused", label: "Paused" },
   { key: "closed", label: "Closed" },
+  // Single-run drafts (closed drafts from the run wizard) — excluded from the
+  // lifecycle tabs but NEVER silently: announced below, listed here.
+  { key: "archived", label: "Archived" },
 ] as const;
 
-type FilterKey = (typeof FILTER_TABS)[number]["key"];
+export type VaultsFilterKey = (typeof FILTER_TABS)[number]["key"];
 
-function isFilterKey(v: unknown): v is FilterKey {
+export function isVaultsFilterKey(v: unknown): v is VaultsFilterKey {
   return FILTER_TABS.some((t) => t.key === v);
 }
 
@@ -59,7 +66,7 @@ function CapacityBar({ pct }: { pct: number }) {
 export async function AdminVaultsView({
   activeFilter,
 }: {
-  activeFilter: FilterKey;
+  activeFilter: VaultsFilterKey;
 }) {
   const isSingleRunDraft = (v: { name: string; status: string }) =>
     v.status === "closed" && v.name.trim().toLowerCase().startsWith("single run");
@@ -73,26 +80,50 @@ export async function AdminVaultsView({
       },
     },
   });
-  const allVaults = allVaultsRaw.filter((v) => !isSingleRunDraft(v));
-  const vaults =
-    activeFilter === "all"
-      ? allVaults
-      : allVaults.filter((v) => v.status === activeFilter);
 
+  // Split, never drop: archived rows stay reachable via the Archived tab and
+  // are announced whenever the current tab excludes them.
+  const archivedVaults = allVaultsRaw.filter((v) => isSingleRunDraft(v));
+  const lifecycleVaults = allVaultsRaw.filter((v) => !isSingleRunDraft(v));
+
+  const vaults =
+    activeFilter === "archived"
+      ? archivedVaults
+      : activeFilter === "all"
+        ? lifecycleVaults
+        : lifecycleVaults.filter((v) => v.status === activeFilter);
+
+  // KPIs on the COMPLETE population — archived deployments are real
+  // VaultDeployment rows; excluding them from the totals would misreport.
   const portfolioKpis = buildVaultsKpiStrip(
-    allVaults.map((v) => ({
+    allVaultsRaw.map((v) => ({
       aumUsdc: v.positions.reduce((sum, p) => sum + Number(p.principalUsdc), 0),
       capacityUsdc: Number(v.capacityUsdc),
       status: v.status,
     })),
   );
 
+  const statusCount = (status: string) =>
+    lifecycleVaults.filter((v) => v.status === status).length;
+
+  const filterTabs: AdminUrlTab[] = FILTER_TABS.map((tab) => ({
+    key: tab.key,
+    label: tab.label,
+    href: tab.key === "all" ? "/admin/vaults" : `/admin/vaults?filter=${tab.key}`,
+    count:
+      tab.key === "all"
+        ? lifecycleVaults.length
+        : tab.key === "archived"
+          ? archivedVaults.length
+          : statusCount(tab.key),
+  }));
+
   return (
     <PageLayout>
       <PageHeader
         eyebrow="Admin"
         title="Vault portfolio"
-        description={`${vaults.length} deployment(s) in view.`}
+        description={`${allVaultsRaw.length} deployment(s) on record — ${vaults.length} in view.`}
         actions={
           <Link href="/admin/vaults/new">
             <Button>+ New deployment</Button>
@@ -104,18 +135,12 @@ export async function AdminVaultsView({
         <KpiGrid>
           {portfolioKpis.map((kpi) => (
             <Panel key={kpi.label}>
-              <div className="p-5">
+              <div className={FORM_SURFACE}>
                 <Kpi
                   label={kpi.label}
                   value={kpi.value}
                   hint={kpi.sublabel}
-                  provenance={
-                    kpi.provenance === "manual" ||
-                    kpi.provenance === "estimated" ||
-                    kpi.provenance === "live"
-                      ? kpi.provenance
-                      : "manual"
-                  }
+                  provenance={kpi.provenance}
                 />
               </div>
             </Panel>
@@ -124,28 +149,25 @@ export async function AdminVaultsView({
       ) : null}
 
       <Section title="Deployments" description="Filter by lifecycle status">
-        <nav
-          className="mb-4 flex flex-wrap gap-2"
-          aria-label="Filter vaults by status"
-        >
-          {FILTER_TABS.map((tab) => {
-            const href =
-              tab.key === "all"
-                ? "/admin/vaults"
-                : `/admin/vaults?filter=${tab.key}`;
-            const active = tab.key === activeFilter;
-            return (
-              <Link key={tab.key} href={href}>
-                <Badge
-                  variant={active ? "accent" : "outline"}
-                  className={cn("cursor-pointer px-3 py-1")}
-                >
-                  {tab.label}
-                </Badge>
-              </Link>
-            );
-          })}
-        </nav>
+        <div className="mb-4 flex flex-col gap-2">
+          <AdminUrlTabFilter
+            tabs={filterTabs}
+            activeKey={activeFilter}
+            ariaLabel="Filter vaults by status"
+          />
+          {archivedVaults.length > 0 && activeFilter !== "archived" ? (
+            <p className="text-xs text-[var(--ct-text-muted)]" role="status">
+              {archivedVaults.length} single-run draft(s) hidden — closed drafts
+              from the run wizard. See the Archived ({archivedVaults.length}) tab.
+            </p>
+          ) : null}
+          {activeFilter === "archived" ? (
+            <p className="text-xs text-[var(--ct-text-muted)]">
+              Single-run drafts — closed drafts created by the run wizard,
+              excluded from the lifecycle tabs but counted in the KPIs above.
+            </p>
+          ) : null}
+        </div>
 
         <Panel>
           {vaults.length === 0 ? (
@@ -203,7 +225,9 @@ export async function AdminVaultsView({
                         <div className="flex min-w-[10rem] flex-col gap-1.5">
                           <div className="flex items-center gap-2">
                             <CapacityBar pct={aumPct} />
-                            <ProvenanceBadge source="manual" />
+                            {/* Provenance carried by the calculation (règle c2):
+                                sum of LP position rows → POSITION_SUM_PROVENANCE. */}
+                            <ProvenanceBadge source={POSITION_SUM_PROVENANCE} />
                           </div>
                           <span className="font-mono text-xs tabular-nums text-[var(--ct-text-muted)]">
                             {formatUsdCompact(aumUsdc)} /{" "}
@@ -214,7 +238,7 @@ export async function AdminVaultsView({
                       <TableCell>
                         <span className="flex items-center gap-1.5 text-sm tabular-nums">
                           {apyLow.toFixed(1)}–{apyHigh.toFixed(1)}%
-                          <ProvenanceBadge source="estimated" />
+                          <ProvenanceBadge source={TARGET_RANGE_PROVENANCE} />
                         </span>
                       </TableCell>
                       <TableCell>

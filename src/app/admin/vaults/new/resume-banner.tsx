@@ -80,7 +80,8 @@ export function ResumeDraftBanner({
           <p className="body-sm ct-text-strong">
             An autosaved {draftLabel} was found on this account.
           </p>
-          <p className="body-xs ct-text-faint">
+          {/* Classe faint fantôme retirée (absente des CSS runtime) — token direct. */}
+          <p className="body-xs text-[var(--ct-text-faint)]">
             Step {stepNumber}/7 — {stepLabel} · Autosaved {relTime ?? "…"}
           </p>
         </div>

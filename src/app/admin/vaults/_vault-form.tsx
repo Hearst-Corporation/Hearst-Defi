@@ -3,10 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
-import { ApyRange } from "@/components/catalyst/apy-range";
+import { TargetRange } from "@/components/catalyst/target-range";
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { BentoPanel } from "@/components/catalyst/bento";
 import { Progress } from "@/components/catalyst/progress";
+import { AlertBanner } from "@/components/admin/alert-banner";
 import { MonteCarloReview } from "@/components/admin/monte-carlo-review";
 import { ProjectionFooter } from "@/components/admin/projection-footer";
 import { ForbiddenWordsInput } from "@/components/admin/forbidden-words-input";
@@ -76,7 +77,7 @@ const FORM_INITIAL: FormState = {
   shareClass: "A",
   regExemption: "regD_506c",
   disclaimers:
-    "This vault is offered exclusively to qualified purchasers as defined in Section 2(a)(51) of the Investment Company Act. Past performance is not indicative of future results. This is not a solicitation or offer in any jurisdiction where such offer is unlawful. Distributions are not guaranteed and are subject to operational performance.",
+    "This vault is offered exclusively to qualified purchasers as defined in Section 2(a)(51) of the Investment Company Act. Past performance is not indicative of future results. This is not a solicitation or offer in any jurisdiction where such offer is unlawful. BTC delivered at maturity is not guaranteed and is subject to operational performance.",
   // ── Pocket defaults: the ONLY layout the contract accepts ────────────────
   // PermissionedDynaVault v2.1 hard-enforces 40/27/33 across B1/B2/B3
   // (`_enforceMiningNoteLayout` reverts with `MiningNoteLayoutViolation` on
@@ -143,13 +144,11 @@ function inputClass(extra?: string) {
   return cn(BENTO_INPUT, "text-[length:var(--ct-text-xs)]", extra);
 }
 
-/** Bento section heading inside a panel body. */
+/** Bento section heading inside a panel body — canon H2 recipe
+ *  (`ct-section-title`, same class AdminSectionCard uses), never an
+ *  improvised heading style. */
 function StepHeader({ title }: { title: string }) {
-  return (
-    <h2 className="text-[length:var(--ct-text-sm)] font-semibold tracking-tight text-[var(--ct-text-strong)]">
-      {title}
-    </h2>
-  );
+  return <h2 className="ct-section-title">{title}</h2>;
 }
 
 /** Bento two/three-column field grid (replaces MetricGrid). */
@@ -495,7 +494,8 @@ export function VaultForm(props: VaultFormProps) {
                     set("strategy", e.target.value as FormState["strategy"])
                   }
                 >
-                  <option value="mining_yield">Mining Yield</option>
+                  {/* DB value unchanged — only the human label is relabelled (D8). */}
+                  <option value="mining_yield">BTC accumulation (mining-backed)</option>
                   <option value="btc_tactical">BTC Tactical</option>
                   <option value="stable_reserve">Stable Reserve</option>
                 </select>
@@ -656,7 +656,7 @@ export function VaultForm(props: VaultFormProps) {
 
             <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <span className={BENTO_LABEL}>Estimated Return Range Preview</span>
-              <ApyRange
+              <TargetRange
                 low={form.targetApyLowBps / 100}
                 high={form.targetApyHighBps / 100}
                 precision={1}
@@ -974,7 +974,7 @@ export function VaultForm(props: VaultFormProps) {
                   <span className="mono text-[length:var(--ct-text-xs)] tabular-nums text-[var(--ct-text-body)]">{form.softLockupDays} days</span>
                 </RecapRow>
                 <RecapRow label="Est. Return">
-                  <ApyRange
+                  <TargetRange
                     low={form.targetApyLowBps / 100}
                     high={form.targetApyHighBps / 100}
                     precision={1}
@@ -1048,9 +1048,9 @@ export function VaultForm(props: VaultFormProps) {
             />
 
             <p className="border-t border-[var(--ct-border)] pt-4 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
-              Assumptions: mining yields, BTC price, network difficulty, energy costs are
-              projected based on historical ranges. Target APY is a range, not guaranteed.
-              Past performance is not indicative of future results.
+              Assumptions: mining output, BTC price, network difficulty, energy costs are
+              projected based on historical ranges. The accumulation target is a range,
+              not a guarantee. Past performance is not indicative of future results.
             </p>
           </div>
         )}
@@ -1087,10 +1087,10 @@ export function VaultForm(props: VaultFormProps) {
             <div className="flex flex-col gap-2 rounded-2xl border border-[var(--ct-border)] bg-surface-inset p-5">
               <span className={BENTO_LABEL}>Signers whitelist</span>
               {filledSigners.length === 0 ? (
-                <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">
+                <AlertBanner tone="warning" role="status">
                   No signers added — add at least {form.requiredSigners} in the
                   Governance step.
-                </span>
+                </AlertBanner>
               ) : (
                 <ul className="flex flex-col gap-2">
                   {filledSigners.map((s, i) => {
@@ -1117,40 +1117,37 @@ export function VaultForm(props: VaultFormProps) {
                 </ul>
               )}
 
+              {/* D3: a data/precondition state, not a blocking error — warning,
+                  never danger red. */}
               {props.adminId !== undefined && !adminInWhitelist && (
-                <p className="pt-1 text-[length:var(--ct-text-2xs)] text-[var(--ct-status-danger)]">
+                <AlertBanner tone="warning" role="status" className="mt-1">
                   Your identity ({props.adminId}) is not in the whitelist — you
                   will not be able to sign this deployment yourself.
-                </p>
+                </AlertBanner>
               )}
             </div>
 
+            {/* Signalement U3 — precondition notice, not a failure: warning tone,
+                role=status (the submit button is simply disabled meanwhile). */}
             {!signersOk && (
-              <div
-                role="status"
-                className="rounded-lg border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] px-4 py-3 text-[length:var(--ct-text-xs)] text-[var(--ct-status-danger)]"
-              >
+              <AlertBanner tone="warning" role="status">
                 {hasMalformedSigner
                   ? "Fix the malformed signer(s) in the Governance step before submitting."
                   : `Add at least ${form.requiredSigners} distinct valid signers in the Governance step before submitting.`}
-              </div>
+              </AlertBanner>
             )}
 
             <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
-              Target APY range: {pct(form.targetApyLowBps)}%–{pct(form.targetApyHighBps)}%.
-              Not guaranteed. Subject to market conditions.
+              Target accumulation range: {pct(form.targetApyLowBps)}%–{pct(form.targetApyHighBps)}%
+              — expressed in accumulated BTC, not a paid rate. Not guaranteed. Subject to
+              market conditions.
             </p>
           </div>
         )}
 
-        {/* Navigation */}
+        {/* Navigation — a rejected submit IS a blocking error: stays red (D3). */}
         {error ? (
-          <div
-            role="alert"
-            className="rounded-lg border border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] px-4 py-3 text-[length:var(--ct-text-xs)] text-[var(--ct-status-danger)]"
-          >
-            {error}
-          </div>
+          <AlertBanner tone="error">{error}</AlertBanner>
         ) : null}
 
         <div className="mt-2 flex items-center justify-between gap-3 border-t border-[var(--ct-border-soft)] pt-5">

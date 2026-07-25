@@ -1,4 +1,4 @@
-import type { HeroKpi } from "@/lib/data/cockpit";
+import type { HeroKpi, HeroKpiProvenance } from "@/lib/data/cockpit";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 interface VaultSummaryInput {
@@ -9,13 +9,23 @@ interface VaultSummaryInput {
 }
 
 /**
- * Derives 4 honest KPIs from the full vault list already loaded by the
- * admin/vaults page. No DB queries — pure derivation from in-memory data.
+ * Provenance carried BY THE CALCULATION (règle c2: no provenance literal at
+ * render time). The view imports these constants next to the numbers they
+ * qualify — one source for the KPI strip AND the table badges.
  *
- * Provenance:
- * - Vault counts → "manual" (operator-managed records)
- * - AUM (principal sum) → "manual" (LP position records, not on-chain oracle)
- * - Capacity used → "estimated" (ratio of two manual figures)
+ * - Sum of LP position rows (Prisma) → "manual": operator-recorded records,
+ *   not an on-chain read.
+ * - Configured target range / ratio of two manual figures → "estimated":
+ *   a projection or derivation, never a measurement.
+ */
+export const POSITION_SUM_PROVENANCE: HeroKpiProvenance = "manual";
+export const TARGET_RANGE_PROVENANCE: HeroKpiProvenance = "estimated";
+
+/**
+ * Derives 4 honest KPIs from the COMPLETE vault list loaded by the
+ * admin/vaults page — including archived single-run drafts: hiding rows from
+ * the table is a display choice, hiding them from the totals would be a lie.
+ * No DB queries — pure derivation from in-memory data.
  */
 export function buildVaultsKpiStrip(
   vaults: VaultSummaryInput[],
@@ -40,7 +50,7 @@ export function buildVaultsKpiStrip(
       label: "Total vaults",
       value: String(totalVaults),
       sublabel: liveCount === 1 ? "1 live" : `${liveCount} live`,
-      provenance: "manual",
+      provenance: POSITION_SUM_PROVENANCE,
       accent: liveCount > 0,
     },
     {
@@ -52,7 +62,7 @@ export function buildVaultsKpiStrip(
       label: liveCount > 0 ? "Deployed AUM" : "Active principal",
       value: totalAum > 0 ? formatUsdCompact(totalAum) : "—",
       sublabel: "sum of active positions",
-      provenance: "manual",
+      provenance: POSITION_SUM_PROVENANCE,
     },
     {
       label: "Capacity used",
@@ -61,7 +71,7 @@ export function buildVaultsKpiStrip(
         totalCapacity > 0
           ? `of ${formatUsdCompact(totalCapacity)} total`
           : "no capacity set",
-      provenance: "estimated",
+      provenance: TARGET_RANGE_PROVENANCE,
     },
   ];
 
@@ -70,7 +80,7 @@ export function buildVaultsKpiStrip(
       label: "In pipeline",
       value: String(notReadyCount),
       sublabel: "draft or in review",
-      provenance: "manual",
+      provenance: POSITION_SUM_PROVENANCE,
     });
   }
 

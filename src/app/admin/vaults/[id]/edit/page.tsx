@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { VaultForm, type FormState } from "@/app/admin/vaults/_vault-form";
 import { AdminPageShell, AdminSectionCard, FORM_SURFACE } from "@/components/admin/admin-page-shell";
+import { AlertBanner } from "@/components/admin/alert-banner";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
@@ -40,6 +41,17 @@ export default async function EditVaultPage({ params }: PageProps) {
   const signersWhitelist =
     stored.length >= 2 ? stored : [...stored, ...Array(2 - stored.length).fill("")];
 
+  // The STORED quorum, shown as stored — never silently rewritten. When it is
+  // incoherent (fewer stored signers than the quorum requires, or below the
+  // 2-signer floor) the banner below SAYS so instead of patching the value.
+  const storedRequiredSigners = vault.requiredSigners;
+  const quorumIncoherence: string | null =
+    storedRequiredSigners < 2
+      ? `Stored quorum is ${storedRequiredSigners} — below the 2-signer minimum. The value is shown as stored; fix it in the Governance step before submitting.`
+      : storedRequiredSigners > stored.length
+        ? `Stored quorum requires ${storedRequiredSigners} signers but only ${stored.length} signer(s) are stored in the whitelist. The value is shown as stored; add signers or lower the quorum in the Governance step before submitting.`
+        : null;
+
   const initial: FormState = {
     ticker: vault.ticker,
     name: vault.name,
@@ -63,7 +75,7 @@ export default async function EditVaultPage({ params }: PageProps) {
     targetUsdcBaseBps: vault.targetUsdcBaseBps,
     targetStableReserveBps: vault.targetStableReserveBps,
     signersWhitelist,
-    requiredSigners: Math.max(2, Math.min(vault.requiredSigners, signersWhitelist.length)),
+    requiredSigners: storedRequiredSigners,
   };
 
   return (
@@ -74,7 +86,7 @@ export default async function EditVaultPage({ params }: PageProps) {
       headerActions={
         <Link
           href={`/admin/vaults/${id}`}
-          className="ct-metric-caption ct-focus-ring rounded-sm transition-colors hover:text-[var(--ct-text-strong)]"
+          className="ct-metric-caption rounded-sm transition-colors hover:text-[var(--ct-text-strong)]"
         >
           ← {vault.ticker}
         </Link>
@@ -86,14 +98,16 @@ export default async function EditVaultPage({ params }: PageProps) {
         subtitle="Edit this vault's parameters, share classes, and assumptions before publishing."
       >
         {whitelistCorrupted ? (
-          <div
-            role="alert"
-            className="mx-5 mt-5 rounded-lg border border-[var(--ct-status-warning-border)] bg-[var(--ct-status-warning-soft)] px-3 py-2 text-[length:var(--ct-text-xs)] text-[var(--ct-status-warning)]"
-          >
+          <AlertBanner tone="warning" role="alert" className="mx-5 mt-5">
             Stored signer whitelist could not be read (invalid data) — the field below starts
             empty, not a copy of what&apos;s saved. Re-enter signers before submitting to avoid
             overwriting the existing whitelist unintentionally.
-          </div>
+          </AlertBanner>
+        ) : null}
+        {quorumIncoherence ? (
+          <AlertBanner tone="warning" className="mx-5 mt-5" title="Stored quorum is incoherent">
+            {quorumIncoherence}
+          </AlertBanner>
         ) : null}
         <div className={FORM_SURFACE}>
           <VaultForm mode="edit" vaultId={id} initial={initial} adminId={adminId} />
