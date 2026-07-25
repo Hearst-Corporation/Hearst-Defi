@@ -41,6 +41,24 @@ export function AdminDetailSection({
   );
 }
 
+interface AdminDetailListProps {
+  children: ReactNode;
+  className?: string;
+}
+
+/**
+ * Definition-list grid for `AdminDetailItem` rows — 2 columns on md+,
+ * `fullWidth` items span both. `AdminDetailItem` renders `<dt>/<dd>` and MUST
+ * live inside a `<dl>`: use this wrapper so the markup stays valid.
+ */
+export function AdminDetailList({ children, className }: AdminDetailListProps) {
+  return (
+    <dl className={cn("m-0 grid gap-4 md:grid-cols-2", className)}>
+      {children}
+    </dl>
+  );
+}
+
 interface AdminDetailItemProps {
   label: ReactNode;
   children: ReactNode;
@@ -48,6 +66,7 @@ interface AdminDetailItemProps {
   fullWidth?: boolean;
 }
 
+/** One dt/dd pair — render inside `AdminDetailList` (or another `<dl>`). */
 export function AdminDetailItem({
   label,
   children,

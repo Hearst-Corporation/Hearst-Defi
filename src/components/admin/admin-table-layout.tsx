@@ -17,6 +17,11 @@ interface AdminTableProps<T> {
   renderRow: (item: T) => ReactNode;
   className?: string;
   colWidths?: string[];
+  /**
+   * Stable React key per row (e.g. the record id). Defaults to the array
+   * index — fine for static lists, pass it for sorted/filtered data.
+   */
+  rowKey?: (item: T, index: number) => string | number;
 }
 
 /**
@@ -32,6 +37,7 @@ export function AdminTable<T>({
   renderRow,
   className,
   colWidths,
+  rowKey,
 }: AdminTableProps<T>) {
   return (
     <BentoPanel className={className}>
@@ -54,7 +60,7 @@ export function AdminTable<T>({
         <TableBody>
           {data.map((item, i) => (
             <TableRow
-              key={i}
+              key={rowKey ? rowKey(item, i) : i}
               className="border-b border-[var(--ct-border-soft)] transition-colors last:border-0 hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
             >
               {renderRow(item)}
@@ -85,7 +91,10 @@ export function AdminPagination({
   const end = Math.min(page * pageSize, total);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--ct-border-soft)] py-4">
+    <nav
+      aria-label="Pagination"
+      className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--ct-border-soft)] py-4"
+    >
       <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-muted)] tabular-nums">
         Showing {start}-{end} of {total}
       </p>
@@ -107,6 +116,6 @@ export function AdminPagination({
           </Link>
         )}
       </div>
-    </div>
+    </nav>
   );
 }

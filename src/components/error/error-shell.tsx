@@ -1,9 +1,12 @@
 /**
  * error-shell.tsx — Shared error/not-found layout shell.
  *
- * `ErrorShellLayout` is the single H1/eyebrow pattern for every error surface:
- * segment `error.tsx`, `not-found`, and `global-error` (which imports the Cockpit
- * CSS stack in its own `<html>` because the root layout is replaced).
+ * `ErrorShellLayout` is the single H1/eyebrow pattern for segment `error.tsx`
+ * and `not-found` surfaces (global-error is self-contained and does not use
+ * this shell). Runtime honesty: only classes/tokens that actually resolve
+ * under the loaded CSS (app.css → theme/legacy-bridge/typography) are used —
+ * the former `error-shell__*` and `.ct-status-*` classes lived only in
+ * cockpit.css (Storybook) and silently did nothing at runtime.
  */
 
 import type React from "react";
@@ -40,20 +43,25 @@ export function ErrorShellLayout({
   errorMessage,
   actions,
 }: ErrorShellLayoutProps) {
-  const eyebrowColor =
-    tone === "danger"
-      ? "ct-status-danger"
-      : "ct-status-warning";
-
   return (
     <Card
-      className={cn("error-shell", "mx-auto my-[var(--ct-space-10)] max-w-2xl p-[var(--ct-space-10)]")}
+      className="mx-auto my-10 flex max-w-2xl flex-col gap-5 p-10"
       hoverOverlay={false}
       role={tone === "danger" ? "alert" : "status"}
       aria-live={tone === "danger" ? "assertive" : "polite"}
     >
-      <header className="error-shell__head">
-        <span className={cn("eyebrow", eyebrowColor)}>{scope}</span>
+      <header className="flex flex-col gap-2">
+        {/* hc-eyebrow (@layer components) + a colour utility: utilities win
+            the cascade, unlike the un-layered `.eyebrow` whose colour cannot
+            be overridden by a class. */}
+        <span
+          className={cn(
+            "hc-eyebrow",
+            tone === "danger" ? "text-danger" : "text-warning",
+          )}
+        >
+          {scope}
+        </span>
         <h1 className="h1 m-0">{title}</h1>
       </header>
 
@@ -73,7 +81,7 @@ export function ErrorShellLayout({
             "ct-text-primary",
             "overflow-auto",
             "whitespace-pre-wrap break-words",
-            "max-h-64 px-[var(--ct-space-4)] py-[var(--ct-space-4)] body-xs leading-normal",
+            "max-h-64 px-4 py-4 body-xs leading-normal",
           )}
         >
           {errorMessage}
@@ -86,7 +94,7 @@ export function ErrorShellLayout({
         </p>
       ) : null}
 
-      <div className="error-shell__actions">{actions}</div>
+      <div className="mt-1 flex flex-wrap items-center gap-3">{actions}</div>
     </Card>
   );
 }

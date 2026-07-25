@@ -4,15 +4,28 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export interface AdminUrlTab {
+  /** Stable identity, compared against `activeKey`. */
   key: string;
   label: ReactNode;
+  /** Full target URL — the caller owns query building (searchParam-driven). */
   href: string;
+  /**
+   * Optional record count, rendered as "(n)" in tabular figures.
+   * Provide it only when the number is actually known: an available zero
+   * renders as "(0)" — omit the field when the count is unavailable.
+   */
+  count?: number;
 }
 
 /**
  * URL-driven admin filter tabs — Portfolio bento canon.
  * Active tab = accent-green (#A7FB90) chip, inactive = zinc pill with a faint
  * hover wash. Server component: navigation via href, no client state.
+ *
+ * Focus: the accent focus ring comes from the global `:focus-visible` rule in
+ * `src/styles/app.css` (@layer base — `outline-2 outline-offset-2
+ * outline-accent`), so every tab link is keyboard-visible without
+ * per-component classes.
  */
 export function AdminUrlTabFilter({
   tabs,
@@ -47,6 +60,9 @@ export function AdminUrlTabFilter({
             )}
           >
             {tab.label}
+            {tab.count !== undefined && (
+              <span className="ml-1.5 tabular-nums">({tab.count})</span>
+            )}
           </Link>
         );
       })}
