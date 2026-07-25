@@ -1,3 +1,4 @@
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
 import { formatAdminDate } from "@/lib/vaults/product-display";
 import {
   Badge,
@@ -10,6 +11,9 @@ import {
   TableRow,
 } from "@/ui";
 import { PageHeader, PageLayout, Panel, Section } from "@/views/_shared/layout";
+
+/** Newest-first window fetched by the page — declared on screen, never silent. */
+export const DOCUMENT_VAULT_TAKE = 100;
 
 type DocumentRow = {
   id: string;
@@ -37,11 +41,11 @@ export function AdminDocumentVaultView({
 
       <Section title="Documents">
         <Panel
-          title={`${documents.length} most recent`}
+          title={`Showing ${documents.length} (max ${DOCUMENT_VAULT_TAKE})`}
           description="Newest first."
         >
           {documents.length === 0 ? (
-            <div className="p-5">
+            <div className={FORM_SURFACE}>
               <EmptyState
                 title="No documents yet"
                 description="Documents are created via POST /api/document-vault/documents by an authenticated caller."

@@ -59,9 +59,13 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
     });
   }
 
+  // Layout classes are live utilities only — the old `admin-doc-stack` /
+  // `admin-doc-inline-row` vocabulary and the `.admin-doc`-scoped
+  // `security-totp-*` rules had NO runtime CSS anymore (parallel vocabulary
+  // purged 2026-07-25; admin-proof.css deleted in E5).
   if (state.phase === "success") {
     return (
-      <div className="admin-doc-stack admin-doc-stack--tight">
+      <div className="flex flex-col gap-2">
         <p className="body-xs ct-text-accent">
           Two-factor authentication is now enabled. Your next login will require a TOTP code.
         </p>
@@ -71,8 +75,8 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
 
   if (state.phase === "pending") {
     return (
-      <div className="admin-doc-stack">
-        <div className="admin-doc-stack admin-doc-stack--tight">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <p className="body-xs ct-text-muted">
             Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.),
             then enter the 6-digit code below to complete setup.
@@ -89,7 +93,7 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               width={200}
               height={200}
               unoptimized
-              className="security-totp-qr rounded-(--ct-radius-sm) ct-surface-1"
+              className="rounded-(--ct-radius-sm) bg-white p-2"
             />
           </div>
 
@@ -99,16 +103,16 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
               Can&apos;t scan? Enter the key manually
             </summary>
             <p
-              className="security-totp-manual mono break-all rounded-(--ct-radius-sm) ct-surface-1 select-all"
+              className="mono mt-2 break-all rounded-(--ct-radius-sm) bg-surface-inset px-2 py-1 select-all"
             >
               {state.payload.secretBase32}
             </p>
           </details>
         </div>
 
-        <form action={handleConfirm} className="admin-doc-stack admin-doc-stack--relaxed">
+        <form action={handleConfirm} className="flex flex-col gap-5">
           <label className="block" htmlFor="totp-code">
-            <span className="security-totp-field-label block stat-label">
+            <span className="mb-1 block text-xs font-medium text-[var(--ct-text-muted)]">
               Verification code
             </span>
             <Input
@@ -128,12 +132,12 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
           </label>
 
           {error ? (
-            <p className="ct-status-danger body-xs" role="alert">
+            <p className="body-xs text-[var(--ct-status-danger)]" role="alert">
               {error}
             </p>
           ) : null}
 
-          <div className="admin-doc-inline-row admin-doc-inline-row--actions">
+          <div className="flex items-center gap-3">
             <Button
               type="submit"
               variant="primary"
@@ -161,18 +165,24 @@ export function TotpEnrolmentClient({ initialEnabled }: Props) {
 
   // phase === "idle"
   return (
-    <div className="admin-doc-stack admin-doc-stack--relaxed">
+    <div className="flex flex-col gap-5">
       {totpEnabled ? (
-        <div className="admin-doc-inline-row">
-          <span className="ct-dot ct-status-dot-success" />
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden
+            className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-accent)]"
+          />
           <span className="body-xs ct-text-accent">
             MFA is enabled for this account.
           </span>
         </div>
       ) : (
         <>
-          <div className="admin-doc-inline-row">
-            <span className="ct-dot ct-status-dot-warning" />
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="inline-block size-1.5 shrink-0 rounded-full bg-[var(--ct-status-warning)]"
+            />
             <span className="body-xs ct-text-muted">
               MFA is not yet enabled. We recommend enabling it for admin accounts.
             </span>

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { EmptySurface } from "@/components/catalyst/empty-surface";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { DELIVERY_EVENTS_EMPTY } from "@/components/proof/empty-messages";
-import { EXPLORER_TX_BASE } from "@/lib/chain/client";
+import { EXPLORER_TX_BASE, isPlaceholderTxHash } from "@/lib/chain/client";
 import type { ProofCenterDistributionRow } from "@/lib/data/proof-center";
 import { distributionProvenance } from "@/lib/proof-center/distribution-provenance";
 import { formatUsdCompact } from "@/lib/format/usd-compact";
@@ -30,7 +30,7 @@ const PROVENANCE_RANK: Record<Provenance, number> = {
   simulated: 7,
 };
 
-function weakestProvenance(kinds: readonly Provenance[]): Provenance {
+export function weakestProvenance(kinds: readonly Provenance[]): Provenance {
   return kinds.reduce((weakest, kind) =>
     PROVENANCE_RANK[kind] > PROVENANCE_RANK[weakest] ? kind : weakest,
   );
@@ -143,7 +143,7 @@ export function DeliveryEvents({
                 </div>
                 <div className="flex min-w-0 flex-col gap-1">
                   <MicroLabel>Tx hash</MicroLabel>
-                  {event.txHash && !event.txHash.toLowerCase().startsWith("0xmock") ? (
+                  {event.txHash && !isPlaceholderTxHash(event.txHash) ? (
                     <a
                       href={`${EXPLORER_TX_BASE}${event.txHash}`}
                       target="_blank"

@@ -16,7 +16,11 @@ import { PorSummary } from "@/components/proof-center/por-summary";
 import { ProofCenterColdShell } from "@/components/proof-center/proof-center-cold-shell";
 import { ProofCenterSection } from "@/components/proof-center/proof-center-section";
 import { PortfolioLeafLink } from "@/components/portfolio/portfolio-leaf-link";
-import { DeliveryEvents } from "@/components/proof-center/recent-distributions";
+import {
+  DeliveryEvents,
+  weakestProvenance,
+} from "@/components/proof-center/recent-distributions";
+import { distributionProvenance } from "@/lib/proof-center/distribution-provenance";
 import { RebalancingEventsPanel } from "@/components/proof-center/rebalancing-events-panel";
 import type { CoverageView } from "@/lib/engine/coverage-view";
 import type { OnChainAttestation } from "@/lib/chain/por-registry";
@@ -111,15 +115,45 @@ export function ProofCenterHub({
       ? withAdminVaultQuery("/proof-center/full", vaultRef)
       : withAdminVaultQuery("/admin/proof-center/full", vaultRef);
 
+  // Card badges follow the hub-data block rules (block-provenance.ts):
+  // absence of a source claims NOTHING — "stale" (awaiting update), never
+  // "manual" (which asserts a human keyed the value in).
   const porProvenance = latestAttestation
     ? resolveAttestationProvenance(
         latestAttestation.timestamp,
         attestationVerified,
         demo,
       )
-    : "manual";
+    : "stale";
 
-  const coverageProvenance = coverage?.provenance ?? "manual";
+  const coverageProvenance = coverage?.provenance ?? "stale";
+
+  // Delivery header takes the weakest row (never overstates): all-fixture rows
+  // read "Simulated", not "Manual" (weakestProvenance + distributionProvenance).
+  const deliveryProvenance =
+    recentDistributions.length > 0
+      ? weakestProvenance(
+          recentDistributions.map((event) =>
+            distributionProvenance(event.txHash),
+          ),
+        )
+      : undefined;
+
+  // Mirrors rebalanceProvenance + weakestRebalanceProvenance in
+  // rebalancing-events-panel.tsx (executed → live, pending/approved → manual,
+  // anything else → stale) so the card header matches its own rows.
+  const reserveEventsProvenance =
+    recentRebalances.length > 0
+      ? weakestProvenance(
+          recentRebalances.map((event): ProvenanceKind => {
+            if (event.status === "executed") return "live";
+            if (event.status === "pending" || event.status === "approved") {
+              return "manual";
+            }
+            return "stale";
+          }),
+        )
+      : undefined;
 
   const vaultSuffix = getVaultShortLabel(vaultRef ?? "yield");
 
@@ -190,7 +224,7 @@ export function ProofCenterHub({
                 <ProofHubCard
                   eyebrow="Accumulation source"
                   title="Mining cash-flow"
-                  provenance={coverageProvenance === "pending" ? "manual" : coverageProvenance === "invalid" ? "stale" : coverageProvenance}
+                  provenance={coverageProvenance === "pending" ? "stale" : coverageProvenance === "invalid" ? "stale" : coverageProvenance}
                   variant={variant}
                 >
                   <MiningCashFlowEvidence coverage={coverage} bare />
@@ -203,7 +237,7 @@ export function ProofCenterHub({
                 <ProofHubCard
                   eyebrow="Maturity evidence"
                   title="Delivery events"
-                  provenance={recentDistributions.length > 0 ? "manual" : undefined}
+                  provenance={deliveryProvenance}
                   href={fullHref}
                   variant={variant}
                 >
@@ -225,7 +259,7 @@ export function ProofCenterHub({
                 <ProofHubCard
                   eyebrow="Contract events"
                   title="Reserve events"
-                  provenance={recentRebalances.length > 0 ? "manual" : undefined}
+                  provenance={reserveEventsProvenance}
                   href={fullHref}
                   variant={variant}
                 >

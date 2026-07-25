@@ -23,11 +23,28 @@ interface ProofItem {
   postedBy: string;
   notes?: string | null;
   txHash?: string | null;
+  /**
+   * ECDSA + allowlist verdict computed server-side (same rule as
+   * proof-center/full): `true` verified · `false` failed verification ·
+   * `null`/absent — no signature on the row, nothing was verified.
+   */
+  signatureVerified?: boolean | null;
 }
 
 function truncateUri(str: string, max: number): string {
   if (str.length <= max) return str;
   return `${str.slice(0, max)}…`;
+}
+
+/**
+ * Honest label for the signature verdict — exported for tests.
+ * `null`/`undefined` renders an em dash: "no signature" is not "unverified",
+ * and neither may ever read as "verified".
+ */
+export function signatureLabel(verified: boolean | null | undefined): string {
+  if (verified === true) return "verified";
+  if (verified === false) return "unverified";
+  return "—";
 }
 
 /** Tinted bento chip — proof type / period tag. */
@@ -113,6 +130,28 @@ function AdminProofRow({ item }: { item: ProofItem }) {
               <span className="text-[var(--ct-text-muted)]">hash </span>
               <span className="mono text-[var(--ct-text-secondary)]">
                 {abbreviateAddress(item.hash)}
+              </span>
+            </span>
+            <span>
+              <span className="text-[var(--ct-text-muted)]">signature </span>
+              <span
+                className={cn(
+                  "mono",
+                  item.signatureVerified === true && "text-[var(--ct-accent)]",
+                  item.signatureVerified === false &&
+                    "text-[var(--ct-status-warning)]",
+                  item.signatureVerified == null &&
+                    "text-[var(--ct-text-faint)]",
+                )}
+                title={
+                  item.signatureVerified == null
+                    ? "No signature on this record — nothing to verify"
+                    : item.signatureVerified
+                      ? "ECDSA signature verified against the attestor allowlist"
+                      : "Signature present but failed verification (bad signature, digest mismatch or signer not allowlisted)"
+                }
+              >
+                {signatureLabel(item.signatureVerified)}
               </span>
             </span>
             <span>

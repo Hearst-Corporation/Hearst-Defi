@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/db";
-import { AdminDocumentVaultView } from "@/views/admin/document-vault-view";
+import {
+  AdminDocumentVaultView,
+  DOCUMENT_VAULT_TAKE,
+} from "@/views/admin/document-vault-view";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +13,7 @@ export const metadata = {
 export default async function DocumentVaultAdminPage() {
   const documents = await prisma.documentVaultDocument.findMany({
     orderBy: { updatedAt: "desc" },
-    take: 100,
+    take: DOCUMENT_VAULT_TAKE,
     select: {
       id: true,
       title: true,

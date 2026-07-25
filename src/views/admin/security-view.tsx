@@ -1,6 +1,7 @@
 import { KeyRound, LifeBuoy, ShieldCheck, type LucideIcon } from "lucide-react";
 
 import { TotpEnrolmentClient } from "@/app/admin/security/TotpEnrolmentClient";
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
 import { PageHeader, PageLayout, Panel, Section } from "@/views/_shared/layout";
 
 const PROTECTIONS: ReadonlyArray<{
@@ -43,7 +44,7 @@ export function AdminSecurityView({ totpEnabled }: { totpEnabled: boolean }) {
             title="Authenticator app"
             description="Required once enrolled."
           >
-            <div className="flex min-w-0 flex-col gap-4 p-5">
+            <div className={FORM_SURFACE}>
               <p className="text-sm leading-relaxed text-[var(--ct-text-muted)]">
                 Use an authenticator app (Google Authenticator, Authy, 1Password)
                 to generate a time-based code at login.

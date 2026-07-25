@@ -5,9 +5,10 @@
 
 export const dynamic = "force-dynamic";
 
+import { ScopeFallbackNotice } from "@/components/admin/scope-fallback-notice";
 import { ProofCenterHubLayout } from "@/components/proof-center/proof-center-hub-layout";
 import { loadProofCenterHubData } from "@/lib/proof-center/hub-data";
-import { resolveFixtureVault } from "@/lib/vaults/dashboard-scope";
+import { resolveFixtureVault, getVaultShortLabel } from "@/lib/vaults/dashboard-scope";
 
 export default async function AdminProofCenterPage({
   searchParams,
@@ -17,13 +18,27 @@ export default async function AdminProofCenterPage({
   const { vault: rawVault } = await searchParams;
   const { vaultId: vaultId, usedFallback, requested } = resolveFixtureVault(rawVault);
   // A substituted scope is TRACED, never silent: a typo'd ?vault= used to
-  // show the flagship's figures under the wrong label with no signal.
-  if (usedFallback && requested !== undefined) {
+  // show the flagship's figures under the wrong label with no signal. The
+  // console.warn stays as the server-side trace; the on-screen banner below
+  // is what the operator actually sees (E5 — ScopeFallbackNotice).
+  const scopeSubstituted = usedFallback && requested !== undefined;
+  if (scopeSubstituted) {
     console.warn(
       `[vault-scope] unknown ?vault=\"${requested}\" — showing the Series 1 flagship instead`,
     );
   }
   const hubData = await loadProofCenterHubData(false, vaultId);
 
-  return <ProofCenterHubLayout variant="admin" vaultId={vaultId} {...hubData} />;
+  return (
+    <>
+      {scopeSubstituted ? (
+        <ScopeFallbackNotice
+          requested={requested as string}
+          resolvedLabel={getVaultShortLabel(vaultId)}
+          className="mb-5"
+        />
+      ) : null}
+      <ProofCenterHubLayout variant="admin" vaultId={vaultId} {...hubData} />
+    </>
+  );
 }

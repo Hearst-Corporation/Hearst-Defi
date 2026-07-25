@@ -31,11 +31,31 @@ export interface ProofCenterRebalanceRow {
   impactText: string;
 }
 
+/**
+ * Strict vault scope for RebalanceEvent rows — mirrors
+ * `distributionVaultScopeWhere` (dashboard-scope.ts).
+ *
+ * E5 fix (Z3 "fuite de scope"): the old clause OR-ed `{vaultRef: "yield"}` and
+ * `{vaultRef: null}` into EVERY scope, so a defensive/btc-plus scope silently
+ * surfaced the flagship's rows. Now:
+ * - flagship scope ("yield" / legacy "hearst-yield-vault") includes the legacy
+ *   slug AND unscoped rows (`vaultRef: null`) — pre-multi-vault events were
+ *   written without a vaultRef and are ASSUMED to belong to the Series 1
+ *   flagship (documented assumption: "includes unscoped events");
+ * - any other scope matches its own vaultRef ONLY.
+ */
 function rebalanceVaultScopeWhere(vaultRef: string) {
-  // Legacy rows may use engine fixture id "yield" or null vaultRef.
-  return {
-    OR: [{ vaultRef }, { vaultRef: "yield" }, { vaultRef: null }],
-  };
+  const scopeId = resolveDistributionVaultScopeId(vaultRef);
+  if (scopeId === "yield") {
+    return {
+      OR: [
+        { vaultRef: "yield" },
+        { vaultRef: "hearst-yield-vault" },
+        { vaultRef: null },
+      ],
+    };
+  }
+  return { vaultRef: scopeId };
 }
 
 /** Last N distributions for a vault (spec: 3–6). */
@@ -59,7 +79,15 @@ export async function loadRecentDistributions(
   }));
 }
 
-/** Last N rebalancing signals for a vault (spec: 5). */
+/**
+ * Last N rebalancing signals for a vault (spec: 5).
+ *
+ * Status scope: `executed` / `approved` / `pending` only — `cancelled` (and
+ * admin-rejected) events are EXCLUDED by design from the proof surfaces: the
+ * Proof Center evidences operations that happened or are in flight, not
+ * operations that were called off. Declared here because the shared panel
+ * (investor surface) cannot carry the mention — see E5 report SIGNALEMENT.
+ */
 export async function loadRecentRebalances(
   vaultRef: string = PROOF_CENTER_VAULT_REF,
   limit = 5,
