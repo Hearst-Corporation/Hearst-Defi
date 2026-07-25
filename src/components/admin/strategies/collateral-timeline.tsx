@@ -16,7 +16,7 @@ import {
 } from "recharts";
 
 import type { CollateralTimelineRow } from "@/lib/strategy-data-lab";
-import { HcChartCard } from "@/components/dataviz/his/HcChartCard";
+import { ChartCard } from "@/components/catalyst/chart-card";
 import {
   SegmentedControl,
   type SegmentedItem,
@@ -104,7 +104,7 @@ export function CollateralTimeline({
         </span>
       </div>
 
-      <HcChartCard
+      <ChartCard
         title={
           metric === "price"
             ? "BTC Price vs Liquidation Price"
@@ -278,7 +278,7 @@ export function CollateralTimeline({
             )}
           </ComposedChart>
         </ResponsiveContainer>
-      </HcChartCard>
+      </ChartCard>
 
       <div className="grid gap-(--ct-space-3) lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <div className="rounded-(--ct-radius-lg) border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] p-(--ct-space-4)">

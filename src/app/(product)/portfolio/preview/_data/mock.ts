@@ -12,7 +12,7 @@
  *   · safety margin 62% healthy (>55 recharge line) vs LLTV live 86% · monthly bridge nets to collateral.
  * NOTHING is live except hashprice (mempool.space + CoinGecko in prod); everything else Estimated/Mock.
  */
-import type { HcValuePoint, HcLabeledValue } from "@/components/dataviz/his";
+import type { ChartValuePoint, ChartLabeledValue } from "@/components/catalyst/chart-types";
 import type { Provenance } from "@/components/ui/provenance-badge";
 
 import type { AgentSignal } from "../_charts/agent-signal-card";
@@ -46,7 +46,7 @@ export const VAULT = {
 };
 
 /** 13 monthly deployed-value prints (compounds toward take-profit; no monthly USDC payout in active). */
-export const VALUE_POINTS: readonly HcValuePoint[] = [
+export const VALUE_POINTS: readonly ChartValuePoint[] = [
   { at: "2025-06-15", value: 500_000 },
   { at: "2025-07-15", value: 503_100 },
   { at: "2025-08-15", value: 507_800 },
@@ -78,7 +78,7 @@ export const HEALTH = {
 export const SAFETY = { value: 62, max: 80, ranges: [40, 45, 55] as const, healthyFloor: 55 };
 
 // ── L2/L3 — the 3 pockets (sum = deposit 500k), operation strip ────────────────
-export const POCKETS: readonly HcLabeledValue[] = [
+export const POCKETS: readonly ChartLabeledValue[] = [
   { label: "B1 · Mining power", value: 200_000 }, // 40% — buys the hashrate NFT
   { label: "B2 · wBTC", value: 185_000 }, // 37% — yield + collateral
   { label: "B3 · USDC", value: 115_000 }, // 23% — productive, funds electricity first

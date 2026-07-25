@@ -6,20 +6,20 @@
 // header + badge + optional caption, so the eight viz blocks stay visually
 // identical and never hand-roll their own header.
 //
-// Token-only, delegates provenance to the existing HIS `HcSourceBadge` — no new
+// Token-only, delegates provenance to the Catalyst `ChartSourceBadge` — no new
 // visual language is introduced here.
 
 import type { ReactNode } from "react";
 
-import { HcSourceBadge } from "@/components/dataviz/his";
-import type { HcSourceStatus } from "@/components/dataviz/his";
+import { ChartSourceBadge } from "@/components/catalyst/chart-source-badge";
+import type { ChartSourceStatus } from "@/components/catalyst/chart-types";
 import { cn } from "@/lib/cn";
 
 export interface ReserveBlockFrameProps {
   /** Block title, e.g. "Capital Flow". */
   title: string;
   /** Provenance for THIS block's data (Live / Attested / Estimated / …). */
-  source: HcSourceStatus;
+  source: ChartSourceStatus;
   /** Optional short subtitle under the title. */
   subtitle?: string;
   /** Optional footnote rendered muted under the body (assumptions / disclaimer). */
@@ -65,7 +65,7 @@ export function ReserveBlockFrame({
             >
               {title}
             </h3>
-            <HcSourceBadge status={source} />
+            <ChartSourceBadge status={source} />
           </div>
           {subtitle ? (
             <p

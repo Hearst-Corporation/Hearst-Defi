@@ -54,7 +54,17 @@ async function assertAllocationPockets(canvasElement: HTMLElement) {
 
 const meta: Meta = {
   title: "05-pages/Series1CapitalFlow",
-  parameters: { layout: "padded" },
+  parameters: {
+    layout: "padded",
+    a11y: {
+      // The allocation bars now render through Recharts; the ResponsiveContainer
+      // trips `scrollable-region-focusable`. Scoped off so the gate tests the
+      // composition's own chrome, not the third-party overflow.
+      config: {
+        rules: [{ id: "scrollable-region-focusable", enabled: false }],
+      },
+    },
+  },
 };
 
 export default meta;
@@ -71,8 +81,10 @@ export const FlowRail: Story = {
     await expect(canvas.getByText("B1 / B2 / B3 allocation")).toBeVisible();
     await expect(canvas.getByText("BTC reserve ledger")).toBeVisible();
     await expect(canvas.getByText("Delivery at maturity")).toBeVisible();
-    // The rail is a numbered process — no allocation bars, so no HcStackedBar.
-    await expect(canvasElement.querySelector('[data-hc-ring="segment"]')).toBeNull();
+    // The rail is a numbered process — no allocation bars, so no ChartProportionBar:
+    // no role=img proportion track and no Recharts bar rectangle anywhere.
+    await expect(canvasElement.querySelector('[role="img"]')).toBeNull();
+    await expect(canvasElement.querySelector(".recharts-rectangle")).toBeNull();
   },
 };
 
@@ -95,10 +107,11 @@ export const ArchitectureMeasured: Story = {
     await expect(canvas.getByText("Policy target")).toBeVisible();
     await expect(canvas.getByText("On-chain")).toBeVisible();
     // Two filled bar tracks (target + measured on-chain), each with 3 pockets,
-    // sharing the ONE deduplicated AllocationBarRow — six filled segments.
+    // sharing the ONE deduplicated AllocationBarRow — two role=img proportion
+    // bars, six Recharts bar rectangles in total.
     await expect(canvasElement.querySelectorAll('[role="img"]').length).toBe(2);
     await expect(
-      canvasElement.querySelectorAll('[data-hc-bar="segment"]').length,
+      canvasElement.querySelectorAll(".recharts-rectangle").length,
     ).toBe(6);
   },
 };
@@ -129,11 +142,11 @@ export const ArchitecturePolicyOnly: Story = {
     ).toBeVisible();
     await expect(canvas.getByText("Configured policy split")).toBeVisible();
     // Exactly ONE filled bar track (the target). The empty on-chain slot renders
-    // a hairline ring div, not a second bar — its three segments are never
-    // fabricated, so only the target's three filled segments exist.
+    // a hairline ring div (AllocationBarEmpty — no role=img, no chart), not a
+    // second bar, so only the target's three Recharts bar rectangles exist.
     await expect(canvasElement.querySelectorAll('[role="img"]').length).toBe(1);
     await expect(
-      canvasElement.querySelectorAll('[data-hc-bar="segment"]').length,
+      canvasElement.querySelectorAll(".recharts-rectangle").length,
     ).toBe(3);
   },
 };

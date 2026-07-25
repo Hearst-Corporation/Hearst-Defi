@@ -8,8 +8,8 @@
 // share of the deposit so the rail reads the 40/27/33 split visually. HONEST:
 // null input → DataUnavailable, never a fabricated split.
 
-import { HcSourceBadge } from "@/components/dataviz/his";
-import type { HcSourceStatus } from "@/components/dataviz/his";
+import { ChartSourceBadge } from "@/components/catalyst/chart-source-badge";
+import type { ChartSourceStatus } from "@/components/catalyst/chart-types";
 
 import { ReserveBlockFrame } from "./block-frame";
 import { DataUnavailable } from "../states/data-states";
@@ -36,7 +36,7 @@ export interface CapitalFlowRailData {
 
 export interface CapitalFlowRailProps {
   data: CapitalFlowRailData | null;
-  source?: HcSourceStatus;
+  source?: ChartSourceStatus;
   className?: string;
 }
 
@@ -154,7 +154,7 @@ export function CapitalFlowRail({
         </div>
 
         <div className="flex items-center gap-[var(--ct-space-2)]">
-          <HcSourceBadge status={source} dotOnly title={`Capital flow source: ${source}`} />
+          <ChartSourceBadge status={source} dotOnly title={`Capital flow source: ${source}`} />
           <span style={{ fontSize: "var(--ct-text-nano)", color: "var(--ct-text-faint)" }}>
             Pocket colours: mining · bitcoin · reserve USDC
           </span>

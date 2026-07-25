@@ -1,17 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler,
-  type ChartOptions,
-} from "chart.js";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -20,61 +10,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/catalyst/card";
-import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
+import {
+  ChartContainer,
+  ChartTooltip,
+  type ChartConfig,
+} from "@/components/catalyst/chart";
 import { cn } from "@/lib/cn";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler,
-);
 
 /**
  * Monte-Carlo spaghetti plot. Hundreds of individual seeded GBM trajectories are
- * drawn thin + faint (green tints), with ONE bold principal/median path on top.
- * Chart.js (not recharts) handles the line count; visuals are pinned to the
- * Hearst dark-green DS (resolved --ct-* values).
+ * drawn thin + faint (accent tints), with ONE bold principal/median path on top.
+ * Rendered on the canonical Recharts layer (HC-CHART-001) — the retired Chart.js
+ * consumer. Colours reference the live `--ct-*` tokens directly (SVG reads CSS
+ * vars), so no runtime token-resolution machinery is needed.
  */
 
-/* Chart.js renders to <canvas> and can't read CSS vars live, so the DS palette is
-   resolved at runtime from the live --ct-* tokens (single source of truth in
-   cockpit.css). The accent is the sanctioned brand-constant literal; everything
-   else is read off document.documentElement. */
-type DsColors = {
-  accent: string;
-  surfaceCard: string;
-  textStrong: string;
-  muted: string;
-  border: string;
-  gridSoft: string;
-};
-
-function readToken(token: string, fallback: string): string {
-  if (typeof window === "undefined") return fallback;
-  const raw = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-  return raw || fallback;
-}
-
-function resolveDsColors(): DsColors {
-  return {
-    accent: readToken("--ct-accent", CONNECT_ACCENT_HEX),
-    surfaceCard: readToken("--ct-surface-card", "#000"),
-    textStrong: readToken("--ct-text-strong", CONNECT_ACCENT_HEX),
-    muted: readToken("--ct-text-muted", CONNECT_ACCENT_HEX),
-    border: readToken("--ct-border", "transparent"),
-    gridSoft: readToken("--ct-border-soft", "transparent"),
-  };
-}
-
-/** Faint accent tints for the spaghetti — luminance ramp of the single accent,
- *  built from the resolved accent so there is no second green literal. */
-function buildSpaghettiTints(accent: string): readonly string[] {
-  const alphas = [0.18, 0.13, 0.22, 0.1, 0.16];
-  return alphas.map((a) => `color-mix(in srgb, ${accent} ${Math.round(a * 100)}%, transparent)`);
-}
+/** Faint accent tints for the spaghetti — a luminance ramp of the SINGLE accent,
+ *  expressed as `color-mix` on `--ct-accent` so there is no second green literal
+ *  and the whole ramp tracks the DS accent token. */
+const SPAGHETTI_TINTS: readonly string[] = [0.18, 0.13, 0.22, 0.1, 0.16].map(
+  (a) => `color-mix(in srgb, var(--ct-accent) ${Math.round(a * 100)}%, transparent)`,
+);
 
 /** Seeded PRNG (mulberry32) so the simulation is deterministic — no Math.random. */
 function mulberry32(seed: number): () => number {
@@ -149,6 +105,40 @@ function formatIndex(value: number): string {
   return Math.round(value).toLocaleString("en-US");
 }
 
+const CHART_CONFIG: ChartConfig = {
+  median: { label: "Principal strategy (median)", color: "var(--ct-accent)" },
+};
+
+/** Median-only tooltip — the spaghetti is texture, not clickable, so only the
+ *  principal path surfaces on hover. */
+function MonteCarloTooltip({
+  active,
+  payload,
+  label,
+  tooltipLead,
+  fullFmt,
+}: {
+  active?: boolean;
+  payload?: ReadonlyArray<{ dataKey?: string | number; value?: number }>;
+  label?: unknown;
+  tooltipLead: string;
+  fullFmt: (n: number) => string;
+}) {
+  if (!active || !payload?.length) return null;
+  const med = payload.find((p) => p.dataKey === "median");
+  if (!med || med.value == null) return null;
+  const raw = typeof label === "string" ? label : "";
+  const monthLabel = raw === "Start" || raw === "" ? "Start" : `Month ${raw.replace("M", "")}`;
+  return (
+    <div className="grid min-w-[8rem] gap-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-card px-(--ct-space-2_5) py-(--ct-space-1_5) shadow-[var(--ct-shadow-elevated)]">
+      <span className="ct-metric-caption ct-text-strong">{monthLabel}</span>
+      <span className="mono text-[length:var(--ct-text-sm)] font-semibold tabular-nums ct-text-strong">
+        {tooltipLead} {fullFmt(Number(med.value))}
+      </span>
+    </div>
+  );
+}
+
 export function MonteCarloChart({
   initialValue = 10_000,
   horizonMonths = 120,
@@ -191,16 +181,6 @@ export function MonteCarloChart({
     description ??
     `${months} months · ${drawnPaths} rendered${reportedPaths && reportedPaths !== drawnPaths ? ` from ${reportedPaths.toLocaleString("en-US")} seeded paths` : ` seeded paths`}`;
 
-  // Resolve the DS palette once on mount from the live --ct-* tokens. The
-  // initializer runs under SSR too (window undefined → fallbacks), so we re-read
-  // the real --ct-* values after hydration. Intentional one-shot sync on mount.
-  const [ds, setDs] = React.useState<DsColors>(() => resolveDsColors());
-  React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDs(resolveDsColors());
-  }, []);
-  const spaghettiTints = React.useMemo(() => buildSpaghettiTints(ds.accent), [ds.accent]);
-
   const { allTrajectories, median } = React.useMemo(
     () =>
       runMonteCarloSimulation(
@@ -222,93 +202,85 @@ export function MonteCarloChart({
     [months],
   );
 
-  const data = React.useMemo(() => {
-    const spaghetti = allTrajectories.map((traj, idx) => ({
-      label: `path-${idx}`,
-      data: traj,
-      borderColor: spaghettiTints[idx % spaghettiTints.length],
-      borderWidth: 0.8,
-      pointRadius: 0,
-      pointHoverRadius: 0,
-      tension: 0.25,
-      fill: false,
-      order: 2,
-    }));
-
-    const principal = {
-      label: "Principal strategy (median)",
-      data: median,
-      borderColor: ds.accent,
-      borderWidth: 2.75,
-      pointRadius: 0,
-      pointHoverRadius: 4,
-      pointHoverBackgroundColor: ds.accent,
-      pointHoverBorderColor: ds.surfaceCard,
-      pointHoverBorderWidth: 2,
-      tension: 0.25,
-      fill: false,
-      order: 0,
-    };
-
-    return { labels, datasets: [...spaghetti, principal] };
-  }, [allTrajectories, median, labels, spaghettiTints, ds.accent, ds.surfaceCard]);
-
-  const options = React.useMemo<ChartOptions<"line">>(
-    () => ({
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      interaction: { mode: "nearest", axis: "x", intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: ds.surfaceCard,
-          borderColor: ds.border,
-          borderWidth: 1,
-          titleColor: ds.textStrong,
-          bodyColor: ds.muted,
-          padding: 10,
-          cornerRadius: 8,
-          displayColors: false,
-          // Only surface the principal path in the tooltip — spaghetti is texture.
-          filter: (item) => item.datasetIndex === data.datasets.length - 1,
-          callbacks: {
-            title: (items) => {
-              const raw = items[0]?.label ?? "";
-              return raw === "Start" ? "Start" : `Month ${raw.replace("M", "")}`;
-            },
-            label: (ctx) =>
-              `${tooltipLead} ${fullFmt(Number(ctx.raw))}`,
-          },
-        },
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          border: { display: false },
-          ticks: {
-            color: ds.muted,
-            font: { size: 11 },
-            maxRotation: 0,
-            autoSkipPadding: 16,
-          },
-        },
-        y: {
-          grid: { color: ds.gridSoft },
-          border: { display: false },
-          ticks: {
-            color: ds.muted,
-            font: { size: 11 },
-            maxTicksLimit: 6,
-            callback: (value) => compactFmt(Number(value)),
-          },
-        },
-      },
-    }),
-    [data.datasets.length, ds.surfaceCard, ds.border, ds.textStrong, ds.muted, ds.gridSoft, compactFmt, fullFmt, tooltipLead],
+  // Pivot the trajectories into month-keyed rows {label, median, path0..pathN}
+  // — the row shape Recharts LineChart consumes. Each spaghetti path is its own
+  // dataKey so it renders as an independent <Line>.
+  const rows = React.useMemo(
+    () =>
+      labels.map((label, i) => {
+        const row: Record<string, number | string> = {
+          label,
+          median: median[i] ?? 0,
+        };
+        for (let k = 0; k < allTrajectories.length; k++) {
+          row[`path${k}`] = allTrajectories[k]?.[i] ?? 0;
+        }
+        return row;
+      }),
+    [labels, median, allTrajectories],
   );
 
   const finalMid = median[months] ?? 0;
+
+  const chart = (
+    <ChartContainer
+      config={CHART_CONFIG}
+      aria-label="Monte-Carlo dispersion of seeded strategy trajectories"
+      className="aspect-auto h-full w-full min-w-0"
+    >
+      <LineChart data={rows} margin={{ left: 4, right: 12, top: 12, bottom: 0 }}>
+        <CartesianGrid vertical={false} stroke="var(--ct-border-soft)" strokeDasharray="2 5" />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          minTickGap={16}
+          tick={{ fill: "var(--ct-chart-axis)", fontSize: 11 }}
+        />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          width={56}
+          tickCount={6}
+          tickFormatter={(v) => compactFmt(Number(v))}
+          tick={{ fill: "var(--ct-chart-axis)", fontSize: 11 }}
+        />
+        <ChartTooltip
+          cursor={{ stroke: "var(--ct-border)" }}
+          content={<MonteCarloTooltip tooltipLead={tooltipLead} fullFmt={fullFmt} />}
+        />
+        {allTrajectories.map((_, k) => (
+          <Line
+            key={k}
+            type="monotone"
+            dataKey={`path${k}`}
+            stroke={SPAGHETTI_TINTS[k % SPAGHETTI_TINTS.length]}
+            strokeWidth={0.8}
+            dot={false}
+            activeDot={false}
+            isAnimationActive={false}
+          />
+        ))}
+        <Line
+          type="monotone"
+          dataKey="median"
+          stroke="var(--ct-accent)"
+          strokeWidth={2.75}
+          dot={false}
+          activeDot={{
+            r: 4,
+            fill: "var(--ct-accent)",
+            stroke: "var(--ct-surface-card)",
+            strokeWidth: 2,
+          }}
+          isAnimationActive={false}
+        />
+      </LineChart>
+    </ChartContainer>
+  );
+
   const chartBody = (
     <>
       {showHeader ? (
@@ -332,9 +304,7 @@ export function MonteCarloChart({
           </div>
         </div>
       ) : null}
-      <div className={cn("w-full", bare ? "h-[320px]" : "h-[360px]")}>
-        <Line options={options} data={data} />
-      </div>
+      <div className={cn("w-full", bare ? "h-[320px]" : "h-[360px]")}>{chart}</div>
       <div className="flex flex-wrap items-center gap-x-(--ct-space-4) gap-y-(--ct-space-2)">
         <span className="ct-metric-caption ct-text-faint">{caption}</span>
         <span className="ct-metric-caption ct-text-muted">
@@ -369,9 +339,7 @@ export function MonteCarloChart({
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-(--ct-space-4)">
-          <div className="h-[360px] w-full">
-            <Line options={options} data={data} />
-          </div>
+          <div className="h-[360px] w-full">{chart}</div>
           <div className="flex flex-wrap items-center gap-x-(--ct-space-4) gap-y-(--ct-space-2)">
             <p className="ct-metric-caption ct-text-faint">{caption}</p>
             <span className="ct-metric-caption ct-text-muted">

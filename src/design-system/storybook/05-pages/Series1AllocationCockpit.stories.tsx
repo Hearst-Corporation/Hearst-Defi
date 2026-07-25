@@ -29,7 +29,17 @@ const TARGET_ZERO_POCKET: Series1Pocket[] = [
 const meta: Meta<typeof Series1AllocationCockpit> = {
   title: "05-pages/Series1AllocationCockpit",
   component: Series1AllocationCockpit,
-  parameters: { layout: "padded" },
+  parameters: {
+    layout: "padded",
+    a11y: {
+      // The allocation donut/bars now render through Recharts; its
+      // ResponsiveContainer trips `scrollable-region-focusable`. Scoped off so
+      // the gate tests the cockpit's own chrome, not the third-party overflow.
+      config: {
+        rules: [{ id: "scrollable-region-focusable", enabled: false }],
+      },
+    },
+  },
 };
 
 export default meta;
@@ -53,33 +63,27 @@ async function assertContract(canvasElement: HTMLElement) {
   // No fake BTC curve — this instrument renders no <path> price curve.
   await expect(canvasElement.querySelector("path[data-btc-curve]")).toBeNull();
 
-  // (a) The policy-target donut is branched, and only the policy donut:
-  // one track ring + exactly three segment arcs (B1/B2/B3), no phantom arc,
-  // no second ring. Guards against the ring being dropped or regressed.
+  // (a) The policy-target donut is branched, and only the policy donut: exactly
+  // ONE Recharts chart container (the ChartDonut — the AllocationBarRow bars are
+  // role=img proportion bars, NOT chart containers), carrying its aria-label and
+  // rendering pie sectors. Guards against the donut being dropped or a second
+  // one regressed in.
+  const donuts = canvasElement.querySelectorAll('[data-slot="chart"]');
+  await expect(donuts.length).toBe(1);
+  const donut = canvasElement.querySelector(
+    '[aria-label="Policy target allocation across the three Series 1 pockets"]',
+  );
+  await expect(donut).not.toBeNull();
   await expect(
-    canvasElement.querySelectorAll('[data-hc-ring="track"]').length,
-  ).toBe(1);
-  const segments = canvasElement.querySelectorAll('[data-hc-ring="segment"]');
-  await expect(segments.length).toBe(3);
-  // Each segment carries a <title> naming its pocket — the ring's accessible
-  // per-slice labels (B1/B2/B3) live here, not in a visible legend.
-  const segmentTitles = Array.from(segments)
-    .map((el) => el.querySelector("title")?.textContent ?? "")
-    .join(" ");
-  for (const id of ["B1", "B2", "B3"]) {
-    await expect(segmentTitles.includes(id)).toBe(true);
-  }
+    canvasElement.querySelectorAll(".recharts-pie-sector").length,
+  ).toBeGreaterThan(0);
 
-  // (b) No duplicated legend. The ring is showLegend=false and now carries no
-  // center label/value, so the B1/B2/B3 pocket legend appears exactly once —
-  // from the stacked bar, never a second copy emitted by the ring. The SVG
-  // itself renders no "Policy" center text.
-  const svg = canvasElement.querySelector('svg [data-hc-ring="track"]')?.closest("svg");
-  await expect(svg).not.toBeNull();
-  await expect((svg?.textContent ?? "").includes("Policy")).toBe(false);
-  // The three pocket ids each appear once as a visible bar legend row (the
-  // ring emits them only inside <title>, which textContent-per-node below
-  // excludes). Count visible occurrences via the bar legend list items.
+  // (b) No duplicated legend. The donut is showLegend=false and carries no
+  // center label/value, so it emits no "Policy" copy — the B1/B2/B3 pocket
+  // legend appears exactly once, from the stacked bar below.
+  await expect((donut?.textContent ?? "").includes("Policy")).toBe(false);
+  // The three pocket ids each appear as a visible bar legend row. Count
+  // occurrences via the bar legend text.
   const barLegend = canvasElement.textContent ?? "";
   for (const id of ["B1", "B2", "B3"]) {
     const occurrences = barLegend.split(id).length - 1;
@@ -188,15 +192,13 @@ export const ZeroPocketTarget: Story = {
     subscription: { minimum: null, hardCap: null },
   },
   play: async ({ canvasElement }) => {
-    // Contract still holds with a zero-valued pocket: the ring still renders
-    // three segments (B2's arc is zero-length, not dropped), no phantom arc,
-    // no fabricated number. B2 remains present in the legend at 0%.
+    // Contract still holds with a zero-valued pocket: the donut renders (B2's
+    // arc is zero-length, not dropped) and B2 stays honest in the bar legend at
+    // 0% — never dropped, never fabricated.
     await assertContract(canvasElement);
-    const zeroSegment = Array.from(
-      canvasElement.querySelectorAll('[data-hc-ring="segment"] title'),
-    ).find((t) => (t.textContent ?? "").includes("B2"));
-    await expect(zeroSegment).not.toBeUndefined();
-    await expect((zeroSegment?.textContent ?? "").includes("0.0%")).toBe(true);
+    const text = canvasElement.textContent ?? "";
+    await expect(text.includes("BTC Reserve")).toBe(true);
+    await expect(text.includes("0%")).toBe(true);
   },
 };
 

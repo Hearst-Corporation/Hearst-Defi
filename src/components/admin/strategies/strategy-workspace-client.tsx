@@ -38,7 +38,7 @@ import {
   SegmentedControl,
   type SegmentedItem,
 } from "@/components/catalyst/segmented-control";
-import { HcChartCard } from "@/components/dataviz/his/HcChartCard";
+import { ChartCard } from "@/components/catalyst/chart-card";
 import { Card } from "@/components/catalyst/card";
 import { Metric } from "@/components/catalyst/metric";
 import { cn } from "@/lib/cn";
@@ -584,7 +584,7 @@ export function StrategyWorkspaceClient({
                 </div>
               </div>
 
-              <HcChartCard
+              <ChartCard
                 title={metricTitle[metric]}
                 subtitle={`Candidates overlaid · ${focused.label} focused${metric === "equity" ? " · p5–p95 band" : ""} · BTC start ${usd(btcPriceUsd)} · seed ${MC_SEED}`}
                 metric={bps(forward.finalRoiPercentilesBps.p50 ?? 0)}
@@ -601,7 +601,7 @@ export function StrategyWorkspaceClient({
                   {...(refLines ? { refLines } : {})}
                   aria-label={`${metricTitle[metric]} — one line per candidate over 24 months`}
                 />
-              </HcChartCard>
+              </ChartCard>
 
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-(--ct-space-3)">
                  <Metric

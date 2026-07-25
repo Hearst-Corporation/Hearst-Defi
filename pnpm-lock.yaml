@@ -74,9 +74,6 @@ importers:
       better-sqlite3:
         specifier: ^12.10.0
         version: 12.10.0
-      chart.js:
-        specifier: ^4.5.1
-        version: 4.5.1
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -128,9 +125,6 @@ importers:
       react:
         specifier: ^19.2.6
         version: 19.2.6
-      react-chartjs-2:
-        specifier: ^5.3.1
-        version: 5.3.1(chart.js@4.5.1)(react@19.2.6)
       react-dom:
         specifier: ^19.2.6
         version: 19.2.6(react@19.2.6)
@@ -9140,12 +9134,6 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
-
-  react-chartjs-2@5.3.1:
-    resolution: {integrity: sha512-h5IPXKg9EXpjoBzUfyWJvllMjG2mQ4EiuHQFhms/AjUm0XSZHhyRy2xVmLXHKrtcdrPO4mnGqRtYoD0vp95A0A==}
-    peerDependencies:
-      chart.js: ^4.1.1
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   react-device-detect@2.2.3:
     resolution: {integrity: sha512-buYY3qrCnQVlIFHrC5UcUoAj7iANs/+srdkwsnNjI7anr3Tt7UY6MqNxtMLlr0tMBied0O49UZVK8XKs3ZIiPw==}
@@ -22595,11 +22583,6 @@ snapshots:
       react-dom: 19.2.6(react@19.2.6)
       react-stately: 3.46.0(react@19.2.6)
       use-sync-external-store: 1.6.0(react@19.2.6)
-
-  react-chartjs-2@5.3.1(chart.js@4.5.1)(react@19.2.6):
-    dependencies:
-      chart.js: 4.5.1
-      react: 19.2.6
 
   react-device-detect@2.2.3(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:

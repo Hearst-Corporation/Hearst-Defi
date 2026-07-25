@@ -1,16 +1,21 @@
 /**
- * HcSourceBadge — provenance / truth-status pill for any HIS instrument.
+ * ChartSourceBadge — provenance / truth-status pill for a chart or data block
+ * (HC-CHART-001).
  *
- * Honesty invariant: only verified sources (live / oracle / attested) get the
- * accent tone; non-production sources (mock / demo / unaudited) get the warning
- * tone so they can never be mistaken for live. Everything else stays muted.
+ * Narrowly-named Catalyst chart companion that carries the retired HIS
+ * `HcSourceBadge` behaviour verbatim (no visual change): only verified sources
+ * (live / oracle / attested) get the accent tone; non-production sources
+ * (mock / demo / unaudited) get the WARNING tone so they can never be mistaken
+ * for live; everything else stays muted. Distinct from the general
+ * `ProvenanceBadge` precisely because it keeps that non-production warning tone,
+ * which the reserve cockpit relies on. Token-only.
  */
 
-import type { HcSourceStatus } from "./types";
+import type { ChartSourceStatus } from "@/components/catalyst/chart-types";
 
 type Tone = "verified" | "neutral" | "nonprod";
 
-const STATUS_MAP: Record<HcSourceStatus, { label: string; tone: Tone }> = {
+const STATUS_MAP: Record<ChartSourceStatus, { label: string; tone: Tone }> = {
   live: { label: "Live", tone: "verified" },
   oracle: { label: "Oracle", tone: "verified" },
   attested: { label: "Attested", tone: "verified" },
@@ -43,15 +48,15 @@ const TONE_STYLE: Record<Tone, { dot: string; fg: string; border: string }> = {
   },
 };
 
-export interface HcSourceBadgeProps {
-  status: HcSourceStatus;
+export interface ChartSourceBadgeProps {
+  status: ChartSourceStatus;
   /** Render only the colored dot (dense rows); the label moves into `title`. */
   dotOnly?: boolean;
   /** Override the hover tooltip. Defaults to `Source: <label>`. */
   title?: string;
 }
 
-export function HcSourceBadge({ status, dotOnly = false, title }: HcSourceBadgeProps) {
+export function ChartSourceBadge({ status, dotOnly = false, title }: ChartSourceBadgeProps) {
   const { label, tone } = STATUS_MAP[status];
   const c = TONE_STYLE[tone];
   const tooltip = title ?? `Source: ${label}`;
