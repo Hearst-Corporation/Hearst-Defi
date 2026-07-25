@@ -20,6 +20,8 @@ inventory. »). Vocabulaire interdit : `yield`, `APY`, `coupon`, `distribution`.
 - Prisma double provider : dev = SQLite, prod = Supabase Postgres (`PRISMA_PROVIDER`,
   jamais de write prod sans `ALLOW_PROD_WRITES=1`)
 - Sentry error-only prod-only · Zod partout · Electron (client desktop)
+- **Env serveur : canon = `src/lib/env.ts`** (schéma Zod complet, throw au boot, gardes prod).
+  Toute nouvelle variable serveur s'y déclare — jamais de `process.env.X` sauvage.
 
 ## Design system
 

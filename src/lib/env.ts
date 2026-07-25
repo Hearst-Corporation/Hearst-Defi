@@ -329,6 +329,11 @@ const serverEnvSchema = z.object({
   // HubSpot — HMAC secret for inbound webhook signature verification.
   // Required at runtime when the HubSpot webhook endpoint is active.
   HUBSPOT_WEBHOOK_SECRET: z.string().optional(),
+  // HubSpot — private-app token (EU1 portal) for the CRM sync (contacts, notes).
+  // Was read as an undeclared stray var (known debt, dataflow cartography
+  // 2026-07-15) — declared here for validation + documentation. Optional: when
+  // unset, the HubSpot client fails at use-site, never at boot.
+  HUBSPOT_API_KEY: z.string().optional(),
   // Resend — HMAC secret for inbound webhook signature verification (delivery
   // events, bounces, complaints). Distinct from RESEND_API_KEY (send-side).
   RESEND_WEBHOOK_SECRET: z.string().optional(),
@@ -368,6 +373,10 @@ const serverEnvSchema = z.object({
       "HEARST_PUBLISHER_PRIVATE_KEY must be a 0x-prefixed 64-hex secp256k1 private key",
     )
     .optional(),
+  // Keeper master switch — "1" arms the on-chain keeper loop. Declared for
+  // validation + documentation (was an undeclared stray var); the paired
+  // KEEPER_PRIVATE_KEY stays use-site-validated (see NOTE below).
+  KEEPER_ENABLED: z.string().optional(),
   // NOTE — `KEEPER_PRIVATE_KEY` is deliberately NOT declared here. It is
   // validated with the same regex, via `z.custom`, at its single point of use
   // (`src/lib/chain/keeper.ts` → `KeeperPrivateKeySchema` / `resolveKeeperKey`),
