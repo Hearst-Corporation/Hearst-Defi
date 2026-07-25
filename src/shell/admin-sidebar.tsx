@@ -23,10 +23,8 @@ export function AdminSidebar() {
       </div>
       <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Admin">
         {ADMIN_SECTIONS.map((section) => {
-          const active =
-            activeSection?.id === section.id ||
-            pathname === section.href ||
-            pathname.startsWith(`${section.href}/`);
+          // getAdminSection already matches both the section href and its tabs.
+          const active = activeSection?.id === section.id;
           const Icon = section.icon;
           return (
             <Link

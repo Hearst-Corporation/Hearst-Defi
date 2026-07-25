@@ -146,12 +146,10 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
   });
 
   it("the investor rail has no standalone Invest/Holdings entry", () => {
-    // The investor rail now lives in Series1Nav (PRODUCT_NAV was deleted with
-    // product-rail-intra): five surfaces, folded routes are redirects.
-    const nav = readFileSync(
-      join(ROOT, "src/components/series1-shell/Series1Nav.tsx"),
-      "utf8",
-    );
+    // The investor rail now lives in src/shell/nav.ts (INVESTOR_NAV — the
+    // greenfield chrome; Series1Nav and the AppChrome/KycAppShell chain were
+    // deleted): four surfaces, folded routes are redirects.
+    const nav = readFileSync(join(ROOT, "src/shell/nav.ts"), "utf8");
     expect(nav).not.toMatch(/id:\s*"invest"/);
     expect(nav).not.toMatch(/id:\s*"holdings"/);
     // Doctrine projet (governance, mergée 2026-07-25) : 4 entrées, rail plat —

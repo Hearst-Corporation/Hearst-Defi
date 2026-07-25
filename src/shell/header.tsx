@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { cn } from "@/lib/cn";
+import { isAdminRoute } from "@/shell/nav";
 import { Button } from "@/ui/button";
 
 export function Header({
@@ -14,7 +14,7 @@ export function Header({
   subtitle?: string;
 }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdmin = isAdminRoute(pathname);
 
   return (
     <header className="flex h-(--height-header) shrink-0 items-center justify-between border-b border-border-subtle bg-background/80 px-6 backdrop-blur-sm">
@@ -35,9 +35,7 @@ export function Header({
         {isAdmin ? (
           <Link
             href="/dashboard"
-            className={cn(
-              "rounded-lg px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-raised hover:text-foreground",
-            )}
+            className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface-raised hover:text-foreground"
           >
             Investor view
           </Link>
