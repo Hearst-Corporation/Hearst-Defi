@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2026-07-25T21:05:36.903Z",
+  "rules": {
+    "phantom-tokens": {
+      "hits": 408
+    },
+    "banned-vocab": {
+      "hits": 99
+    },
+    "unmarked-fiction": {
+      "hits": 50
+    },
+    "raw-env": {
+      "hits": 62
+    }
+  }
+}

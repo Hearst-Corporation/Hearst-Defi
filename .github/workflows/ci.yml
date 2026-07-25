@@ -53,9 +53,10 @@ jobs:
       - name: Run Typecheck
         run: pnpm typecheck
 
-      # DS guards retirés (RÈGLE DESIGN #0 — liberté visuelle, seul impératif
-      # composants Catalyst). Les scripts `pnpm ds:guard*` restent disponibles
-      # en local mais ne gatent plus la CI. Ne pas ré-armer sans accord d'Adrien.
+      # DS guards visuels retirés (RÈGLE DESIGN #0). Le gate d'HONNÊTETÉ admin
+      # (scripts/admin-honesty-gate.mjs) est armé via
+      # scripts/__tests__/admin-honesty-gate.test.mjs (job vitest, bloquant) —
+      # accord Adrien 2026-07-26 (brief refonte /admin), portée admin uniquement.
 
   # ────────────────────────────────────────────────────────────────
   # Job — SecDevOps gate (secret-leak scan)

@@ -36,6 +36,7 @@ inventory. »). Vocabulaire interdit : `yield`, `APY`, `coupon`, `distribution`.
 
 ## Gates locales (avant tout commit produit)
 
+- Honnêteté admin : `pnpm gate:admin` (ratchet vs `scripts/admin-honesty-baseline.json` ; `--strict` = zéro tolérance ; `--update` après une réduction délibérée, jamais pour absorber une hausse) — armé en CI via `scripts/__tests__/admin-honesty-gate.test.mjs` (job vitest, bloquant) · `pnpm check` = gate:admin → typecheck → lint → test.
 - `pnpm typecheck` · `pnpm lint` · `pnpm test-storybook` · `pnpm build`
 - DS : `pnpm ds:guard` · `pnpm ds:guard:primitive` (0 hit) · `pnpm ds:guard:convergence` (ne pas aggraver) · `pnpm ds:guard:all`
 - Qualité : `pnpm quality` (jscpd + knip, baselines en ratchet) · secrets : gitleaks en pre-commit (auto)

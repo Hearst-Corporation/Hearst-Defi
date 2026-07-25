@@ -10,6 +10,8 @@
   "scripts": {
     "prepare": "git config core.hooksPath .husky || true",
     "sonar": "docker run --rm -v \"$(pwd)\":/usr/src -e SONAR_TOKEN sonarsource/sonar-scanner-cli",
+    "gate:admin": "node scripts/admin-honesty-gate.mjs",
+    "check": "pnpm gate:admin && pnpm typecheck && pnpm lint && pnpm test",
     "quality": "node scripts/quality-gate.mjs all",
     "quality:dup": "node scripts/quality-gate.mjs dup",
     "quality:dead": "node scripts/quality-gate.mjs dead",
