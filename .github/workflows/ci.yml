@@ -208,6 +208,28 @@ jobs:
           retention-days: 7
 
   # ────────────────────────────────────────────────────────────────
+  # Job — SonarQube static analysis (NON-BLOCKING)
+  # Runs on the GPU1 self-hosted runner: SonarQube is Tailscale-only
+  # (100.88.191.49:9010), unreachable from GitHub-hosted runners.
+  # ────────────────────────────────────────────────────────────────
+  sonarqube:
+    name: SonarQube analysis
+    runs-on: [self-hosted, gpu1]
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run SonarQube scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          docker run --rm -v "$PWD":/usr/src -e SONAR_TOKEN sonarsource/sonar-scanner-cli
+
+  # ────────────────────────────────────────────────────────────────
   # Job 4 — Foundry smart contracts (BLOCKING when contracts/ touched)
   # ────────────────────────────────────────────────────────────────
   foundry:

@@ -9,6 +9,7 @@
   "main": "dist-electron/main.js",
   "scripts": {
     "prepare": "git config core.hooksPath .husky || true",
+    "sonar": "docker run --rm -v \"$(pwd)\":/usr/src -e SONAR_TOKEN sonarsource/sonar-scanner-cli",
     "quality": "node scripts/quality-gate.mjs all",
     "quality:dup": "node scripts/quality-gate.mjs dup",
     "quality:dead": "node scripts/quality-gate.mjs dead",
