@@ -64,9 +64,10 @@ function ChartContainer({
       <div
         data-slot="chart"
         data-chart={chartId}
-        // Un chart avec aria-label est une image pour l'AT ; sans rôle,
-        // aria-label sur un div = aria-prohibited-attr (axe, gate a11y).
-        role="img"
+        // Un chart AVEC aria-label est une image pour l'AT : sans rôle,
+        // aria-label sur un div = aria-prohibited-attr ; mais role="img"
+        // SANS texte alternatif = role-img-alt. Le rôle suit donc le label.
+        role={props["aria-label"] != null ? "img" : undefined}
         className={cn(
           "flex aspect-video justify-center text-[length:var(--ct-text-xs)]",
           "[&_.recharts-cartesian-axis-tick_text]:fill-[var(--ct-text-muted)]",
