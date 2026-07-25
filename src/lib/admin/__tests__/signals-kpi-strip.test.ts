@@ -32,6 +32,21 @@ describe("buildSignalsKpiStrip", () => {
     expect(cell?.value).toBe("9");
   });
 
+  it("Total signals counts UNKNOWN statuses too (full groupBy, nothing dropped)", () => {
+    const kpis = buildSignalsKpiStrip(
+      { pending: 2, executed: 1, superseded: 3, draft: 1 },
+      null,
+    );
+    const cell = kpis.find((k) => k.label === "Total signals");
+    expect(cell?.value).toBe("7");
+  });
+
+  it("a scope holding ONLY unknown statuses still renders a strip", () => {
+    const kpis = buildSignalsKpiStrip({ superseded: 2 }, null);
+    const cell = kpis.find((k) => k.label === "Total signals");
+    expect(cell?.value).toBe("2");
+  });
+
   it("Pending cell value matches pending count", () => {
     const kpis = buildSignalsKpiStrip({ pending: 4, executed: 2 }, null);
     const cell = kpis.find((k) => k.label === "Pending");
@@ -64,6 +79,8 @@ describe("buildSignalsKpiStrip", () => {
     const cell = kpis.find((k) => k.label === "Most recent");
     expect(cell).toBeDefined();
     expect(cell?.value).toBe("2h ago");
+    // The cell is scoped copy — it claims the vault scope, not the page.
+    expect(cell?.sublabel).toContain("latest in this vault scope");
   });
 
   it("Most recent cell is omitted when mostRecentTriggeredAt is null", () => {

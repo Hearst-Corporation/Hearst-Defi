@@ -55,7 +55,13 @@ function normalizeSignalVaultRef(vaultId: string | undefined): string {
 }
 
 // ---------------------------------------------------------------------------
-// Multisig threshold — default 2 distinct signers required
+// Multisig threshold — 2 distinct signers flip a signal to executed.
+// Operational threshold — hand-tuned, no external source: RebalanceEvent rows
+// reference fixture ids ("yield") that resolve to no VaultDeployment, so
+// VaultDeployment.requiredSigners cannot be joined here reliably. The DISPLAY
+// side (signals-view / RebalanceCard) joins the real column when it resolves
+// and says "quorum unavailable" otherwise; this constant only drives the
+// auto-execute flip.
 // ---------------------------------------------------------------------------
 
 const REQUIRED_SIGNERS = 2;

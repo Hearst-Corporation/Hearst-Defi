@@ -1,5 +1,4 @@
-import { allocationLabelFor } from "@/lib/allocation-colors";
-import type { DashboardAllocation } from "@/lib/data/dashboard";
+import type { Loaded } from "@/lib/data/admin-dashboard-cache";
 import type { OverviewClusters } from "@/lib/data/overview-clusters";
 import type { PlatformTotals } from "@/lib/data/platform-totals";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
@@ -10,10 +9,25 @@ import type { HeroKpi } from "./kpi-strip-view";
 // Executive platform-overview band — presenter (UI view-model layer).
 //
 // Consolidates the platform-wide totals scattered across the dedicated admin
-// pages into 4 labeled clusters of 3 HeroKpis each. All numbers are operator-
-// ledger records (provenance "manual"); ratios/projections are "estimated";
-// the dominant allocation flows from the chart-live provenance. Every formula
-// is guarded for the empty-DB case (no -Infinity, no NaN, no throw).
+// pages into 4 labeled clusters of HeroKpis. All numbers are operator-ledger
+// records (provenance "manual"); ratios are "estimated". Every formula is
+// guarded for the empty-DB case (no -Infinity, no NaN, no throw).
+//
+// Honesty:
+//   - `clusters` arrives as Loaded<OverviewClusters>: when the DB read failed
+//     every cluster-sourced cell renders "—" with a `stale` badge and the view
+//     model carries `unavailable: true` so the page shows an explicit banner.
+//     NEVER a zero during an outage. Cells sourced from `totals` (a separate
+//     loader that throws loudly on failure) keep their real values.
+//   - The former Exposure cells "Top allocation" / "Allocation breadth" were
+//     structurally dead: the only caller passed `allocations: []` forever, so
+//     they always rendered "—" while pretending to await data. Removed
+//     2026-07-26 (mission E1) together with the unused `allocationProvenance`
+//     input.
+//   - "Total distributed" is relabeled "Legacy payouts (retired rail)": the
+//     figure aggregates records of the RETIRED payout rail (some with 0xMOCK
+//     tx hashes) — it is a historical archive figure, not a live product
+//     metric. Recommended for deletion (arbitrage Adrien, D10).
 //
 // Scope: PLATFORM-WIDE (all vaults). The band carries a "Platform · all vaults"
 // caption so it reads correctly even when the top rows are vault-scoped by the
@@ -22,6 +36,9 @@ import type { HeroKpi } from "./kpi-strip-view";
 
 export interface OverviewClustersView {
   caption: string;
+  /** True when the clusters DB read failed — the page renders an explicit
+   *  "Aggregates unavailable" banner above the band. */
+  unavailable: boolean;
   clusters: OverviewCluster[];
 }
 
@@ -33,109 +50,146 @@ export interface OverviewCluster {
   kpis: HeroKpi[];
 }
 
-/** Dominant allocation provenance, as resolved on the board. */
-export type AllocationProvenance = "live" | "simulated" | "estimated";
+/** Cell rendered when the clusters read failed — absent, never zero. */
+function unavailableKpi(label: string): HeroKpi {
+  return {
+    label,
+    value: "—",
+    sublabel: "unavailable — database read failed",
+    provenance: "stale",
+  };
+}
 
 export function buildOverviewClustersView(input: {
   totals: PlatformTotals;
-  clusters: OverviewClusters;
-  /** Allocation buckets already loaded on the page (vault-scoped donut data). */
-  allocations: DashboardAllocation[];
-  /** Provenance of the dominant-allocation read (mirrors the donut). */
-  allocationProvenance: AllocationProvenance;
+  clusters: Loaded<OverviewClusters>;
 }): OverviewClustersView {
-  const { totals, clusters, allocations, allocationProvenance } = input;
+  const { totals } = input;
+  const clusters =
+    input.clusters.status === "ok" ? input.clusters.data : null;
 
   return {
     caption: "Platform · all vaults",
+    unavailable: clusters === null,
     clusters: [
       buildCapitalCluster(totals, clusters),
       buildClientsCluster(totals, clusters),
       buildGovernanceCluster(clusters),
-      buildExposureCluster(allocations, allocationProvenance, clusters),
+      buildLegacyPayoutsCluster(clusters),
     ],
   };
 }
 
 function buildCapitalCluster(
   totals: PlatformTotals,
-  clusters: OverviewClusters,
+  clusters: OverviewClusters | null,
 ): OverviewCluster {
   const { investedCapitalUsdc } = totals;
-  const { totalCapacityUsdc, pipelineCount } = clusters;
 
+  const kpis: HeroKpi[] = [
+    {
+      label: "Total AUM",
+      value: investedCapitalUsdc > 0 ? formatUsdCompact(investedCapitalUsdc) : "—",
+      sublabel: "deployed across vaults",
+      provenance: "manual",
+    },
+  ];
+
+  if (clusters === null) {
+    kpis.push(unavailableKpi("Capacity used"), unavailableKpi("In pipeline"));
+    return { label: "Capital", href: "/admin/vaults", kpis };
+  }
+
+  const { totalCapacityUsdc, investedInLiveVaultsUsdc, pipelineCount } = clusters;
+
+  // Numerator AND denominator on the SAME population (live deployments):
+  // live-vault subscriptions over live-vault capacity. Fixture/legacy-rail
+  // positions are excluded from both sides — see OverviewClusters docs.
   const capacityPct =
     totalCapacityUsdc > 0
-      ? Math.round((investedCapitalUsdc / totalCapacityUsdc) * 100)
+      ? Math.round((investedInLiveVaultsUsdc / totalCapacityUsdc) * 100)
       : null;
 
-  return {
-    label: "Capital",
-    href: "/admin/vaults",
-    kpis: [
-      {
-        label: "Total AUM",
-        value: investedCapitalUsdc > 0 ? formatUsdCompact(investedCapitalUsdc) : "—",
-        sublabel: "deployed across vaults",
-        provenance: "manual",
-      },
-      {
-        label: "Capacity used",
-        value: capacityPct !== null ? `${capacityPct}%` : "—",
-        sublabel:
-          totalCapacityUsdc > 0
-            ? `of ${formatUsdCompact(totalCapacityUsdc)} total`
-            : "no capacity set",
-        provenance: "estimated",
-      },
-      {
-        label: "In pipeline",
-        value: String(pipelineCount),
-        sublabel: "draft or in review",
-        provenance: "manual",
-        accent: pipelineCount > 0,
-      },
-    ],
-  };
+  kpis.push(
+    {
+      label: "Capacity used",
+      value: capacityPct !== null ? `${capacityPct}%` : "—",
+      sublabel:
+        totalCapacityUsdc > 0
+          ? `of ${formatUsdCompact(totalCapacityUsdc)} live-vault capacity`
+          : "no capacity set",
+      provenance: "estimated",
+    },
+    {
+      label: "In pipeline",
+      value: String(pipelineCount),
+      sublabel: "draft or in review",
+      provenance: "manual",
+      accent: pipelineCount > 0,
+    },
+  );
+
+  return { label: "Capital", href: "/admin/vaults", kpis };
 }
 
 function buildClientsCluster(
   totals: PlatformTotals,
-  clusters: OverviewClusters,
+  clusters: OverviewClusters | null,
 ): OverviewCluster {
   const { investorCount } = totals;
+
+  const kpis: HeroKpi[] = [
+    {
+      label: "Total investors",
+      value: investorCount > 0 ? String(investorCount) : "—",
+      sublabel:
+        investorCount === 1 ? "registered account" : "registered accounts",
+      provenance: "manual",
+    },
+  ];
+
+  if (clusters === null) {
+    kpis.push(unavailableKpi("KYC approved"), unavailableKpi("Pending review"));
+    return { label: "Clients", href: "/admin/customers", kpis };
+  }
+
   const { kycApproved, kycPending } = clusters;
 
-  return {
-    label: "Clients",
-    href: "/admin/customers",
-    kpis: [
-      {
-        label: "Total investors",
-        value: investorCount > 0 ? String(investorCount) : "—",
-        sublabel:
-          investorCount === 1 ? "registered account" : "registered accounts",
-        provenance: "manual",
-      },
-      {
-        label: "KYC approved",
-        value: String(kycApproved),
-        sublabel: investorCount > 0 ? `of ${investorCount} total` : "no investors yet",
-        provenance: "manual",
-        accent: kycApproved > 0,
-      },
-      {
-        label: "Pending review",
-        value: String(kycPending),
-        sublabel: "KYC awaiting action",
-        provenance: "manual",
-        alert: kycPending > 0,
-      },
-    ],
-  };
+  kpis.push(
+    {
+      label: "KYC approved",
+      value: String(kycApproved),
+      sublabel: investorCount > 0 ? `of ${investorCount} total` : "no investors yet",
+      provenance: "manual",
+      accent: kycApproved > 0,
+    },
+    {
+      label: "Pending review",
+      value: String(kycPending),
+      sublabel: "KYC awaiting action",
+      provenance: "manual",
+      alert: kycPending > 0,
+    },
+  );
+
+  return { label: "Clients", href: "/admin/customers", kpis };
 }
 
-function buildGovernanceCluster(clusters: OverviewClusters): OverviewCluster {
+function buildGovernanceCluster(
+  clusters: OverviewClusters | null,
+): OverviewCluster {
+  if (clusters === null) {
+    return {
+      label: "Governance",
+      href: "/admin/governance",
+      kpis: [
+        unavailableKpi("Awaiting signature"),
+        unavailableKpi("Timelock"),
+        unavailableKpi("Executable"),
+      ],
+    };
+  }
+
   const { signing, timelock, executable } = clusters.governance;
 
   return {
@@ -167,49 +221,31 @@ function buildGovernanceCluster(clusters: OverviewClusters): OverviewCluster {
   };
 }
 
-function buildExposureCluster(
-  allocations: DashboardAllocation[],
-  allocationProvenance: AllocationProvenance,
-  clusters: OverviewClusters,
+function buildLegacyPayoutsCluster(
+  clusters: OverviewClusters | null,
 ): OverviewCluster {
+  if (clusters === null) {
+    return {
+      label: "Legacy rail",
+      href: "/admin/distributions",
+      kpis: [unavailableKpi("Legacy payouts (retired rail)")],
+    };
+  }
+
   const { distributedTotalUsdc, distributionsCount } = clusters;
 
-  // Dominant bucket — guarded reduce (no seedless throw, no empty crash).
-  const top =
-    allocations.length > 0
-      ? allocations.reduce((max, cur) => (cur.pct > max.pct ? cur : max))
-      : null;
-
-  // Honest diversity signal (replaces the unfair 2-way "BTC vs stable" split:
-  // the 4 buckets do NOT partition into two clean sides). Count buckets above a
-  // 5% weight — a real concentration vs spread indicator.
-  const breadth = allocations.filter((a) => a.pct > 5).length;
-
   return {
-    label: "Exposure",
+    label: "Legacy rail",
     href: "/admin/distributions",
     kpis: [
       {
-        label: "Top allocation",
-        value: top ? `${top.pct.toFixed(0)}%` : "—",
-        sublabel: top ? allocationLabelFor(top.bucket) : "awaiting allocation",
-        provenance: top ? allocationProvenance : "stale",
-      },
-      {
-        label: "Allocation breadth",
-        value: breadth > 0 ? String(breadth) : "—",
-        sublabel: breadth === 1 ? "bucket over 5%" : "buckets over 5%",
-        provenance: top ? allocationProvenance : "stale",
-      },
-      {
-        label: "Total distributed",
+        label: "Legacy payouts (retired rail)",
         value: distributedTotalUsdc > 0 ? formatUsdCompact(distributedTotalUsdc) : "—",
         sublabel:
           distributionsCount === 1
-            ? "across 1 distribution"
-            : `across ${distributionsCount} distributions`,
+            ? "1 historical record"
+            : `${distributionsCount} historical records`,
         provenance: "manual",
-        accent: distributedTotalUsdc > 0,
       },
     ],
   };

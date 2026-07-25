@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { RebalanceEvent } from "@prisma/client";
 
 import { cn } from "@/lib/cn";
+import { isMockTxHash } from "@/lib/provenance";
 import { Ptai } from "@/components/catalyst/ptai";
 import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
@@ -24,6 +25,7 @@ import {
 } from "@/app/admin/signals/actions";
 import { formatAdminDateTime } from "@/lib/vaults/product-display";
 import { statusVariant } from "@/components/proof-center/formatters";
+import { ProvenanceBadge } from "@/ui/badge";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -45,8 +47,13 @@ const AllocationBucketArraySchema = z.array(AllocationBucketSchema);
 
 interface RebalanceCardProps {
   event: RebalanceEvent;
-  /** Required multisig threshold (default 2) */
-  requiredSigners?: number;
+  /**
+   * Multisig threshold, joined from VaultDeployment.requiredSigners by the
+   * caller. `null` = the vault ref resolved to no deployment (fixture id,
+   * legacy null ref) — the card says "quorum unavailable". REQUIRED on
+   * purpose: there is no honest default for a quorum.
+   */
+  requiredSigners: number | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -63,12 +70,15 @@ function parseAllocation(raw: string): RebalanceAllocation[] {
   }
 }
 
-function parseSigners(raw: string): string[] {
+/** Signer list parse — a corrupt column is REPORTED, never read as "0 signers". */
+function parseSigners(raw: string): { signers: string[]; corrupt: boolean } {
   try {
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as string[]) : [];
+    return Array.isArray(parsed)
+      ? { signers: parsed as string[], corrupt: false }
+      : { signers: [], corrupt: true };
   } catch {
-    return [];
+    return { signers: [], corrupt: true };
   }
 }
 
@@ -80,6 +90,12 @@ function abbrWallet(w: string): string {
 // Strip injected [REJECTED: ...] suffix from triggerText for display
 function cleanTriggerText(text: string): string {
   return text.replace(/\s*\[REJECTED:.*\]$/, "");
+}
+
+/** Fixed-point percent or an em dash when the bucket carries no pct — an
+ *  absent share is absent, never "0.0%". */
+function formatPct(pct: number | undefined): string {
+  return pct === undefined ? "—" : `${pct.toFixed(1)}%`;
 }
 
 // ---------------------------------------------------------------------------
@@ -119,11 +135,13 @@ function AllocationDiffTable({
       </TableHead>
       <TableBody>
         {buckets.map((bucket) => {
-          const f = from.find((b) => b.bucket === bucket);
-          const t = to.find((b) => b.bucket === bucket);
-          const fromPct = f?.pct ?? 0;
-          const toPct = t?.pct ?? 0;
-          const delta = toPct - fromPct;
+          const fromPct = from.find((b) => b.bucket === bucket)?.pct;
+          const toPct = to.find((b) => b.bucket === bucket)?.pct;
+          // A delta only exists when BOTH sides were actually provided.
+          const delta =
+            fromPct !== undefined && toPct !== undefined
+              ? toPct - fromPct
+              : null;
 
           return (
             <TableRow
@@ -134,23 +152,24 @@ function AllocationDiffTable({
                 {bucket.replace(/_/g, " ")}
               </TableCell>
               <TableCell className="ct-metric-caption px-5 py-3 text-right">
-                {fromPct.toFixed(1)}%
+                {formatPct(fromPct)}
               </TableCell>
               <TableCell className="ct-metric-caption px-5 py-3 text-right text-[var(--ct-text-secondary)]">
-                {toPct.toFixed(1)}%
+                {formatPct(toPct)}
               </TableCell>
               <TableCell
                 className={cn(
                   "ct-metric-caption px-5 py-3 text-right font-semibold",
-                  delta > 0
+                  delta !== null && delta > 0
                     ? "text-[var(--ct-accent)]"
-                    : delta < 0
+                    : delta !== null && delta < 0
                       ? "text-[var(--ct-status-danger)]"
                       : "text-[var(--ct-text-secondary)]",
                 )}
               >
-                {delta > 0 ? "+" : ""}
-                {delta.toFixed(1)}%
+                {delta === null
+                  ? "—"
+                  : `${delta > 0 ? "+" : ""}${delta.toFixed(1)}%`}
               </TableCell>
             </TableRow>
           );
@@ -166,7 +185,7 @@ function AllocationDiffTable({
 
 export function RebalanceCard({
   event,
-  requiredSigners = 2,
+  requiredSigners,
 }: RebalanceCardProps) {
   const [isPending, startTransition] = useTransition();
   const [rejectReason, setRejectReason] = useState("");
@@ -175,10 +194,18 @@ export function RebalanceCard({
   // Confirmation gate: null = no pending confirm, "approve" | "execute" = awaiting 2nd click
   const [confirmingAction, setConfirmingAction] = useState<"approve" | "execute" | null>(null);
 
-  const signers = parseSigners(event.approvedBy);
+  const { signers, corrupt: signersCorrupt } = parseSigners(event.approvedBy);
   const fromAlloc = parseAllocation(event.fromAllocation);
   const toAlloc = parseAllocation(event.toAllocation);
   const signerCount = signers.length;
+
+  // Honest quorum line: a corrupt signer column is unreadable (not "0"), an
+  // unresolved deployment ref has no quorum (not "2").
+  const sigSummary = signersCorrupt
+    ? "signatures unreadable"
+    : requiredSigners === null
+      ? `${signerCount} sig${signerCount === 1 ? "" : "s"} · quorum unavailable`
+      : `${signerCount}/${requiredSigners} sigs`;
 
   function handleApprove() {
     setError(null);
@@ -247,12 +274,13 @@ export function RebalanceCard({
           </p>
         </div>
         <div className="text-right">
-          <p className="ct-metric-caption tabular-nums">
-            {signerCount}/{requiredSigners} sigs
-          </p>
+          <p className="ct-metric-caption tabular-nums">{sigSummary}</p>
           {event.txHash && (
-            <p className="ct-metric-caption mono">
-              tx: {abbrWallet(event.txHash)}
+            <p className="ct-metric-caption mono flex items-center justify-end gap-1.5">
+              <span>tx: {abbrWallet(event.txHash)}</span>
+              {isMockTxHash(event.txHash) ? (
+                <ProvenanceBadge source="simulated" />
+              ) : null}
             </p>
           )}
         </div>
@@ -282,7 +310,15 @@ export function RebalanceCard({
       )}
 
       {/* Approved signers list */}
-      {signers.length > 0 && (
+      {signersCorrupt ? (
+        <div className="flex flex-col gap-2">
+          <p className="ct-bento-label">Signers</p>
+          <p className="ct-metric-caption text-[var(--ct-text-muted)]">
+            Signatures unreadable — the stored signer list could not be parsed.
+            Not the same as zero signatures.
+          </p>
+        </div>
+      ) : signers.length > 0 ? (
         <div className="flex flex-col gap-2">
           <p className="ct-bento-label">Signers</p>
           <ul className="flex flex-col gap-1">
@@ -293,7 +329,7 @@ export function RebalanceCard({
             ))}
           </ul>
         </div>
-      )}
+      ) : null}
 
       {/* Error display */}
       <div aria-live="polite">
@@ -338,7 +374,7 @@ export function RebalanceCard({
                     disabled={isPending}
                     aria-busy={isPending}
                   >
-                    {`Approve (${signerCount}/${requiredSigners} sigs)`}
+                    {`Approve (${sigSummary})`}
                   </Button>
                   <Button
                     variant="ghost"
@@ -404,8 +440,11 @@ export function RebalanceCard({
               Auto-executed on approval · {formatAdminDateTime(new Date(event.executedAt))}
             </p>
             {event.txHash && (
-              <p className="ct-metric-caption mono">
-                tx: {event.txHash}
+              <p className="ct-metric-caption mono flex items-center gap-1.5">
+                <span>tx: {event.txHash}</span>
+                {isMockTxHash(event.txHash) ? (
+                  <ProvenanceBadge source="simulated" />
+                ) : null}
               </p>
             )}
           </div>

@@ -10,7 +10,9 @@
 // freshness, custody configuration, the operator queue, the audit trail. When
 // a signal is absent the tone is `idle` and the copy says so; nothing is
 // invented (canon §3 / F4: no synthetic uptime, no synthetic scan time, no
-// green pill that is not computed).
+// green pill that is not computed). A signal whose READ failed (null counts,
+// custody `unavailable`) is reported as unreachable/unavailable — never as
+// "Clear", "Empty" or "Manual".
 //
 // Pure: no I/O, no Prisma, no fetch. Same testable seam as the other
 // `src/lib/admin/*-view.ts` resolvers.
@@ -50,6 +52,10 @@ const TONE_RANK: Record<OperatingTone, number> = {
   alert: 3,
 };
 
+/** Operator queue length above this asks for attention (`watch`).
+ *  Operational threshold — hand-tuned, no external source. */
+const QUEUE_WATCH_THRESHOLD = 3;
+
 export function worstTone(tones: readonly OperatingTone[]): OperatingTone {
   return tones.reduce<OperatingTone>(
     (worst, tone) => (TONE_RANK[tone] > TONE_RANK[worst] ? tone : worst),
@@ -59,10 +65,12 @@ export function worstTone(tones: readonly OperatingTone[]): OperatingTone {
 
 export interface OperatingInputs {
   proof: AdminProofStatus;
-  /** Items currently sitting in the operator queue. */
-  operatorQueueCount: number;
-  /** Audit entries on file — 0 means the trail has never been written to. */
-  auditEntryCount: number;
+  /** Items currently sitting in the operator queue.
+   *  `null` = the queue could NOT be read (DB error) — distinct from 0. */
+  operatorQueueCount: number | null;
+  /** Audit entries on file — 0 means the trail has never been written to.
+   *  `null` = the trail could NOT be read (DB error) — distinct from 0. */
+  auditEntryCount: number | null;
   /** Series 1 contract mode, from `getVaultMode()`. */
   vaultMode: "v2" | "legacy" | "not_configured";
 }
@@ -71,7 +79,7 @@ export interface OperatingInputs {
  * Readiness posture from real operator signals only.
  *
  * Deliberately NOT included: uptime (no feed exists), "last scan" (no scan
- * runs), and any vault APY / yield posture / risk band (retired product model).
+ * runs), and any fixture-era product posture / risk band (retired model).
  */
 export function resolveOperatingReadiness(
   input: OperatingInputs,
@@ -156,6 +164,18 @@ function custodyFactor(proof: AdminProofStatus): OperatingFactor {
       tone: "idle",
     };
   }
+  // Outage branch — the provider was configured but could not be reached.
+  // This is NOT "Manual": nothing was entered by anyone, nothing was read.
+  if (proof.custodyProvenance === "unavailable") {
+    return {
+      id: "custody",
+      label: "Custody",
+      status: "Unreachable",
+      detail:
+        "The custody provider could not be reached — no reserve figure was read",
+      tone: "alert",
+    };
+  }
   return {
     id: "custody",
     label: "Custody",
@@ -168,7 +188,17 @@ function custodyFactor(proof: AdminProofStatus): OperatingFactor {
   };
 }
 
-function queueFactor(count: number): OperatingFactor {
+function queueFactor(count: number | null): OperatingFactor {
+  // Unreadable queue ≠ clear queue: the read failed, we know nothing.
+  if (count === null) {
+    return {
+      id: "queue",
+      label: "Operator queue",
+      status: "Unavailable",
+      detail: "Operator queue could not be read — database error",
+      tone: "idle",
+    };
+  }
   if (count === 0) {
     return {
       id: "queue",
@@ -183,11 +213,21 @@ function queueFactor(count: number): OperatingFactor {
     label: "Operator queue",
     status: `${count} pending`,
     detail: `${count} item${count === 1 ? "" : "s"} awaiting an operator decision`,
-    tone: count > 3 ? "watch" : "ok",
+    tone: count > QUEUE_WATCH_THRESHOLD ? "watch" : "ok",
   };
 }
 
-function auditFactor(count: number): OperatingFactor {
+function auditFactor(count: number | null): OperatingFactor {
+  // Unreadable trail ≠ empty trail: the read failed, we know nothing.
+  if (count === null) {
+    return {
+      id: "audit",
+      label: "Audit trail",
+      status: "Unavailable",
+      detail: "Audit trail could not be read — database error",
+      tone: "idle",
+    };
+  }
   if (count === 0) {
     return {
       id: "audit",
@@ -231,11 +271,14 @@ function postureBlurb(
 
 /**
  * Proof / custody as KPI cells for the canon strip. Values are formatted from
- * the real read; an absent value is an em dash, never a zero.
+ * the real read; an absent value is an em dash, never a zero. Provenance is
+ * resolved HERE from the loader-borne facts — the render layer passes it
+ * through untouched.
  */
 export function buildOperatingKpis(input: {
   proof: AdminProofStatus;
-  operatorQueueCount: number;
+  /** `null` = the operator queue could not be read (DB error). */
+  operatorQueueCount: number | null;
   investorCount: number;
   investedCapitalUsdc: number;
 }): HeroKpi[] {
@@ -263,30 +306,59 @@ export function buildOperatingKpis(input: {
           : "no attestation yet",
       provenance: proof.miningFreshness === "live" ? "attested" : "stale",
     },
-    {
-      label: "Custody reserves",
-      // A null reserve means nothing was read (provider unreachable, or not
-      // configured) — it is shown as absent, never as "$0", which would assert
-      // a measured empty vault.
-      value:
-        proof.custodyConfigured && proof.custodyReservesUsdc !== null
-          ? formatUsdCompact(proof.custodyReservesUsdc)
-          : "—",
-      sublabel: proof.custodyConfigured
-        ? proof.custodyProvenance === "live"
-          ? "live custody read"
-          : "manually recorded"
-        : "custody scope not configured",
-      provenance: proof.custodyProvenance === "live" ? "live" : "manual",
-    },
-    {
-      label: "Operator queue",
-      value: String(operatorQueueCount),
-      sublabel: operatorQueueCount === 0 ? "nothing pending" : "awaiting a decision",
-      provenance: "live",
-      accent: operatorQueueCount > 0,
-    },
+    custodyKpi(proof),
+    operatorQueueKpi(operatorQueueCount),
   ];
+}
+
+function custodyKpi(proof: AdminProofStatus): HeroKpi {
+  // Outage: configured, but nothing was read. "—" + stale badge + alert —
+  // never "manually recorded" (nobody recorded anything).
+  if (proof.custodyConfigured && proof.custodyProvenance === "unavailable") {
+    return {
+      label: "Custody reserves",
+      value: "—",
+      sublabel: "provider unreachable — nothing was read",
+      provenance: "stale",
+      alert: true,
+    };
+  }
+  return {
+    label: "Custody reserves",
+    // A null reserve means nothing was read (provider unreachable, or not
+    // configured) — it is shown as absent, never as "$0", which would assert
+    // a measured empty vault.
+    value:
+      proof.custodyConfigured && proof.custodyReservesUsdc !== null
+        ? formatUsdCompact(proof.custodyReservesUsdc)
+        : "—",
+    sublabel: proof.custodyConfigured
+      ? proof.custodyProvenance === "live"
+        ? "live custody read"
+        : "manually recorded"
+      : "custody scope not configured",
+    provenance: proof.custodyProvenance === "live" ? "live" : "manual",
+  };
+}
+
+function operatorQueueKpi(count: number | null): HeroKpi {
+  // Unreadable queue: "—" + stale badge — never "0 · nothing pending".
+  if (count === null) {
+    return {
+      label: "Operator queue",
+      value: "—",
+      sublabel: "queue unavailable — database read failed",
+      provenance: "stale",
+      alert: true,
+    };
+  }
+  return {
+    label: "Operator queue",
+    value: String(count),
+    sublabel: count === 0 ? "nothing pending" : "awaiting a decision",
+    provenance: "live",
+    accent: count > 0,
+  };
 }
 
 /** Compact USD for operator density. Local to keep this module pure. */

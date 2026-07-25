@@ -8,7 +8,7 @@ import { DashboardKpiStrip } from "./kpi-strip";
 
 interface AdminKpiStripPanelProps {
   kpis: HeroKpi[];
-  /** Optional header above the strip (Portfolio "Capital & Yield" canon). */
+  /** Optional header above the strip (Portfolio capital-strip canon). */
   title?: string;
   subtitle?: string;
   /** Optional action (e.g. a primary button) rendered right-aligned in the header. */
@@ -23,7 +23,7 @@ interface AdminKpiStripPanelProps {
 }
 
 /**
- * Renders the admin KPI strip with the EXACT Portfolio "Capital & Yield" shape:
+ * Renders the admin KPI strip with the EXACT Portfolio capital-strip shape:
  *  - Standalone: OUTER box = black card (`bg-surface-card` + hairline border),
  *    rounded only on the outside.
  *  - Embedded: no outer chrome, welded to the table below by a bottom hairline.

@@ -1,9 +1,15 @@
 /**
- * Action-queue producer tests — src/lib/data/cockpit.ts (buildActionQueue)
+ * Cockpit loader tests — src/lib/data/cockpit.ts.
  *
- * Tests that each of the 4 new producers (multisig.sign, vault.paused,
- * distribution.approve, kyc.review) emits the correct ActionQueueItem when
- * backing data exists, and emits nothing when the relevant tables are empty.
+ * Covers:
+ *   - the action-queue producers (multisig.sign, vault.paused,
+ *     distribution.approve, kyc.review, rebalance.signal) emitting the correct
+ *     ActionQueueItem when backing data exists, and nothing when empty;
+ *   - the Loaded<T> honesty envelope: a DB failure yields
+ *     `status: "unavailable"` — NEVER an empty array pretending the queue is
+ *     clear or the trail is empty;
+ *   - loader-borne provenance (queue = live derivation, audit = manual
+ *     applicative INSERT) — the render layer never invents these.
  *
  * Mocking strategy: vi.hoisted() creates the mock object before vi.mock()
  * factories execute (vitest hoists vi.mock calls to the top of the file).
@@ -39,29 +45,13 @@ const prismaMock = vi.hoisted(() => ({
   },
   investor: { findMany: vi.fn().mockResolvedValue([]) },
   kycInquiry: { findMany: vi.fn().mockResolvedValue([]) },
-  llmRun: {
-    findMany: vi.fn().mockResolvedValue([]),
-    count: vi.fn().mockResolvedValue(0),
-  },
-  distribution: {
-    findFirst: vi.fn().mockResolvedValue(null),
-    findMany: vi.fn().mockResolvedValue([]),
-  },
   adminAudit: { findMany: vi.fn().mockResolvedValue([]) },
 }));
 
 vi.mock("@/lib/db", () => ({ prisma: prismaMock }));
 
-// Stub vaults resolver — cockpit uses listAllVaults inside buildVaultMetrics.
-vi.mock("@/lib/vaults/resolver", () => ({
-  listAllVaults: vi.fn().mockResolvedValue([]),
-}));
-vi.mock("@/lib/vaults/slug", () => ({
-  vaultLabel: vi.fn().mockReturnValue("Test Vault"),
-  vaultSlug: vi.fn().mockReturnValue("test-vault"),
-}));
-
-import { loadCockpitPayload } from "@/lib/data/cockpit";
+import { loadCockpitPayload, type ActionQueueItem } from "@/lib/data/cockpit";
+import type { Loaded } from "@/lib/data/admin-dashboard-cache";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -78,11 +68,19 @@ function resetAllMocks() {
   prismaMock.distributionApproval.groupBy.mockResolvedValue([]);
   prismaMock.investor.findMany.mockResolvedValue([]);
   prismaMock.kycInquiry.findMany.mockResolvedValue([]);
-  prismaMock.llmRun.findMany.mockResolvedValue([]);
-  prismaMock.llmRun.count.mockResolvedValue(0);
-  prismaMock.distribution.findFirst.mockResolvedValue(null);
-  prismaMock.distribution.findMany.mockResolvedValue([]);
   prismaMock.adminAudit.findMany.mockResolvedValue([]);
+}
+
+/** Unwrap a Loaded<T> the tests expect to be ok — fails loudly otherwise. */
+function expectOk<T>(loaded: Loaded<T>): T {
+  expect(loaded.status).toBe("ok");
+  if (loaded.status !== "ok") throw new Error("expected ok");
+  return loaded.data;
+}
+
+async function loadQueue(): Promise<ActionQueueItem[]> {
+  const { actionQueue } = await loadCockpitPayload();
+  return expectOk(actionQueue);
 }
 
 // ---------------------------------------------------------------------------
@@ -112,7 +110,7 @@ describe("buildActionQueue — multisig.sign producer", () => {
       },
     ]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "multisig.sign");
     expect(items).toHaveLength(2);
 
@@ -129,7 +127,7 @@ describe("buildActionQueue — multisig.sign producer", () => {
   it("emits no multisig.sign items when no SIGNING proposals exist", async () => {
     prismaMock.governanceProposal.findMany.mockResolvedValue([]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "multisig.sign");
     expect(items).toHaveLength(0);
   });
@@ -146,7 +144,7 @@ describe("buildActionQueue — multisig.sign producer", () => {
       },
     ]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const item = actionQueue.find((i) => i.type === "multisig.sign");
     expect(item?.href).toBe("/admin/governance/proposal/prop-abc");
   });
@@ -163,7 +161,7 @@ describe("buildActionQueue — rebalance.signal producer", () => {
       vaultRef: "defensive",
     });
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const item = actionQueue.find((i) => i.type === "rebalance.signal");
 
     expect(item).toBeDefined();
@@ -178,7 +176,7 @@ describe("buildActionQueue — rebalance.signal producer", () => {
       vaultRef: null,
     });
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const item = actionQueue.find((i) => i.type === "rebalance.signal");
 
     expect(item).toBeDefined();
@@ -197,8 +195,8 @@ describe("buildActionQueue — vault.paused producer", () => {
     prismaMock.vaultDeployment.findMany.mockResolvedValue([
       {
         id: "vd-001",
-        name: "Hearst Yield Vault",
-        ticker: "HYV-A",
+        name: "Hearst Vault One",
+        ticker: "HV1-A",
         status: "paused",
         pausedAt: new Date("2026-06-05T12:00:00Z"),
         createdAt: new Date("2026-05-01T00:00:00Z"),
@@ -213,7 +211,7 @@ describe("buildActionQueue — vault.paused producer", () => {
       },
     ]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "vault.paused");
     expect(items).toHaveLength(2);
 
@@ -221,14 +219,14 @@ describe("buildActionQueue — vault.paused producer", () => {
     expect(first).toBeDefined();
     expect(first?.severity).toBe("P0");
     expect(first?.href).toBe("/admin/vaults/vd-001");
-    expect(first?.title).toContain("Hearst Yield Vault");
-    expect(first?.context).toBe("HYV-A · operator review required");
+    expect(first?.title).toContain("Hearst Vault One");
+    expect(first?.context).toBe("HV1-A · operator review required");
   });
 
   it("emits no vault.paused items when no paused vaults exist", async () => {
     prismaMock.vaultDeployment.findMany.mockResolvedValue([]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "vault.paused");
     expect(items).toHaveLength(0);
   });
@@ -246,7 +244,7 @@ describe("buildActionQueue — vault.paused producer", () => {
       },
     ]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const item = actionQueue.find((i) => i.type === "vault.paused");
     expect(item?.createdAt).toBe(pausedAt.toISOString());
   });
@@ -264,7 +262,7 @@ describe("buildActionQueue — vault.paused producer", () => {
       },
     ]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const item = actionQueue.find((i) => i.type === "vault.paused");
     expect(item?.createdAt).toBe(createdAt.toISOString());
   });
@@ -277,12 +275,12 @@ describe("buildActionQueue — vault.paused producer", () => {
 describe("buildActionQueue — distribution.approve producer", () => {
   beforeEach(resetAllMocks);
 
-  it("emits a distribution.approve item when a period has 1 of 2 signers", async () => {
+  it("emits a legacy-payout item when a period has 1 of 2 approvals", async () => {
     prismaMock.distributionApproval.groupBy.mockResolvedValue([
       { period: "2026-06", _count: { signerWallet: 1 } },
     ]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "distribution.approve");
     expect(items).toHaveLength(1);
 
@@ -291,14 +289,18 @@ describe("buildActionQueue — distribution.approve producer", () => {
     expect(item.severity).toBe("P1");
     expect(item.href).toBe("/admin/distributions");
     expect(item.context).toContain("1 of 2");
+    // The threshold is hand-set (retired rail, no quorum source) — said so.
+    expect(item.context).toContain("hand-set");
+    // Rendered copy carries no banned product vocabulary.
+    expect(item.title).toContain("Legacy payout");
   });
 
-  it("emits no distribution.approve item when period already has 2 of 2 signers", async () => {
+  it("emits no item when the period already has 2 of 2 approvals", async () => {
     prismaMock.distributionApproval.groupBy.mockResolvedValue([
       { period: "2026-05", _count: { signerWallet: 2 } },
     ]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "distribution.approve");
     expect(items).toHaveLength(0);
   });
@@ -306,7 +308,7 @@ describe("buildActionQueue — distribution.approve producer", () => {
   it("emits no items when no approvals exist", async () => {
     prismaMock.distributionApproval.groupBy.mockResolvedValue([]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "distribution.approve");
     expect(items).toHaveLength(0);
   });
@@ -318,7 +320,7 @@ describe("buildActionQueue — distribution.approve producer", () => {
       { period: "2026-06", _count: { signerWallet: 1 } },
     ]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "distribution.approve");
     expect(items).toHaveLength(2);
     expect(items.map((i) => i.id)).toContain("distribution-approve-2026-04");
@@ -348,7 +350,7 @@ describe("buildActionQueue — kyc.review producer", () => {
       },
     ]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "kyc.review");
     expect(items).toHaveLength(2);
 
@@ -363,7 +365,7 @@ describe("buildActionQueue — kyc.review producer", () => {
     prismaMock.investor.findMany.mockResolvedValue([]);
     prismaMock.kycInquiry.findMany.mockResolvedValue([]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "kyc.review");
     expect(items).toHaveLength(0);
   });
@@ -374,7 +376,7 @@ describe("buildActionQueue — kyc.review producer", () => {
     ]);
     prismaMock.kycInquiry.findMany.mockResolvedValue([]);
 
-    const { actionQueue } = await loadCockpitPayload();
+    const actionQueue = await loadQueue();
     const items = actionQueue.filter((i) => i.type === "kyc.review");
     expect(items).toHaveLength(0);
 
@@ -383,5 +385,90 @@ describe("buildActionQueue — kyc.review producer", () => {
         where: { kycStatus: "approved" },
       }),
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 5. Loaded envelope — a DB failure is `unavailable`, never an empty array
+// ---------------------------------------------------------------------------
+
+describe("loadCockpitPayload — Loaded honesty envelope", () => {
+  beforeEach(resetAllMocks);
+
+  it("action queue reports unavailable (not []) when a DB read throws", async () => {
+    prismaMock.governanceProposal.findMany.mockRejectedValue(
+      new Error("connection refused"),
+    );
+
+    const { actionQueue, auditTrail } = await loadCockpitPayload();
+    expect(actionQueue.status).toBe("unavailable");
+    if (actionQueue.status === "unavailable") {
+      expect(actionQueue.reason).toBe("db_error");
+      expect(actionQueue.detail).toContain("connection refused");
+    }
+    // The audit read is independent — it still succeeds here.
+    expect(auditTrail.status).toBe("ok");
+  });
+
+  it("audit trail reports unavailable (not []) when its DB read throws", async () => {
+    prismaMock.adminAudit.findMany.mockRejectedValue(new Error("db down"));
+
+    const { actionQueue, auditTrail } = await loadCockpitPayload();
+    expect(auditTrail.status).toBe("unavailable");
+    if (auditTrail.status === "unavailable") {
+      expect(auditTrail.reason).toBe("db_error");
+    }
+    expect(actionQueue.status).toBe("ok");
+  });
+
+  it("an empty DB is ok+[] — distinct from unavailable", async () => {
+    const { actionQueue, auditTrail } = await loadCockpitPayload();
+    expect(expectOk(actionQueue).filter((i) => i.type !== "oracle.stale")).toEqual([]);
+    expect(expectOk(auditTrail)).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 6. Loader-borne provenance — the render layer never invents it
+// ---------------------------------------------------------------------------
+
+describe("loadCockpitPayload — loader-borne provenance", () => {
+  beforeEach(resetAllMocks);
+
+  it("every queue item carries provenance 'live' (fresh DB derivation)", async () => {
+    prismaMock.vaultDeployment.findMany.mockResolvedValue([
+      {
+        id: "vd-010",
+        name: "Paused Vault",
+        ticker: "PSD-A",
+        status: "paused",
+        pausedAt: new Date("2026-06-05T12:00:00Z"),
+        createdAt: new Date("2026-05-01T00:00:00Z"),
+      },
+    ]);
+
+    const actionQueue = await loadQueue();
+    expect(actionQueue.length).toBeGreaterThan(0);
+    for (const item of actionQueue) {
+      expect(item.provenance).toBe("live");
+    }
+  });
+
+  it("audit entries carry provenance 'manual' (applicative INSERT, not attested)", async () => {
+    prismaMock.adminAudit.findMany.mockResolvedValue([
+      {
+        id: "aud-1",
+        occurredAt: new Date("2026-06-01T10:00:00Z"),
+        actorWallet: "0xAA",
+        action: "vault.pause",
+        entityType: "VaultDeployment",
+        entityId: "vd-1",
+      },
+    ]);
+
+    const { auditTrail } = await loadCockpitPayload();
+    const entries = expectOk(auditTrail);
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.provenance).toBe("manual");
   });
 });

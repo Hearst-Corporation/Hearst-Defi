@@ -3,15 +3,23 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import type { ActionQueueItem, ActionSeverity } from "@/lib/data/cockpit";
 
+// ---------------------------------------------------------------------------
+// ActionQueue — operator queue rows for /admin/dashboard.
+//
+// ADOPTED from the retired cockpit board (mission E1, 2026-07-26): the generic
+// ActivityFeed dropped the P0/P1/P2 severity and the per-item deep link, both
+// of which are REAL loader data — this component keeps them on screen.
+// ---------------------------------------------------------------------------
+
 interface ActionQueueProps {
-  items: ActionQueueItem[];
+  items: readonly ActionQueueItem[];
 }
 
 const ACTION_LABELS: Record<string, string> = {
   "multisig.sign": "Sign multisig",
   "oracle.stale": "Refresh oracle",
   "vault.paused": "Vault paused",
-  "distribution.approve": "Approve distribution",
+  "distribution.approve": "Approve payout",
   "kyc.review": "Review KYC",
   "lp.redemption": "Review redemption",
   "rebalance.signal": "Review signal",
@@ -21,14 +29,11 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 /**
- * Cockpit Admin — Action Queue content (no panel wrapper/header — provided by parent cell).
- *
  * Lists pending operator actions sorted P0 → P1 → P2 with severity dots.
- * Each row has a CTA button linking to the relevant admin page.
- * Graceful empty state when there are no queued items.
- *
- * Bento markup (Portfolio canon) — flat divided rows, semantic danger/warn tones,
- * single accent green reserved for the product accent (never used here).
+ * Each row has a CTA link to the relevant admin page.
+ * Graceful empty state when there are no queued items — the CALLER must only
+ * render this when the queue read succeeded (an unreadable queue is a banner,
+ * never this empty state).
  */
 export function ActionQueue({ items }: ActionQueueProps) {
   if (items.length === 0) {

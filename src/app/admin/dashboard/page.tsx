@@ -5,7 +5,7 @@ import {
 } from "@/lib/admin/dashboard-operating-view";
 import { buildOverviewClustersView } from "@/lib/admin/overview-clusters-view";
 import { loadAdminOverview } from "@/lib/data/admin-overview";
-import { loadCockpitPayload } from "@/lib/data/cockpit";
+import { AUDIT_TRAIL_DISPLAY_CAP, loadCockpitPayload } from "@/lib/data/cockpit";
 import { loadOverviewClusters } from "@/lib/data/overview-clusters";
 import { loadPlatformTotals } from "@/lib/data/platform-totals";
 import { AdminDashboardView } from "@/views/admin/dashboard-view";
@@ -32,41 +32,35 @@ export default async function AdminDashboardPage() {
   ]);
 
   const mode = getVaultMode();
+  // `null` = the read failed (Loaded envelope) — NEVER coerced to 0: the
+  // readiness resolver and the KPI strip render "unavailable", not "Clear".
+  const queueCount =
+    cockpit.actionQueue.status === "ok" ? cockpit.actionQueue.data.length : null;
+  const auditCount =
+    cockpit.auditTrail.status === "ok" ? cockpit.auditTrail.data.length : null;
+
   const readiness = resolveOperatingReadiness({
     proof: overview.proof,
-    operatorQueueCount: cockpit.actionQueue.length,
-    auditEntryCount: cockpit.auditTrail.length,
+    operatorQueueCount: queueCount,
+    auditEntryCount: auditCount,
     vaultMode: mode,
   });
   const kpis = buildOperatingKpis({
     proof: overview.proof,
-    operatorQueueCount: cockpit.actionQueue.length,
+    operatorQueueCount: queueCount,
     investorCount: totals.investorCount,
     investedCapitalUsdc: totals.investedCapitalUsdc,
   });
-  const clustersView = buildOverviewClustersView({
-    totals,
-    clusters,
-    allocations: [],
-    allocationProvenance: "estimated",
-  });
+  const clustersView = buildOverviewClustersView({ totals, clusters });
 
   return (
     <AdminDashboardView
       readiness={readiness}
       kpis={kpis}
       clusters={clustersView}
-      queue={cockpit.actionQueue.map((q) => ({
-        id: q.id,
-        title: q.title,
-        detail: q.context,
-        at: q.createdAt,
-      }))}
-      audit={cockpit.auditTrail.map((a) => ({
-        id: a.id,
-        title: a.action,
-        at: a.occurredAt,
-      }))}
+      queue={cockpit.actionQueue}
+      audit={cockpit.auditTrail}
+      auditDisplayCap={AUDIT_TRAIL_DISPLAY_CAP}
       contractLabel={contractLabel(mode)}
     />
   );

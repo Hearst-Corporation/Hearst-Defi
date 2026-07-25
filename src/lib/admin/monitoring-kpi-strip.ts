@@ -3,42 +3,66 @@ import { formatRelativeTimeDate } from "./time-formatters";
 
 interface MonitoringKpiInput {
   totalRuns: number;
+  /** Runs with status "success" (the REAL DB count — includes cockpit-chat
+   *  turns whose output was compliance-blocked, which finish "success"). */
   successfulRuns: number;
+  /** Runs with status "failed" or "timeout". */
   failedRuns: number;
   complianceBlockedRuns: number;
   totalCostUsd: number;
-  avgLatencyMs: number;
+  /** `null` = no run has recorded a latency yet (empty base). */
+  avgLatencyMs: number | null;
   /** Most recent run timestamp, or null if no runs. */
   lastRunAt: Date | null;
 }
 
 /**
- * Derives 3–4 honest KPIs from the monitoring stats already loaded by the
+ * Derives 3–5 honest KPIs from the monitoring stats already loaded by the
  * admin/monitoring page. No DB queries — pure derivation from in-memory data.
  *
  * Returns [] when there are no runs (caller suppresses the strip).
  *
+ * Honesty:
+ * - "N successful" is the REAL `status = success` count from the DB — it no
+ *   longer counts pending/queued runs as successes; those are stated
+ *   separately in the sublabel.
+ * - "Healthy" % is successfulRuns / totalRuns for the same reason.
+ * - Avg latency on an empty base is "—", never "0ms".
+ *
  * Provenance:
  * - Run counts, failure counts, compliance blocks → "manual" (operator DB records)
- * - Error rate (ratio of failures to total) → "estimated" (derived ratio)
+ * - Ratios (healthy %, error rate) and mean latency → "estimated" (derived)
  * - Last run recency → "manual"
  */
 export function buildMonitoringKpiStrip(
   input: MonitoringKpiInput,
 ): HeroKpi[] {
-  const { totalRuns, failedRuns, complianceBlockedRuns, totalCostUsd, avgLatencyMs, lastRunAt } = input;
+  const {
+    totalRuns,
+    successfulRuns,
+    failedRuns,
+    complianceBlockedRuns,
+    totalCostUsd,
+    avgLatencyMs,
+    lastRunAt,
+  } = input;
 
   if (totalRuns === 0) return [];
 
-  const healthyRuns = totalRuns - failedRuns - complianceBlockedRuns;
-  const healthyPct = Math.round((healthyRuns / totalRuns) * 100);
+  // Runs that are neither success nor failed/timeout: pending, queued, or any
+  // unknown status. Said separately — never silently folded into "successful".
+  const otherRuns = Math.max(0, totalRuns - successfulRuns - failedRuns);
+  const healthyPct = Math.round((successfulRuns / totalRuns) * 100);
   const errorRate = Math.round((failedRuns / totalRuns) * 100);
 
   const kpis: HeroKpi[] = [
     {
       label: "Total runs",
       value: String(totalRuns),
-      sublabel: `${healthyRuns} successful`,
+      sublabel:
+        otherRuns > 0
+          ? `${successfulRuns} successful · ${otherRuns} pending/other`
+          : `${successfulRuns} successful`,
       provenance: "manual",
     },
     {
@@ -46,8 +70,9 @@ export function buildMonitoringKpiStrip(
       value: `${healthyPct}%`,
       sublabel: `${failedRuns} failure${failedRuns === 1 ? "" : "s"} (${errorRate}% error rate)`,
       provenance: "estimated",
-      // accent when fully green, alert when error rate meaningful (≥ 10%)
-      accent: errorRate === 0,
+      // accent only when every run succeeded; alert when error rate ≥ 10%
+      // (operational threshold — hand-tuned, no external source).
+      accent: errorRate === 0 && healthyPct === 100,
       alert: errorRate >= 10,
     },
   ];
@@ -56,18 +81,28 @@ export function buildMonitoringKpiStrip(
     kpis.push({
       label: "Compliance blocks",
       value: String(complianceBlockedRuns),
-      sublabel: "cockpit-chat output-guard",
+      // Scope stated: this counter covers cockpit-chat only, not every agent.
+      sublabel: "cockpit-chat output-guard only",
       provenance: "manual",
       alert: false,
     });
   }
 
-  kpis.push({
-    label: "Avg latency",
-    value: `${avgLatencyMs}ms`,
-    sublabel: "per agent run",
-    provenance: "estimated",
-  });
+  kpis.push(
+    avgLatencyMs === null
+      ? {
+          label: "Avg latency",
+          value: "—",
+          sublabel: "no latency recorded yet",
+          provenance: "estimated",
+        }
+      : {
+          label: "Avg latency",
+          value: `${avgLatencyMs}ms`,
+          sublabel: "per agent run",
+          provenance: "estimated",
+        },
+  );
 
   if (totalCostUsd > 0) {
     kpis.push({

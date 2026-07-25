@@ -8,7 +8,7 @@ const BASE = {
   failedRuns: 0,
   complianceBlockedRuns: 0,
   totalCostUsd: 0,
-  avgLatencyMs: 0,
+  avgLatencyMs: null,
   lastRunAt: null,
 };
 
@@ -30,7 +30,42 @@ describe("buildMonitoringKpiStrip", () => {
     expect(cell?.value).toBe("42");
   });
 
-  it("Healthy cell has accent=true when error rate is 0%", () => {
+  it("'N successful' is the REAL success count, not total minus failures", () => {
+    // 10 runs: 6 success, 2 failed, 2 pending — the old formula said
+    // "8 successful" by counting the pending runs as successes.
+    const kpis = buildMonitoringKpiStrip({
+      ...BASE,
+      totalRuns: 10,
+      successfulRuns: 6,
+      failedRuns: 2,
+    });
+    const cell = kpis.find((k) => k.label === "Total runs");
+    expect(cell?.sublabel).toBe("6 successful · 2 pending/other");
+  });
+
+  it("omits the pending/other mention when every run resolved", () => {
+    const kpis = buildMonitoringKpiStrip({
+      ...BASE,
+      totalRuns: 10,
+      successfulRuns: 9,
+      failedRuns: 1,
+    });
+    const cell = kpis.find((k) => k.label === "Total runs");
+    expect(cell?.sublabel).toBe("9 successful");
+  });
+
+  it("Healthy % is successfulRuns / totalRuns — pending runs are not healthy", () => {
+    const kpis = buildMonitoringKpiStrip({
+      ...BASE,
+      totalRuns: 10,
+      successfulRuns: 6,
+      failedRuns: 2, // 2 pending → 60% healthy, not 80%
+    });
+    const healthy = kpis.find((k) => k.label === "Healthy");
+    expect(healthy?.value).toBe("60%");
+  });
+
+  it("Healthy cell has accent=true when all runs succeeded", () => {
     const kpis = buildMonitoringKpiStrip({ ...BASE, totalRuns: 5, successfulRuns: 5 });
     const healthy = kpis.find((k) => k.label === "Healthy");
     expect(healthy?.accent).toBe(true);
@@ -50,7 +85,7 @@ describe("buildMonitoringKpiStrip", () => {
   });
 
   it("Healthy percentage rounds correctly", () => {
-    // 9 healthy out of 10 (1 failure) → 90%
+    // 9 successes out of 10 (1 failure) → 90%
     const kpis = buildMonitoringKpiStrip({
       ...BASE,
       totalRuns: 10,
@@ -61,7 +96,7 @@ describe("buildMonitoringKpiStrip", () => {
     expect(healthy?.value).toBe("90%");
   });
 
-  it("includes Compliance blocks cell when complianceBlockedRuns > 0", () => {
+  it("includes Compliance blocks cell when complianceBlockedRuns > 0, scope stated", () => {
     const kpis = buildMonitoringKpiStrip({
       ...BASE,
       totalRuns: 10,
@@ -72,11 +107,37 @@ describe("buildMonitoringKpiStrip", () => {
     expect(cell).toBeDefined();
     expect(cell?.value).toBe("2");
     expect(cell?.provenance).toBe("manual");
+    // The counter only covers cockpit-chat — the copy must say so.
+    expect(cell?.sublabel).toContain("cockpit-chat");
+    expect(cell?.sublabel).toContain("only");
   });
 
   it("omits Compliance blocks when complianceBlockedRuns is 0", () => {
     const kpis = buildMonitoringKpiStrip({ ...BASE, totalRuns: 5, successfulRuns: 5 });
     expect(kpis.find((k) => k.label === "Compliance blocks")).toBeUndefined();
+  });
+
+  it("Avg latency is '—' (never '0ms') when no run recorded a latency", () => {
+    const kpis = buildMonitoringKpiStrip({
+      ...BASE,
+      totalRuns: 3,
+      successfulRuns: 3,
+      avgLatencyMs: null,
+    });
+    const cell = kpis.find((k) => k.label === "Avg latency");
+    expect(cell?.value).toBe("—");
+    expect(cell?.sublabel).toBe("no latency recorded yet");
+  });
+
+  it("Avg latency renders the measured mean when present", () => {
+    const kpis = buildMonitoringKpiStrip({
+      ...BASE,
+      totalRuns: 3,
+      successfulRuns: 3,
+      avgLatencyMs: 412,
+    });
+    const cell = kpis.find((k) => k.label === "Avg latency");
+    expect(cell?.value).toBe("412ms");
   });
 
   it("includes Total cost cell when totalCostUsd > 0", () => {
@@ -123,6 +184,7 @@ describe("buildMonitoringKpiStrip", () => {
       failedRuns: 1,
       complianceBlockedRuns: 1,
       totalCostUsd: 0.5,
+      avgLatencyMs: 200,
     });
     for (const kpi of kpis) {
       expect(["manual", "estimated"]).toContain(kpi.provenance);

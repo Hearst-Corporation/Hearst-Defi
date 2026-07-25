@@ -9,7 +9,9 @@ export interface MonitoringStats {
   /** cockpit-chat turns blocked by output-guard (status success, errorType compliance_blocked). */
   complianceBlockedRuns: number;
   totalCostUsd: number;
-  avgLatencyMs: number;
+  /** Mean latency across runs that recorded one. `null` = no run has recorded
+   *  a latency yet — an empty base is absent data, never "0ms". */
+  avgLatencyMs: number | null;
   runsByAgent: Array<{ agentName: string; count: number; costUsd: number }>;
   recentRuns: Array<{
     id: string;
@@ -121,7 +123,10 @@ export async function getMonitoringStats(): Promise<MonitoringStats> {
     failedRuns,
     complianceBlockedRuns,
     totalCostUsd: totalCost._sum.costUsd ?? 0,
-    avgLatencyMs: Math.round(avgLatency._avg.latencyMs ?? 0),
+    avgLatencyMs:
+      avgLatency._avg.latencyMs === null
+        ? null
+        : Math.round(avgLatency._avg.latencyMs),
     runsByAgent: runsByAgent.map((r) => ({
       agentName: r.agentName,
       count: r._count.agentName,

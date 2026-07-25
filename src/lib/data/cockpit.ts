@@ -5,26 +5,25 @@ import { unstable_cache } from "next/cache";
 import {
   ADMIN_DASHBOARD_REVALIDATE_SEC,
   coerceCachedDate,
-  readPrismaDecimal,
+  loadUnavailable,
+  type Loaded,
 } from "@/lib/data/admin-dashboard-cache";
 import { prisma } from "@/lib/db";
 import { loadLatestMiningMetricRow } from "@/lib/data/mining-metric-row";
 import { loadLatestTimelineSnapshot } from "@/lib/data/timeline-snapshot";
-import {
-  adminDashboardVaultHref,
-  adminSignalsVaultHref,
-} from "@/lib/vaults/dashboard-scope";
-import { resolveVaultBtcPosture, type BtcTacticalPosture } from "@/lib/admin/cockpit-btc-posture";
-import { listAllVaults } from "@/lib/vaults/resolver";
-import { vaultLabel, vaultSlug } from "@/lib/vaults/slug";
+import { adminSignalsVaultHref } from "@/lib/vaults/dashboard-scope";
+import type { Provenance } from "@/lib/provenance";
 // =============================================================================
 // Cockpit Admin Dashboard — data loaders.
 //
-// All functions in this module are server-only. They supply the 3-column
-// cockpit layout: Action Queue | Live Metrics | Live Ops + Audit Trail.
+// All functions in this module are server-only. They supply the operator
+// queue and the audit trail of /admin/dashboard.
 //
-// Philosophy: prefer real Prisma data where available; fall back to a typed
-// stub/mock so the UI never crashes on an empty dev DB.
+// Honesty policy (non-negotiable): a failed DB read is reported as
+// `unavailable` through the Loaded<T> envelope — NEVER as an empty array or a
+// zero. "The read failed" and "the table is empty" are different facts; the
+// UI must be able to render "unavailable — database read failed" instead of
+// "Clear" / "Empty". No typed stub, no fabricated fallback.
 // =============================================================================
 
 // ---------------------------------------------------------------------------
@@ -54,6 +53,9 @@ export interface ActionQueueItem {
   href?: string;
   /** ISO string */
   createdAt: string;
+  /** Provenance travels FROM the loader — the render layer never invents it.
+   *  Queue items are derived fresh from direct DB reads at load time. */
+  provenance: Provenance;
 }
 
 // ---------------------------------------------------------------------------
@@ -67,54 +69,6 @@ export interface ActionQueueItem {
 export type { HeroKpi, HeroKpiProvenance } from "@/lib/admin/kpi-strip-view";
 
 // ---------------------------------------------------------------------------
-// Types — Live Metrics
-// ---------------------------------------------------------------------------
-
-export interface VaultLiveMetric {
-  vaultId: string;
-  vaultName: string;
-  tvlUsdc: number;
-  miningMarginScore: number;
-  riskScore: number;
-  /** milliseconds since last oracle update; null = unknown */
-  oracleDelayMs: number | null;
-  /** Explicit BTC tactical posture when a feed exists; null = unavailable. */
-  btcPosture: BtcTacticalPosture | null;
-  /** "live" | "paused" | "review" | "draft" | "closed" */
-  status: string;
-  /** Admin deep-link — dashboard fixture scope or deployment detail. */
-  href: string;
-  /** Yield vault timeline snapshot exists — other vaults stay empty until Phase 3. */
-  hasTimelineData: boolean;
-}
-
-// ---------------------------------------------------------------------------
-// Types — Live Ops
-// ---------------------------------------------------------------------------
-
-export type InngestJobStatus = "ok" | "err" | "pending" | "unknown";
-
-export interface InngestJob {
-  id: string;
-  name: string;
-  status: InngestJobStatus;
-}
-
-export interface SentryStats {
-  errors24h: number;
-  warnings24h: number;
-}
-
-export interface OnChainEvent {
-  id: string;
-  type: "deposit" | "sign" | "swap" | "oracle_update" | "other";
-  label: string;
-  /** ISO string */
-  occurredAt: string;
-  txHash?: string;
-}
-
-// ---------------------------------------------------------------------------
 // Types — Audit Trail
 // ---------------------------------------------------------------------------
 
@@ -125,111 +79,59 @@ export interface AuditTrailEntry {
   action: string;
   entityType: string;
   entityId: string;
+  /** AdminAudit rows are written by application code on operator actions —
+   *  an applicative INSERT is `manual`, never `attested` (no third party). */
+  provenance: Provenance;
 }
 
 // ---------------------------------------------------------------------------
 // Types — Full Cockpit payload
 // ---------------------------------------------------------------------------
+//
+// The retired fields (vaultMetrics / inngestJobs / sentryStats / onChainEvents)
+// were computed on every load and rendered NOWHERE — dead weight removed
+// 2026-07-26 (mission E1). Re-add a field only together with its consumer.
 
 export interface CockpitPayload {
-  actionQueue: ActionQueueItem[];
-  vaultMetrics: VaultLiveMetric[];
-  inngestJobs: InngestJob[];
-  sentryStats: SentryStats;
-  onChainEvents: OnChainEvent[];
-  auditTrail: AuditTrailEntry[];
+  actionQueue: Loaded<ActionQueueItem[]>;
+  auditTrail: Loaded<AuditTrailEntry[]>;
 }
 
 // ---------------------------------------------------------------------------
-// Stub Inngest job status.
-// Inngest does not expose a public REST API for job health without its
-// cloud dashboard; until we wire up a webhook / DB ping, we surface "unknown"
-// for every job and let operators click through to the Inngest dashboard.
+// Operational thresholds — hand-tuned, no external source. These are operator
+// judgment calls, not measurements; they are named so the copy that cites them
+// cannot pretend they came from a spec or an oracle.
 // ---------------------------------------------------------------------------
 
-const INNGEST_JOB_STUBS: InngestJob[] = [
-  { id: "rebalance", name: "Rebalance signal", status: "unknown" },
-  { id: "distrib", name: "Distribution", status: "unknown" },
-  { id: "oracle", name: "Oracle sync", status: "unknown" },
-  { id: "proof-sync", name: "Proof sync", status: "unknown" },
-];
+/** Mining margin score below this reads as critical (P0). Hand-tuned. */
+const MINING_MARGIN_RED_THRESHOLD = 15;
 
-// ---------------------------------------------------------------------------
-// Infer Inngest job status from LlmRun history (proxy heuristic).
-// Recent successful run within 2h → ok; recent failure → err; else unknown.
-// ---------------------------------------------------------------------------
+/** Legacy payout rail approval threshold. Hand-set — the retired payout rail
+ *  has NO quorum column in the schema (unlike VaultDeployment.requiredSigners
+ *  and GovernanceProposal.requiredSigners). The queue copy says so. */
+const LEGACY_PAYOUT_REQUIRED_APPROVALS = 2;
 
-async function inferInngestJobs(): Promise<InngestJob[]> {
-  try {
-    const cutoff = new Date(Date.now() - 2 * 60 * 60 * 1000); // 2h ago
-    const recentRuns = await prisma.llmRun.findMany({
-      where: { createdAt: { gte: cutoff } },
-      orderBy: { createdAt: "desc" },
-      select: { agentName: true, status: true, createdAt: true },
-      take: 100,
-    });
+/** Oracle feed older than this reads as stale (P0). Hand-tuned. */
+const ORACLE_STALE_CUTOFF_MS = 6 * 60 * 60 * 1000;
 
-    // Map agent names → canonical job ids
-    const agentToJob: Record<string, string> = {
-      "rebalancing-signal": "rebalance",
-      "rebalance": "rebalance",
-      "distribution": "distrib",
-      "investor-memo": "distrib",
-      "oracle": "oracle",
-      "market-data": "oracle",
-      "proof-sync": "proof-sync",
-    };
+/** Mining attestation older than this reads as overdue (P1). Hand-tuned. */
+const ATTESTATION_OVERDUE_MS = 30 * 24 * 60 * 60 * 1000;
 
-    const jobMap = new Map<string, { status: InngestJobStatus }>();
+/** Every queue item is derived fresh from direct DB reads at load time. */
+const QUEUE_PROVENANCE: Provenance = "live";
 
-    for (const run of recentRuns) {
-      const jobId = agentToJob[run.agentName] ?? null;
-      if (!jobId || jobMap.has(jobId)) continue;
-      const s: InngestJobStatus =
-        run.status === "success" ? "ok" : run.status === "failed" ? "err" : "pending";
-      jobMap.set(jobId, {
-        status: s,
-      });
-    }
-
-    return INNGEST_JOB_STUBS.map((stub) => {
-      const found = jobMap.get(stub.id);
-      if (!found) return stub;
-      return { ...stub, ...found };
-    });
-  } catch {
-    return INNGEST_JOB_STUBS;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Infer Sentry-equivalent stats from LlmRun failure counts (24h window).
-// Replace with a real Sentry API call once the DSN is wired up.
-// ---------------------------------------------------------------------------
-
-async function inferSentryStats(): Promise<SentryStats> {
-  try {
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const [errors, timeouts] = await Promise.all([
-      prisma.llmRun.count({ where: { status: "failed", createdAt: { gte: since } } }),
-      prisma.llmRun.count({ where: { status: "timeout", createdAt: { gte: since } } }),
-    ]);
-    return { errors24h: errors, warnings24h: timeouts };
-  } catch {
-    return { errors24h: 0, warnings24h: 0 };
-  }
-}
+/** Display cap of the audit trail read — stated in the UI copy. */
+export const AUDIT_TRAIL_DISPLAY_CAP = 20;
 
 // ---------------------------------------------------------------------------
 // Derive action queue from live Prisma data.
 // ---------------------------------------------------------------------------
 
-async function buildActionQueue(): Promise<ActionQueueItem[]> {
+async function buildActionQueue(): Promise<Loaded<ActionQueueItem[]>> {
   const items: ActionQueueItem[] = [];
   const now = new Date();
-  const staleCutoff6h = new Date(now.getTime() - 6 * 60 * 60 * 1000);
-  const stale30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  const DISTRIBUTION_REQUIRED_SIGNERS = 2;
+  const staleCutoff = new Date(now.getTime() - ORACLE_STALE_CUTOFF_MS);
+  const overdueCutoff = new Date(now.getTime() - ATTESTATION_OVERDUE_MS);
 
   try {
     const [
@@ -257,7 +159,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
       prisma.proof.findFirst({
         where: {
           proofType: "mining_attestation",
-          postedAt: { lt: stale30d },
+          postedAt: { lt: overdueCutoff },
         },
         orderBy: { postedAt: "asc" },
       }),
@@ -296,19 +198,20 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
       take: 20,
     });
 
-    if (latestSnapshot && latestSnapshot.miningMarginScore < 15) {
+    if (latestSnapshot && latestSnapshot.miningMarginScore < MINING_MARGIN_RED_THRESHOLD) {
       items.push({
         id: "mining-margin-red",
         type: "mining.margin.red",
         severity: "P0",
         title: "Mining margin critical",
-        context: `Margin score ${latestSnapshot.miningMarginScore}/100 · below 15 threshold`,
+        context: `Margin score ${latestSnapshot.miningMarginScore}/100 · below the hand-set ${MINING_MARGIN_RED_THRESHOLD} threshold`,
         href: "/admin/dashboard",
         createdAt: (coerceCachedDate(latestSnapshot.takenAt) ?? latestSnapshot.takenAt).toISOString(),
+        provenance: QUEUE_PROVENANCE,
       });
     }
 
-    if (!latestMetric || latestMetric.takenAt < staleCutoff6h) {
+    if (!latestMetric || latestMetric.takenAt < staleCutoff) {
       items.push({
         id: "oracle-stale",
         type: "oracle.stale",
@@ -321,6 +224,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         createdAt: latestMetric
           ? (coerceCachedDate(latestMetric.takenAt) ?? latestMetric.takenAt).toISOString()
           : now.toISOString(),
+        provenance: QUEUE_PROVENANCE,
       });
     }
 
@@ -335,6 +239,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
           ? adminSignalsVaultHref(pendingRebalance.vaultRef)
           : "/admin/signals",
         createdAt: pendingRebalance.triggeredAt.toISOString(),
+        provenance: QUEUE_PROVENANCE,
       });
     }
 
@@ -347,6 +252,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         context: `Last mining attestation posted ${Math.round((now.getTime() - overdueProof.postedAt.getTime()) / 86_400_000)}d ago`,
         href: "/admin/proofs",
         createdAt: overdueProof.postedAt.toISOString(),
+        provenance: QUEUE_PROVENANCE,
       });
     }
 
@@ -360,6 +266,7 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         context: `${approvedCount} of ${proposal.requiredSigners} approvals · ${proposal.actionType}`,
         href: `/admin/governance/proposal/${proposal.id}`,
         createdAt: proposal.createdAt.toISOString(),
+        provenance: QUEUE_PROVENANCE,
       });
     }
 
@@ -372,20 +279,22 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         context: `${vault.ticker} · operator review required`,
         href: `/admin/vaults/${vault.id}`,
         createdAt: (vault.pausedAt ?? vault.createdAt).toISOString(),
+        provenance: QUEUE_PROVENANCE,
       });
     }
 
     for (const group of pendingApprovalGroups) {
       const count = group._count.signerWallet;
-      if (count < DISTRIBUTION_REQUIRED_SIGNERS) {
+      if (count < LEGACY_PAYOUT_REQUIRED_APPROVALS) {
         items.push({
           id: `distribution-approve-${group.period}`,
           type: "distribution.approve",
           severity: "P1",
-          title: `Distribution approval pending: ${group.period}`,
-          context: `${count} of ${DISTRIBUTION_REQUIRED_SIGNERS} approvals recorded`,
+          title: `Legacy payout approval pending: ${group.period}`,
+          context: `${count} of ${LEGACY_PAYOUT_REQUIRED_APPROVALS} approvals recorded · threshold hand-set (retired rail, no quorum source)`,
           href: "/admin/distributions",
           createdAt: now.toISOString(),
+          provenance: QUEUE_PROVENANCE,
         });
       }
     }
@@ -399,130 +308,36 @@ async function buildActionQueue(): Promise<ActionQueueItem[]> {
         context: `Inquiry ${inquiry.inquiryId} · awaiting manual review`,
         href: `/admin/customers`,
         createdAt: inquiry.createdAt.toISOString(),
+        provenance: QUEUE_PROVENANCE,
       });
     }
 
     // ── TODO: lp.redemption — no Redemption model exists yet (out of scope) ──
     // ── TODO: memo.publish  — no clear "ready to publish" data source yet    ──
-  } catch {
-    // DB unavailable — return empty queue (no false P0s)
+  } catch (err) {
+    // DB unavailable — say so. An unreadable queue is NOT a clear queue.
+    return loadUnavailable(err);
   }
 
   // Sort: P0 first, then P1, then P2; within severity by createdAt desc
   const order: Record<ActionSeverity, number> = { P0: 0, P1: 1, P2: 2 };
-  return items.sort(
+  const sorted = items.sort(
     (a, b) =>
       order[a.severity] - order[b.severity] ||
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+  return { status: "ok", data: sorted };
 }
 
 // ---------------------------------------------------------------------------
-// Live metrics per vault
+// Audit trail — most recent AdminAudit rows (display cap stated in the UI)
 // ---------------------------------------------------------------------------
 
-async function buildVaultMetrics(): Promise<VaultLiveMetric[]> {
-  try {
-    const [vaultRefs, latestSnapshot, latestMetric] = await Promise.all([
-      listAllVaults({ status: "live-or-paused" }),
-      loadLatestTimelineSnapshot(),
-      loadLatestMiningMetricRow(),
-    ]);
-
-    const oracleDelayMs = latestMetric
-      ? Date.now() - (coerceCachedDate(latestMetric.takenAt) ?? latestMetric.takenAt).getTime()
-      : null;
-
-    return vaultRefs.map((ref) => {
-      const name =
-        ref.kind === "fixture"
-          ? ref.fixture.label
-          : vaultLabel(ref);
-      const isYield =
-        ref.kind === "fixture"
-          ? ref.fixture.id === "yield"
-          : false;
-      const hasTimelineData = isYield && latestSnapshot !== null;
-
-      const href =
-        ref.kind === "fixture"
-          ? adminDashboardVaultHref(ref.fixture.id)
-          : `/admin/vaults/${vaultSlug(ref)}`;
-
-      return {
-        vaultId:
-          ref.kind === "fixture" ? ref.fixture.id : ref.deployment.id,
-        vaultName: name,
-        tvlUsdc: hasTimelineData ? readPrismaDecimal(latestSnapshot.aumUsdc) : 0,
-        miningMarginScore: hasTimelineData ? latestSnapshot.miningMarginScore : 0,
-        riskScore: hasTimelineData ? latestSnapshot.riskScore : 0,
-        oracleDelayMs,
-        // No dedicated BTC tactical posture column yet — never infer from snapshot.mode.
-        btcPosture: resolveVaultBtcPosture(null),
-        status: ref.kind === "fixture" ? "live" : ref.deployment.status,
-        href,
-        hasTimelineData,
-      };
-    });
-  } catch {
-    return [];
-  }
-}
-
-// ---------------------------------------------------------------------------
-// On-chain events from RebalanceEvent + Distribution (last 5)
-// ---------------------------------------------------------------------------
-
-async function buildOnChainEvents(): Promise<OnChainEvent[]> {
-  try {
-    const [rebalances, distributions] = await Promise.all([
-      prisma.rebalanceEvent.findMany({
-        orderBy: { triggeredAt: "desc" },
-        take: 3,
-        select: { id: true, triggeredAt: true, status: true, triggerText: true },
-      }),
-      prisma.distribution.findMany({
-        orderBy: { distributedAt: "desc" },
-        take: 2,
-        select: { id: true, distributedAt: true, period: true },
-      }),
-    ]);
-
-    const events: OnChainEvent[] = [
-      ...rebalances.map((r) => ({
-        id: r.id,
-        type: "swap" as const,
-        label: `Rebalance · ${r.triggerText ?? r.status}`,
-        occurredAt: r.triggeredAt.toISOString(),
-      })),
-      ...distributions.map((d) => ({
-        id: d.id,
-        type: "deposit" as const,
-        label: `Distribution ${d.period ?? d.id.slice(0, 8)}`,
-        occurredAt: d.distributedAt.toISOString(),
-      })),
-    ];
-
-    return events
-      .sort(
-        (a, b) =>
-          new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
-      )
-      .slice(0, 5);
-  } catch {
-    return [];
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Audit trail — last 20 AdminAudit rows
-// ---------------------------------------------------------------------------
-
-async function buildAuditTrail(): Promise<AuditTrailEntry[]> {
+async function buildAuditTrail(): Promise<Loaded<AuditTrailEntry[]>> {
   try {
     const rows = await prisma.adminAudit.findMany({
       orderBy: { occurredAt: "desc" },
-      take: 20,
+      take: AUDIT_TRAIL_DISPLAY_CAP,
       select: {
         id: true,
         occurredAt: true,
@@ -532,16 +347,21 @@ async function buildAuditTrail(): Promise<AuditTrailEntry[]> {
         entityId: true,
       },
     });
-    return rows.map((r) => ({
-      id: r.id,
-      occurredAt: r.occurredAt.toISOString(),
-      actorWallet: r.actorWallet,
-      action: r.action,
-      entityType: r.entityType,
-      entityId: r.entityId,
-    }));
-  } catch {
-    return [];
+    return {
+      status: "ok",
+      data: rows.map((r) => ({
+        id: r.id,
+        occurredAt: r.occurredAt.toISOString(),
+        actorWallet: r.actorWallet,
+        action: r.action,
+        entityType: r.entityType,
+        entityId: r.entityId,
+        provenance: "manual",
+      })),
+    };
+  } catch (err) {
+    // DB unavailable — an unreadable trail is NOT an empty trail.
+    return loadUnavailable(err);
   }
 }
 
@@ -550,24 +370,12 @@ async function buildAuditTrail(): Promise<AuditTrailEntry[]> {
 // ---------------------------------------------------------------------------
 
 async function loadCockpitPayloadFromDb(): Promise<CockpitPayload> {
-  const [actionQueue, vaultMetrics, inngestJobs, sentryStats, onChainEvents, auditTrail] =
-    await Promise.all([
-      buildActionQueue(),
-      buildVaultMetrics(),
-      inferInngestJobs(),
-      inferSentryStats(),
-      buildOnChainEvents(),
-      buildAuditTrail(),
-    ]);
+  const [actionQueue, auditTrail] = await Promise.all([
+    buildActionQueue(),
+    buildAuditTrail(),
+  ]);
 
-  return {
-    actionQueue,
-    vaultMetrics,
-    inngestJobs,
-    sentryStats,
-    onChainEvents,
-    auditTrail,
-  };
+  return { actionQueue, auditTrail };
 }
 
 const fetchCockpitPayloadCached = unstable_cache(

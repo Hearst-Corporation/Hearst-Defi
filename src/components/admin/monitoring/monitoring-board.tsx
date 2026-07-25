@@ -84,7 +84,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
 
       <MonitoringPanel
         title="Recent agent runs"
-        subtitle="Latest executions"
+        subtitle="20 most recent (display cap)"
         colSpan={7}
         isEmpty={stats.recentRuns.length === 0}
         colgroup={
@@ -188,7 +188,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
 
       <MonitoringPanel
         title="Navigation traces"
-        subtitle="Master Agent routing"
+        subtitle="Master Agent routing · 20 most recent (display cap)"
         colSpan={6}
         isEmpty={stats.recentNavTraces.length === 0}
         colgroup={
@@ -269,7 +269,7 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
 
       <MonitoringPanel
         title="Admin tool activity"
-        subtitle="Read & write tool runs"
+        subtitle="Read & write tool runs · 20 most recent (display cap)"
         colSpan={5}
         isEmpty={stats.recentToolRuns.length === 0}
         colgroup={

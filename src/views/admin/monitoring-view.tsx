@@ -1,3 +1,4 @@
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
 import { MonitoringBoard } from "@/components/admin/monitoring/monitoring-board";
 import { buildMonitoringKpiStrip } from "@/lib/admin/monitoring-kpi-strip";
 import type { MonitoringStats } from "@/lib/data/monitoring";
@@ -27,18 +28,12 @@ export function AdminMonitoringView({ stats }: { stats: MonitoringStats }) {
         <KpiGrid>
           {monitoringKpis.map((kpi) => (
             <Panel key={kpi.label}>
-              <div className="p-5">
+              <div className={FORM_SURFACE}>
                 <Kpi
                   label={kpi.label}
                   value={kpi.value}
                   hint={kpi.sublabel}
-                  provenance={
-                    kpi.provenance === "live" ||
-                    kpi.provenance === "manual" ||
-                    kpi.provenance === "estimated"
-                      ? kpi.provenance
-                      : "manual"
-                  }
+                  provenance={kpi.provenance}
                 />
               </div>
             </Panel>
@@ -48,7 +43,7 @@ export function AdminMonitoringView({ stats }: { stats: MonitoringStats }) {
 
       <Section title="Agent runs">
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <MonitoringBoard stats={stats} />
           </div>
         </Panel>

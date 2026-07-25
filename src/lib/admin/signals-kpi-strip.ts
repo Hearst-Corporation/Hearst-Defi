@@ -15,6 +15,13 @@ interface SignalsCountMap {
  *
  * Returns [] when there are no signals at all (caller suppresses the strip).
  *
+ * Honesty:
+ * - "Total signals" sums EVERY status present in the groupBy result — a row
+ *   with an unknown/legacy status still counts (it used to be silently
+ *   dropped when only the 4 known statuses were summed).
+ * - `mostRecentTriggeredAt` must be the most recent signal of the whole vault
+ *   scope (the caller queries it independently of the status filter/page).
+ *
  * Provenance:
  * - All cells → "manual" (operator-confirmed DB records created by Inngest or
  *   manual trigger; no oracle, no estimation).
@@ -24,24 +31,26 @@ export function buildSignalsKpiStrip(
   mostRecentTriggeredAt: Date | null,
 ): HeroKpi[] {
   const pending = countMap["pending"] ?? 0;
-  const approved = countMap["approved"] ?? 0;
   const executed = countMap["executed"] ?? 0;
-  const cancelled = countMap["cancelled"] ?? 0;
 
-  const total = pending + approved + executed + cancelled;
+  // Sum across ALL statuses present — including unknown/legacy ones.
+  const total = Object.values(countMap).reduce<number>(
+    (sum, count) => sum + (count ?? 0),
+    0,
+  );
   if (total === 0) return [];
 
   const kpis: HeroKpi[] = [
     {
       label: "Total signals",
       value: String(total),
-      sublabel: "all statuses, this vault",
+      sublabel: "all statuses, this vault scope",
       provenance: "manual",
     },
     {
       label: "Pending",
       value: String(pending),
-      sublabel: pending === 1 ? "awaiting action" : "awaiting action",
+      sublabel: "awaiting action",
       provenance: "manual",
       alert: pending > 0,
       accent: pending === 0,
@@ -59,7 +68,7 @@ export function buildSignalsKpiStrip(
     kpis.push({
       label: "Most recent",
       value: formatRelativeTime(mostRecentTriggeredAt),
-      sublabel: mostRecentTriggeredAt.toISOString().slice(0, 10),
+      sublabel: `latest in this vault scope · ${mostRecentTriggeredAt.toISOString().slice(0, 10)}`,
       provenance: "manual",
     });
   }

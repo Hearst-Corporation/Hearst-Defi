@@ -1,6 +1,11 @@
+import { AlertBanner } from "@/components/admin/alert-banner";
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
+import { ActionQueue } from "@/components/admin/dashboard/action-queue";
 import type { OperatingReadinessView } from "@/lib/admin/dashboard-operating-view";
 import type { HeroKpi } from "@/lib/admin/kpi-strip-view";
 import type { OverviewClustersView } from "@/lib/admin/overview-clusters-view";
+import type { Loaded } from "@/lib/data/admin-dashboard-cache";
+import type { ActionQueueItem, AuditTrailEntry } from "@/lib/data/cockpit";
 import { PageHeader, PageLayout, Panel, Row, RowList, Section } from "@/views/_shared/layout";
 import { ActivityFeed, Badge, Card, CardContent, Kpi, KpiGrid } from "@/ui";
 
@@ -10,13 +15,15 @@ export function AdminDashboardView({
   clusters,
   queue,
   audit,
+  auditDisplayCap,
   contractLabel,
 }: {
   readiness: OperatingReadinessView;
   kpis: HeroKpi[];
   clusters: OverviewClustersView;
-  queue: Array<{ id: string; title: string; detail?: string; at: string }>;
-  audit: Array<{ id: string; title: string; at: string }>;
+  queue: Loaded<ActionQueueItem[]>;
+  audit: Loaded<AuditTrailEntry[]>;
+  auditDisplayCap: number;
   contractLabel: string;
 }) {
   return (
@@ -25,7 +32,7 @@ export function AdminDashboardView({
         eyebrow="Series 1"
         title="Hearst Operations"
         meta={contractLabel}
-        description="Operator overview — real aggregates, no fixture yield model."
+        description="Operator overview — real aggregates, no fixture model."
       />
 
       <KpiGrid>
@@ -36,11 +43,7 @@ export function AdminDashboardView({
                 label={kpi.label}
                 value={kpi.value}
                 hint={kpi.sublabel}
-                provenance={
-                  kpi.provenance === "partial" || kpi.provenance === "simulated"
-                    ? "estimated"
-                    : kpi.provenance
-                }
+                provenance={kpi.provenance}
               />
             </CardContent>
           </Card>
@@ -54,9 +57,16 @@ export function AdminDashboardView({
               label="Posture"
               value={readiness.postureLabel}
               hint={readiness.postureBlurb}
+              tone={readiness.posture}
             />
             {readiness.factors.map((f) => (
-              <Row key={f.id} label={f.label} value={f.status} hint={f.detail} />
+              <Row
+                key={f.id}
+                label={f.label}
+                value={f.status}
+                hint={f.detail}
+                tone={f.tone}
+              />
             ))}
           </RowList>
         </Panel>
@@ -65,11 +75,23 @@ export function AdminDashboardView({
       <div className="grid gap-6 lg:grid-cols-2">
         <Section title={clusters.caption}>
           <div className="grid gap-3">
+            {clusters.unavailable ? (
+              <AlertBanner tone="info" role="status" title="Aggregates unavailable">
+                DB read failed — the platform aggregates below could not be
+                loaded and are shown as absent, not as zero.
+              </AlertBanner>
+            ) : null}
             {clusters.clusters.map((c) => (
               <Panel key={c.label} title={c.label}>
                 <RowList>
                   {c.kpis.map((k) => (
-                    <Row key={k.label} label={k.label} value={k.value} hint={k.sublabel} />
+                    <Row
+                      key={k.label}
+                      label={k.label}
+                      value={k.value}
+                      hint={k.sublabel}
+                      provenance={k.provenance}
+                    />
                   ))}
                 </RowList>
               </Panel>
@@ -80,33 +102,44 @@ export function AdminDashboardView({
         <div className="space-y-6">
           <Section title="Operator queue">
             <Panel>
-              <div className="p-5">
-                <ActivityFeed
-                  items={queue.map((q) => ({
-                    id: q.id,
-                    title: q.title,
-                    detail: q.detail,
-                    timestamp: q.at,
-                    provenance: "manual" as const,
-                  }))}
-                  emptyTitle="Queue empty"
-                />
+              <div className={FORM_SURFACE}>
+                {queue.status === "ok" ? (
+                  <ActionQueue items={queue.data} />
+                ) : (
+                  <AlertBanner
+                    tone="warning"
+                    title="Operator queue unavailable"
+                  >
+                    Database read failed — pending operator actions could not
+                    be loaded. This is a read outage, not an empty queue.
+                  </AlertBanner>
+                )}
               </div>
             </Panel>
           </Section>
 
-          <Section title="Audit trail">
+          <Section
+            title="Audit trail"
+            description={`Up to ${auditDisplayCap} most recent audited actions (display cap).`}
+          >
             <Panel>
-              <div className="p-5">
-                <ActivityFeed
-                  items={audit.map((a) => ({
-                    id: a.id,
-                    title: a.title,
-                    timestamp: a.at,
-                    provenance: "attested" as const,
-                  }))}
-                  emptyTitle="No audit entries"
-                />
+              <div className={FORM_SURFACE}>
+                {audit.status === "ok" ? (
+                  <ActivityFeed
+                    items={audit.data.map((a) => ({
+                      id: a.id,
+                      title: a.action,
+                      timestamp: a.occurredAt,
+                      provenance: a.provenance,
+                    }))}
+                    emptyTitle="No audit entries"
+                  />
+                ) : (
+                  <AlertBanner tone="warning" title="Audit trail unavailable">
+                    Database read failed — audited actions could not be loaded.
+                    This is a read outage, not an empty trail.
+                  </AlertBanner>
+                )}
               </div>
             </Panel>
           </Section>

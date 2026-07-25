@@ -4,29 +4,41 @@ import { cache } from "react";
 
 import { prisma } from "@/lib/db";
 import { getValidInvestorWhere } from "@/lib/data/investors";
+import {
+  loadUnavailable,
+  type Loaded,
+} from "@/lib/data/admin-dashboard-cache";
 
 // ---------------------------------------------------------------------------
 // Platform-wide aggregates for the admin dashboard executive overview band.
 //
 // Companion to `loadPlatformTotals` (investor count + invested capital): this
 // loader covers the remaining cluster totals that otherwise live only on the
-// dedicated admin pages (vaults / customers / governance / distributions):
+// dedicated admin pages (vaults / customers / governance):
 //
-//   - Capital   : total vault capacity, pipeline (draft/review) count.
+//   - Capital   : total vault capacity, live-vault subscriptions, pipeline count.
 //   - Clients   : KYC approved / pending counts (platform-wide, not page-scoped).
 //   - Governance: proposal-state tally (signing / timelock / executable).
-//   - Exposure  : total distributed + distribution count.
+//   - Legacy    : retired payout-rail records (historical archive figures).
 //
 // All are operator-ledger records → provenance "manual" at the view layer.
 // Decimal → number happens HERE at the data boundary. Per-request cached via
-// React `cache`. Never throws: on any DB error the whole shape degrades to
-// zeros (same never-crash doctrine as the cockpit loaders) so the dashboard
-// renders honest "—"/0 instead of a 500.
+// React `cache`.
+//
+// Honesty policy: on a DB error this loader returns `unavailable` through the
+// Loaded<T> envelope — NEVER a zero-filled shape. A dozen KPIs silently
+// reading "0" during an outage is fabricated data; the dashboard renders
+// "—" + an explicit banner instead.
 // ---------------------------------------------------------------------------
 
 export interface OverviewClusters {
   // Capital
   totalCapacityUsdc: number;
+  /** Active-position principal held in LIVE deployments only — the numerator
+   *  of "Capacity used". Same population as `totalCapacityUsdc` (live vaults):
+   *  positions on fixture/legacy rails are excluded from BOTH sides, so the
+   *  ratio can never exceed 100% by construction mismatch. */
+  investedInLiveVaultsUsdc: number;
   pipelineCount: number;
   // Clients (platform-wide, mirrors loadPlatformTotals' valid-investor gate)
   kycApproved: number;
@@ -37,23 +49,13 @@ export interface OverviewClusters {
     timelock: number;
     executable: number;
   };
-  // Exposure
+  // Legacy payout rail (retired) — historical archive records
   distributedTotalUsdc: number;
   distributionsCount: number;
 }
 
-const EMPTY: OverviewClusters = {
-  totalCapacityUsdc: 0,
-  pipelineCount: 0,
-  kycApproved: 0,
-  kycPending: 0,
-  governance: { signing: 0, timelock: 0, executable: 0 },
-  distributedTotalUsdc: 0,
-  distributionsCount: 0,
-};
-
 export const loadOverviewClusters = cache(
-  async (): Promise<OverviewClusters> => {
+  async (): Promise<Loaded<OverviewClusters>> => {
     try {
       // Valid investor population = investors whose linked User still exists
       // (same gate as loadPlatformTotals / loadCustomers) so KYC counts match
@@ -62,6 +64,7 @@ export const loadOverviewClusters = cache(
 
       const [
         capacityAgg,
+        liveInvestedAgg,
         pipelineCount,
         kycApproved,
         kycPending,
@@ -71,6 +74,14 @@ export const loadOverviewClusters = cache(
         prisma.vaultDeployment.aggregate({
           _sum: { capacityUsdc: true },
           where: { status: "live" },
+        }),
+        prisma.position.aggregate({
+          _sum: { principalUsdc: true },
+          where: {
+            status: "active",
+            investor: { is: whereInvestors },
+            vaultDeployment: { is: { status: "live" } },
+          },
         }),
         prisma.vaultDeployment.count({
           where: { status: { in: ["draft", "review"] } },
@@ -97,21 +108,26 @@ export const loadOverviewClusters = cache(
       );
 
       return {
-        totalCapacityUsdc: capacityAgg._sum.capacityUsdc?.toNumber() ?? 0,
-        pipelineCount,
-        kycApproved,
-        kycPending,
-        governance: {
-          signing: byState.get("SIGNING") ?? 0,
-          timelock: byState.get("TIMELOCK") ?? 0,
-          executable: byState.get("EXECUTABLE") ?? 0,
+        status: "ok",
+        data: {
+          totalCapacityUsdc: capacityAgg._sum.capacityUsdc?.toNumber() ?? 0,
+          investedInLiveVaultsUsdc:
+            liveInvestedAgg._sum.principalUsdc?.toNumber() ?? 0,
+          pipelineCount,
+          kycApproved,
+          kycPending,
+          governance: {
+            signing: byState.get("SIGNING") ?? 0,
+            timelock: byState.get("TIMELOCK") ?? 0,
+            executable: byState.get("EXECUTABLE") ?? 0,
+          },
+          distributedTotalUsdc: distributionAgg._sum.amountUsdc?.toNumber() ?? 0,
+          distributionsCount: distributionAgg._count._all,
         },
-        distributedTotalUsdc: distributionAgg._sum.amountUsdc?.toNumber() ?? 0,
-        distributionsCount: distributionAgg._count._all,
       };
-    } catch {
-      // DB unavailable / empty — degrade to zeros, never crash the dashboard.
-      return EMPTY;
+    } catch (err) {
+      // DB unavailable — say so. Unreadable aggregates are NOT zeros.
+      return loadUnavailable(err);
     }
   },
 );
