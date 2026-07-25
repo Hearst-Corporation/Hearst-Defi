@@ -257,3 +257,86 @@ jobs:
       - name: Run Foundry tests
         working-directory: contracts
         run: forge test --summary -vvv
+
+  # ── Gate de synthèse (doctrine Preuves, governance 2026-07-25) ─────────────
+  # LE nom à exiger en required status check : « gate ». Émet proof.json — la
+  # preuve machine-readable destinée à la page PROVEN LIVE (HPB), produite par
+  # la CI, jamais par un agent. SonarQube exclu volontairement (radar
+  # non-bloquant, doctrine « gates locales d'abord »).
+  gate:
+    name: gate
+    runs-on: ubuntu-latest
+    needs: [lint-typecheck, secops, vitest, playwright, foundry]
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Anti-faux-vert — aucun .only/.skip dans les tests
+        run: |
+          HITS=$(git grep -nE "\.(only|skip)\s*\(" -- "src/**/*.test.ts" "src/**/*.test.tsx" "tests/**" "e2e/**" 2>/dev/null | grep -v "allow-skip" || true)
+          if [ -n "$HITS" ]; then
+            echo "$HITS"
+            echo "::error::.only/.skip détecté (théâtre statistique) — retirer, ou justifier par un commentaire // allow-skip"
+            exit 1
+          fi
+          echo "OK — 0 .only/.skip (stock au câblage : 0)"
+
+      - name: Verdict des jobs requis
+        env:
+          R_LINT: ${{ needs.lint-typecheck.result }}
+          R_SECOPS: ${{ needs.secops.result }}
+          R_VITEST: ${{ needs.vitest.result }}
+          R_E2E: ${{ needs.playwright.result }}
+          R_FOUNDRY: ${{ needs.foundry.result }}
+        # Piège connu (mémoire #13) : vitest a `needs: lint-typecheck` — si lint
+        # casse, vitest est SKIPPED ; ici skipped ≠ success → gate rouge, jamais
+        # un faux vert par job sauté.
+        run: |
+          echo "lint=$R_LINT secops=$R_SECOPS vitest=$R_VITEST e2e=$R_E2E foundry=$R_FOUNDRY"
+          for r in "$R_LINT" "$R_SECOPS" "$R_VITEST" "$R_E2E" "$R_FOUNDRY"; do
+            if [ "$r" != "success" ]; then
+              echo "::error::un job requis n'est pas vert (résultat: $r)"
+              exit 1
+            fi
+          done
+          echo "gate: tous les jobs requis sont verts"
+
+      - name: Preuve — proof.json
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          R_LINT: ${{ needs.lint-typecheck.result }}
+          R_SECOPS: ${{ needs.secops.result }}
+          R_VITEST: ${{ needs.vitest.result }}
+          R_E2E: ${{ needs.playwright.result }}
+          R_FOUNDRY: ${{ needs.foundry.result }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            fs.writeFileSync("proof.json", JSON.stringify({
+              repo: process.env.GITHUB_REPOSITORY,
+              sha: process.env.GITHUB_SHA,
+              run_id: process.env.GITHUB_RUN_ID,
+              run_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+              status: process.env.JOB_STATUS,
+              checks: {
+                lint_typecheck: process.env.R_LINT,
+                secops: process.env.R_SECOPS,
+                vitest: process.env.R_VITEST,
+                playwright: process.env.R_E2E,
+                foundry: process.env.R_FOUNDRY,
+              },
+              generated_by: "ci (jamais par un agent)",
+              ts: new Date().toISOString(),
+            }, null, 2));
+          '
+          cat proof.json
+
+      - name: Upload preuve
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proof
+          path: proof.json
+          retention-days: 30
