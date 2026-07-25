@@ -85,18 +85,18 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 export function AssetAnalyticsGallery() {
   return (
-    <section className="flex flex-col gap-(--ct-space-7)">
+    <section className="flex flex-col gap-7">
       <header className="flex flex-col gap-(--ct-space-2)">
-        <span className="ct-bento-label text-[var(--ct-asset-btc)]">Investor primitives</span>
+        <span className="ct-bento-label" style={{ color: ASSET_TOKEN.btc }}>Investor primitives</span>
         <h2 className="text-[length:var(--ct-text-2xl)] font-semibold tracking-tight ct-text-strong m-0">
-          Asset <span className="text-[var(--ct-asset-btc)]">Analytics</span>
+          Asset <span style={{ color: ASSET_TOKEN.btc }}>Analytics</span>
         </h2>
         <p className="ct-metric-caption ct-text-muted m-0">
           Dashboard chart variants · tokens via <code className="mono">ASSET_TOKEN</code> · reduced motion respected
         </p>
-        <span className="mt-(--ct-space-1) inline-flex w-fit items-center gap-(--ct-space-2) rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-(--ct-space-3) py-(--ct-space-1)">
-          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--ct-chart-neutral)]" />
-          <span className="body-xs ct-text-faint">Demo data — illustrative, carries estimated / simulated provenance</span>
+        <span className="mt-(--ct-space-1) inline-flex w-fit items-center gap-(--ct-space-2) rounded-md border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-(--ct-space-3) py-(--ct-space-1)">
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--color-chart-neutral)]" />
+          <span className="body-xs text-[var(--ct-text-faint)]">Demo data — illustrative, carries estimated / simulated provenance</span>
         </span>
       </header>
 
@@ -113,12 +113,12 @@ export function AssetAnalyticsGallery() {
               {ASSET_TILES.map((tile) => (
                 <div
                   key={tile.variant}
-                  className="flex flex-col items-center justify-center gap-(--ct-space-3) rounded-[var(--ct-radius-md)] border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-(--ct-space-4) py-(--ct-space-5)"
+                  className="flex flex-col items-center justify-center gap-(--ct-space-3) rounded-md border border-[var(--ct-border-soft)] bg-[var(--ct-surface-inset)] px-(--ct-space-4) py-(--ct-space-5)"
                 >
                   <AssetIcon variant={tile.variant} size="lg" />
                   <div className="flex flex-col items-center gap-(--ct-space-1)">
                     <span className="body-xs ct-text-strong">{tile.label}</span>
-                    <span className="mono text-[length:var(--ct-text-nano)] ct-text-faint">{tile.token}</span>
+                    <span className="mono text-[length:var(--ct-text-nano)] text-[var(--ct-text-faint)]">{tile.token}</span>
                   </div>
                 </div>
               ))}
@@ -179,7 +179,7 @@ export function AssetAnalyticsGallery() {
                   ))}
                 </TableBody>
               </Table>
-              <p className="mono text-[length:var(--ct-text-nano)] ct-text-faint tabular-nums mt-(--ct-space-4) m-0">
+              <p className="mono text-[length:var(--ct-text-nano)] text-[var(--ct-text-faint)] tabular-nums mt-(--ct-space-4) m-0">
                 Runtime refs · btc={ASSET_TOKEN.btc} · usdc={ASSET_TOKEN.usdc} · mining={ASSET_TOKEN.mining}
               </p>
             </CardContent>

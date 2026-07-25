@@ -102,7 +102,7 @@ export async function runGuardDiagnostics(): Promise<DiagnosticResult[]> {
     },
     {
       id: "guard.single-point-apy-blocked",
-      label: "Single-point APY in a yield context is blocked",
+      label: "Single-point annualized-rate claim in a return context is blocked",
       severity: "P0",
       expected: "hasSinglePointApy(single-point, true) === true",
       likelyFile: "src/lib/agents/apy-range.ts",
@@ -110,13 +110,13 @@ export async function runGuardDiagnostics(): Promise<DiagnosticResult[]> {
       run: () => {
         const single = hasSinglePointApy("Le rendement annualisé du vault est de 11 %.", true);
         return single === true
-          ? pass("single-point APY detected → blocked")
-          : fail("single-point APY not detected");
+          ? pass("single-point rate claim detected → blocked")
+          : fail("single-point rate claim not detected");
       },
     },
     {
       id: "guard.apy-range-passes",
-      label: "APY expressed as a range passes",
+      label: "Annualized rate expressed as a range passes",
       severity: "P1",
       expected: "chatOutputViolation(range, true) === null",
       likelyFile: GUARD,

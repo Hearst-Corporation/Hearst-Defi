@@ -5,15 +5,16 @@ import { cn } from "@/lib/cn";
 import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import "./diagnostic-flow-theater.css";
 
-/* ── verdict → ct token (no hex / no palette) ── */
+/* ── verdict → ct token (no hex / no palette). write/external ride the
+   warning token — the retired second-red status token is dead, never shim. ── */
 const VC: Record<string, string> = {
   pass: "var(--ct-accent)",
   read: "var(--ct-status-info)",
   route: "var(--ct-status-info)",
   hitl: "var(--ct-status-warning)",
   manual: "var(--ct-status-warning)",
-  write: "var(--ct-status-unaudited)",
-  external: "var(--ct-status-unaudited)",
+  write: "var(--ct-status-warning)",
+  external: "var(--ct-status-warning)",
   refuse: "var(--ct-status-danger)",
   block: "var(--ct-status-danger)",
   "live-err": "var(--ct-status-danger)",
@@ -21,6 +22,7 @@ const VC: Record<string, string> = {
 const VB: Record<string, string> = {
   pass: "PASS", read: "READ", route: "ROUTE", hitl: "HITL", manual: "MANUAL",
   write: "WRITE", external: "EXT SEND", refuse: "REFUSED", block: "BLOCKED",
+  "live-err": "ERROR",
 };
 
 const NW = 150, NH = 46;
@@ -36,8 +38,8 @@ const NODES: Record<string, Node> = {
   llm: { l: "LLM (GPT-4.1)", s: "read tools only", x: 520, y: 276, c: "var(--ct-status-info)" },
   sendgate: { l: "Send / Source Gate", s: "requires human gate", x: 690, y: 276, c: "var(--ct-status-warning)" },
   vault: { l: "Vault Draft · HITL", s: "2-step token", x: 690, y: 362, c: "var(--ct-status-warning)" },
-  outguard: { l: "Output Guard", s: "forbidden · APY range", x: 520, y: 362, c: "var(--ct-status-warning)" },
-  persist: { l: "Rollback Seam", s: "create → rollback", x: 360, y: 362, c: "var(--ct-status-unaudited)" },
+  outguard: { l: "Output Guard", s: "forbidden words · rate range", x: 520, y: 362, c: "var(--ct-status-warning)" },
+  persist: { l: "Rollback Seam", s: "create → rollback", x: 360, y: 362, c: "var(--ct-status-warning)" },
   outcome: { l: "Client / Final state", s: "", x: 385, y: 452, c: "var(--ct-accent)" },
 };
 const EDGES: [string, string][] = [
@@ -92,7 +94,7 @@ const SCEN: Record<string, Scen> = {
     ],
   },
   product: {
-    tag: "Product", col: "var(--ct-status-info)", role: "admin", prompt: "create a new stable-yield mining product",
+    tag: "Product", col: "var(--ct-status-info)", role: "admin", prompt: "create a new BTC mining product",
     suite: "chat-router", checkId: "chat.product-creation",
     verdict: ["ok", "Chat opens the workspace but creates 0 runs. Only a manual Run Study writes a ProjectionStudyRun."],
     steps: [
@@ -118,7 +120,7 @@ const SCEN: Record<string, Scen> = {
     ],
   },
   vault: {
-    tag: "Vault draft", col: "var(--ct-status-unaudited)", role: "admin", prompt: "create a yield vault draft",
+    tag: "Vault draft", col: "var(--ct-status-warning)", role: "admin", prompt: "create a vault draft",
     suite: "vault-hitl", checkId: "vault.create-vault-draft-present",
     verdict: ["gate", "Draft-only behind a 2-step HITL token → VaultDeployment(draft). Never live."],
     steps: [
@@ -132,16 +134,16 @@ const SCEN: Record<string, Scen> = {
     ],
   },
   edu: {
-    tag: "Education · LP", col: "var(--ct-status-info)", role: "LP (investor)", prompt: "what is the vault yield?",
+    tag: "Education · LP", col: "var(--ct-status-info)", role: "LP (investor)", prompt: "what return does the vault target?",
     suite: "guards", checkId: "guard.apy-range-passes",
-    verdict: ["ok", "LP read-only Q&A. Output guard enforces APY-as-a-range + forbidden-words."],
+    verdict: ["ok", "LP read-only Q&A. Output guard enforces range-only rate language + forbidden-words."],
     steps: [
-      { n: "user", v: "read", t: "<b>LP</b> asks about yield." },
+      { n: "user", v: "read", t: "<b>LP</b> asks about returns." },
       { n: "front", v: "read", t: "role=LP · portfolio context · 0 admin tools" },
       { n: "danger", v: "read", t: "pass through" },
       { n: "intent", v: "read", t: "<b>education</b> → allow_readonly" },
       { n: "llm", v: "read", t: "GPT-4.1 · read tools only" },
-      { n: "outguard", v: "pass", t: "forbidden-words + APY-range ✓ clean" },
+      { n: "outguard", v: "pass", t: "forbidden-words + rate-range ✓ clean" },
       { n: "outcome", v: "pass", t: "Streamed answer. No write, no action." },
     ],
   },
@@ -172,7 +174,7 @@ const SCEN: Record<string, Scen> = {
     ],
   },
   rollback: {
-    tag: "Rollback seam", col: "var(--ct-status-unaudited)", role: "system", prompt: "Persistence: create → assert → rollback",
+    tag: "Rollback seam", col: "var(--ct-status-warning)", role: "system", prompt: "Persistence: create → assert → rollback",
     suite: "persistence", checkId: "persist.rollback-seam",
     verdict: ["gate", "A real DB write is made inside a transaction and ALWAYS rolled back — zero net persistence."],
     steps: [
@@ -193,7 +195,9 @@ const STAGE_LABEL: Record<string, string> = {
 };
 
 type LiveResult = { status: string; text: string; suite: string } | null;
-type LogLine = { stage: string; txt: string; v: string };
+/** `scripted: true` = a pre-written walkthrough line (chip "SCRIPTED");
+ *  `scripted: false` = a real response from /api/admin/diagnostics. */
+type LogLine = { stage: string; txt: string; v: string; scripted: boolean };
 
 export function DiagnosticFlowTheater() {
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -257,7 +261,7 @@ export function DiagnosticFlowTheater() {
         pulse(st.n, VC[st.v] || "var(--ct-accent)");
         if (st.w) w += st.w; if (st.send) s += st.send; if (st.rec) r += st.rec; if (st.g) g += st.g;
         setHud({ w, s, r, g });
-        setLog((L) => [...L, { stage: STAGE_LABEL[st.n] || st.n, txt: st.t, v: st.v }]);
+        setLog((L) => [...L, { stage: STAGE_LABEL[st.n] || st.n, txt: st.t, v: st.v, scripted: true }]);
         prev = st.n;
         if (i === sc.steps.length - 1) {
           timers.current.push(window.setTimeout(() => {
@@ -276,13 +280,19 @@ export function DiagnosticFlowTheater() {
     const sc = SCEN[id];
     if (!sc || !sc.suite) return;
     setLive({ status: "running", text: "calling /api/admin/diagnostics/" + sc.suite + " …", suite: sc.suite });
+    // Every outcome also lands in the transcript as a NON-scripted line — the
+    // "Live run transcript" label is only true because these entries are real.
+    const logLive = (v: string, txt: string) =>
+      setLog((L) => [...L, { stage: "Live run", txt, v, scripted: false }]);
     try {
       const res = await fetch(`/api/admin/diagnostics/${sc.suite}`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
       });
       if (!res.ok) {
         const b = (await res.json().catch(() => ({}))) as { error?: string };
-        setLive({ status: "live-err", text: `HTTP ${res.status} — ${b.error ?? "runtime error"}`, suite: sc.suite });
+        const text = `HTTP ${res.status} — ${b.error ?? "runtime error"}`;
+        setLive({ status: "live-err", text, suite: sc.suite });
+        logLive("live-err", `${sc.suite}: ${text}`);
         return;
       }
       const data = (await res.json()) as {
@@ -290,13 +300,14 @@ export function DiagnosticFlowTheater() {
         results: { id: string; status: string; actual: string }[];
       };
       const chk = data.results.find((x) => x.id === sc.checkId);
-      setLive({
-        status: chk?.status ?? "?",
-        text: `${sc.suite}/${sc.checkId} → ${(chk?.status ?? "?").toUpperCase()} · ${chk?.actual ?? "(check not found)"} · dbWrites=${data.dbWrites} · ext=${data.externalSideEffects}`,
-        suite: sc.suite,
-      });
+      const status = chk?.status ?? "?";
+      const text = `${sc.suite}/${sc.checkId} → ${status.toUpperCase()} · ${chk?.actual ?? "(check not found)"} · dbWrites=${data.dbWrites} · ext=${data.externalSideEffects}`;
+      setLive({ status, text, suite: sc.suite });
+      logLive(status === "pass" ? "pass" : status === "fail" ? "block" : "route", text);
     } catch (e) {
-      setLive({ status: "live-err", text: e instanceof Error ? e.message : "request failed", suite: sc.suite });
+      const text = e instanceof Error ? e.message : "request failed";
+      setLive({ status: "live-err", text, suite: sc.suite });
+      logLive("live-err", `${sc.suite}: ${text}`);
     }
   }, []);
 
@@ -339,7 +350,12 @@ export function DiagnosticFlowTheater() {
     if (log) log.scrollTop = log.scrollHeight;
   }, [log]);
 
-  const verdictTone = verdict?.[0] === "stop" ? "danger" : verdict?.[0] === "gate" ? "warning" : "accent";
+  const verdictBorder =
+    verdict?.[0] === "stop"
+      ? "var(--ct-status-danger)"
+      : verdict?.[0] === "gate"
+        ? "var(--ct-status-warning)"
+        : "var(--ct-status-success)";
 
   return (
     <div className="dft flex flex-col gap-4 lg:flex-row">
@@ -418,7 +434,7 @@ export function DiagnosticFlowTheater() {
           {([["Writes", hud.w], ["Sends", hud.s], ["Records", hud.r], ["Gates", hud.g]] as [string, number][]).map(([k, v]) => (
             <div key={k} className="rounded-lg border border-[var(--ct-border)] bg-surface-card p-2 text-center">
               <div className="ct-bento-label">{k}</div>
-              <div className={cn("mt-0.5 mono text-lg font-extrabold", v > 0 && "text-[var(--ct-status-unaudited)]", v <= 0 && "text-[var(--ct-accent)]")}>{v}</div>
+              <div className={cn("mt-0.5 mono text-lg font-extrabold", v > 0 && "text-[var(--ct-status-warning)]", v <= 0 && "text-[var(--ct-accent)]")}>{v}</div>
             </div>
           ))}
         </div>
@@ -432,22 +448,35 @@ export function DiagnosticFlowTheater() {
           </div>
         ) : null}
 
-        <div className="ct-bento-label mb-2">Live transcript</div>
+        <div className="ct-bento-label mb-2">
+          {live
+            ? "Live run transcript — responses from /api/admin/diagnostics"
+            : "Scripted transcript — pre-written walkthrough, not an execution"}
+        </div>
         <div id="dft-log" className="flex max-h-72 flex-col gap-1.5 overflow-y-auto">
           {log.map((l, i) => (
             <div key={i} className="dft-le in rounded-lg border border-[var(--ct-border)] bg-surface-card px-2.5 py-2">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-extrabold" style={{ color: VC[l.v] }}>{l.stage}</span>
                 <span className="text-[var(--ct-text-tertiary)]">▸</span>
+                {l.scripted ? (
+                  <span className="rounded px-1.5 py-0.5 text-xs font-bold text-[var(--ct-text-tertiary)]" style={{ background: "var(--ct-surface-inset)" }}>
+                    SCRIPTED
+                  </span>
+                ) : null}
                 <span className="ml-auto rounded px-1.5 py-0.5 text-xs font-bold" style={{ background: "var(--ct-surface-inset)", color: VC[l.v] }}>{VB[l.v] ?? l.v}</span>
               </div>
-              <div className="mt-1 text-xs leading-snug text-[var(--ct-text)]" dangerouslySetInnerHTML={{ __html: l.txt }} />
+              {l.scripted ? (
+                <div className="mt-1 text-xs leading-snug text-[var(--ct-text-body)]" dangerouslySetInnerHTML={{ __html: l.txt }} />
+              ) : (
+                <div className="mt-1 mono text-xs leading-snug text-[var(--ct-text-body)]">{l.txt}</div>
+              )}
             </div>
           ))}
         </div>
 
         {verdict ? (
-          <div className="mt-3 rounded-lg border px-3 py-2.5 text-xs leading-relaxed" style={{ borderColor: `var(--ct-status-${verdictTone === "accent" ? "success" : verdictTone})`, background: "var(--ct-surface-card)", color: "var(--ct-text-strong)" }}>
+          <div className="mt-3 rounded-lg border px-3 py-2.5 text-xs leading-relaxed" style={{ borderColor: verdictBorder, background: "var(--color-surface-card)", color: "var(--ct-text-strong)" }}>
             <b>{verdict[0] === "stop" ? "⛔ Blocked / Refused" : verdict[0] === "gate" ? "🔒 Human gate" : "✓ Safe"}</b>
             <div className="mt-1 text-[var(--ct-text-muted)]">{verdict[1]}</div>
           </div>

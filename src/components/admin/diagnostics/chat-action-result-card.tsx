@@ -3,8 +3,8 @@ import type { ChatActionResult } from "@/lib/admin/diagnostics/chat-action-lab";
 
 const VERDICT_CLS: Record<ChatActionResult["verdict"], string> = {
   PASS: "ct-text-accent",
-  WARN: "ct-status-warning",
-  FAIL: "ct-status-danger",
+  WARN: "text-[var(--ct-status-warning)]",
+  FAIL: "text-[var(--ct-status-danger)]",
 };
 
 const SOURCE_LABEL: Record<ChatActionResult["routingSource"], string> = {
@@ -23,11 +23,11 @@ function Row({
   mono?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-[minmax(0,var(--ct-space-32))_minmax(0,1fr)] items-baseline gap-(--ct-space-3)">
+    <div className="grid grid-cols-[minmax(0,8rem)_minmax(0,1fr)] items-baseline gap-(--ct-space-3)">
       <span className="ct-bento-label">{label}</span>
       <span
         className={cn(
-          "text-[length:var(--ct-text-xs)] ct-text-secondary",
+          "text-[length:var(--ct-text-xs)] text-[var(--ct-text-secondary)]",
           mono && "mono break-all",
         )}
       >
@@ -39,7 +39,7 @@ function Row({
 
 function Flag({ on, yes, no }: { on: boolean; yes: string; no: string }) {
   return (
-    <span className={on ? "ct-status-warning" : "ct-text-accent"}>
+    <span className={on ? "text-[var(--ct-status-warning)]" : "ct-text-accent"}>
       {on ? yes : no}
     </span>
   );
@@ -52,7 +52,7 @@ function Flag({ on, yes, no }: { on: boolean; yes: string; no: string }) {
  */
 export function ChatActionResultCard({ result }: { result: ChatActionResult }) {
   return (
-    <div className="flex flex-col gap-(--ct-space-2) rounded-(--ct-radius-xl) border border-[var(--ct-border)] bg-surface-card p-(--ct-space-4)">
+    <div className="flex flex-col gap-(--ct-space-2) rounded-xl border border-[var(--ct-border)] bg-surface-card p-(--ct-space-4)">
       <div className="flex items-center justify-between gap-(--ct-space-3)">
         <p className="text-[length:var(--ct-text-sm)] font-semibold ct-text-strong">
           {result.prompt}
@@ -103,11 +103,11 @@ export function ChatActionResultCard({ result }: { result: ChatActionResult }) {
       </Row>
 
       {result.mismatches.length > 0 ? (
-        <div className="mt-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-status-danger)] px-(--ct-space-3) py-(--ct-space-2)">
-          <span className="ct-bento-label ct-status-danger">
+        <div className="mt-(--ct-space-1) rounded-lg border border-[var(--ct-status-danger)] px-(--ct-space-3) py-(--ct-space-2)">
+          <span className="ct-bento-label text-[var(--ct-status-danger)]">
             Mismatches
           </span>
-          <ul className="mt-(--ct-space-1) list-disc pl-(--ct-space-4) text-[length:var(--ct-text-xs)] ct-text-secondary">
+          <ul className="mt-(--ct-space-1) list-disc pl-(--ct-space-4) text-[length:var(--ct-text-xs)] text-[var(--ct-text-secondary)]">
             {result.mismatches.map((m) => (
               <li key={m}>{m}</li>
             ))}

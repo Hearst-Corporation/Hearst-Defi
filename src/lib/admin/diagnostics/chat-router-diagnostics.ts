@@ -39,7 +39,7 @@ export function runChatRouterDiagnostics(): DiagnosticResult[] {
       likelyFunction: "classifyProductWorkspaceIntent",
       run: () => {
         const c = classifyProductWorkspaceIntent(
-          "create a new mining stable yield product",
+          "create a new BTC mining product",
         );
         return c.shouldOpenProductWorkspace
           ? pass(`kind=${c.kind}, opens Product Workspace`, c)

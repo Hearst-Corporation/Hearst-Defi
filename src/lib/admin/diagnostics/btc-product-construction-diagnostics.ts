@@ -177,7 +177,7 @@ export function makeSyntheticDraft(opts?: {
   });
   const canonicalAllocation = buildCanonicalAllocation({
     productId: identity?.id ?? "vault:HYV",
-    productName: identity?.name ?? "Hearst Yield Vault",
+    productName: identity?.name ?? "Legacy Hearst Yield Vault",
     enforced: {
       mining: balanced.mining,
       btcHoldingCollateral: balanced.btc,
@@ -197,7 +197,7 @@ export function makeSyntheticDraft(opts?: {
 
   const writeup = buildDeterministicWriteup({
     objective,
-    vaultLabel: identity?.name ?? "Hearst Yield Vault",
+    vaultLabel: identity?.name ?? "Legacy Hearst Yield Vault",
     strategy,
     quant,
     market: { btcUsd: 60000, hashpriceUsdPerThDay: 0.06 },
@@ -208,7 +208,7 @@ export function makeSyntheticDraft(opts?: {
     objective,
     vault: {
       ticker: identity?.ticker ?? "HYV",
-      label: identity?.name ?? "Hearst Yield Vault",
+      label: identity?.name ?? "Legacy Hearst Yield Vault",
     },
     productId: identity?.id ?? "vault:HYV",
     telegram: { configured: true, machineCount: 5, topMachine: "AntminerS21Pro" },
@@ -449,7 +449,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
     id: "targets-never-summed",
     label: "8–12% and 20–24% are shown as separate layers, never summed",
     severity: "P0",
-    expected: "formatTargetsSafely → distinct distribution + total strings, no '+' sum",
+    expected: "formatTargetsSafely → distinct payout + total strings, no '+' sum",
     likelyFile: "src/lib/products/guards.ts",
     likelyFunction: "formatTargetsSafely",
     guard: "no-double-count",
@@ -462,7 +462,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
         t.total.includes("inclusive") &&
         t.distribution !== t.total;
       return ok
-        ? pass("Distribution + total are separate, inclusive layers — never summed.", t)
+        ? pass("Payout + total are separate, inclusive layers — never summed.", t)
         : fail("Targets could be read as additive.", t);
     },
   },
@@ -476,7 +476,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
     guard: "product-identity",
     run: () => {
       const id = resolveProductIdentity("Construis le BTC Mining Performance Vault");
-      const generic = resolveProductIdentity("Build a generic stable yield vault");
+      const generic = resolveProductIdentity("Build a generic stable vault");
       const ok =
         id?.name === "BTC Mining Performance Vault" &&
         id?.id === BTC_MINING_PRODUCT_ID &&

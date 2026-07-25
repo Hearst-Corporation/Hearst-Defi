@@ -188,7 +188,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
   },
   {
     id: "no-double-count",
-    label: "No double counting — total target inclusive of distribution",
+    label: "No double counting — total target inclusive of the monthly payout",
     severity: "P0",
     expected:
       "validateTargetInclusion ok; safe strings carry no '+'/summed figure; wouldDoubleCount flags an additive attempt",
@@ -215,7 +215,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
         PRODUCT.totalPerformanceTarget.inclusiveOfDistributions === true;
       return ok
         ? pass(
-            "Total target is inclusive of distribution; safe strings never sum; additive attempt flagged.",
+            "Total target is inclusive of the monthly payout; safe strings never sum; additive attempt flagged.",
             { inclusion: inclusion.message, flagsAdditive },
           )
         : fail("Double-count protection incomplete.", {
@@ -288,10 +288,10 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
   },
   {
     id: "coverage-gate-present",
-    label: "Distribution coverage gate present",
+    label: "Payout coverage gate present",
     severity: "P0",
     expected:
-      "coverage < 1.0 → distribution not paid; coverage < 0.8 → PAUSE_DISTRIBUTION",
+      "coverage < 1.0 → payout not paid; coverage < 0.8 → PAUSE_DISTRIBUTION",
     likelyFile: ENGINE_FILE,
     likelyFunction: "chooseStableFundingSource",
     guard: "coverage-gate",
@@ -308,7 +308,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
         belowSuspend.source === "PAUSE_DISTRIBUTION";
       return ok
         ? pass(
-            "Coverage 0.9 → distribution not paid; coverage 0.7 → PAUSE_DISTRIBUTION.",
+            "Coverage 0.9 → payout not paid; coverage 0.7 → PAUSE_DISTRIBUTION.",
             { belowOne: belowOne.distributionAllowed, belowSuspend: belowSuspend.source },
           )
         : fail("Coverage gate not enforced as expected.", { belowOne, belowSuspend });
@@ -458,7 +458,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
     label: "Waterfall never implies a guaranteed distribution",
     severity: "P0",
     expected:
-      "with coverage gated off, the monthly-distribution step is 'blocked' (never active/guaranteed)",
+      "with coverage gated off, the monthly-payout step is 'blocked' (never active/guaranteed)",
     likelyFile: "src/lib/products/btc-mining-waterfalls.ts",
     likelyFunction: "buildProductWaterfalls",
     guard: "waterfall-no-guarantee",
@@ -475,10 +475,10 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
         distStep.status === "blocked" &&
         gatedFunding.distributionAllowed === false;
       return ok
-        ? pass("Coverage gated off → distribution step blocked, not implied.", {
+        ? pass("Coverage gated off → payout step blocked, not implied.", {
             step: distStep?.status,
           })
-        : fail("Distribution step not blocked under a coverage gate.", { distStep });
+        : fail("Payout step not blocked under a coverage gate.", { distStep });
     },
   },
   {
@@ -486,7 +486,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
     label: "Operator economics present and separate — never added to client APY",
     severity: "P0",
     expected:
-      "client distribution band is unchanged by reading operator economics; no operator value merged into the band",
+      "client payout band is unchanged by reading operator economics; no operator value merged into the band",
     likelyFile: OPERATOR_FILE,
     likelyFunction: "buildOperatorEconomics / clientDistributionBand",
     guard: "operator-separate",
@@ -507,10 +507,10 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
       const ok = bandUntouched && allOperatorNotValidated;
       return ok
         ? pass(
-            "Client distribution band is unchanged; operator figures live in a separate object.",
+            "Client payout band is unchanged; operator figures live in a separate object.",
             { band: `${(band.min * 100).toFixed(0)}–${(band.max * 100).toFixed(0)}%` },
           )
-        : fail("Operator economics could be read into the client APY.", {
+        : fail("Operator economics could be read into the client payout band.", {
             bandUntouched,
           });
     },

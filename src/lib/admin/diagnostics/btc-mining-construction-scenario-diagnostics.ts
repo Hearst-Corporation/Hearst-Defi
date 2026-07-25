@@ -42,7 +42,7 @@ function underwaterInputs(): CanvasInputs {
 const SPECS: readonly DiagnosticCheckSpec[] = [
   {
     id: "scenarios-present",
-    label: "Construction yields Defensive / Balanced / Opportunistic scenarios",
+    label: "Construction produces Defensive / Balanced / Opportunistic scenarios",
     severity: "P0",
     expected: "buildCanvasModel returns exactly the 3 regimes in order",
     likelyFile: MODEL_FILE,
@@ -83,7 +83,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
   },
   {
     id: "adjusted-not-silently-negative",
-    label: "Allocator-adjusted APY rotates (helps vs forced) or flags a bug candidate",
+    label: "Allocator-adjusted blended rate rotates (helps vs forced) or flags a bug candidate",
     severity: "P0",
     expected:
       "underwater mining → adjusted blended ≥ raw forced blended, OR bugCandidate flagged (never silently negative)",
@@ -110,7 +110,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
               bugCandidate: econ.bugCandidate,
             },
           )
-        : fail("A negative allocator-adjusted APY was not explained/flagged.", {
+        : fail("A negative allocator-adjusted blended rate was not explained/flagged.", {
             raw: econ.raw.blendedApyPct,
             adjusted: econ.adjusted.blendedApyPct,
             bugCandidate: econ.bugCandidate,
@@ -121,7 +121,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
     id: "p50-improves-raw-to-adjusted",
     label: "Balanced p50 (allocator-adjusted) is no worse than the raw forced blend",
     severity: "P1",
-    expected: "balanced scenario p50 >= raw forced blended APY when mining is underwater",
+    expected: "balanced scenario p50 >= raw forced blended rate when mining is underwater",
     likelyFile: MODEL_FILE,
     likelyFunction: "buildCanvasScenario / buildCanvasEconomics",
     guard: "p50-improvement",

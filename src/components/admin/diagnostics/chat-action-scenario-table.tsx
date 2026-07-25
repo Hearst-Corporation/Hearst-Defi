@@ -11,8 +11,8 @@ import type { ChatActionResult } from "@/lib/admin/diagnostics/chat-action-lab";
 
 const VERDICT_CLS: Record<ChatActionResult["verdict"], string> = {
   PASS: "ct-text-accent",
-  WARN: "ct-status-warning",
-  FAIL: "ct-status-danger",
+  WARN: "text-[var(--ct-status-warning)]",
+  FAIL: "text-[var(--ct-status-danger)]",
 };
 
 const SOURCE_LABEL: Record<ChatActionResult["routingSource"], string> = {
@@ -41,7 +41,7 @@ export function ChatActionScenarioTable({
 }) {
   if (results.length === 0) return null;
   return (
-    <div className="overflow-x-auto rounded-(--ct-radius-xl) border border-[var(--ct-border)]">
+    <div className="overflow-x-auto rounded-xl border border-[var(--ct-border)]">
       <Table className="text-[length:var(--ct-text-xs)]">
         <TableHead className="ct-bento-label">
           <TableRow>
@@ -65,20 +65,20 @@ export function ChatActionScenarioTable({
                 {SOURCE_LABEL[r.routingSource]}
               </TableCell>
               <TableCell
-                className={cn(r.llmUsed ? "ct-status-warning" : "ct-text-accent")}
+                className={cn(r.llmUsed ? "text-[var(--ct-status-warning)]" : "ct-text-accent")}
               >
                 {r.llmUsed ? "yes" : "no"}
               </TableCell>
               <TableCell
                 className={cn(
-                  r.writes.length ? "ct-status-warning" : "ct-text-accent",
+                  r.writes.length ? "text-[var(--ct-status-warning)]" : "ct-text-accent",
                 )}
               >
                 {r.writes.length === 0 ? "none" : r.writes.join(", ")}
               </TableCell>
               <TableCell
                 className={cn(
-                  r.externalSend ? "ct-status-danger" : "ct-text-accent",
+                  r.externalSend ? "text-[var(--ct-status-danger)]" : "ct-text-accent",
                 )}
               >
                 {r.externalSend ? "yes" : "no"}

@@ -58,7 +58,7 @@ export const SUITE_META: Record<SuiteName, { label: string; blurb: string }> = {
   persistence: {
     label: "Persistence",
     blurb:
-      "Proves the rollback seam: real create → assert → rollback, zero net persistence.",
+      "Proves the rollback seam — this probe writes one row inside a transaction that is ALWAYS rolled back: zero net persistence.",
   },
 };
 

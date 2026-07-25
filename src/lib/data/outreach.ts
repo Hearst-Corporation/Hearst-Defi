@@ -113,10 +113,14 @@ export interface IcpRow {
   persona: string;
   language: string;
   active: boolean;
-  /** Parsed filter summaries for display (titles / locations / industries). */
-  titles: string[];
-  locations: string[];
-  industries: string[];
+  /**
+   * Parsed filter summaries for display (titles / locations / industries).
+   * `[]` = nothing recorded; `null` = the stored JSON is unreadable — the
+   * value is UNAVAILABLE and must be rendered as such, never as an empty list.
+   */
+  titles: string[] | null;
+  locations: string[] | null;
+  industries: string[] | null;
   tierAMin: number;
   tierBMin: number;
   tierCMin: number;
@@ -125,16 +129,21 @@ export interface IcpRow {
   createdAt: Date;
 }
 
-/** Parse a JSON string-array column; tolerate null/malformed → []. */
-function parseStringList(raw: string | null): string[] {
+/**
+ * Parse a JSON string-array column. An absent column (`null`/empty) is an
+ * honest [] — nothing was ever recorded. Malformed or non-array JSON returns
+ * `null`: the stored value exists but is unreadable, and coercing corruption
+ * to an empty list would fabricate data (admin honesty gate, rule c3).
+ */
+function parseStringList(raw: string | null): string[] | null {
   if (!raw) return [];
   try {
     const v: unknown = JSON.parse(raw);
     return Array.isArray(v)
       ? v.filter((x): x is string => typeof x === "string")
-      : [];
+      : null;
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -393,7 +402,8 @@ export interface ProspectDetail {
   title: string | null;
   source: string;
   status: string;
-  tags: string[];
+  /** `[]` = no tags recorded; `null` = tags column unreadable (unavailable). */
+  tags: string[] | null;
   notes: string | null;
   hubspotContactId: string | null;
   // ── Apollo enrichment snapshot ──
@@ -418,15 +428,20 @@ export interface ProspectDetail {
   replies: ProspectReplyRow[];
 }
 
-/** Tolerant JSON-array parse → string[] (used for the tags column). */
-function parseTags(raw: string | null): string[] {
+/**
+ * Parse the tags JSON column. An absent column (`null`) is an honest [] — no
+ * tags were ever recorded. Malformed or non-array JSON returns `null`: the
+ * stored value exists but is unreadable, and coercing corruption to an empty
+ * list would fabricate data (admin honesty gate, rule c3).
+ */
+function parseTags(raw: string | null): string[] | null {
   if (!raw) return [];
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
+    if (!Array.isArray(parsed)) return null;
     return parsed.filter((v): v is string => typeof v === "string" && v.length > 0);
   } catch {
-    return [];
+    return null;
   }
 }
 

@@ -157,6 +157,18 @@ describe("loadProspectDetail", () => {
     for (const v of Object.values(d)) expect(v).not.toBeUndefined();
   });
 
+  it("surfaces an unreadable tags column as null (unavailable), never as []", async () => {
+    prospectFindUniqueMock.mockResolvedValue({
+      ...richProspect(),
+      tags: "{not valid json", // corrupt column → null, NOT a fabricated empty list
+    });
+    icpFindUniqueMock.mockResolvedValue({ name: "US Family Offices" });
+
+    const d = await load("p1");
+    expect(d).not.toBeNull();
+    expect(d?.tags).toBeNull();
+  });
+
   it("tolerates a null campaign relation on an email row", async () => {
     const p = richProspect();
     p.emails[0]!.campaign = null as unknown as { name: string };

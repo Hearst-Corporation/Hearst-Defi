@@ -133,7 +133,7 @@ export function runOutreachDiagnostics(
     },
     {
       id: "outreach.suggest-zero-autosend",
-      label: "OUTREACH_AUTONOMY=SUGGEST yields zero auto-send",
+      label: "OUTREACH_AUTONOMY=SUGGEST produces zero auto-send",
       severity: "P0",
       expected: "decideAutoSend(B|C, SUGGEST, *).autoSend === false",
       likelyFile: "src/lib/outreach/send-policy.ts",

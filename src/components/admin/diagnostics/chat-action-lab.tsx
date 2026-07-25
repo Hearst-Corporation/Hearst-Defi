@@ -46,7 +46,7 @@ export function ChatActionLab({ initial }: { initial: ChatActionLabReport }) {
   return (
     <div className="flex flex-col gap-(--ct-space-4)">
       {/* safety + summary banner */}
-      <div className="flex flex-wrap items-center gap-x-(--ct-space-5) gap-y-(--ct-space-1) rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-card px-(--ct-space-4) py-(--ct-space-2_5) mono text-[length:var(--ct-text-xs)] ct-text-muted">
+      <div className="flex flex-wrap items-center gap-x-(--ct-space-5) gap-y-(--ct-space-1) rounded-lg border border-[var(--ct-border)] bg-surface-card px-(--ct-space-4) py-2.5 mono text-[length:var(--ct-text-xs)] ct-text-muted">
         <span>
           Mode: <span className="ct-text-accent">{report.mode}</span>
         </span>
@@ -68,7 +68,7 @@ export function ChatActionLab({ initial }: { initial: ChatActionLabReport }) {
         </span>
         <span>
           Result:{" "}
-          <span className={summary.fail > 0 ? "ct-status-danger" : "ct-text-accent"}>
+          <span className={summary.fail > 0 ? "text-[var(--ct-status-danger)]" : "ct-text-accent"}>
             {summary.pass}/{summary.total} PASS
             {summary.fail > 0 ? ` · ${summary.fail} FAIL` : ""}
             {summary.warn > 0 ? ` · ${summary.warn} WARN` : ""}
@@ -86,7 +86,7 @@ export function ChatActionLab({ initial }: { initial: ChatActionLabReport }) {
           {loading ? "Running…" : "Run all chat actions"}
         </Button>
         {error ? (
-          <span className="text-[length:var(--ct-text-xs)] ct-status-danger">
+          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-status-danger)]">
             {error}
           </span>
         ) : null}
@@ -110,7 +110,7 @@ export function ChatActionLab({ initial }: { initial: ChatActionLabReport }) {
           {showRaw ? "Hide" : "Show"} raw diagnostic JSON
         </button>
         {showRaw ? (
-          <pre className="mt-(--ct-space-2) max-h-96 overflow-auto rounded-(--ct-radius-lg) border border-[var(--ct-border)] bg-surface-page p-(--ct-space-3) mono text-[length:var(--ct-text-xs)] ct-text-muted">
+          <pre className="mt-(--ct-space-2) max-h-96 overflow-auto rounded-lg border border-[var(--ct-border)] bg-surface-page p-(--ct-space-3) mono text-[length:var(--ct-text-xs)] ct-text-muted">
             {JSON.stringify(report, null, 2)}
           </pre>
         ) : null}

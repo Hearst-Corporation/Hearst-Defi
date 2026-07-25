@@ -5,6 +5,7 @@ import { DiagnosticCenter } from "@/components/admin/diagnostics/diagnostic-cent
 import { DiagnosticFlowTheater } from "@/components/admin/diagnostics/diagnostic-flow-theater";
 import { DiagnosticResultTable } from "@/components/admin/diagnostics/diagnostic-result-table";
 import { OutreachLifecycleDemo } from "@/components/admin/diagnostics/outreach-lifecycle-demo";
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
 import { runBtcMiningVaultDiagnostics } from "@/lib/admin/diagnostics/btc-mining-vault-diagnostics";
 import { runBtcProductConstructionDiagnostics } from "@/lib/admin/diagnostics/btc-product-construction-diagnostics";
 import { runBtcMiningConstructionScenarioDiagnostics } from "@/lib/admin/diagnostics/btc-mining-construction-scenario-diagnostics";
@@ -48,8 +49,8 @@ export async function AdminDiagnosticsView() {
     <PageLayout>
       <PageHeader
         eyebrow="Admin product QA · dry-run"
-        title="Live diagnostics"
-        description="Read-only probes — no writes, no email, no deploys."
+        title="Diagnostics"
+        description="Scripted walkthroughs and live probes — each section states which it is. Probes are read-only: no writes, no email, no deploys (one exception: the Persistence suite states its own rollback write)."
       />
 
       <Section
@@ -73,7 +74,7 @@ export async function AdminDiagnosticsView() {
       <Section title="Overview">
         <Panel>
           <ol className="list-decimal space-y-2 p-5 pl-8 text-xs leading-relaxed text-[var(--ct-text-muted)]">
-            <li>Live Flow Theater — prompt travel through router → gates → action.</li>
+            <li>Flow Theater — scripted walkthrough of prompt travel through router → gates → action.</li>
             <li>Chat Action Lab — critical prompts via deterministic router.</li>
             <li>Outreach Lifecycle Demo — every send path, dry-run.</li>
             <li>Technical Suites — Chat/Projection/Outreach/Vault/Guards probes.</li>
@@ -81,9 +82,12 @@ export async function AdminDiagnosticsView() {
         </Panel>
       </Section>
 
-      <Section title="Live flow theater">
+      <Section
+        title="Flow theater — scripted walkthrough"
+        description="Pre-written scenarios animating the guard pipeline. Only “Run live” calls the real diagnostic APIs."
+      >
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <DiagnosticFlowTheater />
           </div>
         </Panel>
@@ -91,7 +95,7 @@ export async function AdminDiagnosticsView() {
 
       <Section title="Chat action lab">
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <ChatActionLab initial={chatActionReport} />
           </div>
         </Panel>
@@ -99,7 +103,7 @@ export async function AdminDiagnosticsView() {
 
       <Section title="Outreach lifecycle demo">
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <OutreachLifecycleDemo report={lifecycleReport} />
           </div>
         </Panel>
@@ -107,7 +111,7 @@ export async function AdminDiagnosticsView() {
 
       <Section title="Technical suites">
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <DiagnosticCenter suites={suites} initial={initial} />
           </div>
         </Panel>
@@ -115,7 +119,7 @@ export async function AdminDiagnosticsView() {
 
       <Section title="BTC Mining Performance Vault — product diagnostics">
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <DiagnosticResultTable results={btcMiningVaultResults} />
           </div>
         </Panel>
@@ -123,7 +127,7 @@ export async function AdminDiagnosticsView() {
 
       <Section title="BTC product construction — orchestration diagnostics">
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <DiagnosticResultTable results={btcProductConstructionResults} />
           </div>
         </Panel>
@@ -131,7 +135,7 @@ export async function AdminDiagnosticsView() {
 
       <Section title="BTC mining construction — scenario diagnostics">
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <DiagnosticResultTable results={btcMiningScenarioResults} />
           </div>
         </Panel>
