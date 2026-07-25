@@ -16,7 +16,7 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   AdminKpiStripPanel,
 } from "@/components/admin/dashboard/admin-kpi-strip-panel";
-import type { HeroKpi } from "@/lib/data/cockpit";
+import type { HeroKpi } from "@/lib/admin/kpi-strip-view";
 
 /* ── Shared Catalyst table chrome ───────────────────────────────────────────
  * Centralized so pages stop redeclaring these literals (the drift source).
@@ -37,6 +37,34 @@ export const ROW =
  *    sit as a framed card body, never a full-bleed black slab.                 */
 export const TABLE_SURFACE = "admin-canon-table-surface min-w-0";
 export const FORM_SURFACE = "admin-canon-form-surface";
+
+/**
+ * Canon page frame (Mission Z1 / D7) — the outer admin box + padded column.
+ * EXACTLY the wrapper pair AdminPageShell always rendered, extracted as its
+ * own primitive so the views bridge (src/views/_shared/layout.tsx PageLayout)
+ * DELEGATES to it instead of mirroring the class strings. ONE source of truth
+ * for the admin frame: change it here, shell and bridge follow.
+ */
+export function AdminPageFrame({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8",
+        className,
+      )}
+    >
+      <div className="admin-canon-page-frame min-w-0 p-5 lg:p-6 xl:px-12 min-[1700px]:px-20 flex flex-col gap-y-5">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 /**
  * Table surface — the canon wrapper for a Catalyst table inside an
@@ -91,28 +119,21 @@ export function AdminPageShell({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8",
-        className,
-      )}
-    >
-      <div className="admin-canon-page-frame min-w-0 p-5 lg:p-6 xl:px-12 min-[1700px]:px-20 flex flex-col gap-y-5">
-        <AdminPageHeader
-          titleLead={titleLead}
-          titleAccent={titleAccent}
-          contextLabel={contextLabel}
-          title={title}
-          eyebrow={eyebrow}
-          description={description}
-          lead={lead}
-          actions={actions}
-          // CTA on the SAME line as the title (right-aligned), not below the rule.
-          titleRowEnd={headerActions}
-        />
-        {children}
-      </div>
-    </div>
+    <AdminPageFrame className={className}>
+      <AdminPageHeader
+        titleLead={titleLead}
+        titleAccent={titleAccent}
+        contextLabel={contextLabel}
+        title={title}
+        eyebrow={eyebrow}
+        description={description}
+        lead={lead}
+        actions={actions}
+        // CTA on the SAME line as the title (right-aligned), not below the rule.
+        titleRowEnd={headerActions}
+      />
+      {children}
+    </AdminPageFrame>
   );
 }
 

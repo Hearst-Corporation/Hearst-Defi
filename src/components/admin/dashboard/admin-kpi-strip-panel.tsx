@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
-import type { HeroKpi } from "@/lib/data/cockpit";
+import type { HeroKpi } from "@/lib/admin/kpi-strip-view";
 import { surfaceClassName } from "@/lib/ui/surface-classes";
 
 import { DashboardKpiStrip } from "./kpi-strip";

@@ -10,16 +10,17 @@
 
 import Link from "next/link";
 
-import { cn } from "@/lib/cn";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminSectionCard } from "@/components/admin/admin-page-shell";
+import {
+  AdminPageFrame,
+  AdminSectionCard,
+} from "@/components/admin/admin-page-shell";
 import { Button } from "@/ui/button";
 
 /**
- * Boîte de page canon. Miroir STRICT du wrapper d'AdminPageShell
- * (admin-page-shell.tsx) — même surface, même frame, même rythme. Dupliqué ici
- * (2 classes) car le shell soude header+box alors que les vues composent le
- * header en enfant ; toute évolution du shell se répercute ICI.
+ * Boîte de page canon — DÉLÈGUE à AdminPageFrame (admin-page-shell.tsx),
+ * la primitive extraite en Mission Z1 (D7). Plus aucun miroir de classes ici :
+ * le frame admin a UNE seule source de vérité, le shell et le bridge la rendent.
  */
 export function PageLayout({
   children,
@@ -28,18 +29,7 @@ export function PageLayout({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <div
-      className={cn(
-        "dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8",
-        className,
-      )}
-    >
-      <div className="admin-canon-page-frame min-w-0 p-5 lg:p-6 xl:px-12 min-[1700px]:px-20 flex flex-col gap-y-5">
-        {children}
-      </div>
-    </div>
-  );
+  return <AdminPageFrame className={className}>{children}</AdminPageFrame>;
 }
 
 /** Header canon — délègue à AdminPageHeader (jamais de titre h1 maison ici). */

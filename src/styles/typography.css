@@ -1,0 +1,264 @@
+/* ───────────────────────────────────────────────────────────────────────────
+ * Hearst Connect — RUNTIME TYPOGRAPHY CANON (Mission Z1 / D2).
+ *
+ * Le runtime charge UNIQUEMENT app.css → theme.css + legacy-bridge.css + CE
+ * fichier (+ admin-canon.css sous /admin). cockpit.css / globals.css sont des
+ * archives Storybook (décision D1) — on ne les recharge jamais.
+ *
+ * Ce fichier restaure les classes typo canon que les composants émettent déjà
+ * (PageHeaderBase, AdminPageShell, …) mais qui n'avaient PLUS de CSS runtime.
+ * Règles DÉ-SCOPÉES (plus de préfixe .admin-doc/.product-doc — origine :
+ * doc-flow-typography.css + doc-flow.css, cf. git show 4ba43d8f^) et posées
+ * sur les tokens greenfield --color-* / --font-* de theme.css.
+ *
+ * Chargé HORS @layer (comme le bridge) : ces rôles battent les utilitaires
+ * Tailwind par design — un rôle typo canon ne se surcharge pas inline.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── 1. Page title — H1 bicolore (canon portfolio) ─────────────────────────── */
+
+.h1 {
+  font-size: 1.5rem; /* 24px FIXE — instrument cockpit, ne gonfle jamais */
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  color: var(--color-foreground);
+}
+
+/* Portion variable du titre (nom investisseur, nom de vault) — vert accent. */
+.h1-accent {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* ── 2. Eyebrow — micro-label au-dessus du titre ───────────────────────────── */
+
+.eyebrow {
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-subtle);
+}
+
+/* ── 3. Page-canon : kicker → trait accent → toolbar ───────────────────────── */
+
+/* Kicker « — CONTEXTE » sous le H1 : tiret accent 16×1px + micro-label. */
+.page-canon-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* 8px */
+  margin: 0.25rem 0 0;
+  font-size: 0.5625rem; /* 9px */
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.page-canon-kicker::before {
+  content: "";
+  width: 1rem; /* 16px */
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--color-accent);
+}
+
+/* Trait sous le header — toujours présent, la hauteur du header ne dépend
+   JAMAIS d'une notice/erreur (celles-ci vivent APRÈS le trait). */
+.page-canon-rule {
+  height: 1px;
+  width: 100%;
+  background: var(--color-accent);
+  opacity: 0.35;
+  margin-top: 1.25rem; /* 20px */
+}
+
+/* Toolbar canon — APRÈS le trait : filtres à gauche, actions à droite. */
+.page-canon-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem; /* 12px 16px */
+  margin-top: 1rem; /* 16px */
+}
+
+.page-canon-toolbar__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.page-canon-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.page-canon-toolbar--center {
+  justify-content: center;
+}
+
+/* ── 4. Squelette BEM des headers de page (PageHeaderBase) ──────────────────
+   Deux namespaces, UN squelette : admin-page-header (AdminPageHeader) et
+   product-page-header (ProductPageHeader). Repris de doc-flow.css:442-540,
+   SANS les offsets :has() (le slot titleRowEnd les remplace). */
+
+.admin-page-header,
+.product-page-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-page-header--center,
+.product-page-header--center {
+  align-items: center;
+}
+
+.admin-page-header__row,
+.product-page-header__row {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.admin-page-header__row--center,
+.product-page-header__row--center {
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Hook émis quand un slot `titleRowEnd` est présent — l'alignement est porté
+   par __row-end (align-self), le hook garantit juste que la ligne peut rétrécir. */
+.admin-page-header__row--has-end,
+.product-page-header__row--has-end {
+  min-width: 0;
+}
+
+/* Slot de fin de ligne de titre (CTA à droite du H1). */
+.admin-page-header__row-end,
+.product-page-header__row-end {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.admin-page-header__main,
+.product-page-header__main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-page-header__main--center,
+.product-page-header__main--center {
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-page-header__title-stack,
+.product-page-header__title-stack {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-page-header__title-stack--center,
+.product-page-header__title-stack--center {
+  align-items: center;
+}
+
+/* ── 5. Rôles de section / métrique ────────────────────────────────────────── */
+
+/* Titre de section/bloc (« Investor Base ») — vrai titre lisible, blanc fort. */
+.ct-section-title {
+  font-size: 0.9375rem; /* 15px */
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.375;
+  color: var(--color-foreground);
+}
+
+/* Sous-ligne descriptive sous un titre/valeur. */
+.ct-metric-caption {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+/* Valeur chiffrée d'une cellule/inline — tabular, blanc fort. */
+.ct-metric-value {
+  font-size: 0.9375rem; /* 15px */
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Micro-label nano uppercase (têtes de colonne, kickers de bento).
+   Déplacé depuis legacy-bridge.css — mêmes déclarations, tokens bridge
+   (--ct-text-micro = 11px, --ct-text-muted = --color-muted équivalent). */
+.ct-bento-label {
+  font-size: var(--ct-text-micro);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ct-text-muted);
+}
+
+/* ── 6. Corps de texte ─────────────────────────────────────────────────────── */
+
+.body-md {
+  font-size: 0.9375rem; /* 15px */
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+/* Largeur de lecture confortable pour la prose (description de page). */
+.ct-prose-md {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  max-width: 65ch;
+}
+
+/* Déplacés depuis legacy-bridge.css — déclarations conservées ; leur taille
+   suit les shims --ct-text-* du bridge (dé-mentis en Mission Z1 : sm=15px,
+   xs=13px — le canon cockpit, plus les valeurs menteuses d'avant). */
+.body-sm {
+  font-size: var(--ct-text-sm);
+  line-height: 1.5;
+}
+
+.body-xs {
+  font-size: var(--ct-text-xs);
+  line-height: 1.5;
+}
+
+/* ── 7. Numérique — Satoshi + chiffres tabulaires (pas de fonte mono à part).
+   Origine : globals.css:219-225 (archive Storybook). ───────────────────────── */
+
+code,
+.mono,
+.tabular {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "ss01";
+}

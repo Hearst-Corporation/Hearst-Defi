@@ -111,3 +111,72 @@ describe("DS canonicalization guards (PROMPT 232)", () => {
     expect(readFileSync(join(ROOT, "src/components/catalyst/field.tsx"), "utf8")).toMatch(/export function Field/);
   });
 });
+
+/**
+ * Mission Z1 — single-green invariant at the HEX level.
+ * `#4ade80` was the second green (--color-success pre-Z1, now aliased to the
+ * accent) and `#fb7185` a stray rose. Neither may reappear in the runtime
+ * styling sources (src/styles, src/ui) nor in the canonicalized scopes above.
+ * Same mechanism as the guards above: readFileSync + regex, comments stripped.
+ */
+const HEX_SCOPE_DIRS = ["src/styles", "src/ui", ...SCOPE_DIRS];
+
+const HEX_EXT = /\.(tsx?|jsx?|css)$/;
+
+const FORBIDDEN_HEX: { id: string; re: RegExp }[] = [
+  { id: "second green #4ade80", re: /#4ade80/i },
+  { id: "rose #fb7185", re: /#fb7185/i },
+];
+
+function walkAnyStyled(dir: string, out: string[] = []): string[] {
+  let entries: string[];
+  try {
+    entries = readdirSync(dir);
+  } catch {
+    return out;
+  }
+  for (const name of entries) {
+    const full = join(dir, name);
+    const rel = relative(ROOT, full);
+    if (rel.split(sep).some((seg) => SKIP_SEGMENTS.has(seg))) continue;
+    let st;
+    try {
+      st = statSync(full);
+    } catch {
+      continue;
+    }
+    if (st.isDirectory()) walkAnyStyled(full, out);
+    else if (HEX_EXT.test(name)) out.push(rel);
+  }
+  return out;
+}
+
+describe("DS canonicalization guards — forbidden hexes (Mission Z1)", () => {
+  const files = HEX_SCOPE_DIRS.flatMap((d) => walkAnyStyled(join(ROOT, d)));
+
+  it("scans styles + ui + canonicalized scopes", () => {
+    expect(files.length).toBeGreaterThan(50);
+    expect(files.some((f) => f.endsWith("theme.css"))).toBe(true);
+    expect(files.some((f) => f.endsWith("typography.css"))).toBe(true);
+  });
+
+  for (const { id, re } of FORBIDDEN_HEX) {
+    it(`forbids "${id}" in styles, ui and scoped surfaces`, () => {
+      const offenders: string[] = [];
+      for (const rel of files) {
+        if (ALLOWLIST_FILES.has(rel)) continue;
+        let text: string;
+        try {
+          text = stripComments(readFileSync(join(ROOT, rel), "utf8"));
+        } catch {
+          continue;
+        }
+        if (re.test(text)) offenders.push(rel);
+      }
+      expect(
+        offenders,
+        `"${id}" is banned (single-green invariant, Mission Z1). Offenders:\n  ${offenders.join("\n  ")}`,
+      ).toEqual([]);
+    });
+  }
+});

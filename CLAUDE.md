@@ -25,7 +25,7 @@ inventory. »). Vocabulaire interdit : `yield`, `APY`, `coupon`, `distribution`.
 
 ## Design system
 
-- Canon : `src/components/catalyst/` + tokens `--ct-*` (`src/app/cockpit.css`). `src/components/ui/` = legacy shims.
+- Canon : `src/components/catalyst/` + tokens greenfield `--color-*` (`src/styles/theme.css`) + rôles typo (`src/styles/typography.css`). `--ct-*` = compat RATCHET DESCENDANT (`src/styles/legacy-bridge.css`) — aucun nouvel usage, chaque shim porte sa cible de migration. `src/app/cockpit.css` + `globals.css` = archives Storybook, JAMAIS rechargées au runtime. `src/components/ui/` = legacy shims.
 - **Un seul accent : vert `#A7FB90`. Un seul vert, zéro rouge.** Absent/négatif = gris. Aucune classe `dark:` (dark-only).
 - **Charts : Recharts uniquement** (`catalyst/chart*`), gardé par `pnpm ds:guard:chart-engine`. HIS/Chart.js retirés — ne jamais réintroduire.
 - Storybook : `pnpm storybook` (port 6106) — référence exécutable ; a11y bloquante via test-storybook.
