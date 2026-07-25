@@ -1,5 +1,3 @@
-import "../legal.css";
-
 import { LegalPageHeader } from "@/components/legal/legal-page-header";
 
 export const dynamic = "force-static";

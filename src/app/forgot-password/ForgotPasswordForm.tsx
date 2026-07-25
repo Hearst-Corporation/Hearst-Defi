@@ -3,13 +3,9 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 
-import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
 import { forgotPassword } from "./actions";
+import { Button, Input, Label } from "@/ui";
 
-/**
- * Client form for the "Forgot password?" flow.
- * Sends the email to the server action and shows the anti-enumeration message.
- */
 export function ForgotPasswordForm() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,10 +25,10 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form action={onSubmit} className="auth-form" aria-label="Forgot password">
-      <label className="auth-field" htmlFor="fp-email">
-        <span className="ct-form-label">Email address</span>
-        <input
+    <form action={onSubmit} className="space-y-4" aria-label="Forgot password">
+      <div className="space-y-2">
+        <Label htmlFor="fp-email">Email address</Label>
+        <Input
           id="fp-email"
           name="email"
           type="email"
@@ -41,26 +37,23 @@ export function ForgotPasswordForm() {
           required
           disabled={isPending || message !== null}
           placeholder="you@institution.com"
-          className="ct-input ct-input-bare"
         />
-      </label>
+      </div>
 
       {error ? (
-        <p className="ct-status-danger body-xs" role="alert">
+        <p className="text-xs text-danger" role="alert">
           {error}
         </p>
       ) : null}
 
       {message ? (
-        <p className="body-xs ct-text-accent" role="status">
+        <p className="text-xs text-accent" role="status">
           {message}
         </p>
       ) : null}
 
       <Button
         type="submit"
-        variant="primary"
-        size="md"
         className="w-full"
         disabled={isPending || message !== null}
         aria-busy={isPending}
@@ -68,8 +61,8 @@ export function ForgotPasswordForm() {
         {isPending ? "Sending…" : "Send reset link"}
       </Button>
 
-      <p className="body-xs ct-text-muted text-center">
-        <Link href="/login" className="ct-link-accent">
+      <p className="text-center text-xs text-muted">
+        <Link href="/login" className="text-accent hover:underline">
           Back to sign in
         </Link>
       </p>

@@ -1,0 +1,101 @@
+/* Transitional bridge for unmigrated components still referencing --ct-*.
+   Delete this file once catalyst/onboarding/invest-form are fully migrated. */
+
+:root {
+  --ct-accent: #a7fb90;
+  --ct-bg-deep: #09090b;
+  --ct-border: color-mix(in oklab, white 10%, transparent);
+  --ct-border-soft: color-mix(in oklab, white 5%, transparent);
+  --ct-text-muted: #a1a1aa;
+  --ct-text-strong: #f4f4f5;
+  --ct-text-faint: #52525b;
+  --ct-text-body: #d4d4d8;
+  --ct-text-primary: #f4f4f5;
+  --ct-shadow-soft: 0 4px 16px color-mix(in oklab, black 50%, transparent);
+  --ct-text-sm: 0.8125rem;
+  --ct-text-xs: 0.6875rem;
+  --ct-text-micro: 0.625rem;
+  --ct-text-2xs: 0.5625rem;
+  --ct-text-14: 0.875rem;
+  --ct-text-2xl: 1.5rem;
+  --ct-text-5xl: 2.25rem;
+  --ct-space-1: 0.25rem;
+  --ct-space-3: 0.75rem;
+  --ct-space-5: 1.25rem;
+  --ct-rail-right: 17.5rem;
+  --ct-opacity-50: 0.5;
+  --ct-dur-fast: 150ms;
+  --ct-tracking-tighter: -0.03em;
+  --ct-leading-tight: 1.25;
+  --ct-font-normal: 400;
+  --ct-font-semibold: 600;
+}
+
+.bg-surface-card {
+  background-color: var(--color-surface-card);
+}
+
+.bg-surface-page {
+  background-color: var(--color-surface-page);
+}
+
+.bg-surface-inset {
+  background-color: var(--color-surface-inset);
+}
+
+.ct-bento-label {
+  font-size: var(--ct-text-micro);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ct-text-muted);
+}
+
+.ct-link-accent {
+  color: var(--ct-accent);
+  text-decoration: none;
+}
+
+.ct-link-accent:hover {
+  color: var(--ct-text-strong);
+  text-decoration: underline;
+}
+
+.ct-text-muted {
+  color: var(--ct-text-muted);
+}
+
+.ct-text-accent {
+  color: var(--ct-accent);
+}
+
+.ct-text-strong {
+  color: var(--ct-text-strong);
+}
+
+.ct-form-label {
+  display: block;
+  font-size: var(--ct-text-xs);
+  font-weight: 500;
+  color: var(--ct-text-muted);
+  margin-bottom: 0.375rem;
+}
+
+.body-sm {
+  font-size: var(--ct-text-sm);
+  line-height: 1.25rem;
+}
+
+.body-xs {
+  font-size: var(--ct-text-xs);
+  line-height: 1rem;
+}
+
+.h1 {
+  font-size: var(--ct-text-2xl);
+  font-weight: var(--ct-font-semibold);
+  letter-spacing: var(--ct-tracking-tighter);
+  line-height: var(--ct-leading-tight);
+  color: var(--ct-text-strong);
+}

@@ -12,8 +12,21 @@ lock-up** are **contractual / applicative — not enforced on-chain** (v2 expose
 `whitelist`; no `minDeposit`, no on-chain lock-up). See methodology v3.0 + ADR-019.
 
 Stack : Next.js 16 (App Router, Server Components by default) · TypeScript strict
-· Tailwind CSS v4 (`@theme` in `globals.css`, **no `tailwind.config.js`**) ·
+· **Frontend greenfield** — Tailwind CSS v4 (`src/styles/theme.css` + `src/styles/app.css`, **no `tailwind.config.js`**, **no cockpit / no `--ct-*`**) · primitives `src/ui/*` (Catalyst-style, Headless UI) · shell `src/shell/*` · views `src/views/*` · Recharts ·
 Prisma + **Postgres (Supabase prod `xrwzxhsenwmlxbwqcftz`, eu-west-1)** — SQLite reste uniquement pour les tests CI locaux · Inngest · Foundry (smart contracts) · pnpm.
+
+> **🟢 Frontend greenfield (2026-07-25)** : réécriture sur `main`. Le backend
+> (APIs, auth, Prisma, services) est inchangé. **Routes investisseur/admin
+> greenfield** : `src/views/*` + `src/ui/*` + `src/shell/*` (dashboard, vaults,
+> vault detail, invest, confirmed, portfolio, proof-center, profile, admin
+> dashboard/customers/vaults list/proofs/audit/distributions/monitoring/feedback/roadmap/diagnostics/signals/security/document-vault/governance).
+> **Routes admin legacy restaurées** (logique métier intacte, `AdminPageShell` +
+> composants admin) : vault detail/new, governance sub-routes (propose, allowlist),
+> outreach, source, etc. Fichiers CSS runtime
+> supprimés : `doc-flow.css`, `doc-flow-typography.css`, `legal.css`,
+> `onboarding.css`. Pont transitoire : `src/styles/legacy-bridge.css` (`--ct-*`
+> pour composants non encore migrés). `cockpit.css` / `globals.css` hors
+> `layout.tsx` — Storybook / tests uniquement.
 
 > **⚠️ Base de données — VERROUILLÉ PROD** : depuis le 2026-06-17, la base active
 > est **Supabase Postgres** (`hearst-connect-prod`, ref `xrwzxhsenwmlxbwqcftz`,

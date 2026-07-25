@@ -1,5 +1,5 @@
-import { AuthFormShell } from "@/components/auth/auth-form-shell";
 import { RESET_TOKEN_TTL_MS } from "@/lib/auth/password-reset";
+import { AuthFormShell } from "@/views/auth/auth-form-shell";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 export const metadata = {

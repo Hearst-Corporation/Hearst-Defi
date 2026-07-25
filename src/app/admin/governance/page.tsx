@@ -1,10 +1,6 @@
-import { ProposalQueue } from "@/components/admin/governance/proposal-queue";
-import { AdminPageShell, AdminSectionCard } from "@/components/admin/admin-page-shell";
-import { AdminUrlTabFilter } from "@/components/admin/admin-url-tab-filter";
-import { CockpitButton } from "@/components/catalyst/cockpit-button";
 import { loadProposalQueue } from "@/lib/governance/actions";
 import type { ProposalState } from "@/lib/governance/state-machine";
-import { buildGovernanceKpiStrip } from "@/lib/admin/governance-kpi-strip";
+import { AdminGovernanceView } from "@/views/admin/governance-view";
 
 export const dynamic = "force-dynamic";
 
@@ -46,48 +42,12 @@ export default async function GovernancePage({ searchParams }: PageProps) {
 
   const queue = await loadProposalQueue();
   const filtered = filterProposals(queue, activeTab);
-  const governanceKpis = buildGovernanceKpiStrip(queue);
 
   return (
-    <AdminPageShell
-      titleLead="Governance"
-      titleAccent="Console"
-      contextLabel="Proof & System"
-      headerActions={
-        <CockpitButton
-          href="/admin/governance/propose"
-          variant="primary"
-          shape="rect"
-          size="lg"
-        >
-          New proposal
-        </CockpitButton>
-      }
-    >
-      <AdminSectionCard
-        kpis={governanceKpis.length > 0 ? governanceKpis : undefined}
-        kpiTitle="Governance"
-        kpiSubtitle="Multisig action queue"
-        ariaLabel="Proposal queue"
-        title="Governance proposals"
-        subtitle="Multisig action queue · sign, timelock, execute"
-        headerTrailing={
-          <AdminUrlTabFilter
-            ariaLabel="Filter proposals by status"
-            activeKey={activeTab}
-            tabs={TABS.map((tab) => ({
-              key: tab.key,
-              label: tab.label,
-              href:
-                tab.key === "all"
-                  ? "/admin/governance"
-                  : `/admin/governance?tab=${tab.key}`,
-            }))}
-          />
-        }
-      >
-        <ProposalQueue proposals={filtered} />
-      </AdminSectionCard>
-    </AdminPageShell>
+    <AdminGovernanceView
+      proposals={filtered}
+      queue={queue}
+      activeTab={activeTab}
+    />
   );
 }

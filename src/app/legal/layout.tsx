@@ -1,8 +1,5 @@
 import Link from "next/link";
 
-import "../doc-flow.css";
-import "./legal.css";
-
 export const dynamic = "force-static";
 
 export const metadata = {
@@ -17,21 +14,29 @@ export default function LegalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="product-doc legal-shell">
-      <header className="legal-header">
-        <Link href="/" className="legal-back body-lg ct-text-strong">
+    <div className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-10 lg:px-8">
+      <header className="mb-8 flex flex-wrap items-baseline justify-between gap-4 border-b border-border-subtle pb-6">
+        <Link
+          href="/"
+          className="text-lg font-semibold tracking-tight text-foreground hover:text-accent"
+        >
           Hearst Connect
         </Link>
-        <nav className="legal-nav body-sm" aria-label="Legal documents">
-          <Link href="/legal/privacy">Privacy</Link>
-          <Link href="/legal/terms">Terms</Link>
-          <Link href="/legal/disclaimer">Disclaimer</Link>
+        <nav className="flex gap-5 text-sm" aria-label="Legal documents">
+          <Link href="/legal/privacy" className="text-muted hover:text-accent">
+            Privacy
+          </Link>
+          <Link href="/legal/terms" className="text-muted hover:text-accent">
+            Terms
+          </Link>
+          <Link href="/legal/disclaimer" className="text-muted hover:text-accent">
+            Disclaimer
+          </Link>
         </nav>
       </header>
-      <article className="legal-body">{children}</article>
-      {/* The institutional footer (AppChrome, variant="full") renders below this
-          layout on /legal/* — it carries the legal disclaimer and links, so no
-          local footer here. */}
+      <article className="prose prose-invert max-w-none text-sm leading-relaxed text-muted [&_h1]:text-2xl [&_h1]:font-semibold [&_h1]:text-foreground [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:text-accent [&_a]:text-accent">
+        {children}
+      </article>
     </div>
   );
 }

@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
-import "./tokens-layer.css";
-import "./globals.css";
-import "./cockpit.css";
 
-import { AppChrome } from "@/components/app-chrome";
+import "@/styles/app.css";
+
 import { Analytics } from "@/components/analytics";
 import { PrivyProvider } from "@/components/auth/privy-provider";
-import { ClientToaster } from "@/components/ui/client-toaster";
 import { PRIVY_APP_ID } from "@/lib/auth/privy-config";
 import { isDevAuthBypass } from "@/lib/dev-bypass";
-import { FEATURE_FLAGS } from "@/lib/feature-flags";
+import { GreenfieldChrome } from "@/shell/greenfield-chrome";
+import { Toaster } from "@/ui/toast";
 
 export const metadata: Metadata = {
   title: { default: "Hearst Connect", template: "%s | Hearst Connect" },
@@ -41,34 +39,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    /* `dark` is set here, not left to prefers-color-scheme: globals.css maps
-       the dark variant to `.dark` (@custom-variant), and the product is dark by
-       identity — without this class every `dark:` utility in the tree is inert. */
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        {/* Skip-link — MUST be the first focusable element in the DOM so the
-            very first Tab reaches it (a11y / QA P2). Hoisted OUT of <AppChrome>:
-            inside it, the Cockpit shell renders its left rail + buttons before
-            the children slot, pushing this link to ~3rd in focus order. It
-            targets #main-content, which can live anywhere in the document. */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[var(--ct-z-overlay)] focus:rounded-lg focus:bg-[var(--ct-accent)] focus:px-[var(--ct-space-4)] focus:py-[var(--ct-space-2)] focus:ct-text-on-accent"
+          className="hc-sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-(--z-overlay) focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-foreground"
         >
           Skip to main content
         </a>
-        <AppChrome masterAgentEnabled={FEATURE_FLAGS.CHAT_MASTER_AGENT}>
+        <GreenfieldChrome>
           <PrivyProvider appId={isDevAuthBypass() ? "" : PRIVY_APP_ID}>
-            {/* No <main> wrapper here: the shells own the document's single
-                <main>. Wrapping children in one nested a second <main> inside
-                SidebarLayout's, which cost the Catalyst layout its viewport
-                reference — the page stopped scrolling. #main-content is the
-                skip-link target and now lives on the shell's own <main>. */}
             {children}
-            <ClientToaster />
+            <Toaster />
           </PrivyProvider>
-          <Analytics />
-        </AppChrome>
+        </GreenfieldChrome>
+        <Analytics />
       </body>
     </html>
   );

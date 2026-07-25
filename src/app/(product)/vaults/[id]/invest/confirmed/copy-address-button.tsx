@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-import { CockpitButton } from "@/components/catalyst/cockpit-button";
+import { Button } from "@/ui/button";
 
 interface CopyAddressButtonProps {
   address: string;
@@ -21,20 +21,19 @@ export function CopyAddressButton({ address }: CopyAddressButtonProps) {
       setCopied(true);
       resetTimerRef.current = setTimeout(() => setCopied(false), COPY_RESET_MS);
     } catch {
-      // Clipboard API unavailable (non-https / permissions denied) — silent.
+      // Clipboard API unavailable — silent.
     }
   }
 
   return (
-    <CockpitButton
+    <Button
       type="button"
       onClick={handleCopy}
-      variant="outline"
-      shape="rect"
-      className="ct-copy-chip"
+      variant="secondary"
+      size="sm"
       aria-label="Copy vault contract address"
     >
       {copied ? "Copied" : "copy"}
-    </CockpitButton>
+    </Button>
   );
 }

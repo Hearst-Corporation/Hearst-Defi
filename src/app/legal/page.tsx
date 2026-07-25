@@ -1,5 +1,3 @@
-import "./legal.css";
-
 import Link from "next/link";
 
 import { LegalPageHeader } from "@/components/legal/legal-page-header";

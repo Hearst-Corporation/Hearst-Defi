@@ -1,11 +1,3 @@
-/**
- * Onboarding layout — Institutional Chamber + product chrome (left rail).
- * Progress + checklist driven by pathname and live investor state.
- */
-
-import "./onboarding.css";
-import "../../doc-flow.css";
-
 import { headers } from "next/headers";
 import type { ReactNode } from "react";
 

@@ -2,18 +2,13 @@
 
 import { useState, useTransition } from "react";
 
-import { CockpitButton as Button } from "@/components/catalyst/cockpit-button";
-import { Input } from "@/components/catalyst/input";
 import { resetPassword } from "./actions";
+import { Button, Input, Label } from "@/ui";
 
 interface Props {
   token: string;
 }
 
-/**
- * Client form for /reset-password?token=<raw>.
- * Submits to the resetPassword server action and shows success/failure inline.
- */
 export function ResetPasswordForm({ token }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -22,10 +17,6 @@ export function ResetPasswordForm({ token }: Props) {
     setError(null);
     formData.set("token", token);
     startTransition(async () => {
-      // On success the server action signs the user in and redirects to the
-      // platform (NEXT_REDIRECT) — it never returns `{ ok: true }`, so there is
-      // no success screen and no "go to sign in" step. We only get a returned
-      // value on failure.
       const result = await resetPassword(formData);
       if (!result.ok) {
         setError(result.error);
@@ -34,9 +25,9 @@ export function ResetPasswordForm({ token }: Props) {
   }
 
   return (
-    <form action={onSubmit} className="auth-form" aria-label="Set new password">
-      <label className="auth-field" htmlFor="rp-password">
-        <span className="ct-form-label">New password</span>
+    <form action={onSubmit} className="space-y-4" aria-label="Set new password">
+      <div className="space-y-2">
+        <Label htmlFor="rp-password">New password</Label>
         <Input
           id="rp-password"
           name="password"
@@ -48,18 +39,16 @@ export function ResetPasswordForm({ token }: Props) {
           disabled={isPending}
           placeholder="Min. 8 characters"
         />
-      </label>
+      </div>
 
       {error ? (
-        <p className="ct-status-danger body-xs" role="alert">
+        <p className="text-xs text-danger" role="alert">
           {error}
         </p>
       ) : null}
 
       <Button
         type="submit"
-        variant="primary"
-        size="lg"
         className="w-full"
         disabled={isPending}
         aria-busy={isPending}

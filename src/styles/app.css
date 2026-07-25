@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@import "./theme.css";
+@import "./legacy-bridge.css";
+
+@source not "../../docs";
+@source not "../../README.md";
+@source not "../../.claude";
+@source not "../../scripts";
+@source not "../../.worktrees";
+@source not "../../cockpit-shell";
+
+@font-face {
+  font-family: "Satoshi Variable";
+  src: url("/fonts/Satoshi-Variable.woff2") format("woff2-variations");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 35%, transparent);
+    color: var(--color-foreground);
+  }
+}
+
+@layer components {
+  .hc-page {
+    @apply w-full max-w-[90rem] px-6 py-5 lg:px-8 lg:py-6;
+  }
+
+  .hc-section-title {
+    @apply text-sm font-semibold tracking-tight text-foreground;
+  }
+
+  .hc-section-subtitle {
+    @apply text-sm text-muted;
+  }
+
+  .hc-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-subtle;
+  }
+
+  .hc-metric-label {
+    @apply text-xs font-medium uppercase tracking-[0.08em] text-subtle;
+  }
+
+  .hc-metric-value {
+    @apply text-2xl font-semibold tracking-tight text-foreground tabular-nums;
+  }
+
+  .hc-divider {
+    @apply border-t border-border-subtle;
+  }
+
+  .hc-link {
+    @apply text-accent underline-offset-4 transition-colors hover:text-accent-hover hover:underline;
+  }
+
+  .hc-sr-only {
+    @apply sr-only;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
