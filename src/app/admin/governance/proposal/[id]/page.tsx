@@ -182,6 +182,8 @@ export default async function ProposalDetailPage({ params }: PageProps) {
         </AdminSectionCard>
 
         {/* ── PTAI ──────────────────────────────────────────────────────── */}
+        {/* Absent PTAI is SAID, never silently masked: an operator must know
+            whether the calldata carried projection metadata or not. */}
         {ptai ? (
           <AdminSectionCard
             ariaLabel="PTAI"
@@ -196,11 +198,34 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                 impact={ptai.impact}
               />
               <p className="ct-metric-caption italic">
-                Conditional projection — not guaranteed. Methodology v3.0.
+                Conditional projection — not guaranteed.{" "}
+                {/* Version sourced from the active methodology document
+                    (docs/methodology/v3.0.md, ADR-019) — same link the Proof
+                    Center publishes, never a dangling literal. */}
+                <Link
+                  href="/docs/methodology/v3.0.md"
+                  className="underline underline-offset-2 transition-colors hover:text-[var(--ct-text-strong)]"
+                >
+                  Methodology v3.0
+                </Link>
+                .
               </p>
             </div>
           </AdminSectionCard>
-        ) : null}
+        ) : (
+          <AdminSectionCard
+            ariaLabel="PTAI"
+            title="PTAI"
+            subtitle="Projection · Trigger · Action · Impact"
+          >
+            <div className="p-5 lg:p-6">
+              <p className="ct-metric-caption">
+                No PTAI block in calldata — this proposal was submitted without
+                projection metadata.
+              </p>
+            </div>
+          </AdminSectionCard>
+        )}
 
         {/* ── Justification ─────────────────────────────────────────────── */}
         <AdminSectionCard ariaLabel="Justification" title="Justification" subtitle="Rationale recorded by the proposer for this governance action.">
@@ -300,16 +325,18 @@ export default async function ProposalDetailPage({ params }: PageProps) {
                       }}
                       action={approveAction}
                     />
+                    {/* D3: rejecting is a legitimate governance decision, not a
+                        destruction — secondary, never the danger treatment. */}
                     <VaultActionButton
                       label="Reject"
-                      variant="danger"
+                      variant="secondary"
                       size="lg"
                       confirm={{
                         title: "Reject this proposal?",
                         description:
                           "This records a rejection for this governance proposal.",
                         confirmLabel: "Reject",
-                        confirmVariant: "danger",
+                        confirmVariant: "primary",
                       }}
                       action={rejectAction}
                     />

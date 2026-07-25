@@ -71,6 +71,13 @@ export interface ProposalRow {
   createdAt: Date;
   submittedAt: Date | null;
   etaAt: Date | null;
+  /**
+   * True when the proposal is in SIGNING state AND the CURRENT operator has
+   * not recorded any decision on it yet. Computed against the same identity
+   * `signProposal` persists (`admin.userId`) — this is what makes the
+   * "Awaiting my signature" tab honest instead of a mislabelled state filter.
+   */
+  awaitingMySignature: boolean;
 }
 
 export interface SignatureRow {
@@ -412,13 +419,16 @@ export async function executeProposal(proposalId: string): Promise<{ executed: b
 
 /** Returns all proposals ordered by most recent, with signature counts. */
 export async function loadProposalQueue(): Promise<ProposalRow[]> {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  // Signatures are persisted with `signerAddress: admin.userId` (signProposal
+  // above) — compare against the SAME identity, not walletAddress.
+  const actor = admin.userId;
 
   const proposals = await prisma.governanceProposal.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       vault: { select: { ticker: true } },
-      signatures: { select: { decision: true } },
+      signatures: { select: { decision: true, signerAddress: true } },
     },
   });
 
@@ -436,6 +446,9 @@ export async function loadProposalQueue(): Promise<ProposalRow[]> {
     createdAt: p.createdAt,
     submittedAt: p.submittedAt,
     etaAt: p.etaAt,
+    awaitingMySignature:
+      toProposalState(p.state) === "SIGNING" &&
+      !p.signatures.some((s) => s.signerAddress === actor),
   }));
 }
 
@@ -445,7 +458,8 @@ export async function loadProposalQueue(): Promise<ProposalRow[]> {
 
 /** Returns full proposal detail including all signatures. */
 export async function loadProposalDetail(proposalId: string): Promise<ProposalDetail> {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  const actor = admin.userId;
 
   const p = await prisma.governanceProposal.findUnique({
     where: { id: proposalId },
@@ -470,6 +484,9 @@ export async function loadProposalDetail(proposalId: string): Promise<ProposalDe
     createdAt: p.createdAt,
     submittedAt: p.submittedAt,
     etaAt: p.etaAt,
+    awaitingMySignature:
+      toProposalState(p.state) === "SIGNING" &&
+      !p.signatures.some((s) => s.signerAddress === actor),
     calldata: p.calldata,
     justification: p.justification,
     queuedAt: p.queuedAt,

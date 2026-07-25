@@ -1,28 +1,56 @@
 import Link from "next/link";
 
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
+import {
+  AdminUrlTabFilter,
+  type AdminUrlTab,
+} from "@/components/admin/admin-url-tab-filter";
 import { ProposalQueue } from "@/components/admin/governance/proposal-queue";
 import { buildGovernanceKpiStrip } from "@/lib/admin/governance-kpi-strip";
 import type { loadProposalQueue } from "@/lib/governance/actions";
-import { cn } from "@/lib/cn";
-import { Badge, Button, Kpi, KpiGrid } from "@/ui";
+import { Button, Kpi, KpiGrid } from "@/ui";
 import { PageHeader, PageLayout, Panel, Section } from "@/views/_shared/layout";
 
-const TABS = [
-  { key: "all", label: "All" },
-  { key: "signing", label: "Awaiting my signature" },
-  { key: "timelock", label: "Timelock" },
-  { key: "executable", label: "Executable" },
-] as const;
+type Queue = Awaited<ReturnType<typeof loadProposalQueue>>;
 
-type TabKey = (typeof TABS)[number]["key"];
+type TabKey = "all" | "signing" | "timelock" | "executable";
+
+/**
+ * "Awaiting my signature" is honest here: the tab filters on the per-operator
+ * `awaitingMySignature` predicate computed server-side (SIGNING + no decision
+ * recorded by the CURRENT operator), not on the bare SIGNING state.
+ */
+function buildTabs(queue: Queue): readonly AdminUrlTab[] {
+  return [
+    { key: "all", label: "All", href: "/admin/governance", count: queue.length },
+    {
+      key: "signing",
+      label: "Awaiting my signature",
+      href: "/admin/governance?tab=signing",
+      count: queue.filter((p) => p.awaitingMySignature).length,
+    },
+    {
+      key: "timelock",
+      label: "Timelock",
+      href: "/admin/governance?tab=timelock",
+      count: queue.filter((p) => p.state === "TIMELOCK").length,
+    },
+    {
+      key: "executable",
+      label: "Executable",
+      href: "/admin/governance?tab=executable",
+      count: queue.filter((p) => p.state === "EXECUTABLE").length,
+    },
+  ];
+}
 
 export function AdminGovernanceView({
   proposals,
   queue,
   activeTab,
 }: {
-  proposals: Awaited<ReturnType<typeof loadProposalQueue>>;
-  queue: Awaited<ReturnType<typeof loadProposalQueue>>;
+  proposals: Queue;
+  queue: Queue;
   activeTab: TabKey;
 }) {
   const governanceKpis = buildGovernanceKpiStrip(queue);
@@ -44,12 +72,12 @@ export function AdminGovernanceView({
         <KpiGrid>
           {governanceKpis.map((kpi) => (
             <Panel key={kpi.label}>
-              <div className="p-5">
+              <div className={FORM_SURFACE}>
                 <Kpi
                   label={kpi.label}
                   value={kpi.value}
                   hint={kpi.sublabel}
-                  provenance="manual"
+                  provenance={kpi.provenance}
                 />
               </div>
             </Panel>
@@ -59,31 +87,15 @@ export function AdminGovernanceView({
 
       <Section title="Governance proposals">
         <Panel>
-          <nav
-            className="flex flex-wrap gap-2 border-b border-[var(--ct-border)] p-5"
-            aria-label="Filter proposals by status"
-          >
-            {TABS.map((tab) => {
-              const href =
-                tab.key === "all"
-                  ? "/admin/governance"
-                  : `/admin/governance?tab=${tab.key}`;
-              const active = tab.key === activeTab;
+          <div className="border-b border-[var(--ct-border)] p-5">
+            <AdminUrlTabFilter
+              tabs={buildTabs(queue)}
+              activeKey={activeTab}
+              ariaLabel="Filter proposals by status"
+            />
+          </div>
 
-              return (
-                <Link key={tab.key} href={href}>
-                  <Badge
-                    variant={active ? "accent" : "outline"}
-                    className={cn("cursor-pointer px-3 py-1")}
-                  >
-                    {tab.label}
-                  </Badge>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <ProposalQueue proposals={proposals} />
           </div>
         </Panel>

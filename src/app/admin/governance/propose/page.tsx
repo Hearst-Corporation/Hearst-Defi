@@ -90,7 +90,13 @@ export default async function ProposePage() {
                   </Link>
                 </EmptySurface>
               ) : (
-                <Select id="vaultId" name="vaultId" required defaultValue="">
+                <Select
+                  id="vaultId"
+                  name="vaultId"
+                  required
+                  defaultValue=""
+                  aria-describedby="vaultId-hint"
+                >
                   <option value="">Select a vault…</option>
                   {vaults.map((v) => (
                     <option key={v.id} value={v.id}>
@@ -99,6 +105,11 @@ export default async function ProposePage() {
                   ))}
                 </Select>
               )}
+              {/* The query filters `status != closed` — the exclusion is SAID,
+                  not silent (honesty rule: no undeclared population filter). */}
+              <FieldDescription id="vaultId-hint">
+                Closed vaults are excluded from this list.
+              </FieldDescription>
             </Field>
 
             <Field>

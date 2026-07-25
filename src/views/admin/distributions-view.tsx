@@ -1,8 +1,13 @@
 import Link from "next/link";
 
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
+import { ScopeFallbackNotice } from "@/components/admin/scope-fallback-notice";
 import { buildDistributionsKpiStrip } from "@/lib/admin/distributions-kpi-strip";
+import { cn } from "@/lib/cn";
 import { prisma } from "@/lib/db";
+import { isMockTxHash, txProvenance } from "@/lib/provenance";
 import {
+  adminVaultHrefFromSlug,
   distributionVaultScopeWhere,
   matchesDistributionVaultScope,
   resolveFixtureVault,
@@ -23,9 +28,14 @@ import {
 } from "@/ui";
 import { Disclaimer, PageHeader, PageLayout, Panel, Section } from "@/views/_shared/layout";
 
+// D8: the retired product name stays readable in the archive, but never
+// without its "retired" qualifier — the rail no longer exists.
 const LEGACY_VAULT_LABELS: Record<string, string> = {
-  "hearst-yield-vault": "Hearst Yield Vault",
+  "hearst-yield-vault": "Hearst Yield Vault (retired name)",
 };
+
+/** Display window for the history table — KPIs are NEVER derived from it. */
+const HISTORY_WINDOW = 6;
 
 export async function AdminDistributionsView({
   vaultParam,
@@ -33,17 +43,21 @@ export async function AdminDistributionsView({
   vaultParam?: string;
 }) {
   const { vaultId, usedFallback, requested } = resolveFixtureVault(vaultParam);
-  if (usedFallback && requested !== undefined) {
-    console.warn(
-      `[vault-scope] unknown ?vault="${requested}" — showing the Series 1 flagship instead`,
-    );
-  }
 
-  const [rawHistory, allVaults] = await Promise.all([
+  const scopeWhere = distributionVaultScopeWhere(vaultId);
+  const [rawHistory, totals, allVaults] = await Promise.all([
     prisma.distribution.findMany({
-      where: distributionVaultScopeWhere(vaultId),
+      where: scopeWhere,
       orderBy: { distributedAt: "desc" },
-      take: 6,
+      take: HISTORY_WINDOW,
+    }),
+    // TOP4 fix: KPI figures come from a windowless aggregate over the FULL
+    // scoped population — the findMany window above only feeds the table.
+    prisma.distribution.aggregate({
+      where: scopeWhere,
+      _sum: { amountUsdc: true },
+      _count: true,
+      _max: { recipientsCount: true },
     }),
     listAllVaults({ status: "live-or-paused" }),
   ]);
@@ -57,19 +71,40 @@ export async function AdminDistributionsView({
     matchesDistributionVaultScope(entry.vaultRef, vaultId),
   );
   const activeVaultLabel = vaultLabelBySlug.get(vaultId) ?? vaultId;
-  const distributionKpis = buildDistributionsKpiStrip(history);
+
+  const totalRecords = totals._count;
+  const distributionKpis = buildDistributionsKpiStrip(
+    {
+      totalUsdc: totals._sum.amountUsdc?.toNumber() ?? 0,
+      recordCount: totalRecords,
+      maxRecipients: totals._max.recipientsCount,
+    },
+    history[0] ?? null,
+  );
 
   return (
     <PageLayout>
       <PageHeader
         eyebrow="Retired rail · Non-Series 1"
         title="Historical records"
-        description="Read-only archive of legacy distribution records — not part of the Series 1 BTC accumulation model."
+        description="Read-only archive of legacy payout records — not part of the Series 1 BTC accumulation model."
       />
+
+      {usedFallback && requested !== undefined ? (
+        <ScopeFallbackNotice
+          requested={requested}
+          resolvedLabel={activeVaultLabel}
+        />
+      ) : null}
 
       <Section title="Series 1 — BTC accumulation">
         <Panel>
-          <div className="space-y-3 p-5 text-sm leading-relaxed text-[var(--ct-text-muted)]">
+          <div
+            className={cn(
+              FORM_SURFACE,
+              "text-sm leading-relaxed text-[var(--ct-text-muted)]",
+            )}
+          >
             <p>
               Series 1 accumulates BTC over a 24-month term with rule-based
               take-profit and delivers accumulated BTC at maturity. This page is
@@ -95,18 +130,12 @@ export async function AdminDistributionsView({
         <KpiGrid>
           {distributionKpis.map((kpi) => (
             <Panel key={kpi.label}>
-              <div className="p-5">
+              <div className={FORM_SURFACE}>
                 <Kpi
                   label={kpi.label}
                   value={kpi.value}
                   hint={kpi.sublabel}
-                  provenance={
-                    kpi.provenance === "manual" ||
-                    kpi.provenance === "estimated" ||
-                    kpi.provenance === "live"
-                      ? kpi.provenance
-                      : "manual"
-                  }
+                  provenance={kpi.provenance}
                 />
               </div>
             </Panel>
@@ -119,7 +148,11 @@ export async function AdminDistributionsView({
         description="Retired records retained for audit continuity"
       >
         <Panel
-          title={`${history.length} historical ${history.length === 1 ? "record" : "records"}`}
+          title={
+            totalRecords > history.length
+              ? `Last ${history.length} of ${totalRecords} records`
+              : `${history.length} historical ${history.length === 1 ? "record" : "records"}`
+          }
         >
           {history.length === 0 ? (
             <EmptyState
@@ -153,13 +186,7 @@ export async function AdminDistributionsView({
                       vaultLabelBySlug.get(slug) ??
                       slug)
                     : null;
-                  const vaultHref = slug
-                    ? slug === "yield" ||
-                      slug === "defensive" ||
-                      slug === "btc-plus"
-                      ? `/admin/dashboard${slug !== "yield" ? `?vault=${slug}` : ""}`
-                      : `/admin/vaults/${slug}`
-                    : null;
+                  const vaultHref = slug ? adminVaultHrefFromSlug(slug) : null;
 
                   return (
                     <TableRow key={d.id}>
@@ -191,7 +218,7 @@ export async function AdminDistributionsView({
                       </TableCell>
                       <TableCell className="hidden text-right font-mono text-xs xl:table-cell">
                         {d.txHash ? (
-                          d.txHash.startsWith("0xMOCK") ? (
+                          isMockTxHash(d.txHash) ? (
                             <span className="text-[var(--ct-text-muted)]">simulated</span>
                           ) : (
                             `${d.txHash.slice(0, 8)}…`
@@ -201,15 +228,9 @@ export async function AdminDistributionsView({
                         )}
                       </TableCell>
                       <TableCell className="hidden text-right lg:table-cell">
-                        <ProvenanceBadge
-                          source={
-                            d.txHash
-                              ? d.txHash.startsWith("0xMOCK")
-                                ? "estimated"
-                                : "attested"
-                              : "manual"
-                          }
-                        />
+                        {/* Canonical mapping (src/lib/provenance.ts): real hash →
+                            attested, 0xMOCK fixture → simulated, none → manual. */}
+                        <ProvenanceBadge source={txProvenance(d.txHash)} />
                       </TableCell>
                     </TableRow>
                   );

@@ -4,17 +4,12 @@ import { AdminGovernanceView } from "@/views/admin/governance-view";
 
 export const dynamic = "force-dynamic";
 
-const TABS = [
-  { key: "all", label: "All" },
-  { key: "signing", label: "Awaiting my signature" },
-  { key: "timelock", label: "Timelock" },
-  { key: "executable", label: "Executable" },
-] as const;
+const TAB_KEYS = ["all", "signing", "timelock", "executable"] as const;
 
-type TabKey = (typeof TABS)[number]["key"];
+type TabKey = (typeof TAB_KEYS)[number];
 
 function isTabKey(v: unknown): v is TabKey {
-  return TABS.some((t) => t.key === v);
+  return TAB_KEYS.some((k) => k === v);
 }
 
 function filterProposals(
@@ -22,8 +17,11 @@ function filterProposals(
   tab: TabKey,
 ) {
   if (tab === "all") return proposals;
+  // "Awaiting my signature" is a REAL per-operator predicate (SIGNING and no
+  // decision recorded by the current operator), not a bare state filter —
+  // computed server-side in loadProposalQueue against the signer identity.
+  if (tab === "signing") return proposals.filter((p) => p.awaitingMySignature);
   const stateByTab: Partial<Record<TabKey, ProposalState>> = {
-    signing: "SIGNING",
     timelock: "TIMELOCK",
     executable: "EXECUTABLE",
   };

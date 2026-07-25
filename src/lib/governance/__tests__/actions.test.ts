@@ -397,7 +397,12 @@ describe("executeProposal", () => {
 describe("loadProposalQueue", () => {
   it("returns mapped proposal rows", async () => {
     const raw = [
-      baseProposal({ signatures: [{ decision: "approve" }, { decision: "approve" }] }),
+      baseProposal({
+        signatures: [
+          { decision: "approve", signerAddress: "0xSigner1" },
+          { decision: "approve", signerAddress: "0xSigner2" },
+        ],
+      }),
     ];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (govMock().findMany as any).mockResolvedValue(raw);
@@ -408,6 +413,30 @@ describe("loadProposalQueue", () => {
     expect(rows[0]!.approvalCount).toBe(2);
     expect(rows[0]!.state).toBe("SIGNING");
     expect(rows[0]!.vaultTicker).toBe("HYV-A");
+  });
+
+  it("awaitingMySignature is a per-operator predicate, not a state filter", async () => {
+    const raw = [
+      // SIGNING, nobody signed → awaiting the current operator.
+      baseProposal({ id: "p_unsigned", signatures: [] }),
+      // SIGNING, but the CURRENT operator already recorded a decision.
+      baseProposal({
+        id: "p_signed_by_me",
+        signatures: [{ decision: "approve", signerAddress: ADMIN_USER.userId }],
+      }),
+      // Not in SIGNING → never "awaiting my signature", even unsigned.
+      baseProposal({ id: "p_timelock", state: "TIMELOCK", signatures: [] }),
+    ];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (govMock().findMany as any).mockResolvedValue(raw);
+
+    const rows = await loadProposalQueue();
+
+    expect(rows.map((r) => [r.id, r.awaitingMySignature])).toEqual([
+      ["p_unsigned", true],
+      ["p_signed_by_me", false],
+      ["p_timelock", false],
+    ]);
   });
 });
 

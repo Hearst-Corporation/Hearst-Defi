@@ -67,6 +67,22 @@ function riskColor(score: number): "green" | "amber" | "red" {
   return "red";
 }
 
+/**
+ * Honesty note (TOP10): `AddressAllowlist.riskScore` is `Int @default(0)` —
+ * NON-nullable (prisma/schema.prisma:1031), so a stored 0 is indistinguishable
+ * from "never assessed". A colored badge is an ASSESSMENT claim, so it renders
+ * ONLY for a genuinely entered score (> 0); 0 renders as a grey "Not scored"
+ * chip. Documented limitation: an operator who deliberately assesses an entry
+ * at zero risk will also read as "Not scored" — distinguishing the two would
+ * require the column to become nullable.
+ */
+function RiskScoreBadge({ score }: { score: number }) {
+  if (score === 0) {
+    return <Badge color="zinc">Not scored</Badge>;
+  }
+  return <Badge color={riskColor(score)}>{score}</Badge>;
+}
+
 const FIELD_COMPACT = fieldControlClass(
   "py-2 text-[length:var(--ct-text-2xs)]",
 );
@@ -91,11 +107,10 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
       </BentoPanel>
 
       {/* ── Add entry ─────────────────────────────────────────────────────── */}
+      {/* BentoHeader renders the H2 itself (canon heading, `as="h2"` default) —
+          no hand-rolled duplicate heading next to it. */}
       <BentoPanel aria-labelledby="allowlist-add-heading">
-        <h2 id="allowlist-add-heading" className="sr-only">
-          Add entry
-        </h2>
-        <BentoHeader title="Add entry" />
+        <BentoHeader id="allowlist-add-heading" title="Add entry" />
         <div className="p-5 lg:p-6">
           <form action={addAllowlistEntryAction} className="flex flex-col gap-5">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -141,7 +156,12 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   min={0}
                   max={100}
                   defaultValue={0}
+                  aria-describedby="add-riskScore-hint"
                 />
+                <p id="add-riskScore-hint" className="ct-metric-caption">
+                  0 = not scored — the list shows a risk badge only for entries
+                  with a recorded assessment.
+                </p>
               </div>
               <div className="flex flex-col gap-1.5 sm:col-span-2">
                 <BentoLabel htmlFor="add-notes">Notes (optional)</BentoLabel>
@@ -179,10 +199,8 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
         </BentoPanel>
       ) : (
         <BentoPanel aria-labelledby="allowlist-table-heading">
-          <h2 id="allowlist-table-heading" className="sr-only">
-            Allowlist entries
-          </h2>
           <BentoHeader
+            id="allowlist-table-heading"
             title={`${entries.length} ${entries.length === 1 ? "entry" : "entries"}`}
           />
           <Table
@@ -211,7 +229,9 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                   key={entry.id}
                   className={cn(
                     "border-transparent align-top transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]",
-                    !entry.active && "opacity-[var(--ct-opacity-55)]",
+                    // Tailwind numeric opacity — --ct-opacity-55 is a phantom
+                    // token (defined in no runtime CSS), greenfield rule.
+                    !entry.active && "opacity-55",
                   )}
                 >
                   <TableCell className="pl-5">
@@ -229,7 +249,7 @@ export function AllowlistBoard({ entries }: { entries: AllowlistEntryRow[] }) {
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
-                    <Badge color={riskColor(entry.riskScore)}>{entry.riskScore}</Badge>
+                    <RiskScoreBadge score={entry.riskScore} />
                   </TableCell>
                   <TableCell>
                     <form action={toggleAllowlistEntryAction}>

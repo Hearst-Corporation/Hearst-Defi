@@ -8,64 +8,74 @@ interface DistributionRow {
   recipientsCount: number;
 }
 
+/**
+ * Aggregate totals over the FULL scoped population (Prisma `aggregate`, no
+ * `take`). The KPI strip must never be derived from a display window: the
+ * old `take: 6` variant presented a 6-row subtotal as "Total distributed"
+ * (honesty table TOP4 — FABRIQUÉ/fenêtre).
+ */
+export interface DistributionTotals {
+  /** Σ amountUsdc over ALL records in scope (aggregate _sum). */
+  totalUsdc: number;
+  /** COUNT of ALL records in scope (aggregate _count). */
+  recordCount: number;
+  /** MAX recipientsCount over ALL records in scope (aggregate _max). */
+  maxRecipients: number | null;
+}
+
 function toNumber(v: { toNumber(): number } | number): number {
   return typeof v === "number" ? v : v.toNumber();
 }
 
 /**
- * Derives 3–4 honest KPIs from the distribution history already loaded by
- * the admin/distributions page. No DB queries — pure derivation.
+ * Derives honest KPIs for the retired payout archive (/admin/distributions).
  *
- * Returns [] when there are no distributions (caller suppresses the strip).
+ * - `totals` comes from a windowless `aggregate` — the ONLY source for the
+ *   "Total paid out (legacy)" / record-count / max-recipients figures.
+ * - `latest` is the head of the desc-ordered history window (genuinely the
+ *   most recent record — a window head is valid for "latest", never for sums).
  *
- * Provenance:
- * - Count / total / unique recipients → "manual" (operator-confirmed records)
- * - Latest period → "manual"
+ * Returns [] when there are no records (caller suppresses the strip).
+ *
+ * Provenance travels WITH each KPI (rendered as-is by the view, zero
+ * render-time literals): these are operator-entered archive records → "manual".
  */
 export function buildDistributionsKpiStrip(
-  history: DistributionRow[],
+  totals: DistributionTotals,
+  latest: DistributionRow | null,
 ): HeroKpi[] {
-  if (history.length === 0) return [];
-
-  const totalUsdc = history.reduce(
-    (sum, d) => sum + toNumber(d.amountUsdc),
-    0,
-  );
-
-  // history is already ordered desc by distributedAt (most recent first).
-  const latestPeriod = history[0]?.period ?? "—";
-
-  // Unique recipient counts across periods (max per distribution — distributions
-  // may overlap recipients, so summing overstates; we surface max as a floor).
-  const maxRecipients = Math.max(...history.map((d) => d.recipientsCount));
+  if (totals.recordCount === 0) return [];
 
   const kpis: HeroKpi[] = [
     {
-      label: "Total distributed",
-      value: formatUsdCompact(totalUsdc),
-      sublabel: `across ${history.length} distribution${history.length === 1 ? "" : "s"}`,
+      label: "Total paid out (legacy)",
+      value: formatUsdCompact(totals.totalUsdc),
+      sublabel: `across ${totals.recordCount} legacy payout record${totals.recordCount === 1 ? "" : "s"}`,
       provenance: "manual",
       accent: true,
     },
     {
-      label: "Distributions",
-      value: String(history.length),
+      label: "Legacy payout records",
+      value: String(totals.recordCount),
       sublabel: "confirmed on record",
-      provenance: "manual",
-    },
-    {
-      label: "Latest period",
-      value: latestPeriod,
-      sublabel: `${formatUsdCompact(toNumber(history[0]!.amountUsdc))} USDC`,
       provenance: "manual",
     },
   ];
 
-  if (maxRecipients > 0) {
+  if (latest !== null) {
+    kpis.push({
+      label: "Latest period",
+      value: latest.period,
+      sublabel: `${formatUsdCompact(toNumber(latest.amountUsdc))} USDC`,
+      provenance: "manual",
+    });
+  }
+
+  if (totals.maxRecipients !== null && totals.maxRecipients > 0) {
     kpis.push({
       label: "Max recipients",
-      value: String(maxRecipients),
-      sublabel: "in a single distribution",
+      value: String(totals.maxRecipients),
+      sublabel: "in a single payout record",
       provenance: "manual",
     });
   }
