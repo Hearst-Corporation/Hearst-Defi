@@ -134,3 +134,4 @@ storybook-static/
 # Licensed Tailwind Plus kits — local reference only, committing/pushing them
 # to GitHub would redistribute licensed content. Source: ~/Downloads.
 design-refs/
+.storybook-consulted
