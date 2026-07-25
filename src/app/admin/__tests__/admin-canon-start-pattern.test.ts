@@ -107,6 +107,35 @@ const ALL_ALLOWLISTED: ReadonlySet<string> = new Set([
 const ADMIN_PAGES = collectAdminPages(ADMIN_DIR);
 const read = (rel: string): string => readFileSync(join(ROOT, rel), "utf8");
 
+/**
+ * One-hop view resolution. Since the 2026-07-25 overhaul, admin pages are thin
+ * wrappers (`page.tsx` → `<AdminXxxView />` in `src/views/…`). The canon is
+ * mounted INSIDE the view — either directly (AdminPageShell) or through the
+ * canon bridge (`views/_shared/layout.tsx`: PageLayout/PageHeader/Panel, which
+ * DELEGATE to AdminPageHeader/AdminSectionCard — locked by the dedicated
+ * describe below). We therefore assert on the page source CONCATENATED with
+ * every locally-imported `@/views/**` module (same substring mechanism).
+ */
+function resolveViewSources(pageSrc: string): string {
+  const out: string[] = [];
+  const re = /from\s+"@\/(views\/[^"]+)"/g;
+  for (const m of pageSrc.matchAll(re)) {
+    for (const cand of [
+      `src/${m[1]}.tsx`,
+      `src/${m[1]}.ts`,
+      `src/${m[1]}/index.tsx`,
+    ]) {
+      try {
+        out.push(readFileSync(join(ROOT, cand), "utf8"));
+        break;
+      } catch {
+        /* candidate miss — try next extension */
+      }
+    }
+  }
+  return out.join("\n");
+}
+
 describe("admin canon start-pattern — discovery", () => {
   it("finds the admin page surfaces (sanity: walk actually ran)", () => {
     expect(ADMIN_PAGES.length).toBeGreaterThan(20);
@@ -142,34 +171,45 @@ describe("admin canon start-pattern — every non-allowlisted page conforms", ()
 
     it(label, () => {
       const src = read(rel);
+      // Effective source = page + its one-hop `@/views/**` imports (wrapper
+      // pattern of the 2026-07-25 overhaul). Same substring mechanism.
+      const effective = `${src}\n${resolveViewSources(src)}`;
 
-      // (1) Canon shell — every admin page mounts the header via AdminPageShell.
+      // (1) Canon shell — directly (AdminPageShell) or via the canon bridge
+      // (PageLayout + PageHeader from views/_shared/layout, which delegates —
+      // see the "canon bridge delegation lock" describe below).
+      const mountsShell =
+        effective.includes("AdminPageShell") ||
+        (effective.includes("PageLayout") && effective.includes("PageHeader"));
       expect(
-        src.includes("AdminPageShell"),
-        `${rel} must mount the canon shell (AdminPageShell) — ` +
-          `it provides the bg-surface-page frame and the AdminPageHeader.`,
+        mountsShell,
+        `${rel} must mount the canon shell — AdminPageShell, or the canon ` +
+          `bridge (PageLayout + PageHeader from views/_shared/layout). ` +
+          `It provides the bg-surface-page frame and the AdminPageHeader.`,
       ).toBe(true);
 
       // (2) No hand-rolled H1 — the title comes from AdminPageHeader.
       expect(
-        src.includes("<h1"),
-        `${rel} must NOT hand-roll an <h1> — the page title comes from ` +
-          `AdminPageHeader inside AdminPageShell, never inline.`,
+        effective.includes("<h1"),
+        `${rel} (or its view) must NOT hand-roll an <h1> — the page title ` +
+          `comes from AdminPageHeader, never inline.`,
       ).toBe(false);
 
       // (3) Canon first block — skipped for the secondary allowlist.
       if (!isSecondary) {
         const hasFirstBlock =
-          src.includes("AdminSectionCard") ||
-          src.includes("AdminKpiStripPanel");
+          effective.includes("AdminSectionCard") ||
+          effective.includes("AdminKpiStripPanel") ||
+          /<Panel[\s>]/.test(effective);
         expect(
           hasFirstBlock,
           `${rel} must open on a canon first-block primitive ` +
-            `(AdminSectionCard or AdminKpiStripPanel). Mounting AdminPageShell ` +
-            `is not enough — a bare grid / raw BentoPanel as the first block ` +
-            `breaks the visual start pattern. If this page legitimately needs a ` +
-            `different welded canon surface, add it to SECONDARY_ALLOWLIST with ` +
-            `a justification.`,
+            `(AdminSectionCard, AdminKpiStripPanel, or the canon bridge Panel ` +
+            `which delegates to AdminSectionCard). Mounting the shell is not ` +
+            `enough — a bare grid / raw BentoPanel as the first block breaks ` +
+            `the visual start pattern. If this page legitimately needs a ` +
+            `different welded canon surface, add it to SECONDARY_ALLOWLIST ` +
+            `with a justification.`,
         ).toBe(true);
       }
     });
@@ -198,5 +238,22 @@ describe("admin canon start-pattern — guard self-consistency", () => {
     expect(ALL_ALLOWLISTED.size).toBe(
       PRIMARY_ALLOWLIST.size + SECONDARY_ALLOWLIST.size,
     );
+  });
+});
+
+describe("canon bridge delegation lock — views/_shared/layout IS the canon", () => {
+  const bridge = read("src/views/_shared/layout.tsx");
+
+  it("PageHeader delegates to AdminPageHeader (no hand-rolled h1 in the bridge)", () => {
+    expect(bridge.includes("AdminPageHeader")).toBe(true);
+    expect(bridge.includes("<h1")).toBe(false);
+  });
+
+  it("Panel delegates to AdminSectionCard (the welded canon card)", () => {
+    expect(bridge.includes("AdminSectionCard")).toBe(true);
+  });
+
+  it("no parallel visual vocabulary (hc-* classes) in the bridge", () => {
+    expect(/\bhc-/.test(bridge)).toBe(false);
   });
 });
