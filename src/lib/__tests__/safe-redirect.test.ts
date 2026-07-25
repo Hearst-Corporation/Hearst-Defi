@@ -18,7 +18,8 @@ describe("safeFrom", () => {
       ["newline control char", "/dashboard\n"],
       ["null byte", "/dashboard\x00"],
     ])("returns fallback for %s", (_label, input) => {
-      expect(safeFrom(input)).toBe("/dashboard");
+      // Default fallback is the investor home, "/portfolio" (MONDE B, 2026-07-25).
+      expect(safeFrom(input)).toBe("/portfolio");
     });
 
     it("uses custom fallback when provided", () => {

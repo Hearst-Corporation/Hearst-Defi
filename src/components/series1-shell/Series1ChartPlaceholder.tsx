@@ -26,7 +26,7 @@ export function Series1ProvenanceTag({ status }: { status: Series1Provenance }) 
     <BentoBadge
       variant="flat"
       className={cn(
-        "items-center gap-1.5 rounded-full border-0 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] leading-normal whitespace-normal ring-1",
+        "items-center gap-1.5 rounded-full border-0 px-2.5 py-1 text-[length:var(--ct-text-deci)] font-semibold uppercase tracking-[0.08em] leading-normal whitespace-normal ring-1",
         isLive
           ? "text-(--ct-accent-strong) ring-(--ct-border-accent)"
           : "text-(--ct-text-muted) ring-(--ct-border-soft)",

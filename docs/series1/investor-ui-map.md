@@ -1,9 +1,15 @@
 # Series 1 — Investor UI Map (endpoints → visual intelligence)
 
-Status 2026-07-23. Companion to `endpoint-to-ui-matrix.md`,
+Status 2026-07-25. Companion to `endpoint-to-ui-matrix.md`,
 `series1-navigation-proposal.md`, `backend-ecosystem-map.md`, `kpi-catalog.md`.
-Prepared as a **plan** (PROMPT 025) — no Dashboard rebuild, no route deletion,
-no backend change in this pass.
+
+> **AMENDMENT — MONDE B (2026-07-25).** The investor **home is "My Position"
+> (`/portfolio`)**, backend-sourced via `getDashboardFromBackend`. The prior
+> fund-level `/dashboard` overview is **retired as the landing** and redirects
+> to `/portfolio`; fund intelligence (allocation cockpit, reserve progress)
+> belongs on **Reserve (`/vaults`)**. The rail is four items: Position ·
+> Reserve · Proof · Profile. Nav item #1 below ("Dashboard") is superseded by
+> "Position"; the numbering is kept for traceability.
 
 > **Canonical framing — "Not yield. Bitcoin inventory."** Series 1 is a Bitcoin
 > reserve construction and maturity-delivery product. Nothing in this map is a
@@ -21,7 +27,7 @@ signals, it does not expose the technical structure.
 
 | # | Nav item | Purpose | Replaces / absorbs |
 |---|----------|---------|--------------------|
-| 1 | **Dashboard** | Overview: allocation cockpit, subscription state, reserve progress, proof snapshot | `/dashboard` (kept, enriched later) |
+| 1 | **Position** (home, MONDE B) | The investor's OWN account: value, share receipts, eligibility, contribution timeline, records & proof, maturity — backend-sourced (`getDashboardFromBackend`) | `/portfolio` (now the home); retired `/dashboard` redirects here. Fund overview → Reserve. |
 | 2 | **Bitcoin Constitution** | B2B-readable product doctrine: what Series 1 is, buckets B1/B2/B3, mining power, proof model, what is / is not proved, maturity logic, "Not yield. Bitcoin inventory." | new page (doctrine was scattered in now-retired docs) |
 | 3 | **Vaults** | Subscription / allocation. B2B ticketing: intent → allocation → status. Ladder 100k/200k/400k/500k/600k → 1M cap. Not a retail checkout. | `/vaults`, `/vaults/[id]`, `/vaults/[id]/invest*` (kept as subflow) |
 | 4 | **Portfolio** | ONE page aggregating positions + activity + historical movements + cash/BTC exposure + contribution status + tax/export (secondary) | merges 6 sub-pages → 1 (see §3) |
@@ -44,11 +50,11 @@ Central test: **"Would a B2B investor deliberately click here?"**
 ### Investor nav (Keep — primary)
 | Route | Verdict | Destination |
 |-------|---------|-------------|
-| `/dashboard` | Keep | Nav 1 |
-| `/vaults` | Keep | Nav 3 |
-| `/vaults/[id]` | Keep (subflow) | under Vaults |
-| `/vaults/[id]/invest`, `/invest/confirmed` | Keep (subflow) | under Vaults |
-| `/portfolio` | Keep — becomes the ONE portfolio page | Nav 4 |
+| `/dashboard` | **Retired → redirect** (MONDE B) | redirects to `/portfolio` |
+| `/vaults` | Keep | Nav "Reserve" |
+| `/vaults/[id]` | Keep (subflow) | under Reserve |
+| `/vaults/[id]/invest`, `/invest/confirmed` | Keep (subflow) | under Reserve |
+| `/portfolio` | Keep — **the home** (Nav "Position"), backend-sourced | Nav 1 |
 | `/proof-center` | Keep | Nav 5 |
 | `/profile` | Keep | Nav 6 |
 

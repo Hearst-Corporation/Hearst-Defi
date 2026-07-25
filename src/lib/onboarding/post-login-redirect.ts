@@ -9,15 +9,20 @@ import { safeFrom } from "@/lib/safe-redirect";
  *
  * Model: `/apply` is the qualification funnel that GRANTS ACCESS to the
  * platform. Once the account is activated (set password), the user enters the
- * platform directly — they land on `/dashboard`, NOT in a blocking onboarding
- * funnel. Onboarding (accreditation → KYC → wallet) is completed *inside* the
- * platform and is NOT a gate on entry; it is only a gate on the sensitive
- * action (investing / depositing), enforced at `/vaults/[id]/invest`.
+ * platform directly — they land on their own position (`/portfolio`), NOT in a
+ * blocking onboarding funnel. Onboarding (accreditation → KYC → wallet) is
+ * completed *inside* the platform and is NOT a gate on entry; it is only a gate
+ * on the sensitive action (investing / depositing), enforced at
+ * `/vaults/[id]/invest`.
+ *
+ * MONDE B (2026-07-25): the investor home is "My Position" (`/portfolio`),
+ * backend-sourced — not the retired fund-level `/dashboard` overview (now a
+ * redirect stub). The logged-in investor lands on their OWN position.
  *
  * - An explicit, validated deep link (`from`) always wins.
- * - Otherwise everyone — onboarded or not — lands on the platform default
- *   (`/dashboard`, the V2 rail entry point). We deliberately do NOT divert
- *   un-attested investors into `/onboarding/accreditation` here anymore.
+ * - Otherwise everyone — onboarded or not — lands on `/portfolio`, the home.
+ *   We deliberately do NOT divert un-attested investors into
+ *   `/onboarding/accreditation` here anymore.
  */
 export async function resolvePostLoginRedirect(
   _userId: string,
@@ -28,7 +33,7 @@ export async function resolvePostLoginRedirect(
     return safeFrom(from);
   }
 
-  // Everyone enters the platform directly. Onboarding lives inside the platform
-  // and only gates investing, not entry.
-  return "/dashboard";
+  // Everyone enters the platform directly, on their own position. Onboarding
+  // lives inside the platform and only gates investing, not entry.
+  return "/portfolio";
 }

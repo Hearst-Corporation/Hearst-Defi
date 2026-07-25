@@ -51,7 +51,7 @@ export function Series1KpiBand({
                 {metric.value}
               </dd>
               {metric.hint ? (
-                <p className="mt-0.5 text-[10px] leading-4 text-(--ct-text-faint)">
+                <p className="mt-0.5 text-[length:var(--ct-text-deci)] leading-4 text-(--ct-text-faint)">
                   {metric.hint}
                 </p>
               ) : null}

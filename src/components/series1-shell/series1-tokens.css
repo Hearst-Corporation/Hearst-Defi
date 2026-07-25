@@ -34,13 +34,28 @@
    wrapper Series1Shell renders — keeps the fix inside the series1-shell
    perimeter instead of forking a shared primitive. Same depth model
    (gutter → raised card), DS colours: gutter = canvas (--ct-bg-deep), card =
-   the canon raised surface with its ring and elevated shadow. */
+   the canon raised surface.
+
+   Full-height: the wrapper must not interrupt the SidebarLayout → content
+   `min-h-svh`/grow chain, or the page collapses to content height and leaves
+   dead space below the last block. `contents`-like full height is carried
+   through with min-height + a flex column. */
+.s1-shell,
+.s1-shell > div {
+  min-height: 100svh;
+}
+
 .s1-shell > div {
   background-color: var(--ct-bg-deep);
 }
 
+/* Depth: ONE signal at shell level. The content card used --ct-shadow-elevated
+   (0 16px 56px) stacked on top of every inner card's own elevated shadow — the
+   triple-depth surcharge the cockpit direction rejects ("profondeur sans
+   surcharge, aucun glow"). Dropped to --ct-shadow-soft so the shell reads as a
+   single calm plane; inner cards own their (lighter) depth. */
 .s1-shell #main-content > div {
   background-color: color-mix(in srgb, var(--ct-bg-deep) 60%, var(--ct-surface-page));
-  box-shadow: var(--ct-shadow-elevated);
-  --tw-ring-color: var(--ct-border);
+  box-shadow: var(--ct-shadow-soft);
+  --tw-ring-color: var(--ct-border-soft);
 }

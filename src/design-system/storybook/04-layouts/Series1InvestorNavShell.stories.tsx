@@ -14,15 +14,18 @@ const meta: Meta<typeof Series1Nav> = {
 export default meta;
 type Story = StoryObj<typeof Series1Nav>;
 
-// The FOUR investor destinations this rail must expose (validated nav doctrine
-// 2026-07-24): Dashboard · Reserve · Proof · Profile. One flat rail.
-const EXPECTED_LABELS = ["Dashboard", "Reserve", "Proof", "Profile"];
+// The FOUR investor destinations this rail must expose (nav doctrine 2026-07-25,
+// MONDE B): Position · Reserve · Proof · Profile. One flat rail. The investor
+// home is "Position" (/portfolio), backend-sourced; the retired fund-level
+// /dashboard overview redirects there and is NOT a rail item.
+const EXPECTED_LABELS = ["Position", "Reserve", "Proof", "Profile"];
 
 // The exact ordered destination set — the navigation surface, nothing else.
-const EXPECTED_HREFS = ["/dashboard", "/vaults", "/proof-center", "/profile"];
+const EXPECTED_HREFS = ["/portfolio", "/vaults", "/proof-center", "/profile"];
 
 // Href prefixes that must NEVER be a destination in the investor rail: admin,
-// webhooks/API plumbing, and the folded off-canon Portfolio sub-pages.
+// webhooks/API plumbing, and the folded off-canon Portfolio sub-pages. Note
+// `/portfolio` itself IS the home now — only its off-canon sub-pages are barred.
 const FORBIDDEN_HREF_PREFIXES = [
   "/admin",
   "/api/",
@@ -30,21 +33,21 @@ const FORBIDDEN_HREF_PREFIXES = [
   "/portfolio/distributions",
 ];
 
-// Destinations RETIRED from the rail by the validated doctrine — each folds
-// INTO one of the four (My Position → Dashboard, Bitcoin Constitution →
-// Reserve, Documents/KYC → Profile). They must not stand as their own link.
-const RETIRED_HREFS = ["/portfolio", "/bitcoin-constitution"];
+// Destinations RETIRED from the rail by the doctrine — each folds INTO one of
+// the four (Bitcoin Constitution → Reserve, Documents/KYC → Profile). The
+// former fund-level Dashboard is retired as the landing (redirects to Position).
+// They must not stand as their own link.
+const RETIRED_HREFS = ["/dashboard", "/bitcoin-constitution"];
 
 // Labels the rail must NOT show — the retired standalone entries and the plural
 // "Vaults" wording. "Series 1" is a header subtitle/badge, never a nav label.
 const RETIRED_LABELS = [
-  "My Position",
+  "Dashboard",
   "Bitcoin Constitution",
   "Documents & KYC",
   "Series 1 Vault",
   "Vaults",
   "Overview",
-  "Portfolio",
 ];
 
 // The contract is the set of link destinations + their visible labels, not the
@@ -83,17 +86,17 @@ async function assertFourCleanItems(canvasElement: HTMLElement) {
 }
 
 export const Default: Story = {
-  args: { pathname: "/dashboard" },
+  args: { pathname: "/portfolio" },
   play: async ({ canvasElement }) => {
     await assertFourCleanItems(canvasElement);
   },
 };
 
-export const ActiveDashboard: Story = {
-  args: { pathname: "/dashboard" },
+export const ActivePosition: Story = {
+  args: { pathname: "/portfolio" },
   play: async ({ canvasElement, canvas }) => {
     await assertFourCleanItems(canvasElement);
-    const active = canvas.getByRole("link", { name: /Dashboard/ });
+    const active = canvas.getByRole("link", { name: /Position/ });
     await expect(active).toHaveAttribute("data-current", "true");
   },
 };
@@ -126,7 +129,7 @@ export const ActiveProfile: Story = {
 };
 
 export const NarrowViewport: Story = {
-  args: { pathname: "/dashboard" },
+  args: { pathname: "/portfolio" },
   parameters: { viewport: { defaultViewport: "mobile1" } },
   play: async ({ canvasElement }) => {
     await assertFourCleanItems(canvasElement);
@@ -134,7 +137,7 @@ export const NarrowViewport: Story = {
 };
 
 export const WideViewport: Story = {
-  args: { pathname: "/dashboard" },
+  args: { pathname: "/portfolio" },
   parameters: { viewport: { defaultViewport: "desktop" } },
   play: async ({ canvasElement }) => {
     await assertFourCleanItems(canvasElement);

@@ -141,7 +141,7 @@ export function Series1RowBase({
         <span className="text-right text-sm font-semibold text-(--ct-text-strong) tabular-nums">
           {value}
           {hint ? (
-            <span className="mt-0.5 block text-[10px] font-normal text-(--ct-text-faint)">
+            <span className="mt-0.5 block text-[length:var(--ct-text-deci)] font-normal text-(--ct-text-faint)">
               {hint}
             </span>
           ) : null}
