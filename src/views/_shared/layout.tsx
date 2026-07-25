@@ -35,7 +35,7 @@ export function PageLayout({
         className,
       )}
     >
-      <div className="admin-canon-page-frame min-w-0 p-5 lg:p-6 flex flex-col gap-y-5">
+      <div className="admin-canon-page-frame min-w-0 p-5 lg:p-6 xl:px-12 min-[1700px]:px-20 flex flex-col gap-y-5">
         {children}
       </div>
     </div>
