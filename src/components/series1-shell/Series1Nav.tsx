@@ -21,26 +21,28 @@ type Series1NavItem = {
 };
 
 /**
- * The four investor destinations (validated nav doctrine 2026-07-24):
- *   Dashboard · Reserve · Proof · Profile.
+ * The four investor destinations (nav doctrine 2026-07-25, MONDE B):
+ *   Position · Reserve · Proof · Profile.
  *
  * One flat rail, no sub-sections — each entry is a real place a B2B investor
  * goes, and everything else folds INTO one of them rather than standing alone:
- *   - My Position (/portfolio)      → lives inside Dashboard.
- *   - Documents / KYC / wallet      → live inside Profile.
- *   - Bitcoin Constitution          → lives inside Reserve.
- *   - "Series 1"                     → a subtitle/badge (see SidebarHeader),
+ *   - "My Position" (/portfolio)     → IS the home. The retired fund-level
+ *                                       /dashboard overview redirects here; the
+ *                                       investor lands on their OWN position,
+ *                                       backend-sourced, not a fund console.
+ *   - Documents / KYC / wallet       → live inside Profile.
+ *   - Bitcoin Constitution           → lives inside Reserve.
+ *   - "Series 1"                      → a subtitle/badge (see SidebarHeader),
  *                                       never a nav label.
  *
  * "Reserve" is the product page — Hearst Bitcoin Reserve — Series 1. It points
- * at /vaults (the existing product surface); the plural "Vaults" wording and
- * the standalone /portfolio, /bitcoin-constitution rail entries are retired.
- * Admin, webhooks and diagnostics never appear here.
+ * at /vaults (the existing product surface); the plural "Vaults" wording is
+ * retired. Admin, webhooks and diagnostics never appear here.
  *
  * Module-local: the array is rendered here and nowhere else.
  */
 const SERIES1_NAV: Series1NavItem[] = [
-  { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { id: "position", label: "Position", href: "/portfolio", icon: LayoutDashboard },
   { id: "reserve", label: "Reserve", href: "/vaults", icon: Landmark },
   { id: "proof", label: "Proof", href: "/proof-center", icon: ShieldCheck },
   { id: "profile", label: "Profile", href: "/profile", icon: UserRound },

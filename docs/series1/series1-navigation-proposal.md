@@ -1,16 +1,27 @@
 # Series 1 — Navigation Proposal
 
-Status 2026-07-23. The final investor navigation, page by page. Companion to
-`investor-ui-map.md` and `endpoint-to-ui-matrix.md`. Plan only (PROMPT 025) —
-no runtime rebuild in this pass.
+Status 2026-07-25. The final investor navigation, page by page. Companion to
+`investor-ui-map.md` and `endpoint-to-ui-matrix.md`.
 
 > "Not yield. Bitcoin inventory." B2B, proof-backed reserve cockpit.
+
+> **AMENDMENT — MONDE B (2026-07-25, superseding the 2026-07-23 plan).** The
+> investor **home is "My Position" (`/portfolio`)**, backend-sourced, NOT a
+> separate fund-level Dashboard. The prior `/dashboard` overview (BTC-accumulated
+> hero + allocation cockpit + mining register) is **retired as the landing** and
+> now redirects to `/portfolio`. Rationale (Adrien): the first screen a logged-in
+> investor sees must be their OWN position — value, share receipts, eligibility,
+> contribution timeline, maturity — read from the backend (`getDashboardFromBackend`),
+> not the state of the fund. Fund-level intelligence (reserve, allocation) belongs
+> on **Reserve (`/vaults`)**, not on the home. The rail is four items:
+> **Position · Reserve · Proof · Profile**.
 
 ## Final pages
 
 | Page | Why it exists | What it replaces | Components / instruments | Priority |
 |------|---------------|------------------|--------------------------|----------|
-| **Dashboard** | One-glance reserve + allocation + subscription + proof snapshot | current `/dashboard` (enriched) | Allocation Cockpit, Reserve Progress arc, Subscription state, Proof snapshot | P1 |
+| **Position** (home) | The investor's OWN account: value, share receipts, eligibility, contribution timeline, records & proof, maturity — backend-sourced | `/portfolio` (kept, now the home) + retired `/dashboard` (redirects here) | Series1 KPI band, position detail, eligibility, contribution timeline, maturity | P0 (shipped 2026-07-25) |
+| ~~**Dashboard**~~ | ~~One-glance reserve + allocation + subscription + proof snapshot~~ **RETIRED as landing** — redirects to Position. Fund intelligence moves to Reserve. | ~~current `/dashboard`~~ | (dormant `Series1Dashboard` code, cleanup pending) | — |
 | **Bitcoin Constitution** | B2B doctrine: what Series 1 is, B1/B2/B3, mining power, proof model, maturity, "Not yield." | scattered doctrine in now-retired docs | policy diagram, bucket cards, what-is/what-is-not-proved panel | P3 |
 | **Vaults** | Subscription / allocation — B2B ticketing, not retail checkout | `/vaults` + `/vaults/[id]` + invest subflow | Subscription Ladder (100k→1M), vault status, on-chain readout | P2 |
 | **Portfolio** | ONE aggregated page: positions, activity, movements, exposure, contribution, export | 6 sub-pages (activity/positions/distributions/tax/yield/preview) | Contribution hero, Positions, Unified Ledger, Exposure, secondary export | P2 (kills worst debt) |

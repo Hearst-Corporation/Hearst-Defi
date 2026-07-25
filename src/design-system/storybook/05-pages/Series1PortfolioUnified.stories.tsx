@@ -38,10 +38,10 @@ function PositionSummary({ state }: UnifiedArgs) {
         ? "Complete onboarding to see your position"
         : state === "empty"
           ? "No position yet — subscribe on Series 1"
-          : "convertToAssets(shares)";
+          : "Position value reported by the backend";
   return (
     <Series1Panel>
-      <Series1PanelHeader title="Holdings" description="Read per-wallet from the vault contract." />
+      <Series1PanelHeader title="Holdings" description="Read per-wallet from the vault, via the backend." />
       <Series1RowList>
         <Series1Row label="Position value" value={value} hint={hint} />
         <Series1Row label="Periodic cash" value="None" hint="No periodic cash, no fixed rate — BTC delivered at maturity." />

@@ -1,6 +1,13 @@
 # Series 1 — Endpoint → UI Matrix
 
-Status 2026-07-23. Companion to `investor-ui-map.md`. Two endpoint families:
+Status 2026-07-25. Companion to `investor-ui-map.md`. Two endpoint families:
+
+> **AMENDMENT — MONDE B (2026-07-25).** `getDashboardFromBackend` (the per-user
+> aggregate: `identity` + `position` + `subscription` + `activity` + `vault`
+> terms) is now consumed by the **Position home page (`/portfolio`)** — the
+> investor's own account, NOT a separate "Dashboard" page. The former
+> fund-level `/dashboard` route is a redirect stub. So "endpoint → page" for
+> this row reads: `getDashboardFromBackend → /portfolio (Position home)`.
 **(A)** backend DTO reads consumed via `src/lib/backend/server-client.ts`
 (the real data behind investor instruments), and **(B)** Next.js API routes
 under `src/app/api/**` (mostly plumbing, webhooks, admin — **almost none are
@@ -16,7 +23,7 @@ diagnostic only | do not expose | not ready`.
 
 | Function (endpoint) | Data returned | Audience | UI use | Derived visual | Do-not-expose reason |
 |---------------------|---------------|----------|--------|----------------|----------------------|
-| `getDashboardFromBackend` | `DashboardDTO` aggregate | B2B visible | Dashboard hero + tiles | composite of the below | — |
+| `getDashboardFromBackend` | `DashboardDTO` aggregate (per-user) | B2B visible | **Position home (`/portfolio`)** — value, share receipts, eligibility, contribution timeline, term | position + identity + subscription + activity + vault terms | — |
 | `getVaultFromBackend` | `VaultDTO` (totalAssets, minimumDepositAtomic, cap) | B2B visible | Vaults, Subscription Ladder | ladder, reserve arc | — |
 | `getVaultStrategiesFromBackend` | `VaultStrategy[]` (actualBps, driftBps) | B2B visible | Allocation Cockpit | B1/B2/B3 band + drift ring | — |
 | `getProductFactsheetFromBackend` | `FactsheetTerms`, `FactsheetAllocation` (targetBps, term) | B2B visible | Constitution, Allocation, Reserve | policy diagram, target line | — |
