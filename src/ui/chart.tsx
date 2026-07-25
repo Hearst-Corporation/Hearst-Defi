@@ -33,7 +33,7 @@ function ChartTooltipContent({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-border bg-surface-overlay px-3 py-2 text-xs shadow-md">
+    <div className="rounded-lg border border-border bg-surface-overlay px-3 py-2 text-xs shadow-[var(--ct-shadow-soft)]">
       {label ? <p className="mb-1 text-subtle">{label}</p> : null}
       {payload.map((entry) => (
         <p

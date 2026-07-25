@@ -15,6 +15,9 @@ import {
   AdminPageFrame,
   AdminSectionCard,
 } from "@/components/admin/admin-page-shell";
+import { cn } from "@/lib/cn";
+import type { Provenance } from "@/lib/provenance";
+import { ProvenanceBadge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 
 /**
@@ -116,15 +119,50 @@ export function RowList({ children }: { children: React.ReactNode }) {
   return <div className="divide-y divide-[var(--ct-border)]">{children}</div>;
 }
 
+export type RowTone = "ok" | "watch" | "alert" | "idle";
+
+// Pastille de tonalité — nuances grises + accent UNIQUEMENT, jamais de rouge :
+// une Row en alerte s'exprime par un texte fort + préfixe (voir plus bas),
+// pas par une couleur d'erreur (doctrine « zéro rouge »).
+const ROW_TONE_DOT: Record<RowTone, string> = {
+  ok: "bg-[var(--ct-accent)]",
+  watch: "bg-[var(--ct-text-strong)]",
+  alert: "bg-[var(--ct-text-strong)]",
+  idle: "bg-[var(--ct-text-faint)]",
+};
+
 export function Row({
   label,
   value,
   hint,
+  provenance,
+  tone,
 }: {
   label: string;
   value: React.ReactNode;
   hint?: string;
+  /** Badge de provenance (canon src/ui) rendu à côté de la valeur. */
+  provenance?: Provenance;
+  /** Nuance sémantique SANS rouge. Absent = rendu historique inchangé. */
+  tone?: RowTone;
 }) {
+  // Défauts absents ⇒ markup historique STRICTEMENT identique (au pixel).
+  if (provenance == null && tone == null) {
+    return (
+      <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-3.5">
+        <div className="min-w-0">
+          <p className="text-sm text-[var(--ct-text-muted)]">{label}</p>
+          {hint ? (
+            <p className="mt-0.5 text-xs text-[var(--ct-text-faint)]">{hint}</p>
+          ) : null}
+        </div>
+        <p className="text-sm font-medium text-[var(--ct-text-strong)] tabular-nums">
+          {value}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-3.5">
       <div className="min-w-0">
@@ -133,9 +171,34 @@ export function Row({
           <p className="mt-0.5 text-xs text-[var(--ct-text-faint)]">{hint}</p>
         ) : null}
       </div>
-      <p className="text-sm font-medium text-[var(--ct-text-strong)] tabular-nums">
-        {value}
-      </p>
+      <div className="flex items-center gap-2">
+        {tone ? (
+          <span
+            aria-hidden
+            className={cn(
+              "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
+              ROW_TONE_DOT[tone],
+            )}
+          />
+        ) : null}
+        <p
+          className={cn(
+            "text-sm font-medium text-[var(--ct-text-strong)] tabular-nums",
+            tone === "alert" && "font-semibold",
+          )}
+        >
+          {tone === "alert" ? (
+            <>
+              <span aria-hidden className="mr-1.5">
+                !
+              </span>
+              <span className="sr-only">Alert: </span>
+            </>
+          ) : null}
+          {value}
+        </p>
+        {provenance ? <ProvenanceBadge source={provenance} /> : null}
+      </div>
     </div>
   );
 }

@@ -23,8 +23,13 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = process.cwd();
 
-// The ONLY file allowed to define the table gutter mechanics.
-const PRIMITIVE_ALLOWLIST = ["src/components/catalyst/table.tsx"];
+// The ONLY files allowed to define the table gutter mechanics: the Catalyst
+// primitive (Mission #059) and the src/ui primitive (Mission U1 / D4 — same
+// contract, gutter carried by the cells).
+const PRIMITIVE_ALLOWLIST = [
+  "src/components/catalyst/table.tsx",
+  "src/ui/table.tsx",
+];
 
 // Destructive gutter patterns — forbidden outside the primitive allowlist.
 // Matched against raw file text (these are Tailwind class fragments).
@@ -36,7 +41,7 @@ const FORBIDDEN_PATTERNS: { id: string; re: RegExp }[] = [
   { id: "-mx-(--gutter)", re: /-mx-\(--gutter\)/ },
 ];
 
-const SCAN_ROOTS = ["src/app", "src/components"];
+const SCAN_ROOTS = ["src/app", "src/components", "src/ui"];
 const EXT = /\.(tsx?|jsx?)$/;
 // Tests describe these patterns as forbidden anti-patterns; they legitimately
 // contain the strings. Exclude the test directory from the scan.
@@ -92,17 +97,18 @@ describe("Global Table Gutter Guard (Mission #059)", () => {
     expect(FILES.length).toBeGreaterThan(100);
   });
 
-  it("the table primitive exists and is the gutter owner", () => {
-    const prim = PRIMITIVE_ALLOWLIST[0]!;
-    const text = readFileSync(join(ROOT, prim), "utf8");
-    // The primitive must define the canon symmetric gutter…
-    expect(text).toMatch(/first:pl-5/);
-    expect(text).toMatch(/last:pr-5/);
-    // …and must NOT carry the destructive override anymore.
-    expect(text).not.toMatch(/sm:first:pl-1/);
-    expect(text).not.toMatch(/sm:last:pr-1/);
-    expect(text).not.toMatch(/-mx-\(--gutter\)/);
-  });
+  for (const prim of PRIMITIVE_ALLOWLIST) {
+    it(`the table primitive ${prim} exists and is a gutter owner`, () => {
+      const text = readFileSync(join(ROOT, prim), "utf8");
+      // The primitive must define the canon symmetric gutter…
+      expect(text).toMatch(/first:pl-5/);
+      expect(text).toMatch(/last:pr-5/);
+      // …and must NOT carry the destructive override anymore.
+      expect(text).not.toMatch(/sm:first:pl-1/);
+      expect(text).not.toMatch(/sm:last:pr-1/);
+      expect(text).not.toMatch(/-mx-\(--gutter\)/);
+    });
+  }
 
   for (const { id, re } of FORBIDDEN_PATTERNS) {
     it(`forbids "${id}" outside the table primitive`, () => {

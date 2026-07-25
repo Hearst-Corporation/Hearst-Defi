@@ -39,7 +39,7 @@ export function Drawer({
             <DialogPanel
               transition
               className={cn(
-                "pointer-events-auto h-full w-screen max-w-md border-border bg-surface-raised shadow-md",
+                "pointer-events-auto h-full w-screen max-w-md border-border bg-surface-raised shadow-[var(--ct-shadow-soft)]",
                 side === "right" ? "border-l" : "border-r",
                 "transition duration-300 data-closed:translate-x-full",
                 side === "left" && "data-closed:-translate-x-full",

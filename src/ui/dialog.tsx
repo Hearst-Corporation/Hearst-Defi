@@ -30,7 +30,7 @@ export function Dialog({
         <DialogPanel
           transition
           className={cn(
-            "w-full max-w-lg rounded-xl border border-border bg-surface-raised p-6 shadow-md",
+            "w-full max-w-lg rounded-xl border border-border bg-surface-raised p-6 shadow-[var(--ct-shadow-soft)]",
             "transition-all data-closed:scale-95 data-closed:opacity-0",
             className,
           )}

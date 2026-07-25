@@ -6,6 +6,13 @@ export type TimelineItem = {
   title: string;
   description?: string;
   timestamp: string;
+  /**
+   * `success` follows the single accent automatically (the success tokens
+   * resolve to `--ct-accent` since vague 0 — never a second green).
+   * `danger` is reserved for SYSTEM FAILURE events only (a job that crashed,
+   * a broadcast that failed) — never for neutral/absent states, which render
+   * `default` grey.
+   */
   status?: "default" | "success" | "warning" | "danger";
 };
 

@@ -1,48 +1,28 @@
 // Specialized provenance chip — delegates its chrome to the canonical Catalyst
 // BentoBadge (imported directly, not via the ui/badge compat shim). Token-only.
+// Kinds, labels and descriptions come from the SHARED canonical vocabulary
+// (src/lib/provenance.ts) — this file owns only the chrome.
 import { BentoBadge as Badge } from "@/components/catalyst/bento-badge";
 import { Tooltip } from "@/components/catalyst/tooltip";
 import { cn } from "@/lib/cn";
+import {
+  PROVENANCE_DESCRIPTIONS,
+  PROVENANCE_LABELS,
+  type Provenance,
+} from "@/lib/provenance";
 
-export type Provenance =
-  | "live"
-  | "oracle"
-  | "attested"
-  | "estimated"
-  | "partial"
-  | "manual"
-  | "stale"
-  | "simulated";
+export type { Provenance };
 
-const labels: Record<Provenance, string> = {
-  live: "Live",
-  oracle: "Oracle",
-  attested: "Attested",
-  estimated: "Estimated",
-  partial: "Partial",
-  manual: "Manual",
-  stale: "Stale",
-  simulated: "Simulated",
-};
+const labels: Record<Provenance, string> = PROVENANCE_LABELS;
 
-const descriptions: Record<Provenance, string> = {
-  live: "Real-time data from direct system integration",
-  oracle: "Data verified by decentralized oracles",
-  attested: "Data verified by third-party attestation",
-  estimated: "Projection based on historical performance",
-  partial: "Incomplete data from some sources",
-  manual: "Data manually entered by administrators",
-  stale: "Data awaiting update from source",
-  simulated: "Demo sandbox data — not a production record",
-};
+const descriptions: Record<Provenance, string> = PROVENANCE_DESCRIPTIONS;
 
 // "simulated" is a sandbox marker, NOT an alarm. It renders with the same
-// neutral "default" chrome as estimated/manual (a quiet dot + label), never a
-// warning/danger colour — demo data is benign, just not real.
-const variants: Record<
-  Provenance,
-  "success" | "brand" | "default" | "warning" | "danger" | "flat"
-> = {
+// neutral "default" chrome as estimated/manual (a quiet dot + label), never an
+// alarm colour — demo data is benign, just not real. The value union is
+// deliberately narrower than BentoBadge's: red on a provenance is forbidden
+// by doctrine (locked by src/ui/__tests__/provenance-contract.test.ts).
+const variants: Record<Provenance, "success" | "brand" | "default" | "flat"> = {
   live: "success",
   oracle: "brand",
   attested: "brand",

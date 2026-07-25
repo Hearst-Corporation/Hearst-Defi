@@ -1,3 +1,8 @@
+// Table gutter contract (D4, CLAUDE.md): tables are welded edge-to-edge, the
+// gutter is carried by the CELLS — every cell is px-4, first/last get the
+// symmetric 20px edge gutter (first:pl-5 last:pr-5). Owned jointly with
+// src/components/catalyst/table.tsx, locked by
+// src/lib/ds/__tests__/table-gutter-guard.test.ts.
 import { cn } from "@/lib/cn";
 
 export function Table({
@@ -55,7 +60,7 @@ export function TableHead({
   return (
     <th
       className={cn(
-        "h-10 px-4 text-left align-middle text-xs font-medium uppercase tracking-wider text-subtle",
+        "h-10 px-4 text-left align-middle text-xs font-medium uppercase tracking-wider text-subtle first:pl-5 last:pr-5",
         className,
       )}
       {...props}
@@ -69,7 +74,10 @@ export function TableCell({
 }: React.TdHTMLAttributes<HTMLTableCellElement>) {
   return (
     <td
-      className={cn("px-4 py-3 align-middle text-foreground tabular-nums", className)}
+      className={cn(
+        "px-4 py-3 align-middle text-foreground tabular-nums first:pl-5 last:pr-5",
+        className,
+      )}
       {...props}
     />
   );

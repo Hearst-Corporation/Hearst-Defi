@@ -19,7 +19,7 @@ export function Tooltip({
         className={cn(
           "pointer-events-none absolute bottom-full left-1/2 z-(--z-overlay) mb-2 -translate-x-1/2",
           "rounded-md border border-border bg-surface-overlay px-2 py-1 text-xs text-foreground",
-          "opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+          "opacity-0 shadow-[var(--ct-shadow-soft)] transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
           "whitespace-nowrap",
         )}
       >
