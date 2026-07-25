@@ -1,6 +1,6 @@
 {
   "repository": "Hearst-Corporation/governance",
-  "ref": "cf289360e42569d33d4ad94f35af61f4244e39d7",
+  "ref": "965d4e2876b3acb628d067560d775deabc860d37",
   "globalDoctrine": "doctrine/GLOBAL-DOCTRINE.md",
   "globalRules": "rules/GLOBAL-AGENT-RULES.md",
   "projectDoctrine": "doctrine/projects/hearst-connect.md",
