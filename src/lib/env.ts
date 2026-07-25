@@ -401,6 +401,66 @@ const serverEnvSchema = z.object({
   // defaults to 90 in the retention helper when unset; clamped to a sane range
   // there. Controls best-effort pruning of AgenticRouterDecisionTrace rows.
   ROUTER_TRACE_RETENTION_DAYS: z.coerce.number().int().positive().optional(),
+
+  // ── Déclarées lors de la purge raw-env 2026-07-26 — comportement inchangé ──
+  // Every variable below was previously read as a stray `process.env.X` inside
+  // the /admin runtime closure (admin-honesty-gate rule `raw-env`). They are
+  // ALL optional (or defaulted to the exact fallback the call sites already
+  // used) so this declaration adds ZERO boot risk: no new throw, no new
+  // IS_RUNTIME_PRODUCTION entry. Some are consumed as `env.X` (frozen at boot,
+  // identical in practice), some via `readServerEnv()` below (live reads pinned
+  // by unit tests that stub process.env at runtime), and a few stay read at
+  // their use-site because the module cannot import this server-only file
+  // (client bundle / edge / tsx CLI) — those sites are allowlisted in
+  // scripts/admin-honesty-rules.mjs but declared here for validation +
+  // documentation (same precedent as LANGSMITH_PROJECT above).
+  //
+  // Public base URL of the app, used to mint absolute links (activation,
+  // unsubscribe, CTA). Defaults to the production host — the exact literal
+  // fallback previously duplicated at the call sites. Plain string on purpose:
+  // a `.url()` refinement on an already-provisioned malformed value would 500
+  // every route at boot (known incident class).
+  NEXT_PUBLIC_APP_URL: z.string().default("https://connect.hearst.app"),
+  // Feature flags (src/lib/feature-flags.ts) — string toggles, parsed there.
+  NEXT_PUBLIC_ENABLE_MONTE_CARLO: z.string().optional(),
+  CHAT_MASTER_AGENT: z.string().optional(),
+  SWARMS_ENGINE: z.string().optional(),
+  // Outreach sender identity override (email/send.ts; falls back to its
+  // DEFAULT_FROM constant when unset).
+  OUTREACH_FROM: z.string().optional(),
+  // Broad DefiLlama base-URL fallback honored by the yields + tvl loaders —
+  // documented in the DefiLlama block above but historically missing from the
+  // schema. Plain string (no `.url()`) to keep malformed values failing at
+  // fetch-time exactly as before, never at boot.
+  DEFILLAMA_BASE_URL: z.string().optional(),
+  // Platform flags. VERCEL is set by the Vercel runtime (db.ts pool sizing);
+  // NEXT_PHASE is set by Next itself ("phase-production-build" during build,
+  // read by llm/openai.ts). Both are ambient — never provisioned by hand.
+  VERCEL: z.string().optional(),
+  NEXT_PHASE: z.string().optional(),
+  // Rate-limit toggles (src/lib/rate-limit.ts). Dev/E2E only — production
+  // short-circuits on NODE_ENV before ever reading them. DEV_CHAT_CONCURRENCY
+  // is declared for documentation but stays a LIVE process.env read at its
+  // use-site (unit tests stub it per test while mocking @/lib/env closed).
+  DISABLE_RATE_LIMIT: z.string().optional(),
+  E2E_DISABLE_RATE_LIMIT: z.string().optional(),
+  DEV_CHAT_CONCURRENCY: z.string().optional(),
+  // Dev auth bypass (src/lib/dev-bypass.ts) — declared for documentation only:
+  // that module is imported by the EDGE gate (src/proxy.ts) and must stay free
+  // of this server-only module, so its reads remain live process.env accesses
+  // (allowlisted). Double-gated: inert whenever NODE_ENV === "production".
+  DEV_AUTH_BYPASS: z.string().optional(),
+  DEV_USER_EMAIL: z.string().optional(),
+  DEV_USER_ROLE: z.string().optional(),
+  // Prisma provider switch — declared for documentation; the resolution core
+  // (src/lib/prisma-provider-resolve-core.ts) is shared with tsx CLI scripts
+  // and keeps its live process.env fallback (allowlisted).
+  PRISMA_PROVIDER: z.string().optional(),
+  // Outreach CTA targets (src/lib/outreach/cta-url.ts) — declared for
+  // documentation; reads stay live at the use-site (unit tests stub them per
+  // test while mocking @/lib/env closed).
+  NEXT_PUBLIC_QUALIFICATION_FORM_URL: z.string().optional(),
+  NEXT_PUBLIC_TYPEFORM_URL: z.string().optional(),
 });
 
 type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -585,6 +645,8 @@ function resolveEnv(): ServerEnv {
         OUTREACH_AUTONOMY: lenient.data.OUTREACH_AUTONOMY ?? "SUGGEST",
         OUTREACH_DAILY_SEND_CAP: lenient.data.OUTREACH_DAILY_SEND_CAP ?? 30,
         CREWAI_ENGINE_TIMEOUT_MS: lenient.data.CREWAI_ENGINE_TIMEOUT_MS ?? 30000,
+        NEXT_PUBLIC_APP_URL:
+          lenient.data.NEXT_PUBLIC_APP_URL ?? "https://connect.hearst.app",
         HF_ZEROSHOT_MODEL:
           lenient.data.HF_ZEROSHOT_MODEL ??
           "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7",
@@ -599,3 +661,24 @@ function resolveEnv(): ServerEnv {
 }
 
 export const env: ServerEnv = resolveEnv();
+
+/**
+ * LIVE (non-frozen) read of a DECLARED server env var — returns the raw string
+ * currently sitting in `process.env`, or `undefined`.
+ *
+ * WHY THIS EXISTS (purge raw-env 2026-07-26): a handful of server-only modules
+ * must observe env mutations made AFTER boot — their unit tests stub
+ * `process.env` per test (vi.stubEnv / delete) around a real import of this
+ * module, and `attestation/stored.ts` documents the same live-read contract
+ * for admin tooling. Freezing those reads onto the `env` singleton would
+ * silently change behaviour under test. This helper keeps the read live while
+ * still enforcing the canon: the name MUST be declared in the Zod schema above
+ * (compile-time `keyof` constraint), so no undeclared stray var can sneak in.
+ *
+ * Use `env.X` by default; reach for this ONLY when a live read is the
+ * documented contract of the call site. Never log the returned value when the
+ * variable is a secret.
+ */
+export function readServerEnv(name: keyof ServerEnv & string): string | undefined {
+  return process.env[name];
+}

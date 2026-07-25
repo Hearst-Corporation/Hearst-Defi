@@ -11,10 +11,12 @@ import "server-only";
  * (all best-effort) can catch and swallow gracefully.
  */
 
+import { env } from "@/lib/env";
+
 const BASE = "https://api.hubapi.com";
 
 function apiKey(): string {
-  const key = process.env.HUBSPOT_API_KEY;
+  const key = env.HUBSPOT_API_KEY;
   if (!key) throw new Error("HUBSPOT_API_KEY is not set");
   return key;
 }

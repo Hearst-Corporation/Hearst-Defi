@@ -16,8 +16,9 @@
 //
 // ── Turbopack trap (see dynavault.ts header) ──────────────────────────────────
 // Next/Turbopack only inlines NEXT_PUBLIC_* into the CLIENT bundle when the
-// expression is the LITERAL `process.env.NEXT_PUBLIC_FOO`. The module constants
-// below read the vars literally; `resolve*(env)` stay env-injected for tests.
+// expression is the LITERAL dotted `NEXT_PUBLIC_FOO` access on `process.env`.
+// The module constants below read the vars literally; `resolve*(env)` stay
+// env-injected for tests.
 
 import type { Address } from "viem";
 

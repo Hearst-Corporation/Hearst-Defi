@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
 import {
   upsertContactByEmail,
   createNote,
@@ -15,7 +16,7 @@ import {
  */
 
 function hubspotConfigured(): boolean {
-  return Boolean(process.env.HUBSPOT_API_KEY);
+  return Boolean(env.HUBSPOT_API_KEY);
 }
 
 type ProspectInput = {

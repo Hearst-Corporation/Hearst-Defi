@@ -3,6 +3,8 @@ import "server-only";
 import { TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions/index.js";
 
+import { env } from "@/lib/env";
+
 /**
  * MTProto client (ingestion layer — I/O lives here, NEVER in src/lib/engine/*).
  *
@@ -16,9 +18,11 @@ import { StringSession } from "telegram/sessions/index.js";
 let cached: Promise<TelegramClient> | null = null;
 
 function readConfig() {
-  const apiId = Number(process.env.TELEGRAM_API_ID);
-  const apiHash = process.env.TELEGRAM_API_HASH;
-  const session = process.env.TELEGRAM_SESSION;
+  // `env.TELEGRAM_API_ID` is Zod-coerced to a positive int at boot; `?? NaN`
+  // reproduces the old `Number(undefined)` → NaN path when the var is absent.
+  const apiId = env.TELEGRAM_API_ID ?? Number.NaN;
+  const apiHash = env.TELEGRAM_API_HASH;
+  const session = env.TELEGRAM_SESSION;
 
   if (!Number.isInteger(apiId) || apiId <= 0) {
     throw new Error("TELEGRAM_API_ID missing or invalid");
@@ -53,8 +57,6 @@ export async function getTelegramClient(): Promise<TelegramClient> {
 /** True when all three Telegram env vars are present (so callers can degrade). */
 export function isTelegramConfigured(): boolean {
   return Boolean(
-    process.env.TELEGRAM_API_ID &&
-      process.env.TELEGRAM_API_HASH &&
-      process.env.TELEGRAM_SESSION,
+    env.TELEGRAM_API_ID && env.TELEGRAM_API_HASH && env.TELEGRAM_SESSION,
   );
 }

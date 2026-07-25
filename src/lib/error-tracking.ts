@@ -10,8 +10,10 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+import { env } from "@/lib/env";
+
 function isEnabled(): boolean {
-  return !!(process.env.SENTRY_DSN && process.env.SENTRY_DSN.length > 0);
+  return !!(env.SENTRY_DSN && env.SENTRY_DSN.length > 0);
 }
 
 export function captureError(

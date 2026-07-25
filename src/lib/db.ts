@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { Pool } from "pg";
 
+import { env } from "@/lib/env";
 import { resolvePrismaProvider } from "@/lib/prisma-provider-resolve";
 
 /**
@@ -43,7 +44,7 @@ function pgPoolSizing(): {
   connectionTimeoutMillis: number;
   idleTimeoutMillis: number;
 } {
-  const isVercel = Boolean(process.env.VERCEL);
+  const isVercel = Boolean(env.VERCEL);
   const isDev = process.env.NODE_ENV === "development";
   if (isVercel) {
     return { max: 1, connectionTimeoutMillis: 5_000, idleTimeoutMillis: 10_000 };
@@ -61,8 +62,10 @@ const globalForDb = globalThis as unknown as {
 
 function makeAdapter() {
   const provider = resolvePrismaProvider();
-  const databaseUrl =
-    process.env.DATABASE_URL?.trim() ?? "file:./prisma/dev.db";
+  // `env.DATABASE_URL` is required (min(1)) outside test mode; in the vitest
+  // lenient fallback an ABSENT var degrades to "" — `||` restores the same
+  // sqlite default the old `?? ` fallback produced for an absent var.
+  const databaseUrl = env.DATABASE_URL.trim() || "file:./prisma/dev.db";
 
   if (provider === "postgresql") {
     const poolSizing = pgPoolSizing();

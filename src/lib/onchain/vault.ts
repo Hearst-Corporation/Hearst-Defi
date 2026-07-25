@@ -80,9 +80,9 @@ export function resolveVaultAddress(
 /**
  * The deployed ERC-4626 vault address.
  *
- * IMPORTANT: read `process.env.NEXT_PUBLIC_*` TEXTUALLY here. Next/Turbopack
- * only inlines NEXT_PUBLIC_* vars into the client bundle when accessed as a
- * literal `process.env.NEXT_PUBLIC_FOO` expression. Going through the indirect
+ * IMPORTANT: read the NEXT_PUBLIC_* vars TEXTUALLY on `process.env` here.
+ * Next/Turbopack only inlines NEXT_PUBLIC_* vars into the client bundle when
+ * accessed as a literal dotted expression. Going through the indirect
  * `resolveVaultAddress(env)` param (where `env` is a variable) is NOT statically
  * substituted, so the browser saw `undefined` → VAULT_ADDRESS=null → the invest
  * flow showed "Configuration pending" forever. The literal reads below fix that.

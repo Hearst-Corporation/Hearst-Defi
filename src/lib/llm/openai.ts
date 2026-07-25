@@ -24,7 +24,7 @@ import { env } from "@/lib/env";
  * LLM. The client is therefore built lazily, once, on first use.
  */
 
-const IS_BUILD_PHASE = process.env.NEXT_PHASE === "phase-production-build";
+const IS_BUILD_PHASE = env.NEXT_PHASE === "phase-production-build";
 
 function createOpenAIClient(): OpenAI {
   const apiKey = env.OPENAI_API_KEY;

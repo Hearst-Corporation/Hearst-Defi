@@ -29,13 +29,16 @@ import "server-only";
  * we read is typed and narrowed defensively (the API returns far more fields).
  */
 
+import { readServerEnv } from "@/lib/env";
+
 const BASE = "https://api.apollo.io";
 
 /** Injectable fetch — tests pass a stub matching this shape. */
 export type ApolloFetch = typeof fetch;
 
 function apiKey(): string {
-  const key = process.env.APOLLO_API_KEY;
+  // LIVE read via the canon helper: unit tests set/delete the key per test.
+  const key = readServerEnv("APOLLO_API_KEY");
   if (!key) throw new Error("APOLLO_API_KEY is not set");
   return key;
 }

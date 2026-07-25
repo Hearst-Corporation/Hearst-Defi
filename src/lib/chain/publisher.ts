@@ -4,6 +4,8 @@ import { createWalletClient, http, type WalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { baseSepolia } from "viem/chains";
 
+import { readServerEnv } from "@/lib/env";
+
 /**
  * Shared signer seam for all on-chain write paths.
  *
@@ -26,7 +28,9 @@ import { baseSepolia } from "viem/chains";
  * - Valid → returned as-is.
  */
 export function getPublisherPrivateKey(): `0x${string}` | null {
-  const raw = process.env.HEARST_PUBLISHER_PRIVATE_KEY;
+  // LIVE read via the canon helper on every call (documented contract above:
+  // no module-level caching). NEVER log or expose the returned value.
+  const raw = readServerEnv("HEARST_PUBLISHER_PRIVATE_KEY");
   if (!raw || raw.trim().length === 0) return null;
 
   const trimmed = raw.trim();
@@ -60,7 +64,7 @@ export function getPublisherWalletClient(): WalletClient | null {
   if (!key) return null;
 
   const rpcUrl =
-    process.env.NEXT_PUBLIC_CHAIN_RPC_URL?.trim() || "https://sepolia.base.org";
+    readServerEnv("NEXT_PUBLIC_CHAIN_RPC_URL")?.trim() || "https://sepolia.base.org";
 
   try {
     const account = privateKeyToAccount(key);

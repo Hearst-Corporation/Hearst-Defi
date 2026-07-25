@@ -392,6 +392,116 @@ export const RULES = [
       "process.env.* sauvage (hors NODE_ENV) dans la clôture d'imports runtime de /admin — toute variable serveur se déclare dans src/lib/env.ts (Zod).",
     scope: ADMIN_SCOPE_DIRS,
     check: checkRawEnv,
-    allowlist: [],
+    // Purge raw-env 2026-07-26 : 62 → 0 hits nus. Chaque entrée ci-dessous est
+    // un site qui NE PEUT PAS passer par src/lib/env.ts (server-only), pour une
+    // des trois raisons matérielles suivantes — la variable reste néanmoins
+    // DÉCLARÉE dans le canon Zod pour validation + documentation :
+    //   (client) module embarqué dans le bundle CLIENT : Turbopack n'inline
+    //            NEXT_PUBLIC_* que sous forme d'accès pointé littéral sur
+    //            process.env (piège déjà vécu : adresse silencieusement
+    //            undefined dans le navigateur) ;
+    //   (edge)   module importé par la gate edge src/proxy.ts — le canon
+    //            server-only avec parse Zod au boot n'a rien à faire dans le
+    //            bundle edge ;
+    //   (cli)    module partagé avec les scripts tsx (prisma-cli) où le paquet
+    //            `server-only` jette à l'import.
+    allowlist: [
+      {
+        file: "src/lib/chain/vault-mode.ts",
+        match: "process.env.NEXT_PUBLIC_DYNAVAULT_ADDRESS",
+        reason:
+          "NEXT_PUBLIC inlined client-side — server-only env.ts impossible : constante module du bundle client (invest flow), l'inlining Turbopack exige la lecture littérale.",
+      },
+      {
+        file: "src/lib/chain/vault-mode.ts",
+        match: "process.env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS",
+        reason:
+          "NEXT_PUBLIC inlined client-side — server-only env.ts impossible : constante module du bundle client, lecture littérale requise par Turbopack.",
+      },
+      {
+        file: "src/lib/chain/vault-mode.ts",
+        match: "process.env.NEXT_PUBLIC_HEARST_VAULT_ADDRESS",
+        reason:
+          "NEXT_PUBLIC inlined client-side — server-only env.ts impossible : alias legacy lu en littéral dans le bundle client.",
+      },
+      {
+        file: "src/lib/onchain/vault.ts",
+        match: "process.env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS",
+        reason:
+          "NEXT_PUBLIC inlined client-side — server-only env.ts impossible : VAULT_ADDRESS est consommé par les composants \"use client\" (invest-form, preflight-check).",
+      },
+      {
+        file: "src/lib/onchain/vault.ts",
+        match: "process.env.NEXT_PUBLIC_HEARST_VAULT_ADDRESS",
+        reason:
+          "NEXT_PUBLIC inlined client-side — server-only env.ts impossible : alias legacy du bundle client, lecture littérale requise.",
+      },
+      {
+        file: "src/lib/onchain/vault.ts",
+        match: "process.env.NEXT_PUBLIC_CHAIN_RPC_URL",
+        reason:
+          "NEXT_PUBLIC inlined client-side — server-only env.ts impossible : client RPC construit dans le navigateur (buildPublicClientBrowser).",
+      },
+      {
+        file: "src/lib/chain/dynavault.ts",
+        match: "process.env.NEXT_PUBLIC_CHAIN_RPC_URL",
+        reason:
+          "NEXT_PUBLIC inlined client-side — server-only env.ts impossible : l'adapter DynaVault tourne serveur ET navigateur (en-tête du module), lecture littérale requise.",
+      },
+      {
+        file: "src/lib/dev-bypass.ts",
+        match: "process.env.DEV_AUTH_BYPASS",
+        reason:
+          "Module edge-safe par contrat (importé par src/proxy.ts) — env.ts server-only interdit dans le bundle edge ; double-gate NODE_ENV=production rend la lecture inerte en prod ; stubbé par test dans dev-login route.test. Déclaré dans le canon pour documentation.",
+      },
+      {
+        file: "src/lib/dev-bypass.ts",
+        match: "process.env.DEV_USER_EMAIL",
+        reason:
+          "Module edge-safe par contrat (importé par src/proxy.ts) — env.ts server-only interdit dans le bundle edge ; dev-only, défaut dev@hearst.local inchangé. Déclaré dans le canon pour documentation.",
+      },
+      {
+        file: "src/lib/dev-bypass.ts",
+        match: "process.env.DEV_USER_ROLE",
+        reason:
+          "Module edge-safe par contrat (importé par src/proxy.ts) — env.ts server-only interdit dans le bundle edge ; dev-only, ne produit que admin|investor. Déclaré dans le canon pour documentation.",
+      },
+      {
+        file: "src/lib/prisma-provider-resolve-core.ts",
+        match: "process.env.PRISMA_PROVIDER",
+        reason:
+          "Cœur pur partagé avec les scripts tsx (scripts/lib/prisma-cli.ts, scripts/demo/*) — `server-only` jette hors Next/Vitest, env.ts inimportable ; le fallback process.env est le contrat CLI documenté en tête de module. Déclaré dans le canon pour documentation.",
+      },
+      {
+        file: "src/lib/prisma-provider-resolve-core.ts",
+        match: "process.env.DATABASE_URL",
+        reason:
+          "Cœur pur partagé avec les scripts tsx (prisma-cli) — même contrainte que PRISMA_PROVIDER ci-dessus ; les appelants serveur peuvent injecter l'env validée via le paramètre `env`.",
+      },
+      {
+        file: "src/lib/rate-limit.ts",
+        match: "process.env.DEV_CHAT_CONCURRENCY",
+        reason:
+          "Cap de concurrence DEV-only lu en LIVE à chaque requête : dev-concurrency-guard.test stubbe la variable par test TOUT EN mockant @/lib/env de façon fermée (le helper readServerEnv n'existerait pas dans le mock) ; NODE_ENV=production court-circuite avant la lecture. Déclarée dans le canon pour documentation.",
+      },
+      {
+        file: "src/lib/outreach/cta-url.ts",
+        match: "process.env.NEXT_PUBLIC_QUALIFICATION_FORM_URL",
+        reason:
+          "Lecture LIVE requise : autonomy-status.test stubbe process.env par test en mockant @/lib/env de façon fermée (ni env.X ni readServerEnv n'y survivent). Déclarée dans le canon pour documentation.",
+      },
+      {
+        file: "src/lib/outreach/cta-url.ts",
+        match: "process.env.NEXT_PUBLIC_TYPEFORM_URL",
+        reason:
+          "Lecture LIVE requise : même contrat de test que NEXT_PUBLIC_QUALIFICATION_FORM_URL ci-dessus (mock fermé de @/lib/env + stubs par test). Déclarée dans le canon pour documentation.",
+      },
+      {
+        file: "src/lib/outreach/cta-url.ts",
+        match: "process.env.NEXT_PUBLIC_APP_URL",
+        reason:
+          "Lecture LIVE requise : cta-url.test + autonomy-status.test stubbent NEXT_PUBLIC_APP_URL par test sous mock fermé de @/lib/env ; le fallback local reste identique au défaut du canon (https://connect.hearst.app).",
+      },
+    ],
   },
 ];

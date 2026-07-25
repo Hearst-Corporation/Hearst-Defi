@@ -1,6 +1,7 @@
 import "server-only";
 
 import { CircuitBreaker } from "@/lib/circuit-breaker";
+import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
 /**
@@ -76,12 +77,11 @@ const DEFAULT_BASE_URL = "https://yields.llama.fi";
 const POOLS_PATH = "/pools";
 
 /**
- * Allow override in tests via `DEFILLAMA_BASE_URL`. We read `process.env`
- * directly here (not through `src/lib/env.ts`) so callers don't have to
- * add a new server-env field to wire up tests.
+ * Allow override via `DEFILLAMA_BASE_URL` — declared in the Zod canon
+ * (src/lib/env.ts) since the raw-env purge 2026-07-26; same fallback as before.
  */
 function resolveBaseUrl(): string {
-  const fromEnv = process.env.DEFILLAMA_BASE_URL;
+  const fromEnv = env.DEFILLAMA_BASE_URL;
   if (fromEnv && fromEnv.length > 0) return fromEnv;
   return DEFAULT_BASE_URL;
 }

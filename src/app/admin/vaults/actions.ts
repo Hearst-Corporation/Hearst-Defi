@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { recordAdminAudit } from "@/lib/admin/audit";
 import { parseStringArray } from "@/lib/admin/parse-string-array";
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { assertAdminRateLimit } from "@/lib/admin/rate-limit";
 import {
@@ -541,7 +542,7 @@ export async function markAsLive(id: string): Promise<void> {
     // on the investor-facing /vaults page. Use env for the on-chain address;
     // fall back to the Base Sepolia testnet deployment for local development.
     const defaultContractAddress =
-      process.env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS ||
+      env.NEXT_PUBLIC_HEARST_YIELD_VAULT_ADDRESS ||
       "0x2bd14d52518a04f4c12949c51df03a161a9e329e";
 
     await prisma.vaultDeployment.update({

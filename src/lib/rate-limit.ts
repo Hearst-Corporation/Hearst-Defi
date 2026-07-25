@@ -217,8 +217,11 @@ function checkMemory(
  */
 export function isRateLimitBypassed(): boolean {
   if (process.env.NODE_ENV === "production") return false;
-  if (process.env.DISABLE_RATE_LIMIT === "1") return true;
-  if (process.env.E2E_DISABLE_RATE_LIMIT === "1") return true;
+  // Both toggles are set BEFORE the server boots (.env.local / Playwright
+  // launch env), so the boot-frozen canon read is equivalent to the old live
+  // process.env read. Production returns above without ever consulting them.
+  if (env.DISABLE_RATE_LIMIT === "1") return true;
+  if (env.E2E_DISABLE_RATE_LIMIT === "1") return true;
   if (process.env.NODE_ENV === "development") return true;
   return false;
 }

@@ -3,6 +3,7 @@
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { recordAdminAudit } from "@/lib/admin/audit";
 import { upsertProspectContact } from "@/lib/hubspot/sync-prospect";
@@ -877,7 +878,7 @@ export async function runSourcing(
 
   // P1-2: Refuse to run in production without a real Apollo key. The mock
   // generates *.example addresses that would pollute the prod prospect table.
-  if (process.env.NODE_ENV === "production" && !process.env.APOLLO_API_KEY) {
+  if (process.env.NODE_ENV === "production" && !env.APOLLO_API_KEY) {
     throw new Error(
       "runSourcing: APOLLO_API_KEY required in production — refusing to source mock leads",
     );

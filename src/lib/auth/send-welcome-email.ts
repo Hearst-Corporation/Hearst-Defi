@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "@/lib/db";
+import { readServerEnv } from "@/lib/env";
 import { buildEmailWrapper } from "@/lib/email/html-shell";
 import { CONNECT_ACCENT_HEX } from "@/lib/brand-constants";
 
@@ -25,7 +26,7 @@ async function sendEmail(
   firstName: string | null,
   resetUrl: string,
 ): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = readServerEnv("RESEND_API_KEY");
   if (!apiKey) throw new Error("RESEND_API_KEY is not set");
 
   const greeting = firstName ? `Bonjour ${firstName},` : "Bonjour,";

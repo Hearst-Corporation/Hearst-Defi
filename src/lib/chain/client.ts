@@ -2,6 +2,8 @@ import "server-only";
 
 import { createPublicClient, getAddress, http, type Address } from "viem";
 import { baseSepolia } from "viem/chains";
+
+import { readServerEnv } from "@/lib/env";
 import {
   ACTIVE_CHAIN_ID,
   EXPLORER_ADDRESS_BASE,
@@ -15,7 +17,9 @@ const RPC_TIMEOUT_MS = 10_000;
 const RPC_RETRY_COUNT = 3;
 
 function getRpcUrl(): string {
-  const url = process.env.NEXT_PUBLIC_CHAIN_RPC_URL;
+  // LIVE reads via the canon helper throughout this module — the unit tests
+  // (client.test / writes.test) set and delete these vars per test.
+  const url = readServerEnv("NEXT_PUBLIC_CHAIN_RPC_URL");
   if (!url || url.trim().length === 0) return DEFAULT_RPC_URL;
   return url;
 }
@@ -80,15 +84,15 @@ function parseAddress(raw: string | undefined): Address | null {
 }
 
 export function getEventLoggerAddress(): `0x${string}` | null {
-  return parseAddress(process.env.NEXT_PUBLIC_EVENT_LOGGER_ADDRESS);
+  return parseAddress(readServerEnv("NEXT_PUBLIC_EVENT_LOGGER_ADDRESS"));
 }
 
 export function getPoRRegistryAddress(): `0x${string}` | null {
-  return parseAddress(process.env.NEXT_PUBLIC_POR_REGISTRY_ADDRESS);
+  return parseAddress(readServerEnv("NEXT_PUBLIC_POR_REGISTRY_ADDRESS"));
 }
 
 export function getHearstPublisherAddress(): `0x${string}` | null {
-  return parseAddress(process.env.HEARST_PUBLISHER);
+  return parseAddress(readServerEnv("HEARST_PUBLISHER"));
 }
 
 export function isChainConfigured(): boolean {

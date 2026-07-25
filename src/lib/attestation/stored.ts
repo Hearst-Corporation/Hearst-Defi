@@ -1,3 +1,5 @@
+import { readServerEnv } from "@/lib/env";
+
 import { verifyAttestation } from "./verify";
 import type {
   MiningAttestationPayload,
@@ -85,14 +87,14 @@ export function parseAttestationPayload(
  * Parses `ATTESTATION_ALLOWED_SIGNERS` (comma-separated 0x addresses) into a
  * lower-cased `Set`. Empty / unset / whitespace-only → empty set.
  *
- * The value is read directly from `process.env` on every call (rather than
- * via the validated `env` singleton, which freezes its values at boot) so
- * tests and admin tooling can mutate the allowlist at runtime without a
- * process restart. The Zod schema in `src/lib/env.ts` still validates the
- * variable shape at boot — this just keeps the read live.
+ * The value is read LIVE on every call via `readServerEnv` (rather than the
+ * validated `env` singleton, which freezes its values at boot) so tests and
+ * admin tooling can mutate the allowlist at runtime without a process
+ * restart. The Zod schema in `src/lib/env.ts` still validates the variable
+ * shape at boot — the canon helper just keeps the read live.
  */
 function loadAllowlist(): Set<string> {
-  const raw = process.env.ATTESTATION_ALLOWED_SIGNERS;
+  const raw = readServerEnv("ATTESTATION_ALLOWED_SIGNERS");
   if (!raw) return new Set();
   const out = new Set<string>();
   for (const entry of raw.split(",")) {
@@ -107,7 +109,7 @@ function loadAllowlist(): Set<string> {
 /** True when the dev escape hatch is active. Disabled in production. */
 function devAcceptAny(): boolean {
   if (process.env.NODE_ENV === "production") return false;
-  return process.env.ATTESTATION_DEV_ACCEPT_ANY === "1";
+  return readServerEnv("ATTESTATION_DEV_ACCEPT_ANY") === "1";
 }
 
 /**

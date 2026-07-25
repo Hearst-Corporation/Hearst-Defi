@@ -50,9 +50,10 @@ import "server-only";
 //
 // ── Turbopack trap (already hit once in this repo) ────────────────────────────
 // Next/Turbopack only inlines NEXT_PUBLIC_* into the CLIENT bundle when the
-// expression is the LITERAL `process.env.NEXT_PUBLIC_FOO`. Reading through a
-// variable (`env.NEXT_PUBLIC_FOO`) is NOT statically substituted → the browser
-// gets `undefined` → address null → a silent "Configuration pending" forever.
+// expression is the LITERAL dotted `NEXT_PUBLIC_FOO` access on `process.env`.
+// Reading through a variable (`env.NEXT_PUBLIC_FOO`) is NOT statically
+// substituted → the browser gets `undefined` → address null → a silent
+// "Configuration pending" forever.
 // See src/lib/onchain/vault.ts:66-73. So the MODULE CONSTANTS below read the
 // vars literally; `resolveDynavaultAddress(env)` / `resolveVaultTarget(env)`
 // stay exported as pure, env-injected functions for unit tests only.

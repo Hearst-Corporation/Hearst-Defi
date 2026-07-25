@@ -1,6 +1,7 @@
 import "server-only";
 
 import { buildEmailHtmlShell, type EmailCta } from "@/lib/email/html-shell";
+import { readServerEnv } from "@/lib/env";
 import { buildUnsubscribeUrl } from "@/lib/outreach/unsubscribe";
 
 /**
@@ -72,10 +73,11 @@ function deriveReplyTo(from: string, replyTo?: string): string | undefined {
 export async function sendTrackedEmail(
   opts: SendTrackedEmailOptions,
 ): Promise<{ id: string }> {
-  const apiKey = process.env.RESEND_API_KEY;
+  // LIVE reads via the canon helper — unit tests set/delete the key per test.
+  const apiKey = readServerEnv("RESEND_API_KEY");
   if (!apiKey) throw new Error("RESEND_API_KEY is not set");
 
-  const from = opts.from ?? process.env.OUTREACH_FROM ?? DEFAULT_FROM;
+  const from = opts.from ?? readServerEnv("OUTREACH_FROM") ?? DEFAULT_FROM;
   const replyTo = deriveReplyTo(from, opts.replyTo);
 
   const tags = opts.tags

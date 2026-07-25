@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { recordAdminAudit } from "@/lib/admin/audit";
 import {
@@ -152,8 +153,9 @@ export async function generateActivationLink(
   });
   if (!investor) return { ok: false, error: "Investor not found" };
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://connect.hearst.app";
+  // Zod canon carries the production-host default — same value as the old
+  // inline fallback (raw-env purge 2026-07-26, behaviour unchanged).
+  const appUrl = env.NEXT_PUBLIC_APP_URL;
   const { activationUrl } = await mintActivationToken({
     userId: investor.userId,
     appUrl,

@@ -5,6 +5,7 @@ import { unstable_cache } from "next/cache";
 import { createPublicClient, http, type Address } from "viem";
 import { mainnet } from "viem/chains";
 
+import { env } from "@/lib/env";
 import { evaluateFreshness, STALE_THRESHOLDS } from "@/lib/data/freshness";
 import { ADMIN_DASHBOARD_REVALIDATE_SEC } from "@/lib/data/admin-dashboard-cache";
 import { captureMessage } from "@/lib/error-tracking";
@@ -104,10 +105,10 @@ async function fetchChainlinkBtcUsd(): Promise<{
   // read over a mainnet RPC — NOT the app's Base-Sepolia NEXT_PUBLIC_CHAIN_RPC_URL
   // (querying a mainnet aggregator address over the Base-Sepolia RPC always
   // failed, which is why "oracle" provenance was never actually reachable).
-  const rpcUrl = process.env.CHAINLINK_RPC_URL;
+  const rpcUrl = env.CHAINLINK_RPC_URL;
   if (!rpcUrl || rpcUrl.trim().length === 0) return null;
 
-  const explicit = parseAddress(process.env.NEXT_PUBLIC_CHAINLINK_BTC_USD_ADDRESS);
+  const explicit = parseAddress(env.NEXT_PUBLIC_CHAINLINK_BTC_USD_ADDRESS);
   const aggregator = explicit ?? CHAINLINK_BTC_USD_MAINNET;
 
   try {
@@ -196,8 +197,7 @@ async function fetchBtcPriceUncached(): Promise<BtcPriceData> {
   // is a no-op without SENTRY_DSN and Sentry groups identical messages, so a
   // per-call capture becomes one grouped issue with a count, not log spam.
   const oracleConfigured =
-    !!process.env.CHAINLINK_RPC_URL &&
-    process.env.CHAINLINK_RPC_URL.trim().length > 0;
+    !!env.CHAINLINK_RPC_URL && env.CHAINLINK_RPC_URL.trim().length > 0;
   if (process.env.NODE_ENV === "production" && oracleConfigured) {
     captureMessage(
       "BTC price degraded: Chainlink oracle call failed, falling back to CoinGecko spot.",

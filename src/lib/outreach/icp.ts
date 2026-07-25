@@ -18,6 +18,7 @@ import { tierForScore, type TierThresholds } from "@/lib/outreach/tier";
 
 import type { ApolloPerson, ApolloSearchFilters } from "@/lib/apollo/client";
 import type { ScoreProspectInput, OutreachScore } from "@/lib/agents/outreach-scorer";
+import { readServerEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
 // ---------------------------------------------------------------------------
@@ -410,7 +411,7 @@ export async function runSourcingForIcp(
   count: number,
   deps?: SourcingDeps,
 ): Promise<RunSourcingResult> {
-  const hasKey = Boolean(process.env.APOLLO_API_KEY);
+  const hasKey = Boolean(readServerEnv("APOLLO_API_KEY"));
   const hasDeps = Boolean(deps && (deps.search ?? deps.enrich ?? deps.score));
 
   // Use real pipeline when the key is present OR when deps are injected for testing.

@@ -2,6 +2,8 @@ import "server-only";
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import { readServerEnv } from "@/lib/env";
+
 /**
  * One-click unsubscribe tokens for outreach emails (compliance — CAN-SPAM /
  * GDPR require a working opt-out on every cold email).
@@ -21,7 +23,8 @@ const SEPARATOR = ".";
 
 /** The signing secret. Throws if absent so a misconfig fails loud, not open. */
 function signingSecret(): string {
-  const key = process.env.AUTH_TOTP_KEY;
+  // LIVE read via the canon helper — unit tests rotate/delete the key per test.
+  const key = readServerEnv("AUTH_TOTP_KEY");
   if (!key) throw new Error("AUTH_TOTP_KEY is not set — cannot sign unsubscribe tokens");
   return key;
 }
@@ -88,8 +91,7 @@ export function verifyUnsubscribeToken(token: string): string | null {
  * in the recipient's inbox regardless of where it was rendered.
  */
 export function buildUnsubscribeUrl(email: string): string {
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://connect.hearst.app";
+  const base = readServerEnv("NEXT_PUBLIC_APP_URL") ?? "https://connect.hearst.app";
   const token = makeUnsubscribeToken(email);
   return `${base.replace(/\/$/, "")}/api/outreach/unsubscribe?token=${encodeURIComponent(token)}`;
 }

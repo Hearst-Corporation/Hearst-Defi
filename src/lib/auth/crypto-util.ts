@@ -17,6 +17,8 @@ import "server-only";
 
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
+import { readServerEnv } from "@/lib/env";
+
 const ALGORITHM = "aes-256-gcm" as const;
 const IV_BYTES = 12; // 96-bit IV recommended for GCM
 const TAG_BYTES = 16;
@@ -24,7 +26,8 @@ const TAG_BYTES = 16;
 const HEX_64_RE = /^[0-9a-fA-F]{64}$/;
 
 function getKey(): Buffer {
-  const hex = process.env.AUTH_TOTP_KEY;
+  // LIVE read via the canon helper — unit tests rotate/delete the key per test.
+  const hex = readServerEnv("AUTH_TOTP_KEY");
   if (!hex || !HEX_64_RE.test(hex)) {
     throw new Error(
       "AUTH_TOTP_KEY is missing or not 64 hex chars — TOTP cannot encrypt/decrypt. " +
