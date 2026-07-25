@@ -1,94 +1,132 @@
 import { describe, expect, it } from "vitest";
 
 import { buildCustomersKpiStrip } from "@/lib/admin/customers-kpi-strip";
-import type { CustomerRow } from "@/lib/data/customers";
+import type { CustomersAggregates } from "@/lib/data/customers";
 
-function makeCustomer(overrides: Partial<CustomerRow> = {}): CustomerRow {
+/**
+ * Contract (vague 2 — E2): the strip is built from WHOLE-POPULATION aggregates
+ * (loadCustomersAggregates), never from the 50-row page window. Principal is
+ * the ACTIVE principal, labelled as such.
+ */
+function makeAggregates(
+  overrides: Partial<CustomersAggregates> = {},
+): CustomersAggregates {
   return {
-    id: "cust_1",
-    email: "investor@example.com",
-    walletAddress: null,
-    kycStatus: "pending",
-    activePositions: 0,
-    totalPrincipalUsdc: 0,
-    joinedAt: new Date("2026-01-01"),
+    total: 1,
+    kycCounts: { pending: 1, approved: 0, rejected: 0, unknown: 0 },
+    activePrincipalUsdc: 0,
+    investorsWithActivePositions: 0,
     ...overrides,
   };
 }
 
 describe("buildCustomersKpiStrip", () => {
   it("returns empty array when total is 0", () => {
-    expect(buildCustomersKpiStrip([], 0)).toEqual([]);
+    expect(buildCustomersKpiStrip(makeAggregates({ total: 0 }))).toEqual([]);
   });
 
   it("always includes Total investors and KYC approved cells", () => {
-    const customers = [makeCustomer({ kycStatus: "approved" })];
-    const kpis = buildCustomersKpiStrip(customers, 1);
+    const kpis = buildCustomersKpiStrip(
+      makeAggregates({
+        total: 1,
+        kycCounts: { pending: 0, approved: 1, rejected: 0, unknown: 0 },
+      }),
+    );
     const labels = kpis.map((k) => k.label);
     expect(labels).toContain("Total investors");
     expect(labels).toContain("KYC approved");
   });
 
-  it("Total investors value reflects the full `total` (not page count)", () => {
-    const customers = [makeCustomer()];
-    const kpis = buildCustomersKpiStrip(customers, 42);
-    const total = kpis.find((k) => k.label === "Total investors");
-    expect(total?.value).toBe("42");
+  it("Total investors value reflects the full population total", () => {
+    const kpis = buildCustomersKpiStrip(makeAggregates({ total: 42 }));
+    expect(kpis.find((k) => k.label === "Total investors")?.value).toBe("42");
+  });
+
+  it("KYC approved counts the FULL population, not a page window", () => {
+    const kpis = buildCustomersKpiStrip(
+      makeAggregates({
+        total: 120,
+        kycCounts: { pending: 20, approved: 100, rejected: 0, unknown: 0 },
+      }),
+    );
+    const approved = kpis.find((k) => k.label === "KYC approved");
+    expect(approved?.value).toBe("100");
+    expect(approved?.sublabel).toBe("of 120 investors");
   });
 
   it("shows Pending review cell with alert when pending investors exist", () => {
-    const customers = [makeCustomer({ kycStatus: "pending" })];
-    const kpis = buildCustomersKpiStrip(customers, 1);
+    const kpis = buildCustomersKpiStrip(makeAggregates());
     const pending = kpis.find((k) => k.label === "Pending review");
     expect(pending).toBeDefined();
     expect(pending?.alert).toBe(true);
   });
 
   it("omits Pending review cell when no pending KYC", () => {
-    const customers = [makeCustomer({ kycStatus: "approved" })];
-    const kpis = buildCustomersKpiStrip(customers, 1);
+    const kpis = buildCustomersKpiStrip(
+      makeAggregates({
+        kycCounts: { pending: 0, approved: 1, rejected: 0, unknown: 0 },
+      }),
+    );
     expect(kpis.find((k) => k.label === "Pending review")).toBeUndefined();
   });
 
-  it("shows Deployed principal when totalPrincipalUsdc > 0", () => {
-    const customers = [
-      makeCustomer({ kycStatus: "approved", activePositions: 1, totalPrincipalUsdc: 500_000 }),
-    ];
-    const kpis = buildCustomersKpiStrip(customers, 1);
-    const principal = kpis.find((k) => k.label === "Deployed principal");
-    expect(principal).toBeDefined();
-    expect(principal?.provenance).toBe("manual");
+  it("surfaces an Unknown KYC cell when unrecognised statuses exist", () => {
+    const kpis = buildCustomersKpiStrip(
+      makeAggregates({
+        total: 3,
+        kycCounts: { pending: 1, approved: 1, rejected: 0, unknown: 1 },
+      }),
+    );
+    const unknown = kpis.find((k) => k.label === "Unknown KYC");
+    expect(unknown?.value).toBe("1");
+    expect(unknown?.alert).toBe(true);
   });
 
-  it("shows With positions zero cell when no capital deployed", () => {
-    const customers = [makeCustomer({ kycStatus: "approved", activePositions: 0, totalPrincipalUsdc: 0 })];
-    const kpis = buildCustomersKpiStrip(customers, 1);
-    const wp = kpis.find((k) => k.label === "With positions");
-    expect(wp?.value).toBe("0");
+  it("omits Unknown KYC cell when every status is recognised", () => {
+    const kpis = buildCustomersKpiStrip(makeAggregates());
+    expect(kpis.find((k) => k.label === "Unknown KYC")).toBeUndefined();
+  });
+
+  it("shows Active principal from the active-position aggregate", () => {
+    const kpis = buildCustomersKpiStrip(
+      makeAggregates({
+        activePrincipalUsdc: 500_000,
+        investorsWithActivePositions: 2,
+      }),
+    );
+    const principal = kpis.find((k) => k.label === "Active principal");
+    expect(principal).toBeDefined();
+    expect(principal?.provenance).toBe("manual");
+    expect(principal?.sublabel).toBe("2 investors with active positions");
+  });
+
+  it("shows an honest zero Active principal cell when nothing is at work", () => {
+    const kpis = buildCustomersKpiStrip(makeAggregates());
+    const principal = kpis.find((k) => k.label === "Active principal");
+    expect(principal).toBeDefined();
+    expect(principal?.sublabel).toBe("no active positions");
   });
 
   it("KYC approved cell has accent=true when approved count > 0", () => {
-    const customers = [makeCustomer({ kycStatus: "approved" })];
-    const kpis = buildCustomersKpiStrip(customers, 1);
-    const approved = kpis.find((k) => k.label === "KYC approved");
-    expect(approved?.accent).toBe(true);
+    const kpis = buildCustomersKpiStrip(
+      makeAggregates({
+        kycCounts: { pending: 0, approved: 1, rejected: 0, unknown: 0 },
+      }),
+    );
+    expect(kpis.find((k) => k.label === "KYC approved")?.accent).toBe(true);
   });
 
   it("all provenance values are manual (operator-managed records)", () => {
-    const customers = [
-      makeCustomer({ kycStatus: "approved", activePositions: 1, totalPrincipalUsdc: 250_000 }),
-      makeCustomer({ id: "cust_2", kycStatus: "pending" }),
-    ];
-    const kpis = buildCustomersKpiStrip(customers, 2);
+    const kpis = buildCustomersKpiStrip(
+      makeAggregates({
+        total: 4,
+        kycCounts: { pending: 1, approved: 1, rejected: 1, unknown: 1 },
+        activePrincipalUsdc: 250_000,
+        investorsWithActivePositions: 1,
+      }),
+    );
     for (const kpi of kpis) {
       expect(kpi.provenance).toBe("manual");
     }
-  });
-
-  it("page-scope note appears in sublabel when page < total", () => {
-    const customers = [makeCustomer({ kycStatus: "approved" })];
-    const kpis = buildCustomersKpiStrip(customers, 100);
-    const approved = kpis.find((k) => k.label === "KYC approved");
-    expect(approved?.sublabel).toContain("this page");
   });
 });

@@ -11,11 +11,6 @@ import { Select } from "@/components/catalyst/select";
 import { assignTemplate, recalibrateAgent } from "@/app/admin/customers/[id]/actions";
 import type { AgentTemplate } from "@prisma/client";
 
-// Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
-// (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
-// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[length:var(--ct-text-xs)]).
-const SELECT_INPUT = "ct-select";
-
 /**
  * Assigns the AgentTemplate a customer's cockpit-chat inherits, plus a button
  * to recompute the persona from the stored qualification answers.
@@ -90,7 +85,6 @@ export function AgentAssignForm({
             id="assign-template"
             name="templateId"
             defaultValue={currentTemplateId ?? ""}
-            className={SELECT_INPUT}
           >
             <option value="">— none —</option>
             {archivedCurrent && (

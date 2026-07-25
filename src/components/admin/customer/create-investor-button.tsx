@@ -23,6 +23,17 @@ export function CreateInvestorButton() {
         await createInvestor(formData);
         // Success redirects to the new customer's detail page.
       } catch (e) {
+        // createInvestor() ends with redirect(), which Next.js signals by
+        // THROWING — swallowing it here would turn every success into a fake
+        // "Create failed" toast (the WIRE-2 trap). Let the framework handle it.
+        if (
+          e !== null &&
+          typeof e === "object" &&
+          "digest" in e &&
+          String((e as { digest?: unknown }).digest).startsWith("NEXT_REDIRECT")
+        ) {
+          throw e;
+        }
         const message = e instanceof Error ? e.message : String(e);
         toast.error(`Create failed: ${message}`);
       }

@@ -9,11 +9,6 @@ import { Select } from "@/components/catalyst/select";
 import { cn } from "@/lib/cn";
 import { deployPosition, type DeployPositionResult } from "@/app/admin/customers/actions";
 
-// Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
-// (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
-// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[length:var(--ct-text-xs)]).
-const SELECT_INPUT = "ct-select";
-
 /**
  * Admin "Deploy position" form — creates an off-chain position for a specific
  * investor so a demo/pilot cockpit is populated without a real on-chain deposit.
@@ -69,7 +64,7 @@ export function DeployPositionForm({
             defaultValue={250000}
             required
             disabled={blocked || pending}
-            className={cn(SELECT_INPUT, "w-40 tabular-nums")}
+            className="w-40 tabular-nums"
           />
         </div>
 
@@ -82,7 +77,6 @@ export function DeployPositionForm({
             name="classCode"
             defaultValue="A"
             disabled={blocked || pending}
-            className={SELECT_INPUT}
           >
             <option value="A">Class A — $250k min · 60d</option>
             <option value="B">Class B — $1M min · 90d</option>

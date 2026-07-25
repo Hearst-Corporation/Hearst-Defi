@@ -5,6 +5,8 @@ const BAR_COLOR: Record<KycStatus, string> = {
   pending:  "bg-[var(--ct-status-warning)]",
   approved: "bg-[var(--ct-accent)]",
   rejected: "bg-[var(--ct-status-danger)]",
+  // Unrecognised KYC value — grey, honest "we don't know", never requalified.
+  unknown:  "bg-[var(--ct-text-faint)]",
 };
 
 export function InvestorAccentBar({ status = "pending" }: { status?: KycStatus }) {

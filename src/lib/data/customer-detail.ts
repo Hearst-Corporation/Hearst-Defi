@@ -43,7 +43,10 @@ export interface CustomerDetail {
   suggestedPersona: ReturnType<typeof calibratePersona> | null;
   agentProfile: (UserAgentProfile & { template: AgentTemplate | null }) | null;
   memory: AgentMemory[];
+  /** The most recent conversations — a CAPPED window (see `chatTotal`). */
   chats: CustomerChatRow[];
+  /** REAL total of the investor's conversations — `chats` may be capped below. */
+  chatTotal: number;
 }
 
 function toNumber(v: unknown): number {
@@ -86,25 +89,31 @@ export async function loadCustomerDetail(
   });
   if (!user) return null;
 
-  const [qualification, agentProfile, memory, chats] = await Promise.all([
-    prisma.qualificationProfile.findUnique({ where: { userId: user.id } }),
-    prisma.userAgentProfile.findUnique({
-      where: { userId_agentName: { userId: user.id, agentName: "cockpit-chat" } },
-      include: { template: true },
-    }),
-    loadAllAgentMemory(user.id, "cockpit-chat"),
-    prisma.cockpitChat.findMany({
-      where: { userId: user.id },
-      orderBy: { updatedAt: "desc" },
-      take: 10,
-      select: {
-        id: true,
-        title: true,
-        updatedAt: true,
-        _count: { select: { messages: true } },
-      },
-    }),
-  ]);
+  const [qualification, agentProfile, memory, chats, chatTotal] =
+    await Promise.all([
+      prisma.qualificationProfile.findUnique({ where: { userId: user.id } }),
+      prisma.userAgentProfile.findUnique({
+        where: {
+          userId_agentName: { userId: user.id, agentName: "cockpit-chat" },
+        },
+        include: { template: true },
+      }),
+      loadAllAgentMemory(user.id, "cockpit-chat"),
+      prisma.cockpitChat.findMany({
+        where: { userId: user.id },
+        orderBy: { updatedAt: "desc" },
+        take: 10,
+        select: {
+          id: true,
+          title: true,
+          updatedAt: true,
+          _count: { select: { messages: true } },
+        },
+      }),
+      // Real total so the view can declare the take:10 window ("Showing X of Y")
+      // instead of presenting the cap as the total.
+      prisma.cockpitChat.count({ where: { userId: user.id } }),
+    ]);
 
   const positions: CustomerPositionRow[] = investor.positions.map((p) => ({
     id: p.id,
@@ -141,5 +150,6 @@ export async function loadCustomerDetail(
       updatedAt: c.updatedAt,
       messageCount: c._count.messages,
     })),
+    chatTotal,
   };
 }

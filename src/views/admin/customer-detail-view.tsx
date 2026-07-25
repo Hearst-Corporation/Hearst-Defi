@@ -6,6 +6,7 @@ import { DeployPositionForm } from "@/components/admin/customer/deploy-position-
 import { MemoryManager } from "@/components/admin/customer/memory-manager";
 import { QualificationForm } from "@/components/admin/customer/qualification-form";
 import { KycAction } from "@/components/admin/kyc-action";
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
 import type { CustomerDetail } from "@/lib/data/customer-detail";
 import type { AgentTemplate } from "@prisma/client";
 import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
@@ -140,7 +141,7 @@ export function AdminCustomerDetailView({
         description="Open an off-chain position for demo or pilot use. KYC must be approved first."
       >
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <DeployPositionForm
               investorId={detail.investorId}
               kycStatus={detail.kycStatus as "pending" | "approved" | "rejected"}
@@ -158,7 +159,7 @@ export function AdminCustomerDetailView({
         }
       >
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <QualificationForm
               investorId={detail.investorId}
               userId={detail.userId}
@@ -170,7 +171,10 @@ export function AdminCustomerDetailView({
 
       <Section title="Assistant settings">
         {persona ? (
-          <Panel title="Recommended">
+          <Panel
+            title="Recommended"
+            description="Derived from the questionnaire answers by rule-based calibration (calibratePersona) — not a scoring model."
+          >
             <RowList>
               <Row
                 label="Segments"
@@ -232,7 +236,7 @@ export function AdminCustomerDetailView({
 
       <Section title="Saved notes">
         <Panel>
-          <div className="p-5">
+          <div className={FORM_SURFACE}>
             <MemoryManager
               investorId={detail.investorId}
               userId={detail.userId}
@@ -242,7 +246,14 @@ export function AdminCustomerDetailView({
         </Panel>
       </Section>
 
-      <Section title={`Recent chat activity (${detail.chats.length})`}>
+      <Section
+        title="Recent chat activity"
+        description={
+          detail.chatTotal > detail.chats.length
+            ? `Showing the ${detail.chats.length} most recent of ${detail.chatTotal} conversations.`
+            : `${detail.chatTotal} conversation${detail.chatTotal !== 1 ? "s" : ""} on record.`
+        }
+      >
         <Panel>
           {detail.chats.length === 0 ? (
             <EmptyState

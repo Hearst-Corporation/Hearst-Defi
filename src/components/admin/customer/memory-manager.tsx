@@ -22,10 +22,6 @@ function fmtDate(d: Date): string {
   return new Date(d).toISOString().slice(0, 10);
 }
 
-// Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
-// (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
-// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[length:var(--ct-text-xs)]).
-const SELECT_INPUT = "ct-select";
 // Kind chip uses the Catalyst <Badge> primitive: green = active (fact on the
 // prompt), zinc = off. Replaces two local pill recipes hardcoding #A7FB90 /
 // border-white / text-zinc.
@@ -81,7 +77,7 @@ export function MemoryManager({
             required
             maxLength={280}
             placeholder="Durable fact about this customer…"
-            className={cn(SELECT_INPUT, "w-full")}
+            className="w-full"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -90,7 +86,6 @@ export function MemoryManager({
             id="memory-kind"
             name="kind"
             defaultValue="fact"
-            className={SELECT_INPUT}
             aria-label="Kind"
           >
             <option value="fact">fact</option>

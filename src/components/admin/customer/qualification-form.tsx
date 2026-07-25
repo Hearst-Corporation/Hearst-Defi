@@ -10,11 +10,6 @@ import { saveQualification } from "@/app/admin/customers/[id]/actions";
 import type { QualificationProfile } from "@prisma/client";
 import { QUALIFICATION_FIELD_DEFINITIONS } from "@/lib/qualification/options";
 
-// Shared tokenized form control — canonical `.ct-input/.ct-select/.ct-textarea`
-// (cockpit.css), token-only. Replaces a hardcoded class string that was copy-
-// pasted across 5 customer forms (#A7FB90 / border-white / text-white / text-[length:var(--ct-text-xs)]).
-const SELECT_INPUT = "ct-select";
-
 interface SelectDef {
   name: keyof QualificationProfile & string;
   label: string;
@@ -67,7 +62,6 @@ export function QualificationForm({
                 id={`qual-${f.name}`}
                 name={f.name}
                 defaultValue={current ?? ""}
-                className={SELECT_INPUT}
               >
                 <option value="">— unset —</option>
                 {f.options.map(([v, l]) => (

@@ -1,86 +1,73 @@
 import type { HeroKpi } from "@/lib/data/cockpit";
-import type { CustomerRow, KycStatus } from "@/lib/data/customers";
+import type { CustomersAggregates } from "@/lib/data/customers";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 
 /**
- * Derives honest KPIs from the current page of investor rows + the overall
- * total count already fetched by the admin/customers page.
+ * Derives honest KPIs for /admin/customers from WHOLE-POPULATION aggregates
+ * (`loadCustomersAggregates()` — Prisma count/groupBy/aggregate without take),
+ * never from the 50-row page window. Pure presenter: no DB access here.
  *
- * NOTE: `customers` is the *current page* — not the full set. Counts of
- * KYC status / investors with positions are therefore scoped to the visible
- * page whenever pageSize < total. We surface this honestly in the sublabel.
+ * Returns [] when there are no investors (caller suppresses the strip).
  *
  * Provenance:
- * - Counts → "manual" (operator-managed records, not on-chain)
- * - Total deployed principal → "manual" (LP position records, not oracle)
+ * - All cells → "manual" (operator-managed registry records, not on-chain).
  */
-export function buildCustomersKpiStrip(
-  customers: CustomerRow[],
-  total: number,
-): HeroKpi[] {
-  if (total === 0) return [];
-
-  // KYC breakdown across the current page
-  const kycCounts: Record<KycStatus, number> = {
-    approved: 0,
-    pending: 0,
-    rejected: 0,
-  };
-  let withPositions = 0;
-  let totalPrincipal = 0;
-
-  for (const c of customers) {
-    kycCounts[c.kycStatus]++;
-    if (c.activePositions > 0) withPositions++;
-    totalPrincipal += c.totalPrincipalUsdc;
-  }
-
-  const pageScope = customers.length < total;
-  const scopeNote = pageScope ? "this page" : "all investors";
+export function buildCustomersKpiStrip(agg: CustomersAggregates): HeroKpi[] {
+  if (agg.total === 0) return [];
 
   const kpis: HeroKpi[] = [
     {
       label: "Total investors",
-      value: String(total),
+      value: String(agg.total),
       sublabel: "registered accounts",
       provenance: "manual",
     },
     {
       label: "KYC approved",
-      value: String(kycCounts.approved),
-      sublabel: `of ${customers.length} on ${scopeNote}`,
+      value: String(agg.kycCounts.approved),
+      sublabel: `of ${agg.total} investors`,
       provenance: "manual",
-      accent: kycCounts.approved > 0,
+      accent: agg.kycCounts.approved > 0,
     },
   ];
 
-  if (kycCounts.pending > 0) {
+  if (agg.kycCounts.pending > 0) {
     kpis.push({
       label: "Pending review",
-      value: String(kycCounts.pending),
-      sublabel: `KYC pending — ${scopeNote}`,
+      value: String(agg.kycCounts.pending),
+      sublabel: "KYC pending — all investors",
       provenance: "manual",
       alert: true,
     });
   }
 
-  if (totalPrincipal > 0) {
+  // Data-quality cell: KYC values the app does not recognise. Surfaced as
+  // "unknown", never silently requalified to pending (honesty rule).
+  if (agg.kycCounts.unknown > 0) {
     kpis.push({
-      label: "Deployed principal",
-      // Like the KYC cells, this sum is scoped to the current page when
-      // paginated — carry the same honest scope note rather than implying it is
-      // the whole base.
-      value: formatUsdCompact(totalPrincipal),
-      sublabel: `${withPositions} with position${withPositions !== 1 ? "s" : ""} · ${scopeNote}`,
+      label: "Unknown KYC",
+      value: String(agg.kycCounts.unknown),
+      sublabel: "unrecognised status on record",
+      provenance: "manual",
+      alert: true,
+    });
+  }
+
+  if (agg.activePrincipalUsdc > 0) {
+    kpis.push({
+      label: "Active principal",
+      value: formatUsdCompact(agg.activePrincipalUsdc),
+      sublabel: `${agg.investorsWithActivePositions} investor${
+        agg.investorsWithActivePositions !== 1 ? "s" : ""
+      } with active positions`,
       provenance: "manual",
     });
-  } else if (withPositions === 0 && customers.length > 0) {
-    // show the "with positions" cell even when principal is zero so operators
-    // understand no capital has been deployed yet — honest zero, not omitted.
+  } else {
+    // Honest zero: no capital currently at work — shown, not omitted.
     kpis.push({
-      label: "With positions",
-      value: "0",
-      sublabel: `no active positions — ${scopeNote}`,
+      label: "Active principal",
+      value: formatUsdCompact(0),
+      sublabel: "no active positions",
       provenance: "manual",
     });
   }

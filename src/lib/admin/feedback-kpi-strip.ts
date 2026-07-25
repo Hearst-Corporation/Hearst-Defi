@@ -1,26 +1,35 @@
 import type { HeroKpi } from "@/lib/data/cockpit";
 
-interface FeedbackRow {
-  resolved: boolean;
-  itemId: string | null;
+/**
+ * Whole-table aggregates for /admin/feedback — Prisma count() without take,
+ * loaded by the page. The KPI strip is derived from THESE, never from the
+ * 100-row window rendered in the log table.
+ */
+export interface FeedbackAggregates {
+  /** COUNT(*) over the whole Feedback table. */
+  total: number;
+  /** COUNT(*) where resolved = true. */
+  resolved: number;
+  /** COUNT(*) where itemId IS NOT NULL. */
+  linkedToRoadmap: number;
 }
 
 /**
- * Derives honest KPIs from the feedback list already loaded by the page.
- * No DB queries — pure derivation.
+ * Derives honest KPIs from whole-table aggregates. Pure presenter — no DB
+ * queries here.
  *
  * Returns [] when there is no feedback (caller suppresses the strip).
  *
  * Provenance:
- * - All cells → "manual" (operator-submitted records, no inference).
+ * - All cells → "manual" (operator-submitted records, no inference). The
+ *   provenance travels WITH each cell — the view renders `kpi.provenance`,
+ *   never a literal.
  */
-export function buildFeedbackKpiStrip(items: FeedbackRow[]): HeroKpi[] {
-  if (items.length === 0) return [];
+export function buildFeedbackKpiStrip(agg: FeedbackAggregates): HeroKpi[] {
+  if (agg.total === 0) return [];
 
-  const total = items.length;
-  const resolved = items.filter((i) => i.resolved).length;
+  const { total, resolved, linkedToRoadmap } = agg;
   const open = total - resolved;
-  const linkedToRoadmap = items.filter((i) => i.itemId !== null).length;
 
   const kpis: HeroKpi[] = [
     {
