@@ -114,10 +114,13 @@ const SEVERITY_TONES: Record<
   ActionSeverity,
   { dot: string; text: string; cta: string }
 > = {
+  // P0 : PAS de rouge (doctrine « un seul vert, zéro rouge » — un item de
+  // file d'attente est un état de donnée, pas une erreur bloquante). L'urgence
+  // est portée par le libellé P0 + le gris fort, constat audit final.
   P0: {
-    dot: "bg-[var(--ct-status-danger)]",
-    text: "text-[var(--ct-status-danger)]",
-    cta: "border-[var(--ct-status-danger-border)] bg-[var(--ct-status-danger-soft)] text-[var(--ct-status-danger)] hover:bg-[var(--ct-status-danger-soft)]",
+    dot: "bg-[var(--ct-text-strong)]",
+    text: "text-[var(--ct-text-strong)]",
+    cta: "border-[var(--ct-border-strong)] bg-[color-mix(in_srgb,var(--ct-text-strong)_8%,transparent)] text-[var(--ct-text-strong)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_12%,transparent)]",
   },
   P1: {
     dot: "bg-[var(--ct-status-warning)]",

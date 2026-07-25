@@ -164,7 +164,8 @@ export function MonitoringBoard({ stats }: { stats: MonitoringStats }) {
                 "text-right tabular-nums text-[var(--ct-text-secondary)]",
               )}
             >
-              {run.latencyMs ? `${run.latencyMs}ms` : "—"}
+              {/* 0 est une MESURE (latence sous la milliseconde), pas une absence. */}
+              {run.latencyMs != null ? `${run.latencyMs}ms` : "—"}
             </TableCell>
             <TableCell
               className={cn(
