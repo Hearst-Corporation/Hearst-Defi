@@ -2,9 +2,10 @@
    dark-mode). Kept in CSS (not .tsx) so all hues live behind tokens.
    - write/external ride the warning token: the retired second-red status
      token is DEAD — never shim it back (one red only: status-danger).
-   - Motion tokens are LOCAL (--dft-*): the cockpit --ct-dur-*/--ct-ease-* vars
-     are not defined in any runtime-loaded CSS, so referencing them here would
-     silently produce no animation (phantom tokens). Values = cockpit canon. */
+   - Motion tokens are LOCAL (--dft-…): the cockpit --ct-dur-… / --ct-ease-…
+     vars are not defined in any runtime-loaded CSS, so referencing them here
+     would silently produce no animation (phantom tokens). Values = cockpit
+     canon. */
 
 .dft {
   --v-pass: var(--ct-accent);

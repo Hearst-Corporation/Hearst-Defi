@@ -115,15 +115,14 @@ describe("POINT 2 — sentinel tx hashes are filtered before any explorer link",
     // NOTE: portfolio/distrib-calendar.tsx was retired with the v3.0 mining-note
     // model (no periodic cash distribution) — the surface no longer exists, so
     // it is no longer part of this contract.
+    // NOTE: admin/cockpit/live-ops.tsx was deleted in the /admin refonte (E1,
+    // dead code with 0-importer proof) — its explorer-link surface is gone.
     {
-      file: "src/components/admin/cockpit/live-ops.tsx",
-      gate: /!isPlaceholderTxHash\(/,
-    },
-    {
-      // recent-distributions inlines the 0xmock check (B4 convention) rather
-      // than the shared helper — still a real gate, asserted on its own form.
+      // recent-distributions now gates through the SHARED helper (E5): the
+      // inline 0xmock startsWith was replaced by isPlaceholderTxHash, which
+      // also covers 0xFEED/0x5EED sentinels.
       file: "src/components/proof-center/recent-distributions.tsx",
-      gate: /!\w+\.txHash\.toLowerCase\(\)\.startsWith\("0xmock"\)/,
+      gate: /!isPlaceholderTxHash\(/,
     },
   ];
 
