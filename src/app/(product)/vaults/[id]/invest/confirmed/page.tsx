@@ -8,6 +8,7 @@ import { getInvestor } from "@/lib/auth/session";
 import { getIrContact } from "@/lib/ir-contact";
 import {
   daysFromNow,
+  daysSince,
   formatUsdcFromParam,
 } from "@/lib/vaults/product-display";
 import { InvestConfirmedView } from "@/views/investor/invest-confirmed-view";
@@ -28,7 +29,6 @@ interface PageProps {
   }>;
 }
 
-const MS_PER_DAY = 86_400_000;
 
 export default async function ConfirmedPage({ params, searchParams }: PageProps) {
   const [{ id }, sp] = await Promise.all([params, searchParams]);
@@ -60,10 +60,7 @@ export default async function ConfirmedPage({ params, searchParams }: PageProps)
 
   let currentDay: number | null = null;
   if (position) {
-    const elapsed = Math.floor(
-      (Date.now() - position.subscribedAt.getTime()) / MS_PER_DAY,
-    );
-    currentDay = Math.min(LOCK_DAYS, Math.max(0, elapsed));
+    currentDay = Math.min(LOCK_DAYS, Math.max(0, daysSince(position.subscribedAt)));
   }
   const unlockDate = daysFromNow(LOCK_DAYS);
   const lockPct = currentDay !== null ? Math.round((currentDay / LOCK_DAYS) * 100) : 0;

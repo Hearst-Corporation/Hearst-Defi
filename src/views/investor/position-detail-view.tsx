@@ -1,11 +1,9 @@
-import Link from "next/link";
-
 import {
   POSITION_STATUS_CONFIG,
   type PositionDetail,
 } from "@/lib/data/portfolio";
 import { explorerTxUrl } from "@/lib/chain/explorer";
-import { formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
+import { daysSince, formatAdminDate, formatUsdFull } from "@/lib/vaults/product-display";
 import {
   Badge,
   EmptyState,
@@ -37,13 +35,9 @@ const TX_LABEL: Record<string, string> = {
   distribution: "Proceeds",
 };
 
-const DAY_MS = 86_400_000;
-
 export function PositionDetailView({ position }: { position: PositionDetail }) {
   const statusCfg = POSITION_STATUS_CONFIG[position.status];
-  const elapsedDays = Math.floor(
-    (Date.now() - position.subscribedAt.getTime()) / DAY_MS,
-  );
+  const elapsedDays = daysSince(position.subscribedAt);
   const lockDays = position.softLockupDays;
   const lockDay =
     lockDays > 0 ? Math.min(lockDays, Math.max(0, elapsedDays)) : null;

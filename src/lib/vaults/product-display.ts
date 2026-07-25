@@ -167,3 +167,7 @@ export function daysFromNow(n: number): Date {
   d.setDate(d.getDate() + n);
   return d;
 }
+
+export function daysSince(date: Date): number {
+  return Math.floor((Date.now() - date.getTime()) / 86_400_000);
+}
