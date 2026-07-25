@@ -127,6 +127,9 @@ export default async function proxy(
 // ---------------------------------------------------------------------------
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|.*\\.(?:png|jpg|jpeg|gif|webp|ico|woff2?|ttf|eot)).*)",
+    // `svg` inclus : le logo /logos/hearst-connect-dark.svg était 307-redirigé
+    // vers /login pour les visiteurs non connectés → image cassée sur la page
+    // de connexion elle-même (constat baseline audit 2026-07-26).
+    "/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:png|jpg|jpeg|gif|webp|ico|svg|woff2?|ttf|eot)).*)",
   ],
 };
