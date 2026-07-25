@@ -11,3 +11,10 @@
 # prints the value. Blocks the commit on a positive match. Bypass once (e.g.
 # confirmed false positive) with `git commit --no-verify`.
 bash scripts/secrets-scan.sh --staged || exit 1
+
+# Gate rapide doctrine (governance, refonte 2026-07-25) — oxlint type-aware, ~3 s
+# sur tout src. --quiet : n'affiche et ne bloque QUE les erreurs ; v1 = tout en
+# warn (stock 519 warnings, 0 règle promue) — la promotion en erreurs se fait
+# par ratchet en mission 1B. Ne réintroduit aucune gate DS lourde (décision
+# 2026-06-26 intacte) : total du hook < 5 s. Bypass : --no-verify.
+pnpm --silent exec oxlint --type-aware --quiet src || exit 1
