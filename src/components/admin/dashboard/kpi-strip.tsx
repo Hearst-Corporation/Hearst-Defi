@@ -76,6 +76,9 @@ function DashboardKpiCell({ kpi }: { kpi: HeroKpi }) {
     >
       <div
         className="flex flex-1 flex-col gap-2 px-5 py-4"
+        // aria-label sur un div sans rôle = aria-prohibited-attr (axe) —
+        // role="group" rend le libellé légitime (constat story Q1).
+        role="group"
         aria-label={`${kpi.label}: ${kpi.value}`}
       >
         <div className="flex min-w-0 items-center justify-between gap-2">
