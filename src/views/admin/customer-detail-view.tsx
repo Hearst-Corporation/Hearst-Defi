@@ -85,8 +85,8 @@ export function AdminCustomerDetailView({
             />
             <Row label="Joined" value={formatAdminDate(detail.joinedAt)} />
           </RowList>
-          <div className="border-t border-border-subtle p-5">
-            <p className="mb-3 text-xs leading-relaxed text-muted">
+          <div className="border-t border-[var(--ct-border)] p-5">
+            <p className="mb-3 text-xs leading-relaxed text-[var(--ct-text-muted)]">
               Account sign-in. Auto-created and admin-provisioned investors start
               with no usable password — they log in via a one-time activation link.
             </p>
@@ -124,7 +124,7 @@ export function AdminCustomerDetailView({
                     <TableCell className="text-right font-medium tabular-nums">
                       {formatUsdFull(p.principalUsdc)}
                     </TableCell>
-                    <TableCell className="text-right text-sm text-muted">
+                    <TableCell className="text-right text-sm text-[var(--ct-text-muted)]">
                       {formatAdminDate(p.subscribedAt)}
                     </TableCell>
                   </TableRow>
@@ -185,7 +185,7 @@ export function AdminCustomerDetailView({
               <Row label="Detail" value={persona.verbosity} />
               <Row label="Vault" value={persona.suggestedVault} />
             </RowList>
-            <p className="border-t border-border-subtle px-5 py-4 text-xs leading-relaxed text-muted">
+            <p className="border-t border-[var(--ct-border)] px-5 py-4 text-xs leading-relaxed text-[var(--ct-text-muted)]">
               {persona.customInstructions}
             </p>
           </Panel>
@@ -207,17 +207,17 @@ export function AdminCustomerDetailView({
               <Row label="Detail" value={applied.verbosity ?? "—"} />
             </RowList>
           ) : (
-            <p className="px-5 py-4 text-sm text-muted">
+            <p className="px-5 py-4 text-sm text-[var(--ct-text-muted)]">
               No profile is applied yet. Refresh from intake answers or assign a
               reusable template.
             </p>
           )}
           {applied?.customInstructions ? (
-            <p className="border-t border-border-subtle px-5 py-4 text-xs leading-relaxed text-muted">
+            <p className="border-t border-[var(--ct-border)] px-5 py-4 text-xs leading-relaxed text-[var(--ct-text-muted)]">
               {applied.customInstructions}
             </p>
           ) : null}
-          <div className="border-t border-border-subtle p-5">
+          <div className="border-t border-[var(--ct-border)] p-5">
             <AgentAssignForm
               investorId={detail.investorId}
               userId={detail.userId}
@@ -267,7 +267,7 @@ export function AdminCustomerDetailView({
                     <TableCell className="text-right tabular-nums">
                       {c.messageCount}
                     </TableCell>
-                    <TableCell className="text-right text-sm text-muted">
+                    <TableCell className="text-right text-sm text-[var(--ct-text-muted)]">
                       {formatAdminDate(c.updatedAt)}
                     </TableCell>
                   </TableRow>

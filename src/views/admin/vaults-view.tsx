@@ -185,10 +185,10 @@ export async function AdminVaultsView({
                     <TableRow key={vault.id}>
                       <TableCell>
                         <div className="flex min-w-0 max-w-48 flex-col gap-0.5">
-                          <span className="font-mono text-sm font-semibold text-foreground">
+                          <span className="font-mono text-sm font-semibold text-[var(--ct-text-strong)]">
                             {vault.ticker}
                           </span>
-                          <span className="truncate text-xs text-muted">
+                          <span className="truncate text-xs text-[var(--ct-text-muted)]">
                             {vault.name}
                           </span>
                           <span className="text-xs text-faint">
@@ -205,7 +205,7 @@ export async function AdminVaultsView({
                             <CapacityBar pct={aumPct} />
                             <ProvenanceBadge source="manual" />
                           </div>
-                          <span className="font-mono text-xs tabular-nums text-muted">
+                          <span className="font-mono text-xs tabular-nums text-[var(--ct-text-muted)]">
                             {formatUsdCompact(aumUsdc)} /{" "}
                             {formatUsdCompact(capacityUsdc)}
                           </span>

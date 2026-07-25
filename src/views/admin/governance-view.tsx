@@ -60,7 +60,7 @@ export function AdminGovernanceView({
       <Section title="Governance proposals">
         <Panel>
           <nav
-            className="flex flex-wrap gap-2 border-b border-border-subtle p-5"
+            className="flex flex-wrap gap-2 border-b border-[var(--ct-border)] p-5"
             aria-label="Filter proposals by status"
           >
             {TABS.map((tab) => {

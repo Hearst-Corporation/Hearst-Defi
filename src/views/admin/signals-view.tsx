@@ -127,7 +127,7 @@ export async function AdminSignalsView({
       <Section title="Signals">
         <Panel>
           <nav
-            className="flex flex-wrap gap-2 border-b border-border-subtle p-5"
+            className="flex flex-wrap gap-2 border-b border-[var(--ct-border)] p-5"
             aria-label="Signal status filter"
           >
             {TABS.map((tab) => {
@@ -164,7 +164,7 @@ export async function AdminSignalsView({
               />
             ) : (
               <div className="space-y-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subtle">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ct-text-faint)]">
                   {events.length} signal{events.length !== 1 ? "s" : ""}
                 </p>
                 {events.map((event) => (

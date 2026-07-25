@@ -44,7 +44,7 @@ export function AdminSecurityView({ totpEnabled }: { totpEnabled: boolean }) {
             description="Required once enrolled."
           >
             <div className="flex min-w-0 flex-col gap-4 p-5">
-              <p className="text-sm leading-relaxed text-muted">
+              <p className="text-sm leading-relaxed text-[var(--ct-text-muted)]">
                 Use an authenticator app (Google Authenticator, Authy, 1Password)
                 to generate a time-based code at login.
               </p>
@@ -59,19 +59,19 @@ export function AdminSecurityView({ totpEnabled }: { totpEnabled: boolean }) {
               {PROTECTIONS.map((item) => (
                 <li
                   key={item.title}
-                  className="flex items-start gap-4 border-b border-border-subtle p-5 last:border-b-0"
+                  className="flex items-start gap-4 border-b border-[var(--ct-border)] p-5 last:border-b-0"
                 >
                   <span
-                    className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-inset"
+                    className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[var(--ct-border)] bg-surface-inset"
                     aria-hidden="true"
                   >
                     <item.icon className="size-4 text-accent" />
                   </span>
                   <span className="flex min-w-0 flex-col gap-1.5">
-                    <span className="text-sm font-semibold text-foreground">
+                    <span className="text-sm font-semibold text-[var(--ct-text-strong)]">
                       {item.title}
                     </span>
-                    <span className="text-sm leading-relaxed text-muted">
+                    <span className="text-sm leading-relaxed text-[var(--ct-text-muted)]">
                       {item.detail}
                     </span>
                   </span>

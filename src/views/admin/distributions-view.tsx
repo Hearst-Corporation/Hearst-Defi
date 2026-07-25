@@ -69,14 +69,14 @@ export async function AdminDistributionsView({
 
       <Section title="Series 1 — BTC accumulation">
         <Panel>
-          <div className="space-y-3 p-5 text-sm leading-relaxed text-muted">
+          <div className="space-y-3 p-5 text-sm leading-relaxed text-[var(--ct-text-muted)]">
             <p>
               Series 1 accumulates BTC over a 24-month term with rule-based
               take-profit and delivers accumulated BTC at maturity. This page is
               retained only to review records created by earlier product
               configurations; no action is available here.
             </p>
-            <ul className="list-inside list-disc space-y-1 text-xs text-subtle">
+            <ul className="list-inside list-disc space-y-1 text-xs text-[var(--ct-text-faint)]">
               <li>Three pockets: Mining Power, BTC Pouch, and a USDC reserve.</li>
               <li>
                 BTC accumulation and take-profit events are recorded through the
@@ -172,7 +172,7 @@ export async function AdminDistributionsView({
                             {label}
                           </Link>
                         ) : label ? (
-                          <span className="text-muted">{label}</span>
+                          <span className="text-[var(--ct-text-muted)]">{label}</span>
                         ) : (
                           "—"
                         )}
@@ -186,13 +186,13 @@ export async function AdminDistributionsView({
                       <TableCell className="hidden text-right tabular-nums md:table-cell">
                         {d.recipientsCount}
                       </TableCell>
-                      <TableCell className="text-right text-sm text-muted">
+                      <TableCell className="text-right text-sm text-[var(--ct-text-muted)]">
                         {formatAdminDate(new Date(d.distributedAt))}
                       </TableCell>
                       <TableCell className="hidden text-right font-mono text-xs xl:table-cell">
                         {d.txHash ? (
                           d.txHash.startsWith("0xMOCK") ? (
-                            <span className="text-muted">simulated</span>
+                            <span className="text-[var(--ct-text-muted)]">simulated</span>
                           ) : (
                             `${d.txHash.slice(0, 8)}…`
                           )

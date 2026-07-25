@@ -72,7 +72,7 @@ export async function AdminDiagnosticsView() {
 
       <Section title="Overview">
         <Panel>
-          <ol className="list-decimal space-y-2 p-5 pl-8 text-xs leading-relaxed text-muted">
+          <ol className="list-decimal space-y-2 p-5 pl-8 text-xs leading-relaxed text-[var(--ct-text-muted)]">
             <li>Live Flow Theater — prompt travel through router → gates → action.</li>
             <li>Chat Action Lab — critical prompts via deterministic router.</li>
             <li>Outreach Lifecycle Demo — every send path, dry-run.</li>

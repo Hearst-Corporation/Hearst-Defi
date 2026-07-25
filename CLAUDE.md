@@ -29,6 +29,10 @@ inventory. »). Vocabulaire interdit : `yield`, `APY`, `coupon`, `distribution`.
 - **Un seul accent : vert `#A7FB90`. Un seul vert, zéro rouge.** Absent/négatif = gris. Aucune classe `dark:` (dark-only).
 - **Charts : Recharts uniquement** (`catalyst/chart*`), gardé par `pnpm ds:guard:chart-engine`. HIS/Chart.js retirés — ne jamais réintroduire.
 - Storybook : `pnpm storybook` (port 6106) — référence exécutable ; a11y bloquante via test-storybook.
+- **Typo admin (règle)** : H1 = `AdminPageHeader` UNIQUEMENT (gardien CI bloque tout `<h1` manuel) ·
+  H2 = `Section` du bridge · titres de carte = `AdminSectionCard`. Corps de carte non-table =
+  `FORM_SURFACE`/`admin-canon-form-surface` (p-5→p-6) ; tables Catalyst = soudées bord à bord
+  (gouttière portée par les cellules). Jamais de heading ni de padding improvisés.
 
 ## Gates locales (avant tout commit produit)
 
