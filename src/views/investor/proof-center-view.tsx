@@ -12,7 +12,8 @@ import {
   RowList,
   Section,
 } from "@/views/_shared/layout";
-import { ActivityFeed, Button } from "@/ui";
+import { Button } from "@/ui";
+import { Series1ProofEventStepper } from "@/components/proof-center/series1-proof-event-stepper";
 
 export function ProofCenterView({
   mode,
@@ -57,24 +58,9 @@ export function ProofCenterView({
       </Section>
 
       <Section index="02" title="Indexed events">
-        <Panel title="Recent on-chain events">
-          <div className="p-5">
-            <ActivityFeed
-              items={stepper.events.slice(0, 12).map((e) => ({
-                id: e.id,
-                title: e.displayLabel,
-                detail: e.description,
-                timestamp: e.occurredAt ?? `Block ${e.blockNumber}`,
-                provenance: e.isKnownEventType ? "attested" : "manual",
-              }))}
-              emptyTitle={
-                stepper.envelopeStatus === "not_configured"
-                  ? "No indexer configured for this deployment"
-                  : "No events indexed yet"
-              }
-            />
-          </div>
-        </Panel>
+        {/* Composant canon (auto-encadré, provenance honnête par état) — pas de
+            re-wrap Panel : double cadre. Contract : page-source-contract. */}
+        <Series1ProofEventStepper state={stepper} />
       </Section>
 
       <Disclaimer>

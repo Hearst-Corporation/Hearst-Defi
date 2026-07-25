@@ -1,3 +1,5 @@
+import "./admin-canon.css";
+
 import { getSession } from "@/lib/auth/session";
 import { notFound, redirect } from "next/navigation";
 

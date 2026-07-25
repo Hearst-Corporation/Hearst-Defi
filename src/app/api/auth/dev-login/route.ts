@@ -12,9 +12,20 @@ import { type NextRequest, NextResponse } from "next/server";
 import { isDevAuthBypass } from "@/lib/dev-bypass";
 import { ensureDevUser, createSession, setSessionCookie } from "@/lib/auth/session";
 
+/** Routes admin retirées (purge 9793195f) → successeur. Un vieux lien/bookmark
+ *  ne doit jamais atterrir sur un 404 : on résout ici, avant le redirect. */
+const RETIRED_ADMIN_ROUTES: Record<string, string> = {
+  "/admin/product-workspace": "/admin/vaults/new",
+};
+
 function resolveRedirectPath(req: NextRequest, role: string): string {
   const requested = req.nextUrl.searchParams.get("next")?.trim();
   if (requested && requested.startsWith("/") && !requested.startsWith("//")) {
+    for (const [retired, successor] of Object.entries(RETIRED_ADMIN_ROUTES)) {
+      if (requested === retired || requested.startsWith(`${retired}/`)) {
+        return successor;
+      }
+    }
     return requested;
   }
   return role === "admin" ? "/admin/dashboard" : "/portfolio";

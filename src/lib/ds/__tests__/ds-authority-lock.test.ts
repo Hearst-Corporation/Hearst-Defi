@@ -37,8 +37,9 @@ const AUTHORITY_SURFACES = [
   "README_DESIGN_SYSTEM.md",
   "src/components/catalyst/README.md",
   "src/components/ui/README.md",
-  "docs/CATALYST_CANON_REFERENCE.md",
-  "docs/DS_SINGLE_SOURCE_OF_TRUTH.md",
+  // docs/CATALYST_CANON_REFERENCE.md + docs/DS_SINGLE_SOURCE_OF_TRUTH.md :
+  // retirés par la purge docs c4de8935 (2026-07-23) — un gardien ne surveille
+  // pas des fantômes. Réinscrire ici toute nouvelle surface d'autorité DS.
 ];
 
 /**

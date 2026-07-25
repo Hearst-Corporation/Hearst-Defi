@@ -154,11 +154,14 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
     );
     expect(nav).not.toMatch(/id:\s*"invest"/);
     expect(nav).not.toMatch(/id:\s*"holdings"/);
-    expect(nav).toMatch(/id:\s*"overview"/);
-    expect(nav).toMatch(/id:\s*"vaults"/);
-    expect(nav).toMatch(/id:\s*"portfolio"/);
-    expect(nav).toMatch(/id:\s*"proof-center"/);
-    expect(nav).toMatch(/id:\s*"documents-kyc"/);
+    // Doctrine projet (governance, mergée 2026-07-25) : 4 entrées, rail plat —
+    // Dashboard · Reserve (/vaults) · Proof (/proof-center) · Profile.
+    // Les anciens ids (vaults/portfolio/proof-center/documents-kyc) sont
+    // remplacés par ces quatre-là ; les destinations pliées restent des redirects.
+    expect(nav).toMatch(/id:\s*"dashboard"/);
+    expect(nav).toMatch(/id:\s*"reserve"/);
+    expect(nav).toMatch(/id:\s*"proof"/);
+    expect(nav).toMatch(/id:\s*"profile"/);
     // Folded destinations must not resurface as rail entries.
     expect(nav).not.toMatch(/href:\s*"\/btc"/);
     expect(nav).not.toMatch(/href:\s*"\/mining"/);
