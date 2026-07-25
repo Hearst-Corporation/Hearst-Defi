@@ -15,7 +15,7 @@
  * ambient glow → one dominant hero (value chart + edge stat band) → acts separated by titled hairline
  * dividers → advisory as a one-line activity feed → exit + projection → a single footer disclaimer.
  * Chrome budget: ONE shadowed hero, every support surface is a bare hairline. Green (accent) +
- * heartbeat pulse are reserved for the one genuinely-Live value (hashprice). Kit = frames; HIS = charts.
+ * heartbeat pulse are reserved for the one genuinely-Live value (hashprice). Kit = frames; Recharts = charts.
  */
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -24,10 +24,8 @@ import type { ReactNode } from "react";
 
 import { getSession } from "@/lib/auth/session";
 
-import {
-  HcChartCard,
-  HcValueChart,
-} from "@/components/dataviz/his";
+import { ChartCard } from "@/components/catalyst/chart-card";
+import { ChartValue } from "@/components/catalyst/chart-value";
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
 import { formatUsdFull } from "@/lib/vaults/product-display";
 
@@ -219,7 +217,7 @@ export default async function PortfolioPreviewPage() {
               </span>
             </div>
             <div className="px-5 lg:px-6">
-              <HcValueChart points={VALUE_POINTS} height={210} aria-label="Vault value trend" />
+              <ChartValue points={VALUE_POINTS} height={210} aria-label="Vault value trend" />
             </div>
             <div className="mt-4 border-t border-[var(--ct-border-soft)]">
               <StatBand items={HERO_STATS} />
@@ -241,7 +239,7 @@ export default async function PortfolioPreviewPage() {
         </div>
 
         <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
-          <HcChartCard title="Capital · 3 pockets" subtitle="B1 mining power · B2 wBTC · B3 USDC" source="estimated" state="ready" height={180} aria-label="Pocket allocation">
+          <ChartCard title="Capital · 3 pockets" subtitle="B1 mining power · B2 wBTC · B3 USDC" source="estimated" state="ready" height={180} aria-label="Pocket allocation">
             <div className="flex h-full items-center gap-5">
               <AssetRing
                 segments={pocketRing}
@@ -261,7 +259,7 @@ export default async function PortfolioPreviewPage() {
                 ))}
               </ul>
             </div>
-          </HcChartCard>
+          </ChartCard>
           <div className={`${SUPPORT} flex flex-col`}>
             <CardHeader title="Pockets breakdown" trailing={<ProvenanceBadge kind="estimated" variant="compact" />} />
             <div className="flex flex-1 p-4">
@@ -379,9 +377,9 @@ export default async function PortfolioPreviewPage() {
             <CardHeader title="Exit paths" trailing={<ProvenanceBadge kind="manual" variant="compact" />} />
             <ExitPaths paths={EXIT_PATHS} />
           </div>
-          <HcChartCard title="Deployed-value projection" subtitle="p5 / p50 / p95 · median muted, never green-as-guaranteed" source="estimated" state="ready" height={180} aria-label="Projection fan">
+          <ChartCard title="Deployed-value projection" subtitle="p5 / p50 / p95 · median muted, never green-as-guaranteed" source="estimated" state="ready" height={180} aria-label="Projection fan">
             <HcHonestFan bands={PROJECTION} unit="%" seedLabel="hyv-v4-2026-06" height={180} aria-label="Projection fan" />
-          </HcChartCard>
+          </ChartCard>
         </section>
 
         {/* single global disclaimer */}

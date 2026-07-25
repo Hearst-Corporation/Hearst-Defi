@@ -2,7 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 
-import type { HcValuePoint } from "@/components/dataviz/his";
+import type { ChartValuePoint } from "@/components/catalyst/chart-types";
 import { getInvestor } from "@/lib/auth/session";
 import {
   buildYieldHistory,
@@ -75,7 +75,7 @@ export interface PortfolioDashboard {
   /** Position status of the first active position. */
   status: PortfolioPosition["status"] | null;
   /** Value-over-time series (real NAV prints or reconstructed anchors). */
-  navPoints: HcValuePoint[];
+  navPoints: ChartValuePoint[];
   /** Monthly realized + projected-range yield series (null when no position). */
   yieldHistory: YieldHistory | null;
   /** Real distribution payouts, newest first. */
@@ -200,7 +200,7 @@ export const loadPortfolioDashboard = cache(
 
     // NAV series → chart points. Real hourly prints when they vary, else the
     // deterministic reconstruction loadPortfolio already resolved. Empty stays empty.
-    const navPoints: HcValuePoint[] = portfolio.hourlyValueSnapshots.map((s) => ({
+    const navPoints: ChartValuePoint[] = portfolio.hourlyValueSnapshots.map((s) => ({
       at: s.at,
       value: s.valueUsdc,
     }));

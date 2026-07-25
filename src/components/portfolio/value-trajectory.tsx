@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * ValueTrajectory — Position Overview hero.
  *
@@ -8,15 +10,39 @@
  * scaled to the data extent (HcFanChart convention) so the cone is legible — every tick is labelled
  * with its real value and the footer stamps assumptions + "not guaranteed", so
  * the zoom never reads as hype. A summary line states Now → Projected-at-maturity
- * as an explicit RANGE. Pure render (server component); numbers arrive
- * pre-computed from `projectValueTrajectory` (engine, clock-injected).
+ * as an explicit RANGE. Numbers arrive pre-computed from `projectValueTrajectory`
+ * (engine, clock-injected).
+ *
+ * Rendered on the canonical Recharts layer (HC-CHART-001): the realized path is
+ * an accent area+line, the forward cone the proven "invisible baseline + shaded
+ * span" stacked-Area band (same technique as the canonical <ChartFan />), both
+ * on ONE ChartContainer/AreaChart sharing a numeric time axis. No raw-SVG
+ * plotting; colours are --ct-* tokens only; every Area is isAnimationActive={false}.
  */
 
-import type { ValueProjection } from "@/lib/engine/value-projection";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ReferenceDot,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+} from "recharts";
 
-const VIEW_W = 1000;
-const VIEW_H = 260;
-const PAD = { top: 20, right: 16, bottom: 26, left: 12 } as const;
+import {
+  ChartContainer,
+  type ChartConfig,
+} from "@/components/catalyst/chart";
+import {
+  CHART_AREA_BOTTOM,
+  CHART_AREA_TOP,
+  CHART_BAND_FILL,
+  CHART_BAND_STROKE,
+  CHART_CURVE_COLOR,
+  CHART_GRID_STROKE,
+} from "@/components/catalyst/chart-series";
+import type { ValueProjection } from "@/lib/engine/value-projection";
 
 function compactUsd(n: number): string {
   const abs = Math.abs(n);
@@ -24,6 +50,23 @@ function compactUsd(n: number): string {
   if (abs >= 1e6) return `$${(n / 1e6).toFixed(2)}M`;
   if (abs >= 1e3) return `$${Math.round(n / 1e3)}K`;
   return `$${Math.round(n)}`;
+}
+
+const config: ChartConfig = {
+  realizedValue: { label: "To date", color: CHART_CURVE_COLOR },
+};
+
+/** One merged sample on the shared time axis (realized keys OR cone keys). */
+interface TrajectoryRow {
+  at: number;
+  realizedValue: number | null;
+  /** Invisible stack baseline = lo edge. */
+  coneBase: number | null;
+  /** Shaded span = hi − lo. */
+  coneSpan: number | null;
+  lo: number | null;
+  mid: number | null;
+  hi: number | null;
 }
 
 export function ValueTrajectory({
@@ -57,53 +100,46 @@ export function ValueTrajectory({
     ...forward.map((p) => p.hi),
     nowValue,
   ].filter(Number.isFinite);
-  const dataMin = Math.min(...allVals);
-  const dataMax = Math.max(...allVals);
+  const dataMin = allVals.length ? Math.min(...allVals) : 0;
+  const dataMax = allVals.length ? Math.max(...allVals) : 1;
   const range = dataMax - dataMin || Math.max(1, dataMax * 0.1);
   const yMin = Math.max(0, dataMin - range * 0.35);
   const yMax = dataMax + range * 0.25;
+  const yTicks = [yMin, (yMin + yMax) / 2, yMax];
 
-  const plotLeft = PAD.left;
-  const plotRight = VIEW_W - PAD.right;
-  const plotTop = PAD.top;
-  const plotBottom = VIEW_H - PAD.bottom;
-  const plotH = plotBottom - plotTop;
+  // Merge realized + forward onto ONE numeric time axis. The realized path and
+  // the forward cone live on disjoint keys, so a row carries whichever segment
+  // it belongs to (both at the "now" boundary, where they meet at nowValue).
+  const rowByAt = new Map<number, TrajectoryRow>();
+  const rowAt = (at: number): TrajectoryRow => {
+    let r = rowByAt.get(at);
+    if (!r) {
+      r = {
+        at,
+        realizedValue: null,
+        coneBase: null,
+        coneSpan: null,
+        lo: null,
+        mid: null,
+        hi: null,
+      };
+      rowByAt.set(at, r);
+    }
+    return r;
+  };
+  for (const p of realized) rowAt(p.at).realizedValue = p.value;
+  for (const p of forward) {
+    const r = rowAt(p.at);
+    r.lo = p.lo;
+    r.mid = p.mid;
+    r.hi = p.hi;
+    r.coneBase = p.lo;
+    r.coneSpan = Math.max(0, p.hi - p.lo);
+  }
+  const data = [...rowByAt.values()].sort((a, b) => a.at - b.at);
 
-  const xSpan = x1 - x0 || 1;
-  const ySpan = yMax - yMin || 1;
-  const xOf = (ms: number): number =>
-    plotLeft + ((ms - x0) / xSpan) * (plotRight - plotLeft);
-  const yOf = (v: number): number => plotBottom - ((v - yMin) / ySpan) * plotH;
-
-  const f2 = (n: number): string => (Number.isFinite(n) ? n : 0).toFixed(2);
-  const line = (pts: { x: number; y: number }[]): string =>
-    pts.map((p, i) => `${i === 0 ? "M" : "L"}${f2(p.x)} ${f2(p.y)}`).join(" ");
-
-  // Realized line + area (down to plot floor).
-  const realPts = realized.map((p) => ({ x: xOf(p.at), y: yOf(p.value) }));
-  const realLineD = line(realPts);
-  const realFirst = realPts[0];
-  const realLast = realPts[realPts.length - 1];
-  const realAreaD =
-    realPts.length >= 2 && realFirst && realLast
-      ? `${realLineD} L${f2(realLast.x)} ${f2(plotBottom)} L${f2(realFirst.x)} ${f2(plotBottom)} Z`
-      : "";
-
-  // Forward cone.
-  const hiPts = forward.map((p) => ({ x: xOf(p.at), y: yOf(p.hi) }));
-  const loPts = forward.map((p) => ({ x: xOf(p.at), y: yOf(p.lo) }));
-  const midPts = forward.map((p) => ({ x: xOf(p.at), y: yOf(p.mid) }));
-  const bandD =
-    forward.length >= 2
-      ? `${line(hiPts)} ${[...loPts].reverse().map((p) => `L${f2(p.x)} ${f2(p.y)}`).join(" ")} Z`
-      : "";
-
-  const yTicks = [yMax, (yMin + yMax) / 2, yMin];
-  const leftPct = (x: number): string => `${(x / VIEW_W) * 100}%`;
-  const topPct = (y: number): string => `${(y / VIEW_H) * 100}%`;
-
-  const nowX = xOf(nowMs);
-  const nowY = yOf(nowValue);
+  const hasRealized = realized.length >= 2;
+  const hasCone = forward.length >= 2;
 
   return (
     <div className="flex flex-col gap-3 p-5">
@@ -126,159 +162,140 @@ export function ValueTrajectory({
         </div>
       </div>
 
-      <div className="relative w-full" style={{ height }}>
-        <svg
-          role="img"
-          aria-label={ariaLabel}
-          width="100%"
-          height="100%"
-          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
-          preserveAspectRatio="none"
-          style={{ display: "block", position: "absolute", inset: 0 }}
-        >
+      <ChartContainer
+        config={config}
+        role="img"
+        aria-label={ariaLabel}
+        className="aspect-auto w-full min-w-0"
+        style={{ height }}
+      >
+        <AreaChart data={data} margin={{ left: 4, right: 12, top: 12, bottom: 0 }}>
           <defs>
             <linearGradient id="vt-value-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--ct-chart-area-top)" />
-              <stop offset="100%" stopColor="var(--ct-chart-area-bottom)" />
+              <stop offset="0%" stopColor={CHART_AREA_TOP} />
+              <stop offset="100%" stopColor={CHART_AREA_BOTTOM} />
             </linearGradient>
           </defs>
 
-          {yTicks.map((t, i) => (
-            <line
-              key={i}
-              x1={plotLeft}
-              y1={yOf(t)}
-              x2={plotRight}
-              y2={yOf(t)}
-              stroke="var(--ct-chart-grid-stroke)"
-              strokeWidth={1}
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
+          <CartesianGrid vertical={false} stroke={CHART_GRID_STROKE} />
+          <XAxis dataKey="at" type="number" domain={[x0, x1]} hide />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            width={56}
+            domain={[yMin, yMax]}
+            ticks={yTicks}
+            tickFormatter={(v) => compactUsd(Number(v))}
+            tick={{ fill: "var(--ct-text-muted)", fontSize: 11 }}
+          />
 
-          {/* Forward cone — graphite band, dashed edges + muted-dashed midline. */}
-          {bandD && <path d={bandD} fill="var(--ct-chart-band-fill)" />}
-          {forward.length >= 2 && (
+          {/* Forward cone — graphite band (invisible baseline + shaded span). */}
+          {hasCone ? (
             <>
-              <path
-                d={line(hiPts)}
-                fill="none"
-                stroke="var(--ct-chart-band-stroke)"
+              <Area
+                dataKey="coneBase"
+                stackId="cone"
+                stroke="none"
+                fill="transparent"
+                type="linear"
+                connectNulls={false}
+                isAnimationActive={false}
+              />
+              <Area
+                dataKey="coneSpan"
+                stackId="cone"
+                stroke="none"
+                fill={CHART_BAND_FILL}
+                type="linear"
+                connectNulls={false}
+                isAnimationActive={false}
+              />
+              {/* Dashed lo / hi edges + muted-dashed midline — never accent. */}
+              <Area
+                dataKey="hi"
+                stroke={CHART_BAND_STROKE}
                 strokeWidth={1}
                 strokeDasharray="4 4"
-                vectorEffect="non-scaling-stroke"
-              />
-              <path
-                d={line(loPts)}
                 fill="none"
-                stroke="var(--ct-chart-band-stroke)"
+                type="linear"
+                connectNulls={false}
+                isAnimationActive={false}
+              />
+              <Area
+                dataKey="lo"
+                stroke={CHART_BAND_STROKE}
                 strokeWidth={1}
                 strokeDasharray="4 4"
-                vectorEffect="non-scaling-stroke"
-              />
-              <path
-                d={line(midPts)}
                 fill="none"
-                stroke="var(--ct-chart-band-stroke)"
+                type="linear"
+                connectNulls={false}
+                isAnimationActive={false}
+              />
+              <Area
+                dataKey="mid"
+                stroke={CHART_BAND_STROKE}
                 strokeWidth={1.4}
                 strokeDasharray="5 4"
-                vectorEffect="non-scaling-stroke"
+                fill="none"
+                type="linear"
+                connectNulls={false}
+                isAnimationActive={false}
               />
             </>
-          )}
+          ) : null}
 
           {/* Realized — accent area + line. */}
-          {realAreaD && <path d={realAreaD} fill="url(#vt-value-fill)" />}
-          {realLineD && realPts.length >= 2 && (
-            <path
-              d={realLineD}
-              fill="none"
-              stroke="var(--ct-chart-curve-color)"
+          {hasRealized ? (
+            <Area
+              dataKey="realizedValue"
+              stroke={CHART_CURVE_COLOR}
               strokeWidth={2.2}
               strokeLinejoin="round"
               strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
+              fill="url(#vt-value-fill)"
+              type="linear"
+              connectNulls={false}
+              isAnimationActive={false}
+              dot={false}
+              activeDot={false}
             />
-          )}
+          ) : null}
 
           {/* Today divider */}
-          {!matured && (
-            <line
-              x1={nowX}
-              y1={plotTop}
-              x2={nowX}
-              y2={plotBottom}
+          {!matured ? (
+            <ReferenceLine
+              x={nowMs}
               stroke="var(--ct-border)"
               strokeWidth={1}
               strokeDasharray="2 3"
-              vectorEffect="non-scaling-stroke"
             />
-          )}
-        </svg>
+          ) : null}
 
-        {/* Now endpoint dot */}
+          {/* Now endpoint dot */}
+          <ReferenceDot
+            x={nowMs}
+            y={nowValue}
+            r={4}
+            fill={CHART_CURVE_COLOR}
+            stroke={CHART_CURVE_COLOR}
+          />
+        </AreaChart>
+      </ChartContainer>
+
+      {/* X-axis date labels */}
+      <div className="flex items-center justify-between">
         <span
           aria-hidden="true"
-          style={{
-            position: "absolute",
-            left: leftPct(nowX),
-            top: topPct(nowY),
-            width: 8,
-            height: 8,
-            borderRadius: "50%",
-            transform: "translate(-50%, -50%)",
-            background: "var(--ct-chart-curve-color)",
-            boxShadow: "0 0 8px var(--ct-chart-curve-color)",
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Y-axis labels (top / mid / bottom) */}
-        {yTicks.map((t, i) => (
-          <span
-            key={`y${i}`}
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              left: 4,
-              top: topPct(yOf(t)),
-              transform: "translateY(-50%)",
-              fontSize: "var(--ct-text-nano)",
-              fontVariantNumeric: "tabular-nums",
-              color: "var(--ct-text-muted)",
-              background: "var(--ct-surface-card)",
-              padding: "0 2px",
-              pointerEvents: "none",
-            }}
-          >
-            {compactUsd(t)}
-          </span>
-        ))}
-
-        {/* X-axis date labels */}
-        <span
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            left: leftPct(plotLeft),
-            bottom: 0,
-            fontSize: "var(--ct-text-nano)",
-            color: "var(--ct-text-muted)",
-            pointerEvents: "none",
-          }}
+          className="text-[length:var(--ct-text-nano)]"
+          style={{ color: "var(--ct-text-muted)" }}
         >
           {startLabel}
         </span>
         <span
           aria-hidden="true"
-          style={{
-            position: "absolute",
-            right: PAD.right,
-            bottom: 0,
-            fontSize: "var(--ct-text-nano)",
-            color: "var(--ct-text-muted)",
-            pointerEvents: "none",
-          }}
+          className="text-[length:var(--ct-text-nano)]"
+          style={{ color: "var(--ct-text-muted)" }}
         >
           {endLabel}
         </span>

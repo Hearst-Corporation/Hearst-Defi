@@ -36,7 +36,7 @@ import {
   Series1WiredRow,
 } from "@/components/series1-shell/Series1Wired";
 import { Series1Timeline } from "@/components/series1-shell/Series1Timeline";
-import { HcCompositionRing } from "@/components/dataviz/his";
+import { ChartDonut } from "@/components/catalyst/chart-donut";
 // `vaultModeLabel` comes from the backend view helper, not `_view`: the mode
 // now reflects what the BACKEND says answered (including "v2-fork"), not the
 // frontend's own env-derived VaultMode.
@@ -209,7 +209,7 @@ export default async function VaultsPage() {
                   the live strategies() read is unavailable — labeled policy,
                   never a measurement. `bars` fills the panel width with one
                   gauge per pocket instead of floating a small donut in space. */}
-              <HcCompositionRing
+              <ChartDonut
                 aria-label="Series 1 policy allocation target: B1 40%, B2 27%, B3 33%"
                 palette="categorical"
                 size={210}

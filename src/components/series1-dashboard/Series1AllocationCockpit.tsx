@@ -16,7 +16,7 @@
 import Link from "next/link";
 
 import { BentoBadge } from "@/components/catalyst/bento-badge";
-import { HcCompositionRing } from "@/components/dataviz/his";
+import { ChartDonut } from "@/components/catalyst/chart-donut";
 import { cn } from "@/lib/cn";
 import { surfaceNoticeWell } from "@/lib/ui/surface-classes";
 
@@ -107,7 +107,7 @@ export function Series1AllocationCockpit({
               the adjacent "Policy target" bar heading verbatim, a semantic
               doublon. Left bare, it reads as the shape; the bar owns the words. */}
           <div className="shrink-0 self-center sm:self-start">
-            <HcCompositionRing
+            <ChartDonut
               segments={target.map((p) => ({ label: `${p.id} · ${p.label}`, value: p.value }))}
               size={132}
               palette="categorical"

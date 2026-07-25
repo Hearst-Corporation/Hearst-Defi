@@ -35,8 +35,8 @@ const SCOPE_DIRS = [
 const SCOPE_FILES = [
   "src/components/catalyst/accordion.tsx",
   "src/components/catalyst/step-timeline.tsx",
-  "src/components/dataviz/his/HcBarChart.tsx",
-  "src/components/dataviz/his/HcStackedBar.tsx",
+  "src/components/catalyst/chart-donut.tsx",
+  "src/components/catalyst/chart-proportion-bar.tsx",
 ];
 
 const EXT = /\.(tsx?|jsx?)$/;
@@ -126,11 +126,14 @@ describe("Visual Direction DS Contract (PROMPT #072)", () => {
     );
     expect(timeline).toMatch(/StepTimeline/);
 
-    const bar = readFileSync(
-      join(ROOT, "src/components/dataviz/his/HcBarChart.tsx"),
+    // Canonical Recharts allocation bar (replaced the retired HIS HcBarChart /
+    // HcStackedBar): its honest empty state renders a neutral track, never a
+    // fabricated fill.
+    const proportionBar = readFileSync(
+      join(ROOT, "src/components/catalyst/chart-proportion-bar.tsx"),
       "utf8",
     );
-    expect(bar).toMatch(/data-hc-empty/); // honest empty state
+    expect(proportionBar).toMatch(/data-chart-empty/); // honest empty state
   });
 
   it("the categorical palette is declared as token aliases (no new hex, one green)", () => {

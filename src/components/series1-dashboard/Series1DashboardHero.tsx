@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { HcCompositionRing } from "@/components/dataviz/his";
+import { ChartDonut } from "@/components/catalyst/chart-donut";
 import { cn } from "@/lib/cn";
 import {
   surfaceClassName,
@@ -121,7 +121,7 @@ export function Series1DashboardHero({
                     className="h-px min-w-0 flex-1 bg-(--ct-border-soft)"
                   />
                 </p>
-                <HcCompositionRing
+                <ChartDonut
                   segments={allocation!.map((p) => ({
                     label: `${p.id} · ${p.label}`,
                     value: p.value,

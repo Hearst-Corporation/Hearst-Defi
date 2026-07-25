@@ -1,5 +1,5 @@
 import { Stepper } from "@/components/catalyst/stepper";
-import { HcStackedBar } from "@/components/dataviz/his";
+import { ChartProportionBar } from "@/components/catalyst/chart-proportion-bar";
 import { cn } from "@/lib/cn";
 import { surfaceNoticeWell } from "@/lib/ui/surface-classes";
 
@@ -59,7 +59,7 @@ export function AllocationBarRow({
           {sub}
         </p>
       </div>
-      <HcStackedBar
+      <ChartProportionBar
         className="mt-[var(--ct-space-2)]"
         segments={pockets.map((p) => ({ label: `${p.id} · ${p.label}`, value: p.value }))}
         palette="categorical"
