@@ -57,15 +57,9 @@ function trackedOnly(routes: readonly string[]): string[] {
 const EXPECTED_ROUTES = [
   "/",
   "/admin",
-  "/admin/agent-canvas",
-  "/admin/agent-canvas/[canvasId]",
-  "/admin/agentic",
-  "/admin/audit",
-  "/admin/chart-gallery",
   "/admin/customers",
   "/admin/customers/[id]",
   "/admin/dashboard",
-  "/admin/design-system",
   "/admin/diagnostics",
   "/admin/distributions",
   "/admin/document-vault",
@@ -74,28 +68,12 @@ const EXPECTED_ROUTES = [
   "/admin/governance/allowlist",
   "/admin/governance/proposal/[id]",
   "/admin/governance/propose",
-  "/admin/investor-memo",
-  "/admin/marketplace",
   "/admin/monitoring",
-  "/admin/onboarding-test",
-  "/admin/outreach",
-  "/admin/outreach/[campaignId]",
-  "/admin/outreach/compose",
-  "/admin/outreach/prospects/[id]",
-  "/admin/product-workspace",
-  "/admin/product-workspace/report/print",
-  "/admin/products/btc-mining-performance-vault",
   "/admin/proof-center",
   "/admin/proof-center/full",
   "/admin/proofs",
-  "/admin/roadmap",
   "/admin/security",
   "/admin/signals",
-  "/admin/source",
-  "/admin/spec",
-  "/admin/spec/[slug]",
-  "/admin/strategies",
-  "/admin/strategies/[slug]",
   "/admin/system/architecture",
   "/admin/vaults",
   "/admin/vaults/[id]",
@@ -166,7 +144,7 @@ describe("getProductRoutes", () => {
     // Dynamic segments are kept verbatim as [param] markers.
     expect(routes).toContain("/vaults/[id]");
     expect(routes).toContain("/portfolio/[positionId]");
-    expect(routes).toContain("/admin/spec/[slug]");
+    expect(routes).toContain("/admin/governance/proposal/[id]");
 
     // Nested static routes resolve to their full path.
     expect(routes).toContain("/vaults/[id]/invest/confirmed");

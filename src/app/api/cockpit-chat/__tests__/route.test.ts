@@ -338,7 +338,7 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     });
     expect(mockPublishNav).not.toHaveBeenCalledWith(
       USER_ID,
-      expect.objectContaining({ destinationKey: "admin-agent-canvas" }),
+      expect.objectContaining({ destinationKey: "lp-agent-canvas" }),
     );
     expect(mockRunChatAgent).not.toHaveBeenCalled();
   });
@@ -384,17 +384,16 @@ describe("POST /api/cockpit-chat — admin product-intent classification + nav",
     });
   });
 
-  it("falls back to Outreach for an email prospection intent in plain text (regex nav)", async () => {
+  it("does NOT regex-navigate retired outreach UI phrases (chat tools only)", async () => {
     classifyNotProduct();
     mockMasterAgentTurnWithoutNav();
 
     const res = await POST(makeChatRequest("prépare un email de prospection"));
     expect(res.status).toBe(200);
     await vi.waitFor(() => {
-      expect(mockPublishNav).toHaveBeenCalledWith(USER_ID, {
-        destinationKey: "admin-outreach",
-      });
+      expect(mockPublishNav).not.toHaveBeenCalled();
     });
+    expect(mockRunChatAgent).toHaveBeenCalled();
   });
 });
 
@@ -686,9 +685,8 @@ describe("POST /api/cockpit-chat — router v2 safe paths", () => {
       "Amène-moi au dashboard",
       "Open my portfolio",
       "Va sur proof center",
-      "Open outreach",
-      "Montre les campagnes",
       "Va dans control tower",
+      "Ouvre le dashboard admin",
     ];
 
     for (const message of coveredMessages) {

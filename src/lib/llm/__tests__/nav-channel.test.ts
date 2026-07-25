@@ -31,13 +31,13 @@ describe("nav-channel (in-memory fallback)", () => {
 
   it("carries product workspace objective and autostart metadata", async () => {
     await publishNav("user-product", {
-      destinationKey: "admin-product-workspace",
+      destinationKey: "admin-vaults-new",
       objective: "Créer une offre Defensive avec notes de calcul",
       autostart: true,
     });
     expect(await consumeNav("user-product")).toEqual({
-      route: "/admin/product-workspace",
-      label: "Admin Product Workspace",
+      route: "/admin/vaults/new",
+      label: "Admin — New vault",
       objective: "Créer une offre Defensive avec notes de calcul",
       autostart: true,
     });

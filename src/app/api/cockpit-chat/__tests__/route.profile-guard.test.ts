@@ -7,7 +7,7 @@ import type { NextRequest } from "next/server";
  * An LP (non-admin) who phrases a navigation toward an ADMIN-only surface must
  * NOT cause an admin nav directive to be published. The deterministic router's
  * augmented layer can resolve an admin route-key ("admin-outreach",
- * "admin-product-workspace") from the phrasing alone, but the route's fast-path
+ * "admin-vaults-new") from the phrasing alone, but the route's fast-path
  * re-resolves the destination against the REAL user's allowance:
  *   - admin route-key + isAdmin=false  → dropped (no publishNav, no early
  *     navigate return) → falls through to a normal LLM answer.
@@ -233,7 +233,7 @@ describe("POST /api/cockpit-chat — LP profile guard on admin-* navigation", ()
     // the LP cases above are blocked by the profile guard, not by a dead router.
     mockGetSession.mockResolvedValue({ role: "admin" } as never);
 
-    const res = await POST(makeChatRequest("ouvre outreach"));
+    const res = await POST(makeChatRequest("ouvre le dashboard admin"));
     expect(res.status).toBe(200);
 
     // Admin → the router fast-path navigates before the LLM. The fast-path now
@@ -244,7 +244,7 @@ describe("POST /api/cockpit-chat — LP profile guard on admin-* navigation", ()
     expect(body.trim().length).toBeGreaterThan(0);
     expect(mockRunChatAgent).not.toHaveBeenCalled();
     expect(mockPublishNav).toHaveBeenCalledWith(LP_USER_ID, {
-      destinationKey: "admin-outreach",
+      destinationKey: "admin-dashboard",
     });
   });
 

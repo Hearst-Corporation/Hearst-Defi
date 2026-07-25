@@ -54,7 +54,7 @@ const mockRunSourcing = vi.fn();
 const mockDraftEmailForProspect = vi.fn();
 const mockOutreachAutoSendHandler = vi.fn();
 
-vi.mock("@/app/admin/outreach/actions", () => ({
+vi.mock("@/lib/outreach/admin-actions", () => ({
   runSourcing: (...args: unknown[]) => mockRunSourcing(...args),
   draftEmailForProspect: (...args: unknown[]) => mockDraftEmailForProspect(...args),
 }));
@@ -457,7 +457,7 @@ describe("admin read tools registry", () => {
       routesWhitelist?: string[];
     };
 
-    expect(payload.steps?.[0]?.route).toBe("/admin/product-workspace");
+    expect(payload.steps?.[0]?.route).toBe("/admin/vaults/new");
     // The retired Scenario Lab route is no longer part of the admin nav
     // whitelist, so the demo plan never surfaces it.
     expect(payload.routesWhitelist).not.toContain("/admin/scenario-lab");
@@ -527,7 +527,7 @@ describe("admin read tools registry", () => {
     const payload = result.payload as {
       demoPlan?: Array<{ route: string }>;
     };
-    expect(payload.demoPlan?.[0]?.route).toBe("/admin/product-workspace");
+    expect(payload.demoPlan?.[0]?.route).toBe("/admin/vaults/new");
   });
 
   it("export_demo_pack honors include toggles", async () => {

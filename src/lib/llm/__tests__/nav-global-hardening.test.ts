@@ -32,16 +32,10 @@ describe("global deterministic nav hardening", () => {
 
   it("routes admin destinations across FR/EN/mixed/typos", () => {
     const adminCases: Array<[string, string]> = [
-      // The projection / scenario-lab routes were retired — those phrases no
-      // longer resolve to a destination (guarded below with the null cases).
-      ["open outreach", "admin-outreach"],
-      ["show campaigns", "admin-outreach"],
-      ["show la campagne", "admin-outreach"],
-      ["campain", "admin-outreach"],
       ["open control tower", "admin-home"],
       ["va dans admin", "admin-home"],
-      ["open agent canvas", "admin-agent-canvas"],
-      ["open product workspace", "admin-product-workspace"],
+      ["open agent canvas", "lp-agent-canvas"],
+      ["open product workspace", "admin-vaults-new"],
       ["open proof center", "admin-proof-center"],
       ["ouvri le dashboard", "admin-dashboard"],
       ["dashbord admin", "admin-dashboard"],
@@ -58,13 +52,16 @@ describe("global deterministic nav hardening", () => {
     }
   });
 
-  it("no longer routes the retired projection / scenario-lab phrases", () => {
+  it("no longer routes the retired projection / scenario-lab / outreach UI phrases", () => {
     for (const message of [
       "go to projection",
       "show me projection",
       "projetion",
       "open scenario lab",
       "scenarion lab",
+      "open outreach",
+      "show campaigns",
+      "campain",
     ]) {
       expect(
         resolveNavFallbackDestinationKey({

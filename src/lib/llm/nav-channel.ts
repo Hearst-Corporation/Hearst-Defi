@@ -99,11 +99,9 @@ function normalizeDirective(
   // product workspace and the agent-canvas family. Keeping this as a small set
   // (not an open flag) preserves the "agent can only seed the pages we built for
   // it" invariant. (The scenario lab route was retired.)
-  const isCanvas =
-    input.destinationKey === "admin-agent-canvas" ||
-    input.destinationKey === "lp-agent-canvas";
+  const isCanvas = input.destinationKey === "lp-agent-canvas";
   const supportsSeededObjective =
-    input.destinationKey === "admin-product-workspace" ||
+    input.destinationKey === "admin-vaults-new" ||
     isCanvas;
   const objective = supportsSeededObjective
     ? sanitizeObjective(input.objective)

@@ -38,7 +38,7 @@ export function runOutreachDiagnostics(
       label: "Direct send with forbidden words is caught by the guard",
       severity: "P0",
       expected: "containsForbidden(unsafe) returns a non-null hit",
-      likelyFile: "src/app/admin/outreach/actions.ts",
+      likelyFile: "src/lib/outreach/admin-actions.ts",
       likelyFunction: "sendDirectEmail",
       guard: "assertNoForbiddenWords",
       run: () => {

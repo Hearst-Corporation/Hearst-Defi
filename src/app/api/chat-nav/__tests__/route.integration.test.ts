@@ -67,7 +67,7 @@ describe("GET /api/chat-nav — single-fire nav-channel cycle (integration)", ()
     // no longer resolves and the channel drops it — the payload carries only the
     // primary Product Workspace metadata.
     await publishNav(USER_A, {
-      destinationKey: "admin-product-workspace",
+      destinationKey: "admin-vaults-new",
       objective: "Créer un vault Defensive puis valider en stress test",
       autostart: true,
       intentKind: "mixed_product_creation_simulation",
@@ -78,7 +78,7 @@ describe("GET /api/chat-nav — single-fire nav-channel cycle (integration)", ()
     const res = await getAs(USER_A);
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({
-      route: "/admin/product-workspace",
+      route: "/admin/vaults/new",
       label: expect.any(String),
       objective: "Créer un vault Defensive puis valider en stress test",
       autostart: true,

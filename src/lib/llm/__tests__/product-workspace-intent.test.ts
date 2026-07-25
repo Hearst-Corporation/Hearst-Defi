@@ -10,7 +10,7 @@ import {
 
 describe("product workspace intent", () => {
   it("routes product creation and new vault framing to Product Workspace", () => {
-    expect(PRODUCT_WORKSPACE_DESTINATION_KEY).toBe("admin-product-workspace");
+    expect(PRODUCT_WORKSPACE_DESTINATION_KEY).toBe("admin-vaults-new");
     expect(isProductWorkspaceIntent("Créer un nouveau produit Defensive")).toBe(true);
     expect(isProductWorkspaceIntent("new vault for BTC Plus go-to-market")).toBe(true);
     expect(isProductWorkspaceIntent("cadrer une stratégie produit institutionnelle")).toBe(
@@ -64,7 +64,7 @@ describe("product workspace intent", () => {
 
 // ── P0 stress suite — assistant navigation intent (vault / product workspace) ──
 // Every "claire intention" phrase must open the canonical Product Workspace
-// (admin-product-workspace). Negatives (electrical/math/css/bare-question) must
+// (admin-vaults-new). Negatives (electrical/math/css/bare-question) must
 // NOT. Navigation stays 100% deterministic — these are pure regex assertions.
 describe("product workspace intent — P0 navigation stress suite", () => {
   // The exact failing logs from the bug report — these MUST navigate now.

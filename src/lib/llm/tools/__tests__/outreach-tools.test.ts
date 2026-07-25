@@ -12,7 +12,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/db", () => ({ prisma: {} }));
-vi.mock("@/app/admin/outreach/actions", () => ({
+vi.mock("@/lib/outreach/admin-actions", () => ({
   runSourcing: vi.fn(),
   draftEmailForProspect: vi.fn(),
 }));

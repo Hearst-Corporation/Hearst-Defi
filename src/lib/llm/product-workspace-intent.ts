@@ -1,4 +1,4 @@
-export const PRODUCT_WORKSPACE_DESTINATION_KEY = "admin-product-workspace";
+export const PRODUCT_WORKSPACE_DESTINATION_KEY = "admin-vaults-new";
 
 const MAX_OBJECTIVE_LEN = 220;
 

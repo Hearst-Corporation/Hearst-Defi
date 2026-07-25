@@ -1,5 +1,5 @@
 /**
- * Unit test for the runSourcing server action (src/app/admin/outreach/actions.ts).
+ * Unit test for the runSourcing server action (src/lib/outreach/admin-actions.ts).
  * Pins the A→Z persistence contract: when the Master tool sources leads, the
  * Apollo enrichment fields (linkedinUrl / companyDomain / industry / emailStatus
  * / apolloData) carried by each SourcedCandidate are PERSISTED on the new
@@ -104,7 +104,7 @@ describe("runSourcing — persists Apollo enrichment", () => {
       stats: { searched: 1, enrichFailed: 0, dedupSkipped: 0 },
     });
 
-    const { runSourcing } = await import("@/app/admin/outreach/actions");
+    const { runSourcing } = await import("@/lib/outreach/admin-actions");
     const res = await runSourcing("icp_1", 10);
 
     expect(prospectCreateMock).toHaveBeenCalledTimes(1);
@@ -134,7 +134,7 @@ describe("runSourcing — persists Apollo enrichment", () => {
       stats: { searched: 1, enrichFailed: 0, dedupSkipped: 0 },
     });
 
-    const { runSourcing } = await import("@/app/admin/outreach/actions");
+    const { runSourcing } = await import("@/lib/outreach/admin-actions");
     const res = await runSourcing("icp_1", 10);
 
     expect(prospectCreateMock).not.toHaveBeenCalled();

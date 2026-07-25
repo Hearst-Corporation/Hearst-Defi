@@ -101,13 +101,13 @@ export function runChatRouterDiagnostics(): DiagnosticResult[] {
       id: "chat.lp-cannot-resolve-admin-nav",
       label: "LP cannot resolve an admin-* navigation destination",
       severity: "P0",
-      expected: "resolveNavDestinationForProfile('admin-outreach','lp') === null; ('admin') !== null",
+      expected: "resolveNavDestinationForProfile('admin-dashboard','lp') === null; ('admin') !== null",
       likelyFile: "src/lib/llm/navigate-tool.ts",
       likelyFunction: "resolveNavDestinationForProfile",
       guard: "nav profile guard",
       run: () => {
-        const lp = resolveNavDestinationForProfile("admin-outreach", "lp");
-        const admin = resolveNavDestinationForProfile("admin-outreach", "admin");
+        const lp = resolveNavDestinationForProfile("admin-dashboard", "lp");
+        const admin = resolveNavDestinationForProfile("admin-dashboard", "admin");
         return lp === null && admin !== null
           ? pass("admin-* dropped for LP, resolved for admin", {
               lp,

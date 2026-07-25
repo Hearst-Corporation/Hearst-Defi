@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   ADMIN_CUSTOMERS_DESTINATION_KEY,
-  ADMIN_OUTREACH_DESTINATION_KEY,
   NAV_REJECT_ACK,
   NAV_SHORTCUT_ACK,
   buildNavRejectAck,
@@ -70,7 +69,7 @@ describe("nav-fallback-intent", () => {
   });
 
   describe("resolveAdminNavFallbackKey", () => {
-    it("routes customers, user portfolio and outreach intents", () => {
+    it("routes customers and admin ops intents (outreach UI retired)", () => {
       expect(resolveAdminNavFallbackKey("créer un nouveau client")).toBe(
         ADMIN_CUSTOMERS_DESTINATION_KEY,
       );
@@ -80,15 +79,9 @@ describe("nav-fallback-intent", () => {
       expect(
         resolveAdminNavFallbackKey("ouvre le portefeuille utilisateur"),
       ).toBe(ADMIN_CUSTOMERS_DESTINATION_KEY);
-      expect(resolveAdminNavFallbackKey("prépare un email de prospection")).toBe(
-        ADMIN_OUTREACH_DESTINATION_KEY,
-      );
-      expect(resolveAdminNavFallbackKey("compose email outreach")).toBe(
-        ADMIN_OUTREACH_DESTINATION_KEY,
-      );
-      expect(resolveAdminNavFallbackKey("show campaigns")).toBe(
-        ADMIN_OUTREACH_DESTINATION_KEY,
-      );
+      expect(resolveAdminNavFallbackKey("prépare un email de prospection")).toBeNull();
+      expect(resolveAdminNavFallbackKey("compose email outreach")).toBeNull();
+      expect(resolveAdminNavFallbackKey("show campaigns")).toBeNull();
       // Scenario Lab + Projection routes were RETIRED — an explicit nav phrase for
       // them now resolves nothing (they fall through to the LLM, no dead routing).
       expect(resolveAdminNavFallbackKey("open scenario lab")).toBeNull();
@@ -102,14 +95,10 @@ describe("nav-fallback-intent", () => {
     it("accepts mixed-language and typo variants", () => {
       expect(resolveAdminNavFallbackKey("ouvre dashboard")).toBe("admin-dashboard");
       expect(resolveAdminNavFallbackKey("va proof center")).toBe("admin-proof-center");
-      expect(resolveAdminNavFallbackKey("show la campagne")).toBe(
-        ADMIN_OUTREACH_DESTINATION_KEY,
-      );
+      expect(resolveAdminNavFallbackKey("show la campagne")).toBeNull();
       expect(resolveAdminNavFallbackKey("ouvri le dashboard")).toBe("admin-dashboard");
       expect(resolveAdminNavFallbackKey("dashbord admin")).toBe("admin-dashboard");
-      expect(resolveAdminNavFallbackKey("campain outreach")).toBe(
-        ADMIN_OUTREACH_DESTINATION_KEY,
-      );
+      expect(resolveAdminNavFallbackKey("campain outreach")).toBeNull();
       // Scenario Lab / Projection typos no longer resolve — routes retired.
       expect(resolveAdminNavFallbackKey("scenarion lab")).toBeNull();
       expect(resolveAdminNavFallbackKey("projetion admin")).toBeNull();

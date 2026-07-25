@@ -46,7 +46,7 @@ describe("GET /api/chat-nav", () => {
     // whitelist, so the channel drops it — the directive carries the primary
     // Product Workspace metadata only.
     await publishNav("chat-nav-user", {
-      destinationKey: "admin-product-workspace",
+      destinationKey: "admin-vaults-new",
       objective: "Créer un produit Defensive puis simuler un stress test",
       autostart: true,
       intentKind: "mixed_product_creation_simulation",
@@ -57,8 +57,8 @@ describe("GET /api/chat-nav", () => {
     const first = await GET();
     expect(first.status).toBe(200);
     await expect(first.json()).resolves.toEqual({
-      route: "/admin/product-workspace",
-      label: "Admin Product Workspace",
+      route: "/admin/vaults/new",
+      label: "Admin — New vault",
       objective: "Créer un produit Defensive puis simuler un stress test",
       autostart: true,
       intentKind: "mixed_product_creation_simulation",

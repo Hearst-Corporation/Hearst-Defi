@@ -17,8 +17,6 @@ import { isProductWorkspaceIntent } from "@/lib/llm/product-workspace-intent";
 
 
 export const ADMIN_CUSTOMERS_DESTINATION_KEY = "admin-customers";
-export const ADMIN_OUTREACH_DESTINATION_KEY = "admin-outreach";
-
 /** Shared navigation verbs (FR + EN). */
 const NAV_VERB =
   "(?:ouvre|ouvrir|ouvre-moi|ouvri|va|vas|aller|va sur|vas sur|aller sur|va dans|vas dans|aller dans|montre|montre-moi|affiche|affiche-moi|navigue|acc[eè]de|acc[eè]der|am[eè]ne|am[eè]ne-moi|emm[eè]ne|emm[eè]ne-moi|voir|consulte|consulter|open|go|go to|take me to|bring me to|show me|show|view|redirect)";
@@ -132,28 +130,6 @@ const ADMIN_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
       "i",
     ),
   },
-  // Outreach — navigates on (a) a nav verb before an outreach term, (b) an email
-  // compose/prepare intent, or (c) a bare short command / typo ("campain",
-  // "outrich"). A conversational mention ("j'ai une question sur les campagnes")
-  // must NOT navigate, so a bare "campagnes" mid-sentence no longer matches.
-  {
-    key: "admin-outreach",
-    re: new RegExp(
-      [
-        // (a) nav verb + outreach term
-        `\\b${NAV_VERB}.*(outreach|outrich|outtrich|campagnes?|campain|prospection)`,
-        // (b) explicit email compose/prepare intent
-        "(?:compose|composer|r[eé]dige[rz]?|pr[eé]pare[rz]?|envoie[rz]?|envoyer|cr[eé]e[rz]?).{0,20}(email|campagne|prospection|outreach)",
-        "email de prospection",
-        // (c) distinctive typos — never a plausible conversational mention, so
-        // they may match anywhere ("campain outreach", a bare "outrich").
-        "\\b(outrich|outtrich|campain)\\b",
-        // (d) bare short command for the real words (whole message is the term).
-        "^\\s*(outreach|prospection)\\s*$",
-      ].join("|"),
-      "i",
-    ),
-  },
   {
     key: "admin-dashboard",
     re: new RegExp(
@@ -181,10 +157,6 @@ const ADMIN_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
       `\\b(${NAV_VERB}.*(gouvernance|governance)|admin[/-]governance)\\b`,
       "i",
     ),
-  },
-  {
-    key: "admin-roadmap",
-    re: new RegExp(`\\b(${NAV_VERB}.*roadmap|admin[/-]roadmap)\\b`, "i"),
   },
 ];
 
@@ -220,9 +192,8 @@ export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   "legal-privacy": ["confidentialité", "vie privée", "privacy"],
   "legal-terms": ["conditions", "cgu", "terms"],
   // Admin
-  "admin-product-workspace": ["product workspace", "espace produit"],
-  "admin-agent-canvas": ["agent canvas", "canvas agent", "atelier agent"],
-  "lp-agent-canvas": ["agent canvas lecture", "canvas lecture", "explication produit"],
+  "admin-vaults-new": ["product workspace", "espace produit", "nouveau vault", "new vault", "vault wizard", "wizard vault"],
+  "lp-agent-canvas": ["agent canvas", "canvas agent", "atelier agent", "agent canvas lecture", "canvas lecture", "explication produit"],
   // "dashboard" is intentionally an admin keyword too: an ADMIN saying "ouvre
   // dashboard" wants the admin dashboard, and the admin resolver is queried first
   // for admins. The LP resolver maps the same verb-gated phrase to `portfolio`.
@@ -231,13 +202,9 @@ export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   "admin-dashboard": ["dashboard", "dashbord", "dashboard admin", "dashbord admin", "tableau de bord admin", "command center", "admin dashboard"],
   "admin-vaults": ["vaults admin", "gestion des vaults"],
   "admin-customers": ["clients", "customers", "investisseurs", "fiche client"],
-  "admin-outreach": ["outreach", "outrich", "outtrich", "prospection", "campagne email", "campagnes", "campaigns", "campaign", "campain", "campagne"],
   "admin-proofs": ["proofs admin", "gestion des proofs"],
   "admin-governance": ["gouvernance", "governance"],
-  "admin-roadmap": ["roadmap", "feuille de route"],
   "admin-home": ["accueil admin", "operations admin", "console admin", "control tower", "tour de contrôle", "tour de controle", "admin"],
-  "admin-vaults-new": ["vault wizard", "wizard vault", "nouveau vault wizard"],
-  "admin-outreach-compose": ["composer un email", "rédiger un email", "compose"],
   // "proof center" is an admin keyword too: an ADMIN navigating there wants the
   // admin proof center (admin resolver is queried first for admins); the LP
   // resolver maps the same verb-gated phrase to the LP `proof-center`. Profile-
@@ -246,16 +213,11 @@ export const NAV_KEYWORDS: Record<string, readonly string[]> = {
   "admin-proof-center-full": ["proof center admin complet"],
   "admin-governance-allowlist": ["allowlist", "liste blanche", "adresses autorisées"],
   "admin-governance-propose": ["proposer", "nouvelle proposition", "propose"],
-  "admin-audit": ["audit", "journal d'audit", "traçabilité"],
   "admin-distributions": ["distributions admin", "gestion des distributions"],
   "admin-feedback": ["feedback", "retours"],
-  "admin-investor-memo": ["investor memo", "mémo investisseur", "memo"],
   "admin-monitoring": ["monitoring", "surveillance", "santé système"],
   "admin-security": ["sécurité", "security", "contrôle d'accès"],
   "admin-signals": ["signals", "signaux", "indicateurs"],
-  "admin-spec": ["specs", "spécifications", "spec produit"],
-  "admin-source": ["source", "sources", "data source", "sources de données", "ingestion"],
-  "admin-agentic": ["agentic", "agentic console", "console agentique", "agentique"],
 };
 
 export interface CanonicalNavMatrixRow {
@@ -326,31 +288,11 @@ export const NAV_CANONICAL_MATRIX: readonly CanonicalNavMatrixRow[] = [
     safe: true,
   },
   {
-    canonicalDestination: "product workspace",
-    destinationKey: "admin-product-workspace",
-    route: "/admin/product-workspace",
-    aliasesFr: ["espace produit", "product workspace"],
-    aliasesEn: ["product workspace"],
-    typos: [],
-    requiredPermissions: "admin",
-    safe: true,
-  },
-  {
-    canonicalDestination: "outreach/campaigns",
-    destinationKey: "admin-outreach",
-    route: "/admin/outreach",
-    aliasesFr: ["outreach", "campagnes"],
-    aliasesEn: ["outreach", "campaigns"],
-    typos: ["campain", "outrich", "outtrich"],
-    requiredPermissions: "admin",
-    safe: true,
-  },
-  {
-    canonicalDestination: "agent canvas",
-    destinationKey: "admin-agent-canvas",
-    route: "/admin/agent-canvas",
-    aliasesFr: ["agent canvas", "canvas agent"],
-    aliasesEn: ["agent canvas"],
+    canonicalDestination: "new vault",
+    destinationKey: "admin-vaults-new",
+    route: "/admin/vaults/new",
+    aliasesFr: ["espace produit", "nouveau vault", "product workspace"],
+    aliasesEn: ["product workspace", "new vault"],
     typos: [],
     requiredPermissions: "admin",
     safe: true,
@@ -361,16 +303,6 @@ export const NAV_CANONICAL_MATRIX: readonly CanonicalNavMatrixRow[] = [
     route: "/admin",
     aliasesFr: ["control tower", "tour de contrôle", "admin"],
     aliasesEn: ["control tower", "admin"],
-    typos: [],
-    requiredPermissions: "admin",
-    safe: true,
-  },
-  {
-    canonicalDestination: "reports",
-    destinationKey: "admin-investor-memo",
-    route: "/admin/investor-memo",
-    aliasesFr: ["rapports", "reporting"],
-    aliasesEn: ["reports", "reporting"],
     typos: [],
     requiredPermissions: "admin",
     safe: true,
@@ -426,8 +358,8 @@ function buildDerivedRules(
 const LP_DERIVED_RULES = buildDerivedRules(LP_NAV_DESTINATIONS);
 const ADMIN_DERIVED_RULES = buildDerivedRules(ADMIN_NAV_DESTINATIONS);
 
-/** Vault list/wizard nav must lose to Product Workspace creation/framing. */
-const VAULT_NAV_KEYS = new Set(["vaults", "admin-vaults", "admin-vaults-new"]);
+/** Vault list nav must lose to new-vault creation/framing (not the wizard itself). */
+const VAULT_NAV_KEYS = new Set(["vaults", "admin-vaults"]);
 
 function vaultNavSupersededByProductWorkspace(
   message: string,

@@ -7,7 +7,7 @@
  * consume → tool run() → human message. The full path is exercised.
  *
  * Safety: external effects are mocked at the HIGHEST isolation point —
- * @/app/admin/outreach/actions (runSourcing / draftEmailForProspect) and
+ * @/lib/outreach/admin-actions (runSourcing / draftEmailForProspect) and
  * @/lib/inngest/functions/outreach-auto-send (outreachAutoSendHandler). That cuts
  * off Resend / Apollo / HubSpot / prod-DB entirely. Confirmations + telemetry use
  * an in-memory @/lib/db mock. No real email, no real external call.
@@ -48,7 +48,7 @@ const {
   mockOutreachAutoSendHandler,
 } = h;
 
-vi.mock("@/app/admin/outreach/actions", () => ({
+vi.mock("@/lib/outreach/admin-actions", () => ({
   runSourcing: (...a: unknown[]) => h.mockRunSourcing(...a),
   draftEmailForProspect: (...a: unknown[]) => h.mockDraftEmailForProspect(...a),
 }));

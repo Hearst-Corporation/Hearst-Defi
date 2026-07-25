@@ -14,20 +14,6 @@ describe("matchesNavPath", () => {
   });
 });
 
-describe("strategy sub-nav — retired scenario/projection routes", () => {
-  const strategy = ADMIN_SECTIONS.find((s) => s.id === "strategy");
-
-  it("no longer exposes the retired projection / scenario-lab tabs", () => {
-    const ids = strategy!.tabs.map((t) => t.id);
-    expect(ids).not.toContain("projection");
-    expect(ids).not.toContain("scenario-lab");
-    expect(ids).not.toContain("projection-preview");
-    expect(strategy!.tabs.some((t) => t.href === "/admin/projection")).toBe(false);
-    expect(strategy!.tabs.some((t) => t.href === "/admin/scenario-lab")).toBe(false);
-    expect(strategy!.tabs.some((t) => t.href === "/admin/projection/preview")).toBe(false);
-  });
-});
-
 describe("vault admin sub-nav — Series 1 reserve evidence", () => {
   it("labels the retained historical route as Reserve Events", () => {
     const vaults = ADMIN_SECTIONS.find((section) => section.id === "vaults");
@@ -53,23 +39,15 @@ describe("visibleSubNavTabs", () => {
     expect(visible).toEqual([
       "dashboard-overview",
       "customers",
-      "agentic",
-      "outreach",
       "feedback",
     ]);
   });
 
-  it("keeps the single Agents placeholder tab (Agent Library + Model Bench removed)", () => {
+  it("no longer exposes retired agentic/outreach dashboard tabs", () => {
     const dashboard = ADMIN_SECTIONS.find((s) => s.id === "dashboard");
-    const agentic = dashboard!.tabs.find((t) => t.id === "agentic");
-    // The placeholder slot: agent orchestration moved to an external platform.
-    expect(agentic?.label).toBe("Agents");
-    expect(agentic?.href).toBe("/admin/agentic");
-    // The distinct Agent Library / Model Bench tabs are gone — their routes were
-    // deleted, so no dashboard tab may point at them.
-    expect(dashboard!.tabs.find((t) => t.id === "agents")).toBeUndefined();
-    expect(dashboard!.tabs.find((t) => t.id === "model-bench")).toBeUndefined();
-    expect(dashboard!.tabs.some((t) => t.href === "/admin/agents")).toBe(false);
-    expect(dashboard!.tabs.some((t) => t.href === "/admin/model-bench")).toBe(false);
+    expect(dashboard!.tabs.find((t) => t.id === "agentic")).toBeUndefined();
+    expect(dashboard!.tabs.find((t) => t.id === "outreach")).toBeUndefined();
+    expect(dashboard!.tabs.some((t) => t.href === "/admin/agentic")).toBe(false);
+    expect(dashboard!.tabs.some((t) => t.href === "/admin/outreach")).toBe(false);
   });
 });

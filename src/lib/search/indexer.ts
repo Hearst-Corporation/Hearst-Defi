@@ -314,7 +314,7 @@ async function searchMemos(q: string): Promise<SearchResult[]> {
       title: `Memo — ${r.clientName}`,
       subtitle: r.generatedAt.toISOString().slice(0, 10),
       badge: r.methodologyVersion,
-      href: "/admin/investor-memo?vault=yield",
+      href: "/admin/dashboard",
       score: keep(r.clientName, r.methodologyVersion, q),
     }))
   );
@@ -350,7 +350,7 @@ async function searchEvents(q: string): Promise<SearchResult[]> {
       title: `[${r.ruleId}] ${r.triggerText.slice(0, 60)}`,
       subtitle: r.executedAt.toISOString().slice(0, 10),
       badge: r.status,
-      href: "/admin/audit",
+      href: "/admin/signals",
       score: keep(r.ruleId + " " + r.triggerText, r.status, q),
     }))
   );
@@ -375,7 +375,7 @@ function detectDirectJump(
   if (TX_HASH_RE.test(trimmed)) {
     return {
       directJump: true,
-      directHref: "/admin/audit",
+      directHref: "/admin/signals",
     };
   }
 
@@ -395,8 +395,8 @@ function detectDirectJump(
         // live route so a hypothetical hit never 404s.
         scenario: "/admin/vaults",
         backtest: "/admin/vaults",
-        memo: "/admin/investor-memo?vault=yield",
-        event: "/admin/audit",
+        memo: "/admin/dashboard",
+        event: "/admin/signals",
       };
       const base = entityRouteMap[entity];
       const directHref =

@@ -178,7 +178,7 @@ describe("POST /api/cockpit-chat — deterministic Outreach turn", () => {
     expect(openaiCreate).not.toHaveBeenCalled();
     expect(mockPublishNav).toHaveBeenCalledWith(
       USER_ID,
-      expect.objectContaining({ canvasId: "outreach", destinationKey: "admin-agent-canvas", autostart: true }),
+      expect.objectContaining({ canvasId: "outreach", destinationKey: "lp-agent-canvas", autostart: true }),
     );
 
     const { frames, text } = await readBody(res);

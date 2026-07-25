@@ -27,7 +27,6 @@ const ALLOWLIST_FILES = new Set([
   "src/lib/brand-constants.ts",
   "src/lib/pdf/pdf-palette.ts",
   "src/lib/product-strategies/lab-colors.ts",
-  "src/app/admin/product-workspace/report/print/page.tsx",
 ]);
 
 const FORBIDDEN: { id: string; re: RegExp }[] = [

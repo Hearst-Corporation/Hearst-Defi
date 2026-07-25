@@ -97,7 +97,7 @@ describe("GET /api/auth/dev-login — kill-switch (Mission #042)", () => {
     // 307 = NextResponse.redirect default.
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toBe(
-      "http://localhost:4105/admin/product-workspace",
+      "http://localhost:4105/admin/vaults/new",
     );
 
     expect(mockEnsureDevUser).toHaveBeenCalledOnce();

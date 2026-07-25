@@ -1,8 +1,6 @@
 "use server";
 
 import { z } from "zod";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -28,13 +26,11 @@ import { isSuppressed } from "@/lib/outreach/suppression";
 import { resolveCtaUrl } from "@/lib/outreach/cta-url";
 
 /**
- * Admin Server Actions for the cold-outreach + newsletter console
- * (`/admin/outreach`).
+ * Admin server actions for cold-outreach + newsletter (chat tools + legacy RPC).
  *
  * Every action is admin-only: Server Actions are a public RPC surface, so
- * `requireAdmin()` is re-asserted at the top of each one (the `/admin` layout
- * guard alone is not sufficient). Mutations validate input with zod, write an
- * `adminAudit` row, and `revalidatePath("/admin/outreach")`.
+ * `requireAdmin()` is re-asserted at the top of each one. Mutations validate
+ * input with zod and write an `adminAudit` row.
  *
  * HubSpot sync is always BEST-EFFORT — it must never fail an outreach mutation.
  * The qualification-funnel CTA injected into every cold email is resolved by
@@ -43,8 +39,6 @@ import { resolveCtaUrl } from "@/lib/outreach/cta-url";
  * from the production host. Despite the legacy `typeformUrl` field name, this is
  * the app's own funnel, not a Typeform.
  */
-
-const REVALIDATE_PATH = "/admin/outreach";
 
 // recordAudit removed — now using shared recordAdminAudit from @/lib/admin/audit
 
@@ -122,7 +116,6 @@ export async function addProspect(formData: FormData): Promise<void> {
     /* best-effort */
   }
 
-  revalidatePath(REVALIDATE_PATH);
 }
 
 // ---------------------------------------------------------------------------
@@ -155,7 +148,6 @@ export async function importProspects(
 
   const candidates = parseEmailList(raw);
   if (candidates.length === 0) {
-    revalidatePath(REVALIDATE_PATH);
     return { added: 0, skipped: 0 };
   }
 
@@ -170,7 +162,6 @@ export async function importProspects(
   const skipped = candidates.length - fresh.length;
 
   if (fresh.length === 0) {
-    revalidatePath(REVALIDATE_PATH);
     return { added: 0, skipped };
   }
 
@@ -211,7 +202,6 @@ export async function importProspects(
     }
   }
 
-  revalidatePath(REVALIDATE_PATH);
   return { added: fresh.length, skipped };
 }
 
@@ -263,8 +253,6 @@ export async function createCampaign(formData: FormData): Promise<void> {
     after: { name: campaign.name, kind: campaign.kind },
   });
 
-  revalidatePath(REVALIDATE_PATH);
-  redirect(`${REVALIDATE_PATH}/${campaign.id}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -299,7 +287,6 @@ export async function approveEmail(formData: FormData): Promise<void> {
     after: { status: "approved" },
   });
 
-  revalidatePath(`${REVALIDATE_PATH}/${existing.campaignId}`);
 }
 
 const UpdateEmailInput = z.object({
@@ -345,7 +332,6 @@ export async function updateEmail(formData: FormData): Promise<void> {
     after: { subject: parsed.data.subject },
   });
 
-  revalidatePath(`${REVALIDATE_PATH}/${existing.campaignId}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -403,7 +389,6 @@ export async function sendCampaign(formData: FormData): Promise<void> {
     data: { campaignId, requestedBy },
   });
 
-  revalidatePath(`${REVALIDATE_PATH}/${campaignId}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -538,7 +523,6 @@ export async function draftAllCampaignEmails(
     after: { drafted, kind: campaign.kind },
   });
 
-  revalidatePath(`${REVALIDATE_PATH}/${campaign.id}`);
   return { drafted };
 }
 
@@ -679,7 +663,6 @@ export async function draftEmailForProspect(
     after: { prospectId: prospect.id, toEmail: prospect.email },
   });
 
-  revalidatePath(REVALIDATE_PATH);
   return { emailId: email.id, toEmail: prospect.email, subject };
 }
 
@@ -794,14 +777,13 @@ export async function sendDirectEmail(
     after: { to: toEmail, subject: parsed.data.subject },
   });
 
-  revalidatePath(REVALIDATE_PATH);
   return { ok: true, resendEmailId };
 }
 
 // ===========================================================================
 // LEAD-GEN ENGINE — ICP definition, sourcing, tier control
 //
-// These power the agentic prospecting surface on /admin/outreach. Sourcing is
+// Chat-tool + HITL outreach mutations (no admin UI surface). Sourcing is
 // currently MOCK (no Apollo credit spent — see src/lib/outreach/icp.ts); the
 // Palier-1 Apollo pipeline plugs into runSourcingForIcp without changing these
 // actions. Nothing here sends an email — sourced leads land as `new` prospects
@@ -866,7 +848,6 @@ export async function createIcp(formData: FormData): Promise<{ id: string }> {
     after: { name: parsed.data.name, persona: parsed.data.persona },
   });
 
-  revalidatePath(REVALIDATE_PATH);
   return { id: icp.id };
 }
 
@@ -987,7 +968,6 @@ export async function runSourcing(
     },
   });
 
-  revalidatePath(REVALIDATE_PATH);
   return {
     sourced: fresh.length,
     skipped: candidates.length - fresh.length,
@@ -1030,5 +1010,4 @@ export async function overrideTier(
     after: { tier },
   });
 
-  revalidatePath(REVALIDATE_PATH);
 }

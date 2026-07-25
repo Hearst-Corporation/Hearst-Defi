@@ -67,7 +67,7 @@ export function FeedbackForm() {
           id="feedback-pathname"
           name="pathname"
           type="text"
-          placeholder="/admin/roadmap"
+          placeholder="/admin/feedback"
           className="mono mt-2"
         />
       </Field>

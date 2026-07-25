@@ -88,7 +88,7 @@ export function AdminRiskStrip({
         <AdminDashboardCardHeader
           title="Audit trail"
           caption="Most recent recorded actions"
-          trailing={<LeafLink href="/admin/audit" />}
+          trailing={<LeafLink href="/admin/monitoring" />}
         />
         {audit.length === 0 ? (
           <EmptySurface

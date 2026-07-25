@@ -17,7 +17,7 @@ import {
   B2_BTC_ALLOCATION_BPS,
   B3_USDC_ALLOCATION_BPS,
 } from "@/lib/products/dynavault-factsheet";
-import { BENTO_INPUT } from "@/components/admin/outreach/bento-form";
+import { BENTO_INPUT } from "@/components/admin/bento-form";
 import { cn } from "@/lib/cn";
 import {
   createDraftVault,

@@ -93,15 +93,15 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "COCKPIT_ADMIN_SYSTEM_PROMPT + buildAdminContextBlock (linted read-tools snapshot). Write tools never auto-executed (chat-agent). Model-driven Q&A and read tools go through runChatAgent; CHAT_MASTER_AGENT=0 shuts down the whole chat (503).",
   },
   {
-    id: "admin-product-workspace-open",
-    label: "Open Product Workspace",
+    id: "admin-vaults-new-open",
+    label: "Open new vault form",
     mode: "admin",
     kind: "navigation",
     description:
-      "Automatically opens Product Workspace for a vault/product creation or framing.",
+      "Automatically opens the new-vault form for a vault/product creation or framing.",
     testPrompt: "Create a new Defensive vault.",
     successCriteria:
-      "The chat opens /admin/product-workspace with autostart and objective pre-filled.",
+      "The chat opens /admin/vaults/new with autostart and objective pre-filled.",
     initialStatus: "green",
     initialNote:
       "Navigate override + fallback intent (route.ts). autostart+objective → ChatNavBridge. Unavailable if CHAT_MASTER_AGENT=0 (503).",
@@ -132,7 +132,7 @@ export const AGENT_CAPABILITY_DEFINITIONS: AgentCapabilityDefinition[] = [
       "The chat must either open a dedicated outreach surface or run an explicitly confirmed flow.",
     initialStatus: "orange",
     initialNote:
-      "admin-outreach navigation + HITL write tools (outreach_source_leads, outreach_draft_email, outreach_trigger_send_run) via the admin Actions panel — no model auto-exec. Real sending governed by OUTREACH_AUTONOMY (ADR-016).",
+      "HITL write tools (outreach_source_leads, outreach_draft_email, outreach_trigger_send_run) in chat — no admin UI page, no model auto-exec. Real sending governed by OUTREACH_AUTONOMY (ADR-016).",
   },
   {
     id: "admin-read-allocations",

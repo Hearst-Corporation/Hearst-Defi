@@ -26,7 +26,7 @@ describe("shouldProbeAdminRole (review-mode probe route gate)", () => {
 
   it("probes on admin surfaces", () => {
     expect(shouldProbeAdminRole("/admin")).toBe(true);
-    expect(shouldProbeAdminRole("/admin/agentic")).toBe(true);
+    expect(shouldProbeAdminRole("/admin/feedback")).toBe(true);
     expect(shouldProbeAdminRole("/admin/review")).toBe(true);
   });
 

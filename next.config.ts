@@ -107,12 +107,6 @@ const nextConfig: NextConfig = {
         destination: "/admin/scenario-lab?vault=yield",
         permanent: true,
       },
-      {
-        source: "/admin/investor-memo",
-        missing: missingVaultQuery,
-        destination: "/admin/investor-memo?vault=yield",
-        permanent: true,
-      },
     ];
   },
   // Body size limits are enforced per-route via NextRequest constraints

@@ -12,7 +12,7 @@ describe("nav-channel round-trip (memNav, no Redis)", () => {
   it("a published workspace directive is consumed once with its objective + autostart", async () => {
     const userId = "admin-roundtrip";
     await publishNav(userId, {
-      destinationKey: "admin-product-workspace",
+      destinationKey: "admin-vaults-new",
       objective: "Créer un vault défensif",
       autostart: true,
       intentKind: "product_creation",
@@ -20,7 +20,7 @@ describe("nav-channel round-trip (memNav, no Redis)", () => {
 
     const first = await consumeNav(userId);
     expect(first).not.toBeNull();
-    expect(first?.route).toBe("/admin/product-workspace");
+    expect(first?.route).toBe("/admin/vaults/new");
     expect(first?.objective).toBe("Créer un vault défensif");
     expect(first?.autostart).toBe(true);
 

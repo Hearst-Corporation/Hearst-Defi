@@ -19,7 +19,7 @@ Prisma + **Postgres (Supabase prod `xrwzxhsenwmlxbwqcftz`, eu-west-1)** — SQLi
 > (APIs, auth, Prisma, services) est inchangé. **Routes investisseur/admin
 > greenfield** : `src/views/*` + `src/ui/*` + `src/shell/*` (dashboard, vaults,
 > vault detail, invest, confirmed, portfolio, proof-center, profile, admin
-> dashboard/customers/vaults list/proofs/audit/distributions/monitoring/feedback/roadmap/diagnostics/signals/security/document-vault/governance).
+> dashboard/customers/vaults list/proofs/distributions/monitoring/feedback/diagnostics/signals/security/document-vault/governance).
 > **Routes admin legacy restaurées** (logique métier intacte, `AdminPageShell` +
 > composants admin) : vault detail/new, governance sub-routes (propose, allowlist),
 > outreach, source, etc. Fichiers CSS runtime
@@ -139,8 +139,7 @@ le JSON résultat en mode compact.
 
 Navigation outillée : le mode `normal` (LP) garde une whitelist (`/portfolio`,
 `/vaults`, `/proof-center`, `/profile`) ; le mode `admin` dispose d'une whitelist
-étendue (`/admin/product-workspace`, `/admin/scenario-lab`, `/admin/customers`,
-`/admin/outreach`, …). Le mode `review` passe par le même moteur avec
+étendue (`/admin/vaults/new`, `/admin/customers`, `/admin/feedback`, …). Le mode `review` passe par le même moteur avec
 `navigate` / intent produit / stream events désactivés (facilitation seule).
 L'ancien `/api/outreach-chat` et le panneau OutreachCopilot sont retirés (ADR-017).
 
@@ -157,13 +156,10 @@ mining cash-flow coverage, latest distributions (6), rebalancing events avec
 modal PTAI (5), event timeline on-chain, catalog off-chain (paper proofs),
 adresses vault/manager/custody + contracts Phase 2 + audit trail.
 
-**Admin agents & investors** — persona ops :
-- `/admin/agents` — catalog Batch / Chat / Platform + bibliothèque `AgentTemplate` (create / edit / archive, compteur d'usage). Agent `email-outreach` (GPT-4.1, ADR-011) classé Platform.
+**Admin investors** — persona ops :
 - `/admin/customers` — directory + **New investor** (provisionne `User` + `Investor`, lie un profil Typeform orphelin par email si présent).
 - `/admin/customers/[id]` — questionnaire Typeform (éditable), calibration (suggérée vs appliquée), assignation template, mémoire agent (`AgentMemory`), conversations récentes.
-- `/admin/outreach` — prospects, campagnes cold/newsletter, stats open/click/bounce ; `/admin/outreach/[campaignId]` — review drafts agent + envoi tracké (Resend + Svix).
-- `/admin/onboarding-test` — simulateur Typeform manuel (direct URL ; masqué de la sub-nav admin).
-- Roadmap (`/admin/roadmap`) — rows aérées ; IDs/spec refs visibles uniquement dans **Details** ; en-têtes de phase sticky au scroll.
+- Outreach HITL — outils chat (`outreach_*`) uniquement ; les pages `/admin/outreach/*` et `/admin/agentic` sont retirées.
 - Typo doc-flow (Lot 2) — headers admin/produit alignés (`.eyebrow` canon, gaps `space-2`), sections `space-4`, panel titles dashboard en casse normale (plus en faux `stat-label`).
 - Tokens calibration UI — `--ct-ambient-glow-*`, `--ct-rail-active-*`, `--ct-page-header-actions-offset-*`, skeleton placeholder sizes via `scene-placeholder-metrics__skeleton--*` (zéro Tailwind arbitrary sur le lot audit).
 - Webhook `POST /api/typeform/webhook` — HMAC (`TYPEFORM_WEBHOOK_SECRET`), upsert `QualificationProfile`, calibration auto si email connu.
@@ -242,7 +238,7 @@ src/app/tokens-layer.css                        (ordre de couches CSS)
 - **Surfaces modules** : panneaux **graphite opaques pleins** (`--ct-graphite-subtle-bg`,
   `backdrop-filter: none`) — pas de blur « aquarium », pas de cartes semi-translucides.
   Lumière ambiante verte = **shell / dashboard** derrière les panneaux, pas dans le fill
-  des cards. Référence rendue : `/admin/design-system`.
+  des cards. Référence rendue : `src/views/_shared/layout` + `src/ui/*`.
 - **Tooltips** : Composant `Tooltip` (via `framer-motion`) intégré aux `ProvenanceBadge` et `Metric`.
 - **Transitions** : animations CSS/Tailwind locales, sans wrapper global inutilisé.
 - **Portfolio** : Hub `/portfolio` = cockpit bento no-scroll (≥1440px wide + tall :
@@ -258,7 +254,7 @@ PDF react-pdf : palette hex locale [`src/lib/pdf/pdf-palette.ts`](src/lib/pdf/pd
 `cockpit-shell/tokens.css`).
 
 Doc DS complète + tableau des tokens autorisés : [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
-**Référence visuelle live** (prioritaire) : [`/admin/design-system`](/admin/design-system).
+**Référence visuelle live** (prioritaire) : shell greenfield (`src/shell/*`) + primitives `src/ui/*`.
 
 **Typographie (échelle canonique)** : `cockpit.css` (`--ct-text-*`) → miroir
 `globals.css` `@theme` (`text-micro` = 11px, `text-xs` = 13px). Rôles sémantiques :
@@ -579,8 +575,7 @@ authorize unaudited mainnet code.
 - [`docs/methodology/v1.0.md`](docs/methodology/v1.0.md) — Méthodologie figée
   (bump version si change requis).
 - [`docs/decisions/`](docs/decisions/) — ADRs (append-only).
-- [`docs/roadmap.json`](docs/roadmap.json) + `/admin/roadmap` UI — chaque PR
-  doit référencer un item roadmap.
+- [`docs/roadmap.json`](docs/roadmap.json) — chaque PR doit référencer un item roadmap.
 - [`CLAUDE.md`](CLAUDE.md) — instructions agent (Claude Code + sous-agents).
 - [`docs/AGENT_WORKFLOW.md`](docs/AGENT_WORKFLOW.md) — **workflow multi-agents**
   (worktrees isolés, scope, staging, PR, STOP) + [`docs/agent-file-locks.md`](docs/agent-file-locks.md)

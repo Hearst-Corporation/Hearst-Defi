@@ -33,7 +33,7 @@ import {
   runSourcing,
   draftEmailForProspect,
   createCampaign,
-} from "@/app/admin/outreach/actions";
+} from "@/lib/outreach/admin-actions";
 import { createDraftVault } from "@/app/admin/vaults/actions";
 import {
   CreateDraftSchema,
@@ -64,7 +64,7 @@ const DEFAULT_CHART_TIMEFRAME = "30d";
 const MAX_TELEMETRY_ERROR_MESSAGE_LEN = 500;
 const MAX_TELEMETRY_ERROR_CODE_LEN = 120;
 const LIVE_PRICE_STALE_THRESHOLD_MS = 60_000;
-const PRODUCT_WORKSPACE_ROUTE = "/admin/product-workspace";
+const PRODUCT_WORKSPACE_ROUTE = "/admin/vaults/new";
 const COINGECKO_BTC_SIMPLE_PRICE_URL =
   "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_last_updated_at=true";
 

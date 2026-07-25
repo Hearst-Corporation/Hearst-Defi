@@ -70,22 +70,8 @@ const PRIMARY_ALLOWLIST: ReadonlySet<string> = new Set([
   // Proof Center — product layout, not the admin canon shell.
   "src/app/admin/proof-center/page.tsx",
   "src/app/admin/proof-center/full/page.tsx",
-  // Agent canvas — bespoke live workspace surface.
-  "src/app/admin/agent-canvas/[canvasId]/page.tsx",
-  // Bare-canvas redirect — no UI at all (a canvas needs an id; keyword nav
-  // without one lands here and is sent to the admin dashboard).
-  "src/app/admin/agent-canvas/page.tsx",
   // Vault creation — multi-step wizard with its own framing.
   "src/app/admin/vaults/new/page.tsx",
-  // Construction report print page — standalone print/PDF layout (light theme,
-  // window.print), deliberately outside the admin canon shell.
-  "src/app/admin/product-workspace/report/print/page.tsx",
-  // Chart gallery — internal dev tool (demo data only) to classify chart
-  // candidates. A plain scrollable gallery where each chart carries its own
-  // Card; the canon no-scroll shell + AdminPageHeader would fight the
-  // boxes-in-boxes layout. Deliberately outside the admin canon shell, like the
-  // print page above.
-  "src/app/admin/chart-gallery/page.tsx",
 ]);
 
 /**
@@ -110,30 +96,7 @@ const SECONDARY_ALLOWLIST: ReadonlyMap<string, string> = new Map([
     // AdminSectionCard would double-frame the board.
     "AllowlistBoard renders framed BentoPanels; a wrap would double-frame",
   ],
-  [
-    "src/app/admin/spec/page.tsx",
-    // Redirect page: when spec entries exist it redirect()s to the first slug;
-    // the only rendered fallback is <EmptySurface> alone (a documented DS
-    // exception — EmptySurface needs no enclosing card).
-    "redirect page; only rendered fallback is EmptySurface alone (DS exception)",
-  ],
-  [
-    "src/app/admin/strategies/page.tsx",
-    // The page is a shell-only server entrypoint. Its first welded canon blocks
-    // are rendered inside <StrategyIndexClient> (Strategy Library as AdminSectionCard).
-    "shell-only page delegating welded AdminSectionCard surfaces to StrategyIndexClient",
-  ],
-  [
-    "src/app/admin/strategies/[slug]/page.tsx",
-    // The page is a shell-only server entrypoint. Its first welded canon blocks
-    // are rendered inside <StrategyWorkspaceClient> (Strategy Studio / Advanced Data Lab as AdminSectionCard surfaces).
-    "shell-only page delegating welded AdminSectionCard surfaces to StrategyWorkspaceClient",
-  ],
-  // NOTE: /admin/agentic/page.tsx is intentionally NOT here anymore. The former
-  // Agentic Console (which delegated its first block to <AgenticConsoleSimple>)
-  // was removed; /admin/agentic is now a placeholder that mounts AdminPageShell
-  // and renders an AdminSectionCard inline. It therefore satisfies all three
-  // canon assertions directly and is enforced like any other admin page.
+  // NOTE: retired /admin/agentic placeholder removed with the greenfield purge.
 ]);
 
 const ALL_ALLOWLISTED: ReadonlySet<string> = new Set([

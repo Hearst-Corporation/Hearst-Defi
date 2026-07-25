@@ -40,7 +40,7 @@ const h = vi.hoisted(() => {
 });
 const { tokenStore, mockCreateCampaign, mockRunSourcing, mockDraftEmailForProspect, mockOutreachAutoSendHandler } = h;
 
-vi.mock("@/app/admin/outreach/actions", () => ({
+vi.mock("@/lib/outreach/admin-actions", () => ({
   createCampaign: (...a: unknown[]) => h.mockCreateCampaign(...a),
   runSourcing: (...a: unknown[]) => h.mockRunSourcing(...a),
   draftEmailForProspect: (...a: unknown[]) => h.mockDraftEmailForProspect(...a),

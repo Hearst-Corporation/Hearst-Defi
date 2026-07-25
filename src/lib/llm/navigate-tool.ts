@@ -130,22 +130,6 @@ export const LP_NAV_DESTINATIONS: readonly NavDestination[] = [
 /** Admin destinations (internal ops surfaces). */
 export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
   {
-    key: "admin-product-workspace",
-    profile: "admin",
-    route: "/admin/product-workspace",
-    label: "Admin Product Workspace",
-    description:
-      "Standalone page generated from the agent intent to frame a new product: decision, graph specs, calculation notes, assumptions and guardrails.",
-  },
-  {
-    key: "admin-agent-canvas",
-    profile: "admin",
-    route: "/admin/agent-canvas",
-    label: "Agent Canvas",
-    description:
-      "Central workspace that the agent fills in live (sections, fields, HITL action proposals) to frame a product or an outreach campaign. The canvasId specifies which workshop to open. Admin only (gated by the /admin layout).",
-  },
-  {
     key: "admin-dashboard",
     profile: "admin",
     route: "/admin/dashboard",
@@ -170,14 +154,6 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
       "Investor / customer management: list, records, KYC, positions and account creation.",
   },
   {
-    key: "admin-outreach",
-    profile: "admin",
-    route: "/admin/outreach",
-    label: "Admin Outreach",
-    description:
-      "Email campaigns and prospecting: drafts, compose, tracked sending (human-in-the-loop).",
-  },
-  {
     key: "admin-proofs",
     profile: "admin",
     route: "/admin/proofs",
@@ -194,14 +170,6 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
       "Proposals, signatures, timelock and tracking of governance decisions.",
   },
   {
-    key: "admin-roadmap",
-    profile: "admin",
-    route: "/admin/roadmap",
-    label: "Admin Roadmap",
-    description:
-      "Product/technical execution tracking, validations and blockers.",
-  },
-  {
     key: "admin-home",
     profile: "admin",
     route: "/admin",
@@ -215,13 +183,6 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/vaults/new",
     label: "Admin — New vault",
     description: "Form to create a new vault.",
-  },
-  {
-    key: "admin-outreach-compose",
-    profile: "admin",
-    route: "/admin/outreach/compose",
-    label: "Admin — Outreach (compose)",
-    description: "Compose an outreach email / message (human-in-the-loop).",
   },
   {
     key: "admin-proof-center",
@@ -253,13 +214,6 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     description: "Create a new governance proposal.",
   },
   {
-    key: "admin-audit",
-    profile: "admin",
-    route: "/admin/audit",
-    label: "Admin — Audit",
-    description: "Audit log: admin actions, mutations and traceability.",
-  },
-  {
     key: "admin-distributions",
     profile: "admin",
     route: "/admin/distributions",
@@ -273,13 +227,6 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/feedback",
     label: "Admin — Feedback",
     description: "Feedback collected (customers, internal).",
-  },
-  {
-    key: "admin-investor-memo",
-    profile: "admin",
-    route: "/admin/investor-memo",
-    label: "Admin — Investor Memo",
-    description: "Generation and tracking of investor memos.",
   },
   {
     key: "admin-monitoring",
@@ -301,29 +248,6 @@ export const ADMIN_NAV_DESTINATIONS: readonly NavDestination[] = [
     route: "/admin/signals",
     label: "Admin — Signals",
     description: "Market / mining signals and internal indicators.",
-  },
-  {
-    key: "admin-spec",
-    profile: "admin",
-    route: "/admin/spec",
-    label: "Admin — Product specs",
-    description: "Index of product specs (docs/spec) viewable internally.",
-  },
-  {
-    key: "admin-source",
-    profile: "admin",
-    route: "/admin/source",
-    label: "Admin — Source",
-    description:
-      "Data source / ingestion (signals, data bricks) viewed admin-side. Visible in the Strategy sub-nav.",
-  },
-  {
-    key: "admin-agentic",
-    profile: "admin",
-    route: "/admin/agentic",
-    label: "Admin — Agents (placeholder)",
-    description:
-      "Agents placeholder: agent orchestration now lives on an external platform and will be re-integrated here. Visible in the Dashboard rail.",
   },
 ] as const;
 

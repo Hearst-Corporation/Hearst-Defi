@@ -189,13 +189,13 @@ describe("cockpit-chat — vault/product creation routes to Product Workspace (a
     "ouvre le workspace produit",
     "construction produit",
   ]) {
-    it(`"${msg}" → publishNav(admin-product-workspace), no LLM, no reject ack`, async () => {
+    it(`"${msg}" → publishNav(admin-vaults-new), no LLM, no reject ack`, async () => {
       const res = await POST(makeChatRequest(msg));
       const body = await readStreamText(res);
       await vi.waitFor(() => {
         expect(mockPublishNav).toHaveBeenCalledWith(
           USER_ID,
-          expect.objectContaining({ destinationKey: "admin-product-workspace" }),
+          expect.objectContaining({ destinationKey: "admin-vaults-new" }),
         );
       });
       // Deterministic nav short-circuit: the LLM is never consulted…
@@ -210,7 +210,7 @@ describe("cockpit-chat — vault/product creation routes to Product Workspace (a
     await POST(makeChatRequest("quelle est la tension en volts"));
     expect(mockPublishNav).not.toHaveBeenCalledWith(
       USER_ID,
-      expect.objectContaining({ destinationKey: "admin-product-workspace" }),
+      expect.objectContaining({ destinationKey: "admin-vaults-new" }),
     );
   });
 });

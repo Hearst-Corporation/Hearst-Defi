@@ -48,32 +48,22 @@ describe("navigate-tool whitelist", () => {
 
   it("admin whitelist exposes admin routes only", () => {
     expect(ADMIN_NAV_DESTINATIONS.map((d) => d.route)).toEqual([
-      "/admin/product-workspace",
-      "/admin/agent-canvas",
       "/admin/dashboard",
       "/admin/vaults",
       "/admin/customers",
-      "/admin/outreach",
       "/admin/proofs",
       "/admin/governance",
-      "/admin/roadmap",
       "/admin",
       "/admin/vaults/new",
-      "/admin/outreach/compose",
       "/admin/proof-center",
       "/admin/proof-center/full",
       "/admin/governance/allowlist",
       "/admin/governance/propose",
-      "/admin/audit",
       "/admin/distributions",
       "/admin/feedback",
-      "/admin/investor-memo",
       "/admin/monitoring",
       "/admin/security",
       "/admin/signals",
-      "/admin/spec",
-      "/admin/source",
-      "/admin/agentic",
     ]);
     // Every admin destination stays under /admin (root or sub-path); none is a
     // dynamic `[id]` route (the model has no id to fill).
@@ -83,18 +73,10 @@ describe("navigate-tool whitelist", () => {
     }
   });
 
-  it("exposes the menu-visible admin ops pages (source, agentic) as chat destinations", () => {
-    // Both are visible in the admin menu and admin-gated, but were missing from the
-    // chat whitelist — so the chat could not navigate to a page the rail shows.
-    const adminRoutes = ADMIN_NAV_DESTINATIONS.map((d) => d.route);
-    expect(adminRoutes).toContain("/admin/source");
-    expect(adminRoutes).toContain("/admin/agentic");
-  });
-
   it("resolves a known key and rejects an unknown one", () => {
     expect(resolveNavDestination("portfolio")?.route).toBe("/portfolio");
-    expect(resolveNavDestination("admin-product-workspace")?.route).toBe(
-      "/admin/product-workspace",
+    expect(resolveNavDestination("admin-vaults-new")?.route).toBe(
+      "/admin/vaults/new",
     );
     expect(resolveNavDestination("admin-dashboard")?.route).toBe(
       "/admin/dashboard",

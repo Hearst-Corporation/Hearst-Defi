@@ -145,10 +145,6 @@ test.describe("Visual QA — admin routes (3 breakpoints)", () => {
     );
   });
 
-  test("admin strategies: heading, no overflow, a11y", async ({ page }) => {
-    await adminLogin(page);
-    await assertRouteAtBreakpoints(page, "/admin/strategies", /Strategy Hub/i);
-  });
 });
 
 test.describe("Visual QA — logged-out state honesty", () => {
@@ -168,7 +164,7 @@ test.describe("Visual QA — logged-out state honesty", () => {
     context,
   }) => {
     await context.clearCookies();
-    for (const path of ["/admin/dashboard", "/admin/strategies"]) {
+    for (const path of ["/admin/dashboard", "/admin/vaults"]) {
       await page.goto(path);
       await expect(page, `GET ${path} while logged out`).toHaveURL(/\/login/);
     }

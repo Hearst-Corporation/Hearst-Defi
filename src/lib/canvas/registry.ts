@@ -45,7 +45,7 @@ export const CANVAS_DEFINITIONS: Readonly<Record<CanvasId, CanvasDefinition>> = 
     audience: "admin",
     title: "New vault — draft workspace",
     // Admin canvases route under /admin (gated by the admin layout for free).
-    destinationKey: "admin-agent-canvas",
+    destinationKey: "lp-agent-canvas",
     writeToolAllowlist: ["create_vault_draft"],
     seedObjective:
       "Frame a new vault as a draft: strategy, capital stack, fees, lock-up, target APY range, SPV and signer quorum. Draft only — never live.",
@@ -56,7 +56,7 @@ export const CANVAS_DEFINITIONS: Readonly<Record<CanvasId, CanvasDefinition>> = 
     title: "Outreach — campaign workspace",
     // Phase 2 wires the section→tool mapping; the allow-list is declared now so
     // the gate + tests are in place. All three are HITL, Tier A never auto-sent.
-    destinationKey: "admin-agent-canvas",
+    destinationKey: "lp-agent-canvas",
     writeToolAllowlist: [
       "create_campaign_draft",
       "outreach_source_leads",

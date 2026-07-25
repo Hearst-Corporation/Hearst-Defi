@@ -52,16 +52,13 @@ describe("nav-fallback derived rules (regex covers the whole site)", () => {
     expect(resolveAdminNavFallbackKey("va sur les signals")).toBe(
       "admin-signals",
     );
-    expect(resolveAdminNavFallbackKey("montre-moi l'audit")).toBe("admin-audit");
-    expect(resolveAdminNavFallbackKey("ouvre le monitoring")).toBe(
+    expect(resolveAdminNavFallbackKey("montre-moi le monitoring")).toBe(
       "admin-monitoring",
     );
     // The Agent Library route (/admin/agents) was deleted, so its destination is
     // gone from the whitelist — "ouvre les agents" no longer resolves anywhere.
     expect(resolveAdminNavFallbackKey("ouvre les agents")).toBeNull();
-    // The surviving placeholder (/admin/agentic, "Agents") stays reachable via
-    // its own distinctive keyword.
-    expect(resolveAdminNavFallbackKey("va sur agentic")).toBe("admin-agentic");
+    expect(resolveAdminNavFallbackKey("va sur agentic")).toBeNull();
   });
 
   it("does NOT hijack a conversational message (no nav verb)", () => {

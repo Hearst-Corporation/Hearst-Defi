@@ -146,7 +146,7 @@ describe("buildSearchIndex", () => {
     const response = await buildSearchIndex(txHash);
 
     expect(response.directJump).toBe(true);
-    expect(response.directHref).toBe("/admin/audit");
+    expect(response.directHref).toBe("/admin/signals");
   });
 
   it("id prefix HYV- detected → directJump=true", async () => {

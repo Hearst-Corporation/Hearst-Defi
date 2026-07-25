@@ -42,12 +42,12 @@ describe("nav-channel (Upstash auto-deserialize round-trip)", () => {
 
   it("preserves workspace objective + autostart through the object round-trip", async () => {
     await publishNav("u2", {
-      destinationKey: "admin-product-workspace",
+      destinationKey: "admin-vaults-new",
       objective: "Cadrer un vault défensif",
       autostart: true,
     });
     const consumed = await consumeNav("u2");
-    expect(consumed?.route).toBe("/admin/product-workspace");
+    expect(consumed?.route).toBe("/admin/vaults/new");
     expect(consumed?.objective).toBe("Cadrer un vault défensif");
     expect(consumed?.autostart).toBe(true);
   });

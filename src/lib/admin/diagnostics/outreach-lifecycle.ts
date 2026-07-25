@@ -85,7 +85,7 @@ export function buildOutreachLifecycleDemo(): OutreachLifecycleReport {
       requiredConfirmation: false,
       diagnostic: "no draft persisted here — described only",
       verdict: "SAFE",
-      source: "src/app/admin/outreach/actions.ts",
+      source: "src/lib/outreach/admin-actions.ts",
     },
     {
       id: "direct-send",
@@ -104,7 +104,7 @@ export function buildOutreachLifecycleDemo(): OutreachLifecycleReport {
       requiredConfirmation: true,
       diagnostic: "no Resend called — guard chain described only",
       verdict: "SAFE",
-      source: "src/app/admin/outreach/actions.ts",
+      source: "src/lib/outreach/admin-actions.ts",
     },
     {
       id: "campaign-fanout",

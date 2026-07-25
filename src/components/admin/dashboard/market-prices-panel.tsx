@@ -1,5 +1,4 @@
 import { ProvenanceBadge } from "@/components/ui/provenance-badge";
-import { AdminLeafLink } from "./admin-leaf-link";
 import { fetchBinancePrices } from "@/lib/data/binance-price";
 import { cn } from "@/lib/cn";
 
@@ -46,12 +45,7 @@ export async function MarketPricesPanel() {
     <AdminDashboardCard variant="quiet" ariaLabel="Market prices panel">
       <AdminDashboardCardHeader
         title="Market prices"
-        trailing={
-          <div className="flex items-center gap-2">
-            <ProvenanceBadge kind={provenance} variant="strip" />
-            <AdminLeafLink href="/admin/marketplace" />
-          </div>
-        }
+        trailing={<ProvenanceBadge kind={provenance} variant="strip" />}
       />
 
       <AdminDashboardInset className="grid grid-cols-1 sm:grid-cols-2">

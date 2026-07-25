@@ -114,7 +114,7 @@ export function shouldScheduleNextPoll(
  * already inside the product workspace.
  *
  * `current` is the live location as pathname + search (e.g.
- * "/admin/product-workspace?objective=foo"). Both inputs are parsed leniently;
+ * "/admin/vaults/new?objective=foo"). Both inputs are parsed leniently;
  * a hash fragment is ignored and a malformed target falls back to false.
  */
 export function isSameDestination(target: string, current: string): boolean {
@@ -240,7 +240,7 @@ export function ChatNavBridge() {
             const isCanvasRoute =
               data.route === "/agent-canvas" || data.route === "/admin/agent-canvas";
             const isSeededRoute =
-              data.route === "/admin/product-workspace" ||
+              data.route === "/admin/vaults/new" ||
               isCanvasRoute;
             const routeWithParams = isSeededRoute
               ? (() => {

@@ -67,30 +67,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     tabs: [
       { id: "dashboard-overview", label: "Overview", href: "/admin/dashboard", icon: "LayoutDashboard" },
       { id: "customers", label: "Investors", href: "/admin/customers", icon: "Users" },
-      // Agent orchestration now lives on an external platform; this is the placeholder slot where it will be re-integrated.
-      { id: "agentic", label: "Agents", railLabel: "Agents", href: "/admin/agentic", icon: "Workflow" },
-      { id: "outreach", label: "Outreach", href: "/admin/outreach", icon: "Send" },
-      { id: "onboarding-test", label: "Onboarding test", href: "/admin/onboarding-test", icon: "ClipboardCheck", hideFromSubNav: true },
-      // Agent Canvas = the live workspace the agent fills in to frame a product
-      // or outreach campaign (canvasId picks the workshop). Reachable by URL /
-      // agent action, not a destination an operator browses to directly.
-      { id: "agent-canvas", label: "Agent Canvas", href: "/admin/agent-canvas", icon: "Workflow", hideFromSubNav: true },
       { id: "feedback", label: "Feedback", href: "/admin/feedback", icon: "MessageSquare" },
-    ],
-  },
-  {
-    id: "strategy",
-    label: "Strategy",
-    icon: "FlaskConical",
-    href: "/admin/product-workspace",
-    tabs: [
-      { id: "product-workspace", label: "Overview", href: "/admin/product-workspace", icon: "FileText" },
-      { id: "strategies", label: "Strategies", href: "/admin/strategies", icon: "SlidersHorizontal" },
-      { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: "TrendingUp" },
-      { id: "source", label: "Source", href: "/admin/source", icon: "Database" },
-      // Read-only product documentation page for the committed BTC product
-      // (src/lib/products/*) — not a workspace/editor, not a nav destination.
-      { id: "btc-mining-performance-vault", label: "BTC Mining Performance Vault", railLabel: "BTC Vault", href: "/admin/products/btc-mining-performance-vault", icon: "FileText", hideFromSubNav: true },
     ],
   },
   {
@@ -123,19 +100,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       // vault-hitl/projection. Operator tool, reachable by URL, not a nav tab.
       { id: "diagnostics", label: "Live Diagnostics", href: "/admin/diagnostics", icon: "Activity", hideFromSubNav: true },
       { id: "architecture", label: "Architecture", href: "/admin/system/architecture", icon: "Network" },
-    ],
-  },
-  {
-    id: "operations",
-    label: "Operations",
-    icon: "FileText",
-    href: "/admin/roadmap",
-    tabs: [
-      { id: "operations-overview", label: "Overview", href: "/admin/roadmap", icon: "FileText" },
-      { id: "spec", label: "Spec", href: "/admin/spec", icon: "FileCheck" },
-      { id: "investor-memo", label: "Investor Memo", href: "/admin/investor-memo", icon: "FileText" },
-      { id: "audit", label: "Audit Log", href: "/admin/audit", icon: "FileCheck" },
-      { id: "design-system", label: "Design System", href: "/admin/design-system", icon: "FileText" },
     ],
   },
 ];

@@ -17,8 +17,8 @@ const DASHBOARD_SRC = readFileSync(
   "utf8",
 );
 
-const AUDIT_SRC = readFileSync(
-  join(process.cwd(), "src/app/admin/audit/page.tsx"),
+const MONITORING_SRC = readFileSync(
+  join(process.cwd(), "src/app/admin/monitoring/page.tsx"),
   "utf8",
 );
 
@@ -56,24 +56,14 @@ describe("bento DS contract", () => {
 
 describe("primary pages — no ad-hoc surface hardcodes in patched files", () => {
 
-  it("dashboard page uses the canonical admin shell + AdminPageHeader", () => {
-    // Canon update: admin surfaces migrated from BentoPageShell to AdminPageShell
-    // (commits 891297d6 → a111eb82). AdminPageShell renders AdminPageHeader and the
-    // bg-surface-page frame — it is the successor of the bento page shell here.
-    expect(DASHBOARD_SRC).toContain("AdminPageShell");
+  it("dashboard page uses the greenfield admin view wrapper", () => {
+    expect(DASHBOARD_SRC).toContain("AdminDashboardView");
     expect(DASHBOARD_SRC).not.toContain("bg-zinc-900");
     expect(DASHBOARD_SRC).not.toContain("text-[#A7FB90]");
   });
 
-  it("audit page uses Catalyst primitives (Table/Input) on the canonical admin shell", () => {
-    // Catalyst is the visual authority: the page composes the purchased
-    // primitives instead of hand-rolled inputs/tables. (Supersedes the prior
-    // ct-bento-input contract — that surface is now a Catalyst Input.) The shell
-    // is AdminPageShell, the canonical admin frame (not the legacy BentoPageShell).
-    expect(AUDIT_SRC).toContain("@/components/catalyst/input");
-    expect(AUDIT_SRC).toContain("@/components/catalyst/table");
-    expect(AUDIT_SRC).not.toContain("ct-bento-input");
-    expect(AUDIT_SRC).not.toContain("bg-[#15191C]");
-    expect(AUDIT_SRC).toContain("AdminPageShell");
+  it("monitoring page uses the greenfield admin view wrapper", () => {
+    expect(MONITORING_SRC).toContain("AdminMonitoringView");
+    expect(MONITORING_SRC).not.toContain("AdminPageShell");
   });
 });

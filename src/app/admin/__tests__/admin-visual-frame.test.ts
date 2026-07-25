@@ -100,7 +100,6 @@ const FRAME_EXEMPTIONS: ReadonlyMap<string, string> = new Map([
   ["src/app/admin/dashboard/page.tsx", "dashboard cockpit — own bento composition"],
   ["src/app/admin/proof-center/page.tsx", "product proof layout"],
   ["src/app/admin/proof-center/full/page.tsx", "product proof layout"],
-  ["src/app/admin/agent-canvas/[canvasId]/page.tsx", "bespoke live canvas"],
   ["src/app/admin/vaults/new/page.tsx", "multi-step wizard"],
   [
     "src/app/admin/agentic/detailed/page.tsx",
@@ -110,7 +109,7 @@ const FRAME_EXEMPTIONS: ReadonlyMap<string, string> = new Map([
 
 describe("admin visual frame — exemptions are explicit", () => {
   it("lists every non-canon admin surface with a reason", () => {
-    expect(FRAME_EXEMPTIONS.size).toBe(7);
+    expect(FRAME_EXEMPTIONS.size).toBe(6);
     for (const [, reason] of FRAME_EXEMPTIONS) {
       expect(reason.length).toBeGreaterThan(3);
     }

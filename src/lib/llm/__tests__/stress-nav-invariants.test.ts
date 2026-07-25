@@ -148,16 +148,10 @@ describe("nav-fallback resolver — depth-priority / hand-tuned / accent / verb-
     }
   });
 
-  describe("explicit navigation intents still resolve (admin)", () => {
-    // NOTE: the scenario-lab / projection admin routes were retired, so their
-    // phrases no longer resolve — they are exercised as null-stable inputs in the
-    // determinism block below, not as resolving destinations here.
-    const adminNav: Array<[string, string]> = [
-      ["open outreach", "admin-outreach"],
-    ];
-    for (const [phrase, key] of adminNav) {
-      it(`"${phrase}" → ${key}`, () => {
-        expect(resolveAdminNavFallbackKey(phrase)).toBe(key);
+  describe("retired outreach UI no longer resolves via regex nav", () => {
+    for (const phrase of ["open outreach", "show campaigns", "campain outreach"]) {
+      it(`"${phrase}" → null`, () => {
+        expect(resolveAdminNavFallbackKey(phrase)).toBeNull();
       });
     }
   });

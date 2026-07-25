@@ -23,7 +23,7 @@ const BASE = 900;
 const MAX = 7_200;
 
 describe("isSameDestination (anti-loop contract)", () => {
-  const WS = "/admin/product-workspace";
+  const WS = "/admin/vaults/new";
 
   it("treats an identical route+query as same (true no-op)", () => {
     expect(isSameDestination(WS, WS)).toBe(true);

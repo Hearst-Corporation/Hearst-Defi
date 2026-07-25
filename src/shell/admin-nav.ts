@@ -1,21 +1,15 @@
 import {
   Activity,
-  Database,
   FileCheck,
   FileText,
-  FlaskConical,
   LayoutDashboard,
   MessageSquare,
   Network,
   Scale,
-  Send,
   Settings2,
   ShieldCheck,
-  SlidersHorizontal,
-  TrendingUp,
   Users,
   Vault,
-  Workflow,
   Zap,
   type LucideIcon,
 } from "lucide-react";
@@ -45,21 +39,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     tabs: [
       { id: "overview", label: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
       { id: "customers", label: "Investors", href: "/admin/customers", icon: Users },
-      { id: "agentic", label: "Agents", href: "/admin/agentic", icon: Workflow },
-      { id: "outreach", label: "Outreach", href: "/admin/outreach", icon: Send },
       { id: "feedback", label: "Feedback", href: "/admin/feedback", icon: MessageSquare },
-    ],
-  },
-  {
-    id: "strategy",
-    label: "Strategy",
-    icon: FlaskConical,
-    href: "/admin/product-workspace",
-    tabs: [
-      { id: "workspace", label: "Overview", href: "/admin/product-workspace", icon: FileText },
-      { id: "strategies", label: "Strategies", href: "/admin/strategies", icon: SlidersHorizontal },
-      { id: "marketplace", label: "Marketplace", href: "/admin/marketplace", icon: TrendingUp },
-      { id: "source", label: "Source", href: "/admin/source", icon: Database },
     ],
   },
   {
@@ -86,19 +66,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       { id: "allowlist", label: "Allowlist", href: "/admin/governance/allowlist", icon: Users },
       { id: "diagnostics", label: "Diagnostics", href: "/admin/diagnostics", icon: Activity, hideFromSubNav: true },
       { id: "architecture", label: "Architecture", href: "/admin/system/architecture", icon: Network },
-    ],
-  },
-  {
-    id: "operations",
-    label: "Operations",
-    icon: FileText,
-    href: "/admin/roadmap",
-    tabs: [
-      { id: "roadmap", label: "Overview", href: "/admin/roadmap", icon: FileText },
-      { id: "spec", label: "Spec", href: "/admin/spec", icon: FileCheck },
-      { id: "memo", label: "Investor Memo", href: "/admin/investor-memo", icon: FileText },
-      { id: "audit", label: "Audit Log", href: "/admin/audit", icon: FileCheck },
-      { id: "design-system", label: "UI Kit", href: "/admin/design-system", icon: FileText },
     ],
   },
 ];
