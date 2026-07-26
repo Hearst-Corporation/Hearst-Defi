@@ -139,7 +139,7 @@ export function PorSummary({
       <div
         className={cn(
           "flex flex-col",
-          stale && "opacity-[var(--ct-opacity-60)]",
+          stale && "opacity-60",
         )}
       >
         <BentoProofRow label="Attestor address">

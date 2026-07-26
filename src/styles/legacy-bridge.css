@@ -70,6 +70,17 @@
   --ct-status-success-soft: color-mix(in oklab, var(--hc-accent-ink) 10%, transparent); /* compat : 2 usages, migrer vers color-mix sur --color-accent */
   --ct-status-success-border: color-mix(in oklab, var(--hc-accent-ink) 25%, transparent); /* compat : 3 usages, migrer vers color-mix sur --color-accent */
   --ct-radius-sm: 0.5rem; /* compat : 5 usages, migrer vers --radius-md (0.5rem greenfield) */
+  /* AJOUTÉS 2026-07-26 — audit DS : ces deux tokens étaient LUS par le canon
+     Catalyst (chart-card, chart-value, step-timeline, stepper, chart-source-badge)
+     et définis NULLE PART. Le navigateur retombait alors en silence sur la valeur
+     initiale : `border-radius: 0` pour les cartes de graphique (coins carrés au
+     lieu du rayon canon) et `border-color: currentColor` pour l'accent d'étape.
+     Aucune gate ne pouvait le voir — d'où `no-phantom-token.test.ts`.
+     Exception assumée au ratchet DESCENDANT du bridge : le choix était entre
+     ajouter 2 shims ici, ou réécrire 17 fichiers du canon Catalyst dans un
+     commit d'audit. Ces deux-là portent donc leur cible de migration. */
+  --ct-radius-xl: var(--radius-xl); /* compat : 8 fichiers, migrer vers rounded-xl */
+  --ct-border-accent: var(--hc-accent-ink); /* compat : 9 fichiers, migrer vers border-accent-ink */
   --ct-opacity-40: 0.4; /* compat : 2 usages, migrer vers une opacité Tailwind */
   --ct-opacity-70: 0.7; /* compat : 5 usages, migrer vers une opacité Tailwind */
   --ct-space-2: 0.5rem; /* compat : 83 usages, migrer vers l'échelle spacing Tailwind (gap-2) */

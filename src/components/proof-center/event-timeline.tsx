@@ -119,7 +119,7 @@ function EventTimelineItem({
       <span
         aria-hidden="true"
         className={cn(
-          "relative mt-1.5 flex size-2 shrink-0 items-center justify-center rounded-full ring-4 ring-[var(--ct-surface-page)]",
+          "relative mt-1.5 flex size-2 shrink-0 items-center justify-center rounded-full ring-4 ring-surface-page",
           eventDotClass(event.kind),
         )}
       />

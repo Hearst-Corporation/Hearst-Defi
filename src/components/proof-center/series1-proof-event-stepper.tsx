@@ -127,7 +127,7 @@ export function Series1ProofEventNode({
         <span
           role="img"
           aria-label="indexed"
-          className="relative z-10 flex size-7 shrink-0 items-center justify-center rounded-(--ct-radius-full) bg-(--ct-accent) text-(--ct-bg-deep)"
+          className="relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full bg-(--ct-accent) text-(--ct-bg-deep)"
         >
           {CHECK}
         </span>
