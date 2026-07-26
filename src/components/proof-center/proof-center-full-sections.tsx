@@ -99,12 +99,12 @@ export function ProofCenterFullSections({
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-[var(--ct-border-soft)] bg-surface-inset px-6 py-10 text-center">
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border-subtle bg-surface-inset px-6 py-10 text-center">
               <div className="ct-bento-label">Governance queue</div>
-              <div className="text-[length:var(--ct-text-sm)] font-medium text-[var(--ct-text-strong)]">
+              <div className="text-base font-medium text-foreground">
                 No pending timelocks
               </div>
-              <p className="max-w-sm text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-relaxed">
+              <p className="max-w-sm text-xs text-subtle leading-relaxed">
                 No proposals are currently waiting on a timelock. Queued governance
                 actions will appear here before execution.
               </p>

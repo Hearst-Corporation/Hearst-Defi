@@ -58,10 +58,10 @@ export function DeliveryEvents({
     const empty = (
       <>
         {!bare && (
-          <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
+          <div className="flex items-end justify-between p-5 border-b border-border-subtle">
             <div className="flex flex-col gap-1.5">
               <MicroLabel>Delivery evidence</MicroLabel>
-              <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
+              <h3 className="text-2xs font-bold text-muted uppercase tracking-[0.15em] leading-none">
                 Awaiting first delivery event
               </h3>
             </div>
@@ -73,7 +73,7 @@ export function DeliveryEvents({
     return bare ? (
       empty
     ) : (
-      <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
+      <section className="rounded-2xl border border-border bg-surface-card shadow-md overflow-hidden flex flex-col">
         {empty}
       </section>
     );
@@ -86,12 +86,12 @@ export function DeliveryEvents({
   const inner = (
     <>
       {!bare && (
-        <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
+        <div className="flex items-end justify-between p-5 border-b border-border-subtle">
           <div className="flex flex-col gap-1.5">
             <MicroLabel>
               {sectionLed ? "Delivery evidence" : "Maturity settlement"}
             </MicroLabel>
-            <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none">
+            <h3 className="text-2xs font-bold text-muted uppercase tracking-[0.15em] leading-none">
               {sectionLed
                 ? `Last ${events.length} delivery events`
                 : "On-chain delivery events"}
@@ -112,17 +112,17 @@ export function DeliveryEvents({
           return (
             <li
               key={event.id}
-              className="flex flex-col gap-2.5 py-4 border-b border-[var(--ct-border-soft)] last:border-b-0"
+              className="flex flex-col gap-2.5 py-4 border-b border-border-subtle last:border-b-0"
             >
               {/* Period + amount headline row */}
               <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
-                  <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)]">
+                  <span className="text-sm font-medium text-foreground">
                     Event period {event.period}
                   </span>
                   <ProvenanceBadge variant="strip" kind={provenance} />
                 </div>
-                <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-accent)] tabular-nums">
+                <span className="text-sm font-medium text-accent-ink tabular-nums">
                   {formatUsdCompact(event.amountUsdc)}
                 </span>
               </div>
@@ -131,13 +131,13 @@ export function DeliveryEvents({
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 <div className="flex flex-col gap-1">
                   <MicroLabel>Recipients</MicroLabel>
-                  <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] tabular-nums">
+                  <span className="text-sm text-muted tabular-nums">
                     {event.recipientsCount.toString()}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
                   <MicroLabel>Settled</MicroLabel>
-                  <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)] tabular-nums">
+                  <span className="text-sm text-muted tabular-nums">
                     {dateFmt.format(event.distributedAt)} UTC
                   </span>
                 </div>
@@ -149,7 +149,7 @@ export function DeliveryEvents({
                       target="_blank"
                       rel="noreferrer noopener"
                       className={cn(
-                        "inline-flex items-center gap-1 text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-accent)] transition-colors duration-150 hover:text-[color-mix(in_srgb,var(--ct-accent)_80%,transparent)]",
+                        "inline-flex items-center gap-1 text-sm font-medium text-accent-ink transition-colors duration-150 hover:text-[color-mix(in_srgb,var(--ct-accent)_80%,transparent)]",
                       )}
                       title={event.txHash}
                       aria-label={`View transaction ${event.txHash} on explorer`}
@@ -157,11 +157,11 @@ export function DeliveryEvents({
                       <span className="truncate">{abbreviateAddress(event.txHash)}</span>
                     </a>
                   ) : event.txHash ? (
-                    <span className="truncate text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">
+                    <span className="truncate text-sm text-subtle">
                       Simulated (testnet fixture)
                     </span>
                   ) : (
-                    <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Pending broadcast</span>
+                    <span className="text-sm text-subtle">Pending broadcast</span>
                   )}
                 </div>
               </div>
@@ -175,7 +175,7 @@ export function DeliveryEvents({
   return bare ? (
     inner
   ) : (
-    <section className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col">
+    <section className="rounded-2xl border border-border bg-surface-card shadow-md overflow-hidden flex flex-col">
       {inner}
     </section>
   );

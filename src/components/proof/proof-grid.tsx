@@ -46,7 +46,7 @@ export function ProofGrid({
   }
 
   return (
-    <ul className="ct-proof-grid">
+    <ul className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0 m-0">
       {filtered.map((proof) => (
         <li key={keyOf(proof)} className="contents">
           <ProofCard

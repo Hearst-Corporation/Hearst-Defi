@@ -29,10 +29,10 @@ function NetworkBadge({ networkKind, label }: { networkKind: Series1ProofNetwork
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[length:var(--ct-text-deci)] font-semibold tracking-[0.06em] uppercase",
+        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-2xs font-semibold tracking-[0.06em] uppercase",
         networkKind === "network_mismatch"
-          ? "text-(--ct-status-warning) ring-1 ring-(--ct-status-warning)"
-          : "text-(--ct-text-muted) ring-1 ring-(--ct-border-soft)",
+          ? "text-warning ring-1 ring-warning"
+          : "text-muted ring-1 ring-border-subtle",
       )}
     >
       {label}
@@ -52,61 +52,61 @@ function shortAddress(address: string): string {
 
 export function Series1ProofEventDetail({ event }: { event: Series1ProofEventNodeModel }) {
   return (
-    <dl className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3 text-[length:var(--ct-text-micro)] leading-5 sm:grid-cols-3">
+    <dl className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3 text-2xs leading-5 sm:grid-cols-3">
       <div>
-        <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Block</dt>
-        <dd className="mono tabular text-(--ct-text-body)">{event.blockNumber}</dd>
+        <dt className="text-subtle uppercase tracking-[0.08em]">Block</dt>
+        <dd className="mono tabular text-muted">{event.blockNumber}</dd>
       </div>
       <div>
-        <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Log index</dt>
-        <dd className="mono tabular text-(--ct-text-body)">{event.logIndex}</dd>
+        <dt className="text-subtle uppercase tracking-[0.08em]">Log index</dt>
+        <dd className="mono tabular text-muted">{event.logIndex}</dd>
       </div>
       <div>
-        <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Tx hash</dt>
-        <dd className="mono text-(--ct-text-body)" title={event.txHash}>
+        <dt className="text-subtle uppercase tracking-[0.08em]">Tx hash</dt>
+        <dd className="mono text-muted" title={event.txHash}>
           {shortHash(event.txHash)}
         </dd>
       </div>
       <div>
-        <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Occurred at</dt>
-        <dd className="mono tabular text-(--ct-text-body)">
+        <dt className="text-subtle uppercase tracking-[0.08em]">Occurred at</dt>
+        <dd className="mono tabular text-muted">
           {event.occurredAt ?? "Not reported"}
         </dd>
       </div>
       <div>
-        <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Indexed at</dt>
-        <dd className="mono tabular text-(--ct-text-body)" title="Technical indexing time — not the on-chain event time">
+        <dt className="text-subtle uppercase tracking-[0.08em]">Indexed at</dt>
+        <dd className="mono tabular text-muted" title="Technical indexing time — not the on-chain event time">
           {event.indexedAt}
         </dd>
       </div>
       <div>
-        <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Chain</dt>
-        <dd className="mono tabular text-(--ct-text-body)">{event.chainId}</dd>
+        <dt className="text-subtle uppercase tracking-[0.08em]">Chain</dt>
+        <dd className="mono tabular text-muted">{event.chainId}</dd>
       </div>
       <div>
-        <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Contract</dt>
-        <dd className="mono text-(--ct-text-body)" title={event.contractAddress}>
+        <dt className="text-subtle uppercase tracking-[0.08em]">Contract</dt>
+        <dd className="mono text-muted" title={event.contractAddress}>
           {shortAddress(event.contractAddress)}
         </dd>
       </div>
       {event.investorAddress ? (
         <div>
-          <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Investor</dt>
-          <dd className="mono text-(--ct-text-body)" title={event.investorAddress}>
+          <dt className="text-subtle uppercase tracking-[0.08em]">Investor</dt>
+          <dd className="mono text-muted" title={event.investorAddress}>
             {shortAddress(event.investorAddress)}
           </dd>
         </div>
       ) : null}
       {event.assetAmountAtomic ? (
         <div>
-          <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Asset amount</dt>
-          <dd className="mono tabular text-(--ct-text-body)">{event.assetAmountAtomic}</dd>
+          <dt className="text-subtle uppercase tracking-[0.08em]">Asset amount</dt>
+          <dd className="mono tabular text-muted">{event.assetAmountAtomic}</dd>
         </div>
       ) : null}
       {event.shareAmountAtomic ? (
         <div>
-          <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Share amount</dt>
-          <dd className="mono tabular text-(--ct-text-body)">{event.shareAmountAtomic}</dd>
+          <dt className="text-subtle uppercase tracking-[0.08em]">Share amount</dt>
+          <dd className="mono tabular text-muted">{event.shareAmountAtomic}</dd>
         </div>
       ) : null}
     </dl>
@@ -127,25 +127,25 @@ export function Series1ProofEventNode({
         <span
           role="img"
           aria-label="indexed"
-          className="relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full bg-(--ct-accent) text-(--ct-bg-deep)"
+          className="relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full bg-accent text-background"
         >
           {CHECK}
         </span>
         {/* Connector — continuous rail to the next node. */}
-        {!isLast ? <span aria-hidden className="my-1 w-px flex-1 bg-(--ct-accent)" /> : null}
+        {!isLast ? <span aria-hidden className="my-1 w-px flex-1 bg-accent" /> : null}
       </div>
       <div className="min-w-0 flex-1 pt-0.5">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-semibold text-(--ct-text-strong)">{event.displayLabel}</p>
-          <span className="mono text-[length:var(--ct-text-deci)] text-(--ct-text-faint)">{event.eventName}</span>
+          <p className="text-sm font-semibold text-foreground">{event.displayLabel}</p>
+          <span className="mono text-2xs text-subtle">{event.eventName}</span>
           {!event.isKnownEventType ? (
-            <span className="rounded-full px-2 py-0.5 text-[length:var(--ct-text-deci)] font-semibold text-(--ct-text-muted) uppercase ring-1 ring-(--ct-border-soft)">
+            <span className="rounded-full px-2 py-0.5 text-2xs font-semibold text-muted uppercase ring-1 ring-border-subtle">
               Uncatalogued type
             </span>
           ) : null}
           <NetworkBadge networkKind={event.provenance.networkKind} label={event.provenance.label} />
         </div>
-        <p className="mt-0.5 text-xs leading-5 text-(--ct-text-muted)">{event.description}</p>
+        <p className="mt-0.5 text-xs leading-5 text-muted">{event.description}</p>
         <Series1ProofEventDetail event={event} />
       </div>
     </li>
@@ -154,9 +154,9 @@ export function Series1ProofEventNode({
 
 export function Series1ProofEventEmptyState() {
   return (
-    <div className="ct-empty-surface ct-empty-surface--widget">
-      <p className="text-sm font-medium text-(--ct-text-strong)">No events indexed yet.</p>
-      <p className="max-w-sm text-xs leading-5 text-(--ct-text-muted)">
+    <div className="flex flex-col items-center justify-center gap-1 text-center py-8 px-5 bg-surface-card border border-border-subtle rounded-xl min-h-32">
+      <p className="text-sm font-medium text-foreground">No events indexed yet.</p>
+      <p className="max-w-sm text-xs leading-5 text-muted">
         The indexer has not recorded a Series 1 event yet. This is a genuinely empty ledger, not an outage.
       </p>
     </div>
@@ -165,9 +165,9 @@ export function Series1ProofEventEmptyState() {
 
 export function Series1ProofEventUnavailable({ detail }: { detail?: string }) {
   return (
-    <div className="ct-empty-surface ct-empty-surface--widget">
-      <p className="text-sm font-medium text-(--ct-text-strong)">Indexer unreachable.</p>
-      <p className="max-w-sm text-xs leading-5 text-(--ct-text-muted)">
+    <div className="flex flex-col items-center justify-center gap-1 text-center py-8 px-5 bg-surface-card border border-border-subtle rounded-xl min-h-32">
+      <p className="text-sm font-medium text-foreground">Indexer unreachable.</p>
+      <p className="max-w-sm text-xs leading-5 text-muted">
         This is an outage of the read, not a statement that no event exists.
         {detail ? ` (${detail})` : ""}
       </p>
@@ -181,9 +181,9 @@ function Series1ProofEventNotConfigured({ reason }: { reason: "simulated_rejecte
       ? "Preview / simulated data is not accepted as proof."
       : "No indexer configured for this deployment yet.";
   return (
-    <div className="ct-empty-surface ct-empty-surface--widget">
-      <p className="text-sm font-medium text-(--ct-text-strong)">{message}</p>
-      <p className="max-w-sm text-xs leading-5 text-(--ct-text-muted)">
+    <div className="flex flex-col items-center justify-center gap-1 text-center py-8 px-5 bg-surface-card border border-border-subtle rounded-xl min-h-32">
+      <p className="text-sm font-medium text-foreground">{message}</p>
+      <p className="max-w-sm text-xs leading-5 text-muted">
         {reason === "simulated_rejected"
           ? "A simulated read was returned by the backend. Simulated data is never rendered as investor-facing proof."
           : "Figures resolve once the indexer is deployed and reporting."}

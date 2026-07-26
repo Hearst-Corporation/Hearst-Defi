@@ -42,10 +42,10 @@ export function ProofCenterFullLogLayout({
   const backLink = (
     <Link
       href={backHref}
-      className="inline-flex items-center gap-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-muted)] no-underline hover:text-[var(--ct-text-strong)] transition-colors"
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-muted no-underline hover:text-foreground transition-colors"
       aria-label="Back to Proof Center"
     >
-      <ArrowLeft className="ct-icon-sm" aria-hidden />
+      <ArrowLeft className="size-4 shrink-0" aria-hidden />
       Proof Center
     </Link>
   );

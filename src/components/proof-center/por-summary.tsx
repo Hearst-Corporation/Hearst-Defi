@@ -46,11 +46,11 @@ function BentoKpi({
       <span className="ct-bento-label">
         {label}
       </span>
-      <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
+      <span className="text-[1.125rem] font-medium text-foreground leading-none tracking-tight tabular-nums">
         {value}
       </span>
       {sublabel ? (
-        <span className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide mono">
+        <span className="text-2xs text-subtle tracking-wide mono">
           {sublabel}
         </span>
       ) : null}
@@ -67,9 +67,9 @@ function BentoProofRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-[var(--ct-border-soft)] py-3 last:border-b-0">
-      <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">{label}</span>
-      <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)] mono tabular-nums">
+    <div className="flex items-center justify-between gap-3 border-b border-border-subtle py-3 last:border-b-0">
+      <span className="text-sm text-muted">{label}</span>
+      <span className="text-sm font-medium text-foreground mono tabular-nums">
         {children}
       </span>
     </div>
@@ -77,10 +77,10 @@ function BentoProofRow({
 }
 
 const explorerLinkClass =
-  "text-[var(--ct-text-muted)] hover:text-[var(--ct-text-strong)] transition-colors duration-150";
+  "text-muted hover:text-foreground transition-colors duration-150";
 
 const bentoLinkButtonClass =
-  "inline-flex items-center justify-center border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] text-[var(--ct-text-strong)] font-medium rounded-lg px-4 py-2.5 text-[length:var(--ct-text-xs)] transition-colors hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]";
+  "inline-flex items-center justify-center border border-border bg-[color-mix(in_srgb,var(--hc-fg)_5%,transparent)] text-foreground font-medium rounded-lg px-4 py-2.5 text-sm transition-colors hover:bg-[color-mix(in_srgb,var(--hc-fg)_10%,transparent)]";
 
 export function PorSummary({
   attestation,
@@ -124,8 +124,7 @@ export function PorSummary({
         />
       )}
 
-      {/* ct-nested-kpi-grid marker retained for proof-center contract tests */}
-      <div className="ct-nested-kpi-grid grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5">
         <BentoKpi label="Total AUM" value={formatUsdCompact(attestation.totalAumUsd)} />
         <BentoKpi label="Mined (period)" value={formatBtc(attestation.minedBtc)} />
         <BentoKpi
@@ -147,7 +146,7 @@ export function PorSummary({
             href={`${EXPLORER_ADDRESS_BASE}${attestation.attestor}`}
             target="_blank"
             rel="noreferrer noopener"
-            className={cn(explorerLinkClass, "ct-focus-ring rounded-sm")}
+            className={cn(explorerLinkClass, "focus-visible:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-accent)_28%,transparent)] focus-visible:outline-none rounded-sm")}
             title={attestation.attestor}
             aria-label={`View attestor ${attestation.attestor} on explorer`}
           >
@@ -168,7 +167,7 @@ export function PorSummary({
           target="_blank"
           rel="noreferrer noopener"
           aria-label="View attestation transaction on Base Sepolia explorer"
-          className={cn(bentoLinkButtonClass, "ct-focus-ring")}
+          className={cn(bentoLinkButtonClass, "focus-visible:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-accent)_28%,transparent)] focus-visible:outline-none")}
         >
           View attestation tx on Base Sepolia (Testnet)
         </a>
@@ -180,25 +179,25 @@ export function PorSummary({
               target="_blank"
               rel="noreferrer noopener"
               aria-label="View evidence document on IPFS"
-              className={cn(bentoLinkButtonClass, "ct-focus-ring")}
+              className={cn(bentoLinkButtonClass, "focus-visible:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-accent)_28%,transparent)] focus-visible:outline-none")}
             >
               View evidence (IPFS)
             </a>
           ) : attestation.evidenceCid.length > 0 ? (
-            <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">View evidence (IPFS)</span>
+            <span className="text-sm text-subtle">View evidence (IPFS)</span>
           ) : (
-            <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">No evidence CID available</span>
+            <span className="text-sm text-subtle">No evidence CID available</span>
           );
         })()}
       </div>
 
       {stale ? (
-        <p className="text-[length:var(--ct-text-micro)] leading-relaxed text-(--ct-status-warning)">
+        <p className="text-2xs leading-relaxed text-warning">
           Last attestation is older than 24h — badge shows Stale. A fresh
           attestation is expected each period close.
         </p>
       ) : !verified ? (
-        <p className="text-[length:var(--ct-text-micro)] leading-relaxed text-(--ct-status-warning)">
+        <p className="text-2xs leading-relaxed text-warning">
           Attestation signer is not yet verified against the allowlist — badge
           shows Stale until the signature is confirmed.
         </p>
@@ -211,7 +210,7 @@ export function PorSummary({
   return bare ? (
     inner
   ) : (
-    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col p-5 lg:p-6">
+    <div className="rounded-2xl border border-border bg-surface-card shadow-md overflow-hidden flex flex-col p-5 lg:p-6">
       {inner}
     </div>
   );

@@ -78,7 +78,11 @@ function ProofCardShell({
 }) {
   return (
     <Card
-      className={cn("h-full", accent && "ct-proof-card")}
+      className={cn(
+        "h-full",
+        accent &&
+          "relative before:content-[''] before:absolute before:left-0 before:top-5 before:bottom-5 before:w-0.5 before:rounded-full before:bg-[var(--ct-proof-accent,var(--color-border))]",
+      )}
       hoverOverlay={false}
       style={accent ? ({ "--ct-proof-accent": accent } as React.CSSProperties) : undefined}
     >
@@ -108,7 +112,7 @@ function ProofCardHeader({
           <span className="eyebrow product-doc-inline-row product-doc-inline-row--dense ct-text-muted">
             <span
               aria-hidden
-              className="ct-dot"
+              className="inline-block size-1.5 rounded-full shrink-0"
               style={{ background: accent ?? "var(--ct-border)" }}
             />
             {eyebrow}
@@ -124,12 +128,12 @@ function ProofCardHeader({
 }
 
 function ProofFieldList({ children }: { children: ReactNode }) {
-  return <div className="ct-panel-fields">{children}</div>;
+  return <div className="flex flex-col min-w-0">{children}</div>;
 }
 
 function ProofCardActions({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-auto product-doc-inline-row product-doc-inline-row--tight border-t ct-bc-soft pt-[var(--ct-space-3)]">
+    <div className="mt-auto product-doc-inline-row product-doc-inline-row--tight border-t border-border-subtle pt-3">
       {children}
     </div>
   );
@@ -139,10 +143,10 @@ function ProofCardActions({ children }: { children: ReactNode }) {
 function OffChainMirrorTag() {
   return (
     <span
-      className="ml-auto product-doc-inline-row product-doc-inline-row--dense body-xs ct-text-faint"
+      className="ml-auto product-doc-inline-row product-doc-inline-row--dense body-xs text-subtle"
       title="Phase 2 will mirror this proof on-chain via the EventLogger contract."
     >
-      <span aria-hidden className="ct-dot" style={{ background: "var(--ct-text-faint)" }} />
+      <span aria-hidden className="inline-block size-1.5 rounded-full shrink-0" style={{ background: "var(--ct-text-faint)" }} />
       Off-chain · Phase 1
     </span>
   );
@@ -213,7 +217,7 @@ function PaperProofCard({
           {dateFmt.format(postedAt)} UTC
         </ProofRow>
         <ProofRow label="Signer">
-          <span className="ct-proof-row__truncate">{proof.postedBy}</span>
+          <span className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{proof.postedBy}</span>
         </ProofRow>
         <ProofRow label="Hash">
           <span title={proof.hash} aria-label={`Hash ${proof.hash}`}>
@@ -364,7 +368,10 @@ function OnChainAttestationCard({
             href={`${EXPLORER_ADDRESS_BASE}${proof.attestor}`}
             target="_blank"
             rel="noreferrer noopener"
-            className="hover:ct-text-strong"
+            // `hover:ct-text-strong` était écrit ici : Tailwind ne préfixe PAS
+            // une classe maison, donc la règle n'existait pas et le lien n'avait
+            // aucun retour au survol. Rôle canon + soulignement au survol.
+            className="text-muted underline-offset-4 transition-colors hover:text-foreground hover:underline"
             title={proof.attestor}
           >
             {abbreviateAddress(proof.attestor)}

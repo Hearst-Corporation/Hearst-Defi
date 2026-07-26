@@ -11,7 +11,7 @@ export function ProvenanceFooter() {
   return (
     <footer className="proof-provenance-block flex flex-col gap-3">
       <DashboardPanelHeader eyebrow="Read path" title="Data provenance" tone="quiet" />
-      <p className="max-w-prose text-[length:var(--ct-text-2xs)] leading-relaxed text-[var(--ct-text-faint)]">
+      <p className="max-w-prose text-xs leading-relaxed text-subtle">
         On-chain entries are read from the configured network (testnet until mainnet
         deployment). Off-chain entries are pinned to IPFS or signed HTTPS endpoints.
         Vault state is fetched fresh on every request.

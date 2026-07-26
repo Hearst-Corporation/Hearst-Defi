@@ -47,12 +47,12 @@ export function ProofCenterColdShell({
       data-testid="proof-center-cold-shell"
     >
       <Card material="flat" hoverOverlay={false} contentClassName="proof-cold-card">
-        <div className="flex items-start gap-(--ct-space-4)">
-          <div className="proof-dataroom-icon-box mt-(--ct-space-1)">
+        <div className="flex items-start gap-4">
+          <div className="proof-dataroom-icon-box mt-1">
             <Lock className="w-4 h-4 ct-text-muted" />
           </div>
           <div className={variant === "admin" ? "admin-doc-stack admin-doc-stack--tight" : "product-doc-stack product-doc-stack--tight"}>
-            <div className="flex items-center gap-(--ct-space-2)">
+            <div className="flex items-center gap-2">
               <p className="eyebrow m-0">Status</p>
               <Badge variant="accent">Active</Badge>
             </div>
@@ -67,7 +67,7 @@ export function ProofCenterColdShell({
           </div>
         </div>
         {variant === "product" ? (
-          <Button asChild variant="primary" size="md" className="proof-cold-cta no-underline mt-(--ct-space-2)">
+          <Button asChild variant="primary" size="md" className="proof-cold-cta no-underline mt-2">
             <Link href={PORTFOLIO_ONBOARDING_INVEST_HREF}>Explore products</Link>
           </Button>
         ) : null}
@@ -78,11 +78,11 @@ export function ProofCenterColdShell({
         <ul className="proof-cold-list">
           {UNLOCKS.map((item) => (
             <li key={item.title} className="proof-cold-list__item">
-              <div className="flex items-center gap-(--ct-space-2)">
+              <div className="flex items-center gap-2">
                 <item.icon className="w-3.5 h-3.5 ct-text-muted" />
-                <span className="proof-cold-list__title body-sm ct-text-primary">{item.title}</span>
+                <span className="proof-cold-list__title body-sm text-foreground">{item.title}</span>
               </div>
-              <span className="body-xs ct-text-muted ml-(--ct-space-5)">{item.detail}</span>
+              <span className="body-xs ct-text-muted ml-5">{item.detail}</span>
             </li>
           ))}
         </ul>

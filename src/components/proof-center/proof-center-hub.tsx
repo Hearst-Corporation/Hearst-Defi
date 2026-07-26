@@ -81,7 +81,7 @@ function ProofHubCard({
   children,
 }: ProofHubCardProps) {
   return (
-    <Card material="flat" className="h-full p-(--ct-space-6)" contentClassName="flex flex-col h-full">
+    <Card material="flat" className="h-full p-6" contentClassName="flex flex-col h-full">
       <DashboardPanelHeader
         eyebrow={eyebrow}
         title={title}
@@ -167,7 +167,7 @@ export function ProofCenterHub({
         variant === "product" ? "product-doc-stack" : "admin-doc-stack admin-doc-stack--roomy",
         // Grey body container (Portfolio canon) — both investor and admin surfaces.
         // Border token = var(--ct-border), identical to portfolio's root plate.
-        "rounded-2xl border border-[var(--ct-border)] bg-surface-page p-5 lg:p-6 mb-8",
+        "rounded-2xl border border-border bg-surface-page p-5 lg:p-6 mb-8",
         !coldEmpty && "proof-cockpit proof-cockpit--fit",
       )}
     >
@@ -176,14 +176,14 @@ export function ProofCenterHub({
           titleLead="Proof"
           titleAccent="Center"
           contextLabel="Vault Proof System"
-          className="mb-(--ct-space-5)"
+          className="mb-5"
         />
       ) : (
         <AdminPageHeader
           titleLead="Proof Operations"
           titleAccent={vaultSuffix}
           contextLabel={`Operator Proof Hub · ${vaultSuffix}`}
-          className="mb-(--ct-space-5)"
+          className="mb-5"
         />
       )}
 

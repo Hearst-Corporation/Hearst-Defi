@@ -103,8 +103,8 @@ const MICRO_LABEL = "ct-bento-label";
 /** Single on-chain reference row (label + monospace value / explorer link). */
 function ProofRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-3 border-b border-[var(--ct-border-soft)] last:border-b-0">
-      <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]">{label}</span>
+    <div className="flex items-center justify-between gap-3 py-3 border-b border-border-subtle last:border-b-0">
+      <span className="text-sm text-muted">{label}</span>
       <span className="min-w-0 text-right">{children}</span>
     </div>
   );
@@ -127,12 +127,12 @@ function ExplorerLink({
       href={href}
       target="_blank"
       rel="noreferrer noopener"
-      className="inline-flex items-center gap-1 mono text-[length:var(--ct-text-xs)] text-[var(--ct-accent)] hover:underline"
+      className="inline-flex items-center gap-1 mono text-sm text-accent-ink hover:underline"
       title={title}
       aria-label={ariaLabel}
     >
       <span className="truncate">{value}</span>
-      <ExternalLink className="w-3 h-3 opacity-[var(--ct-opacity-50)] shrink-0" aria-hidden="true" />
+      <ExternalLink className="w-3 h-3 opacity-50 shrink-0" aria-hidden="true" />
     </a>
   );
 }
@@ -156,22 +156,22 @@ function ProofArticle({
     <article
       className={cn(
         "px-5 py-5",
-        separated && "border-t border-[var(--ct-border-soft)]",
+        separated && "border-t border-border-subtle",
       )}
     >
       <div className="flex items-start gap-3">
         <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-[color-mix(in_srgb,var(--hc-fg)_2%,transparent)]"
           aria-hidden="true"
         >
-          <Icon className="w-4 h-4 text-[var(--ct-text-muted)]" />
+          <Icon className="w-4 h-4 text-muted" />
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="text-[length:var(--ct-text-14)] font-semibold text-[var(--ct-text-strong)] leading-snug">
+          <h4 className="text-sm font-semibold text-foreground leading-snug">
             {title}
           </h4>
           {description && (
-            <p className="mt-1 text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-relaxed">
+            <p className="mt-1 text-xs text-subtle leading-relaxed">
               {description}
             </p>
           )}
@@ -209,13 +209,13 @@ function PlatformAddressRow({
             ) : (
               <span
                 title={entry.address}
-                className="mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)] truncate"
+                className="mono text-sm text-foreground truncate"
               >
                 {abbreviateAddress(entry.address)}
               </span>
             )
           ) : (
-            <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Not available</span>
+            <span className="text-sm text-subtle">Not available</span>
           )}
         </ProofRow>
       </div>
@@ -255,16 +255,16 @@ function DeployedContractCard({
               ariaLabel={`View deployment transaction ${contract.deployTxHash} on explorer`}
             />
           ) : (
-            <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-faint)]">Pending</span>
+            <span className="text-sm text-subtle">Pending</span>
           )}
         </ProofRow>
         <ProofRow label="Deploy block">
-          <span className="mono text-[length:var(--ct-text-xs)] text-[var(--ct-text-strong)]">
+          <span className="mono text-sm text-foreground">
             {contract.deployBlock || "Pending"}
           </span>
         </ProofRow>
         <ProofRow label="Network">
-          <span className="text-[length:var(--ct-text-xs)] text-[var(--ct-text-body)]">
+          <span className="text-sm text-muted">
             Test network (chain id 84532)
           </span>
         </ProofRow>
@@ -272,12 +272,12 @@ function DeployedContractCard({
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {contract.sourceVerified ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-accent)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--ct-accent)]" aria-hidden="true" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2.5 py-1 text-2xs font-medium text-accent-ink">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
             Source-verified @ commit
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-muted)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[color-mix(in_srgb,var(--hc-fg)_3%,transparent)] px-2.5 py-1 text-2xs font-medium text-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--ct-text-muted)]" aria-hidden="true" />
             Deployment provenance unverified
           </span>
@@ -286,11 +286,11 @@ function DeployedContractCard({
           href={`${EXPLORER_ADDRESS_BASE}${contract.address}`}
           target="_blank"
           rel="noreferrer noopener"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-body)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_6%,transparent)] transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-[color-mix(in_srgb,var(--hc-fg)_3%,transparent)] px-3 py-1.5 text-xs font-medium text-muted hover:bg-[color-mix(in_srgb,var(--hc-fg)_6%,transparent)] transition-colors"
           aria-label={`View ${contract.name} on Basescan`}
         >
           View on Basescan
-          <ExternalLink className="w-3.5 h-3.5 text-[var(--ct-accent)]" aria-hidden="true" />
+          <ExternalLink className="w-3.5 h-3.5 text-accent-ink" aria-hidden="true" />
         </a>
       </div>
     </ProofArticle>
@@ -355,37 +355,37 @@ export function ContractsAuditTrail({
               key={entry.label}
               className={cn(
                 "px-5 py-4",
-                idx > 0 && "border-t border-[var(--ct-border-soft)]",
+                idx > 0 && "border-t border-border-subtle",
               )}
             >
               <div className="flex items-start gap-3">
                 <div
-                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_2%,transparent)]"
+                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-[color-mix(in_srgb,var(--hc-fg)_2%,transparent)]"
                   aria-hidden="true"
                 >
-                  <FileText className="w-4 h-4 text-[var(--ct-text-muted)]" />
+                  <FileText className="w-4 h-4 text-muted" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex flex-col gap-1 min-w-0">
-                      <span className="text-[length:var(--ct-text-xs)] font-medium text-[var(--ct-text-strong)]">
+                      <span className="text-sm font-medium text-foreground">
                         {entry.label}
                       </span>
-                      <span className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)]">
+                      <span className="text-xs text-subtle">
                         {entry.status}
                       </span>
                     </div>
                     <div className="flex shrink-0 items-center gap-2.5">
                       {entry.variant === "success" ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-accent)]">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--ct-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--ct-accent)_10%,transparent)] px-2.5 py-1 text-2xs font-medium text-accent-ink">
                           <span
-                            className="h-1.5 w-1.5 rounded-full bg-[var(--ct-accent)]"
+                            className="h-1.5 w-1.5 rounded-full bg-accent"
                             aria-hidden="true"
                           />
                           {auditBadgeLabel(entry)}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] px-2.5 py-1 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-muted)]">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[color-mix(in_srgb,var(--hc-fg)_3%,transparent)] px-2.5 py-1 text-2xs font-medium text-muted">
                           <span
                             className="h-1.5 w-1.5 rounded-full bg-[var(--ct-text-muted)]"
                             aria-hidden="true"
@@ -398,12 +398,12 @@ export function ContractsAuditTrail({
                           href={entry.href}
                           target="_blank"
                           rel="noreferrer noopener"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_3%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-body)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_6%,transparent)] transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-[color-mix(in_srgb,var(--hc-fg)_3%,transparent)] px-3 py-1.5 text-xs font-medium text-muted hover:bg-[color-mix(in_srgb,var(--hc-fg)_6%,transparent)] transition-colors"
                           aria-label={`View document for ${entry.label}`}
                         >
                           View document
                           <ExternalLink
-                            className="w-3.5 h-3.5 text-[var(--ct-accent)]"
+                            className="w-3.5 h-3.5 text-accent-ink"
                             aria-hidden="true"
                           />
                         </a>
@@ -416,9 +416,9 @@ export function ContractsAuditTrail({
           ))}
         </ul>
 
-        <div className="border-t border-[var(--ct-border-soft)] px-5 py-4 flex flex-col gap-1.5">
+        <div className="border-t border-border-subtle px-5 py-4 flex flex-col gap-1.5">
           <p className={cn(MICRO_LABEL, "m-0")}>Release gate</p>
-          <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] leading-relaxed m-0">
+          <p className="text-xs text-subtle leading-relaxed m-0">
             Production (mainnet) deployment requires completion of an
             independent third-party security audit. The methodology remains
             fixed until a formal approval and investor notification process is

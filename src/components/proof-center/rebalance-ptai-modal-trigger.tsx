@@ -20,7 +20,7 @@ export function RebalancePtaiModalTrigger({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-micro)] font-medium text-[var(--ct-text-strong)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)] transition-colors"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-[color-mix(in_srgb,var(--hc-fg)_5%,transparent)] px-3 py-1.5 text-2xs font-medium text-foreground hover:bg-[color-mix(in_srgb,var(--hc-fg)_10%,transparent)] transition-colors"
       >
         View PTAI detail
       </button>
@@ -44,7 +44,7 @@ export function RebalancePtaiModalTrigger({
               impact={event.impactText}
             />
           </div>
-          <p className="text-[length:var(--ct-text-micro)] text-[var(--ct-text-faint)] leading-relaxed">
+          <p className="text-2xs text-subtle leading-relaxed">
             Projections shown above are indicative only and not a commitment to
             any specific outcome. Past performance is not a reliable indicator
             of future results.

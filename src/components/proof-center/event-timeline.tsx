@@ -65,15 +65,15 @@ function eventTimelineCardTitle(
  */
 function eventDotClass(kind: EventKind): string {
   if (kind === "GuardrailBreach")
-    return "bg-[var(--ct-status-danger)] ring-[var(--ct-status-danger-soft)]";
+    return "bg-danger ring-[color-mix(in_oklab,var(--hc-danger)_10%,transparent)]";
   if (kind === "TriggerArmed")
-    return "bg-[var(--ct-status-warning)] ring-[var(--ct-status-warning-soft)]";
+    return "bg-warning ring-[color-mix(in_oklab,var(--hc-warning)_10%,transparent)]";
   if (kind === "Distribution" || kind === "AttestationPublished") {
-    return "bg-[var(--ct-accent)] ring-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]";
+    return "bg-accent ring-[color-mix(in_srgb,var(--ct-accent)_15%,transparent)]";
   }
   if (kind === "ModeChange")
-    return "bg-[color-mix(in_srgb,var(--ct-text-strong)_30%,transparent)] ring-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]";
-  return "bg-[color-mix(in_srgb,var(--ct-text-strong)_60%,transparent)] ring-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]";
+    return "bg-[color-mix(in_srgb,var(--hc-fg)_30%,transparent)] ring-[color-mix(in_srgb,var(--hc-fg)_10%,transparent)]";
+  return "bg-[color-mix(in_srgb,var(--hc-fg)_60%,transparent)] ring-[color-mix(in_srgb,var(--hc-fg)_10%,transparent)]";
 }
 
 function EventMetaRow({
@@ -88,7 +88,7 @@ function EventMetaRow({
       <span className="shrink-0 ct-bento-label">
         {label}
       </span>
-      <span className="min-w-0 truncate text-right text-[length:var(--ct-text-2xs)] font-medium tabular-nums text-[var(--ct-text-body)]">
+      <span className="min-w-0 truncate text-right text-xs font-medium tabular-nums text-muted">
         {children}
       </span>
     </div>
@@ -114,7 +114,7 @@ function EventTimelineItem({
           showConnector ? "-bottom-6" : "h-6",
         )}
       >
-        <span aria-hidden="true" className="w-px bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]" />
+        <span aria-hidden="true" className="w-px bg-[color-mix(in_srgb,var(--hc-fg)_10%,transparent)]" />
       </div>
       <span
         aria-hidden="true"
@@ -127,12 +127,12 @@ function EventTimelineItem({
       <div className="min-w-0 flex-1 pb-6">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Badge variant={KIND_VARIANT[event.kind]}>{KIND_LABEL[event.kind]}</Badge>
-          <span className="text-[length:var(--ct-text-deci)] font-medium uppercase tracking-widest text-[var(--ct-text-faint)]">
+          <span className="text-2xs font-medium uppercase tracking-widest text-subtle">
             Event #{event.eventId.toString()}
           </span>
         </div>
 
-        <div className="mt-3 flex flex-col gap-1.5 rounded-2xl border border-[var(--ct-border)] bg-surface-card p-4 shadow-[var(--ct-shadow-soft)]">
+        <div className="mt-3 flex flex-col gap-1.5 rounded-2xl border border-border bg-surface-card p-4 shadow-md">
           <EventMetaRow label="Timestamp">
             {dateFmt.format(event.timestamp)} UTC
           </EventMetaRow>
@@ -147,7 +147,7 @@ function EventTimelineItem({
               href={`${EXPLORER_TX_BASE}${event.txHash}`}
               target="_blank"
               rel="noreferrer noopener"
-              className="text-[var(--ct-accent)] no-underline transition-colors hover:underline"
+              className="text-accent-ink no-underline transition-colors hover:underline"
               title={event.txHash}
               aria-label={`View transaction ${event.txHash} on explorer`}
             >
@@ -155,7 +155,7 @@ function EventTimelineItem({
             </a>
           </EventMetaRow>
           <EventMetaRow label="Context hash">
-            <span title={event.contextHash} className="text-[var(--ct-text-faint)]">
+            <span title={event.contextHash} className="text-subtle">
               {abbreviateAddress(event.contextHash)}
             </span>
           </EventMetaRow>
@@ -167,14 +167,14 @@ function EventTimelineItem({
               href={payloadHref}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center rounded-lg border border-[var(--ct-border)] bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] px-3 py-1.5 text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-strong)] no-underline transition-colors hover:border-[var(--ct-border-strong)] hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_10%,transparent)]"
+              className="inline-flex items-center rounded-lg border border-border bg-[color-mix(in_srgb,var(--hc-fg)_5%,transparent)] px-3 py-1.5 text-xs font-medium text-foreground no-underline transition-colors hover:border-border-strong hover:bg-[color-mix(in_srgb,var(--hc-fg)_10%,transparent)]"
             >
               View payload (IPFS)
             </a>
           </div>
         ) : hasPayload ? (
           <div className="mt-3">
-            <span className="text-[length:var(--ct-text-2xs)] font-medium text-[var(--ct-text-faint)]">
+            <span className="text-xs font-medium text-subtle">
               View payload (IPFS)
             </span>
           </div>

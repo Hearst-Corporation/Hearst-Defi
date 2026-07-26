@@ -18,7 +18,7 @@ const HEADER = {
 } as const;
 
 const PANEL_CLASS =
-  "rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col";
+  "rounded-2xl border border-border bg-surface-card shadow-md overflow-hidden flex flex-col";
 
 /** Bento section header — title (h3) + subtitle + provenance badge. */
 function BentoHeader({
@@ -33,16 +33,16 @@ function BentoHeader({
   provenance: "live" | "estimated" | "manual" | "stale";
 }) {
   return (
-    <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
+    <div className="flex items-end justify-between p-5 border-b border-border-subtle">
       <div className="flex flex-col gap-1.5">
         {/* sectionLed: the visible page <h2> owns the section title; the panel
             shows only its h3 subtitle + provenance. */}
         {!sectionLed ? (
-          <h3 className="text-[length:var(--ct-text-micro)] font-bold text-[var(--ct-text-muted)] uppercase tracking-[0.15em] leading-none m-0">
+          <h3 className="text-2xs font-bold text-muted uppercase tracking-[0.15em] leading-none m-0">
             {eyebrow}
           </h3>
         ) : null}
-        <p className="text-[length:var(--ct-text-2xs)] text-[var(--ct-text-faint)] tracking-wide m-0">{title}</p>
+        <p className="text-xs text-subtle tracking-wide m-0">{title}</p>
       </div>
       <ProvenanceBadge kind={provenance} />
     </div>
@@ -70,8 +70,8 @@ function KpiCell({
       </dt>
       <dd
         className={cn(
-          "text-[length:var(--ct-text-xl-fixed)] font-medium leading-none tracking-tight tabular-nums m-0",
-          accent ? "text-[var(--ct-accent)]" : "text-[var(--ct-text-strong)]",
+          "text-[1.125rem] font-medium leading-none tracking-tight tabular-nums m-0",
+          accent ? "text-accent-ink" : "text-foreground",
         )}
       >
         {value}
@@ -107,7 +107,7 @@ export function MiningCashFlowEvidence({
             provenance={BADGE[provenance]}
           />
         )}
-        <p className="p-5 text-[length:var(--ct-text-xs)] leading-relaxed text-[var(--ct-text-muted)] m-0" role="status">
+        <p className="p-5 text-sm leading-relaxed text-muted m-0" role="status">
           {MINING_CASHFLOW_COPY[provenance]}
         </p>
       </>
@@ -137,7 +137,7 @@ export function MiningCashFlowEvidence({
         />
       )}
 
-      <p className="p-5 text-[length:var(--ct-text-xs)] leading-relaxed text-[var(--ct-text-muted)] border-b border-[var(--ct-border-soft)] m-0">
+      <p className="p-5 text-sm leading-relaxed text-muted border-b border-border-subtle m-0">
         {MINING_CASHFLOW_COPY[provenance]}
       </p>
 
@@ -147,19 +147,19 @@ export function MiningCashFlowEvidence({
           value={ratioLabel}
           sublabel="net mining cash ÷ electricity"
           accent
-          className="border-b border-[var(--ct-border-soft)] sm:border-r lg:border-r"
+          className="border-b border-border-subtle sm:border-r lg:border-r"
         />
         <KpiCell
           label="State"
           value={coverage?.state ?? "invalid"}
           sublabel={coverage?.recommendation.action ?? "—"}
-          className="border-b border-[var(--ct-border-soft)] lg:border-r"
+          className="border-b border-border-subtle lg:border-r"
         />
         <KpiCell
           label="Latest revenue period"
           value={coverage?.period ?? "—"}
           sublabel={coverage?.lastUpdated ? "as of attestation" : "awaiting first close"}
-          className="border-b border-[var(--ct-border-soft)] sm:border-r sm:border-b-0 lg:border-r"
+          className="border-b border-border-subtle sm:border-r sm:border-b-0 lg:border-r"
         />
         <KpiCell
           label="Attestation status"

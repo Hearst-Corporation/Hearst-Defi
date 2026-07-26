@@ -7,7 +7,6 @@ import {
   parseFilter,
   type FilterValue,
 } from "@/components/proof/proof-filter-types";
-import { cn } from "@/lib/cn";
 
 const OPTIONS: ReadonlyArray<{ value: FilterValue; label: string }> = [
   { value: "all", label: "All" },
@@ -60,7 +59,7 @@ export function ProofFilter() {
             aria-selected={isActive}
             disabled={isPending}
             onClick={() => select(opt.value)}
-            className={cn("ct-pill", isActive && "accent")}
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold tracking-wide bg-surface-inset border border-border text-foreground aria-selected:text-accent-ink aria-selected:border-accent"
           >
             {opt.label}
           </button>

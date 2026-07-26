@@ -54,11 +54,11 @@ function BentoKpi({
       <span className="ct-bento-label">
         {label}
       </span>
-      <span className="text-[length:var(--ct-text-xl-fixed)] font-medium text-[var(--ct-text-strong)] leading-none tracking-tight tabular-nums">
+      <span className="text-[1.125rem] font-medium text-foreground leading-none tracking-tight tabular-nums">
         {value}
       </span>
       {sublabel ? (
-        <span className="text-[length:var(--ct-text-deci)] text-[var(--ct-text-faint)] tracking-wide mono">
+        <span className="text-2xs text-subtle tracking-wide mono">
           {sublabel}
         </span>
       ) : null}
@@ -69,7 +69,7 @@ function BentoKpi({
 function CustodyStaleNote({ custody }: { custody: CustodySnapshot }) {
   if (custodyProvenance(custody) !== "stale") return null;
   return (
-    <p className="text-[length:var(--ct-text-micro)] leading-relaxed text-(--ct-status-warning)">
+    <p className="text-2xs leading-relaxed text-warning">
       {custody.provenance === "live" && !custody.configured
         ? "Reserve scope is not yet configured by operations — badge shows Stale."
         : "Custody snapshot is unverified or older than 24h — badge shows Stale."}
@@ -85,8 +85,7 @@ function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
   const snapshotTs = custody.asOf === null ? null : formatNestedTimestamp(new Date(custody.asOf));
   return (
     <div className="flex flex-col gap-5">
-      {/* ct-nested-kpi-grid marker retained for proof-center contract tests */}
-      <div className="ct-nested-kpi-grid grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
         <BentoKpi
           label="USDC reserves"
           value={
@@ -112,7 +111,7 @@ function CustodyKpis({ custody }: { custody: CustodySnapshot }) {
 
 function CustodyCard({ custody }: { custody: CustodySnapshot }) {
   return (
-    <div className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col p-5 lg:p-6 gap-5">
+    <div className="rounded-2xl border border-border bg-surface-card shadow-md overflow-hidden flex flex-col p-5 lg:p-6 gap-5">
       <DashboardPanelHeader
         title="Custody (Fireblocks)"
         provenance={custodyProvenance(custody)}
@@ -125,7 +124,7 @@ function CustodyCard({ custody }: { custody: CustodySnapshot }) {
 
 function CustodyBlock({ custody }: { custody: CustodySnapshot }) {
   return (
-    <div className="mt-8 pt-6 border-t border-[var(--ct-border)] flex flex-col gap-5">
+    <div className="mt-8 pt-6 border-t border-border flex flex-col gap-5">
       <DashboardPanelHeader
         title="Custody (Fireblocks)"
         provenance={custodyProvenance(custody)}
@@ -151,7 +150,7 @@ export function CustodySection({
 
   if (nested) {
     return (
-      <div className="mt-8 pt-6 border-t border-[var(--ct-border)]">
+      <div className="mt-8 pt-6 border-t border-border">
         <PanelStatus {...CUSTODY_EMPTY} />
       </div>
     );
