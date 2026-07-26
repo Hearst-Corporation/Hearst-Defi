@@ -1,7 +1,11 @@
 export { ActivityFeed, type ActivityItem } from "./activity-feed";
 export { Badge, ProvenanceBadge } from "./badge";
 export { Button, buttonVariants, type ButtonProps } from "./button";
-export { AreaChartPanel, LineChartPanel } from "./chart";
+// PAS de ré-export des charts ici. `./chart` est "use client" et importe
+// recharts : ré-exporté par ce barrel, il entrait dans le bundle de TOUTES les
+// routes qui font `from "@/ui"` — y compris /forgot-password et /reset-password,
+// qui n'affichent aucun graphique. Les charts s'importent en profond :
+//   import { PerformanceChart } from "@/ui/chart";
 export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./card";
 export { Dialog, DialogBody, DialogFooter, DialogHeader, DialogTitle } from "./dialog";
 export { Drawer, DrawerTitle } from "./drawer";

@@ -1,0 +1,25 @@
+{
+  "chunkCount": 244,
+  "rawBytes": 13310342,
+  "gzBytes": 4115514,
+  "staticBytes": 13448367,
+  "packageChunks": {
+    "recharts": 3,
+    "framer-motion": 1,
+    "sonner": 1
+  },
+  "packageSamples": {
+    "sonner": [
+      "0-6a.2ib-.72w.js"
+    ],
+    "framer-motion": [
+      "03kpk371z50s7.js"
+    ],
+    "recharts": [
+      "0ksigm9ytw51z.js",
+      "0lpo5g3m8zo_n.js",
+      "112fh~_kfwgc-.js"
+    ]
+  },
+  "updatedAt": "2026-07-26T01:10:30.132Z"
+}

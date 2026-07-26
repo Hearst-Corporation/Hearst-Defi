@@ -1,7 +1,8 @@
+import Link from "next/link";
+
 import type { DashboardPageData } from "@/app/(product)/dashboard/_data/dashboard-loader";
 import {
   ActivityFeed,
-  AreaChartPanel,
   Badge,
   Card,
   CardContent,
@@ -74,15 +75,6 @@ export function DashboardView({ data }: { data: DashboardPageData }) {
         ]
       : [];
 
-  const chartData = [
-    { month: "Jan", nav: 1.0 },
-    { month: "Feb", nav: 1.02 },
-    { month: "Mar", nav: 1.04 },
-    { month: "Apr", nav: 1.03 },
-    { month: "May", nav: 1.06 },
-    { month: "Jun", nav: 1.08 },
-  ];
-
   return (
     <div className="hc-page space-y-6">
       <header className="space-y-2">
@@ -144,20 +136,35 @@ export function DashboardView({ data }: { data: DashboardPageData }) {
       </KpiGrid>
 
       <div className="grid gap-6 lg:grid-cols-3">
+        {/*
+          Cette carte affichait une courbe « NAV trajectory » alimentée par six
+          points écrits à la main dans ce fichier. Elle est retirée, et non
+          rebranchée sur la série NAV réelle (InvestorNavSnapshot) : celle-ci est
+          INVESTISSEUR-level tandis que ce dashboard est VAULT-level (backend
+          HTTP). Le cron qui l'écrit le dit lui-même — un AUM de vault « cannot
+          be mapped per-investor without inventing allocation ». La trajectoire
+          de position vit donc sur /portfolio, où la donnée est native.
+        */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>NAV trajectory</CardTitle>
+            <CardTitle>Position value</CardTitle>
             <CardDescription>
-              Indexed performance — full history wiring in progress.
+              Your position is valued hourly and charted on your portfolio — this
+              dashboard reports the vault, not an individual position.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AreaChartPanel
-              data={chartData}
-              xKey="month"
-              yKey="nav"
-              name="NAV index"
-              height={300}
+            <EmptyState
+              title="Charted on your portfolio"
+              description="Hourly value prints are recorded per investor. Open your portfolio to see the trajectory of your own position."
+              action={
+                <Link
+                  href="/portfolio"
+                  className="text-sm font-medium text-accent underline-offset-4 hover:underline"
+                >
+                  Open portfolio
+                </Link>
+              }
             />
           </CardContent>
         </Card>

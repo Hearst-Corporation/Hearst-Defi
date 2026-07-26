@@ -68,7 +68,8 @@
     "electron:start": "pnpm electron:compile && cross-env ELECTRON_RUN_AS_NODE= electron .",
     "electron:test": "pnpm electron:compile && cross-env ELECTRON_RUN_AS_NODE= playwright test --config=playwright.electron.config.ts",
     "electron:build": "pnpm electron:compile && electron-builder --publish never",
-    "electron:publish": "pnpm electron:compile && electron-builder --publish always"
+    "electron:publish": "pnpm electron:compile && electron-builder --publish always",
+    "qa:bundle": "node scripts/perf/qa-bundle-budgets.mjs"
   },
   "build": {
     "appId": "com.hearst.connect.desktop",
