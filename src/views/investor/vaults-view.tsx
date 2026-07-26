@@ -25,7 +25,7 @@ import {
   Row,
   RowList,
   Section,
-} from "@/views/_shared/layout";
+} from "@/views/_shared/product-layout";
 import { Badge, Kpi, KpiGrid, ProvenanceBadge, Timeline } from "@/ui";
 
 export function VaultsView({ data }: { data: VaultPageData }) {

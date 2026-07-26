@@ -8,7 +8,7 @@ import { AUM_PENDING_LABEL } from "@/lib/constants/vault";
 import { abbreviateAddress } from "@/lib/onchain";
 import { formatUsdCompact } from "@/lib/vaults/product-display";
 import { Badge, ProvenanceBadge } from "@/ui";
-import { Panel, Row, RowList } from "@/views/_shared/layout";
+import { Panel, Row, RowList } from "@/views/_shared/product-layout";
 
 export async function VaultChainReadoutPanel({
   dbAumUsdc,

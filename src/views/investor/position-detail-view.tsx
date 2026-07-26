@@ -26,7 +26,7 @@ import {
   Row,
   RowList,
   Section,
-} from "@/views/_shared/layout";
+} from "@/views/_shared/product-layout";
 
 const TX_LABEL: Record<string, string> = {
   deposit: "Deposit",

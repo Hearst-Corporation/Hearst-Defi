@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
 import { formatShareAmount } from "@/lib/chain/wired-view";
 import type { Wired, UserShares, WhitelistStatus } from "@/lib/chain/dynavault";
 import type { NavSeriesKind, PortfolioPosition } from "@/lib/data/portfolio";
@@ -15,7 +14,8 @@ import {
   Row,
   RowList,
   Section,
-} from "@/views/_shared/layout";
+  PRODUCT_FORM_SURFACE,
+} from "@/views/_shared/product-layout";
 import { investProductPath } from "@/lib/vaults/invest-routes";
 import { Badge, EmptyState, Kpi, KpiGrid, ProvenanceBadge } from "@/ui";
 // Deep import on purpose: `@/ui` does NOT re-export the charts, so recharts
@@ -93,7 +93,7 @@ export function PortfolioView({
 
   const valueCard = (
     <Panel title="Position value" description={VALUE_SUBTITLE[valueSeriesKind]}>
-      <div className={FORM_SURFACE}>
+      <div className={PRODUCT_FORM_SURFACE}>
         {/* No formatValue/formatDate passed: functions do not cross the RSC
             boundary. The client component owns its defaults. */}
         <PerformanceChartIsland

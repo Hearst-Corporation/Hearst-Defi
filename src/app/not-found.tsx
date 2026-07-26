@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { getSession } from "@/lib/auth/session";
 import { Button } from "@/ui/button";
-import { PageLayout } from "@/views/_shared/layout";
+import { PageLayout } from "@/views/_shared/product-layout";
 
 export const dynamic = "force-dynamic";
 

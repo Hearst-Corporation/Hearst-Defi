@@ -11,7 +11,7 @@ import {
   Row,
   RowList,
   Section,
-} from "@/views/_shared/layout";
+} from "@/views/_shared/product-layout";
 import { Button } from "@/ui";
 import { Series1ProofEventStepper } from "@/components/proof-center/series1-proof-event-stepper";
 

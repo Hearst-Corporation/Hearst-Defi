@@ -23,7 +23,7 @@ import {
   Row,
   RowList,
   Section,
-} from "@/views/_shared/layout";
+} from "@/views/_shared/product-layout";
 import { Kpi, KpiGrid } from "@/ui";
 
 import { VaultChainReadoutPanel } from "./vault-chain-readout-panel";
