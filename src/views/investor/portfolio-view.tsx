@@ -20,11 +20,15 @@ import { investProductPath } from "@/lib/vaults/invest-routes";
 import { Badge, EmptyState, Kpi, KpiGrid, ProvenanceBadge } from "@/ui";
 // Deep import on purpose: `@/ui` does NOT re-export the charts, so recharts
 // stays out of the bundle of every route that has no plot.
-import {
-  PerformanceChart,
-  type PerformanceChartState,
-  type PerformancePoint,
+import type {
+  PerformanceChartState,
+  PerformancePoint,
 } from "@/ui/chart";
+// Le graphique passe par un ÎLOT en next/dynamic : importé statiquement, il
+// faisait entrer recharts (+ Redux Toolkit, immer, victory-vendor) dans le
+// bundle initial de cette route — mesuré à +123 kB gz. Les types, eux,
+// s'importent en `import type` : effacés au build, ils ne tirent rien.
+import { PerformanceChartIsland } from "@/ui/performance-chart-island";
 
 /**
  * Copy for the value card. Two facts the reader is owed, and neither is
@@ -92,7 +96,7 @@ export function PortfolioView({
       <div className={FORM_SURFACE}>
         {/* No formatValue/formatDate passed: functions do not cross the RSC
             boundary. The client component owns its defaults. */}
-        <PerformanceChart
+        <PerformanceChartIsland
           state={valueState}
           provenance={valueProvenance}
           seriesLabel="Value (USDC)"
