@@ -78,7 +78,6 @@ const GUARDED_FILES = [
   "src/components/ui/provenance-badge.tsx",
   "src/components/admin/kyc-action.tsx",
   "src/components/admin/customer/kyc-status-badge.tsx",
-  "src/components/admin/customer/investor-accent-bar.tsx",
 ];
 
 // ── Scanner ────────────────────────────────────────────────────────────────────

@@ -148,8 +148,6 @@ const CT_CARD_ALLOWLIST = new Set([
   "src/components/catalyst/card.tsx", // the canonical <Card> primitive — owns .ct-card
 ]);
 
-const HUB_MODE_STYLES = "src/components/hub-mode-styles.tsx";
-
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (SKIP_DIR.has(name)) continue;
@@ -186,7 +184,8 @@ function scanBannedClasses(rel, content) {
 }
 
 function scanDirectCtCard(rel, content) {
-  if (CT_CARD_ALLOWLIST.has(rel) || rel === HUB_MODE_STYLES) return;
+  // `hub-mode-styles.tsx` avait ici une exemption : fichier mort, supprimé.
+  if (CT_CARD_ALLOWLIST.has(rel)) return;
 
   const re = /\bct-card\b(?!-)/g;
   let match;

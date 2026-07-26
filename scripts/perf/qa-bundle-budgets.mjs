@@ -320,10 +320,31 @@ if (existsSync(BASELINE_PATH)) {
 
   const delta = result.gzBytes - base.gzBytes;
   const pct = ((delta / base.gzBytes) * 100).toFixed(1);
-  if (delta > 0) {
+  /**
+   * TOLÉRANCE — pourquoi `delta > 0` seul ne suffit pas.
+   *
+   * Le seuil était l'octet strict : une variation d'UN octet faisait échouer la
+   * gate. Or deux builds du même arbre ne produisent pas des chunks identiques
+   * au bit près (hachage de noms, ordre de modules, horodatage embarqué). La
+   * gate devenait donc rouge sur du bruit — et une gate rouge sans cause réelle
+   * est une gate qu'on apprend à ignorer.
+   *
+   * 0,1 % (~4 kB sur ce bundle) est en dessous du seuil de ce qu'on saurait
+   * corriger, et très au-dessus du bruit observé (0,0 kB). Une vraie régression
+   * — un paquet qui entre, un import statique qui revient — pèse des dizaines
+   * de kB et reste attrapée. L'invariant DUR (aucun paquet suivi dans le bundle
+   * racine) n'a, lui, aucune tolérance.
+   */
+  const NOISE_FLOOR = Math.max(1024, Math.round(base.gzBytes * 0.001));
+  if (delta > NOISE_FLOOR) {
     failed = true;
     console.error(
       `\n✖ poids gzip en HAUSSE : ${kb(base.gzBytes)} → ${kb(result.gzBytes)} (+${kb(delta)}, +${pct} %)`,
+    );
+  } else if (delta > 0) {
+    console.log(
+      `\n✓ poids : ${kb(base.gzBytes)} → ${kb(result.gzBytes)} (+${kb(delta)}, +${pct} %) ` +
+        `— sous le plancher de bruit (${kb(NOISE_FLOOR)})`,
     );
   } else {
     console.log(

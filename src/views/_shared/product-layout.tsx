@@ -19,12 +19,9 @@
 // une ligne d'import, pas une ligne de markup. Le rendu, lui, change — c'est
 // l'objet de la demande.
 
-import Link from "next/link";
-
 import { cn } from "@/lib/cn";
 import type { Provenance } from "@/lib/provenance";
 import { ProvenanceBadge } from "@/ui/badge";
-import { Button } from "@/ui/button";
 
 /**
  * Cadre de page produit.
@@ -227,26 +224,10 @@ export function Row({
   );
 }
 
-export function PageActions({
-  primary,
-  secondary,
-}: {
-  primary: { href: string; label: string };
-  secondary?: { href: string; label: string };
-}) {
-  return (
-    <>
-      {secondary ? (
-        <Link href={secondary.href}>
-          <Button variant="secondary">{secondary.label}</Button>
-        </Link>
-      ) : null}
-      <Link href={primary.href}>
-        <Button>{primary.label}</Button>
-      </Link>
-    </>
-  );
-}
+// `PageActions` vit dans `./page-actions` : les deux bridges en avaient une copie
+// IDENTIQUE au caractère près (aucune classe, aucun token). Une copie sans
+// divergence est une dette, pas un découplage.
+export { PageActions } from "./page-actions";
 
 export function Disclaimer({ children }: { children: React.ReactNode }) {
   return <p className="text-xs leading-relaxed text-subtle">{children}</p>;

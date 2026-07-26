@@ -8,8 +8,6 @@
 // réintroduis jamais ici de titre h1 maison, de classe du vocabulaire parallèle
 // retiré le 2026-07-25, ni de token hors --ct-*.
 
-import Link from "next/link";
-
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   AdminPageFrame,
@@ -18,7 +16,6 @@ import {
 import { cn } from "@/lib/cn";
 import type { Provenance } from "@/lib/provenance";
 import { ProvenanceBadge } from "@/ui/badge";
-import { Button } from "@/ui/button";
 
 /**
  * Boîte de page canon — DÉLÈGUE à AdminPageFrame (admin-page-shell.tsx),
@@ -203,26 +200,10 @@ export function Row({
   );
 }
 
-export function PageActions({
-  primary,
-  secondary,
-}: {
-  primary: { href: string; label: string };
-  secondary?: { href: string; label: string };
-}) {
-  return (
-    <>
-      {secondary ? (
-        <Link href={secondary.href}>
-          <Button variant="secondary">{secondary.label}</Button>
-        </Link>
-      ) : null}
-      <Link href={primary.href}>
-        <Button>{primary.label}</Button>
-      </Link>
-    </>
-  );
-}
+// `PageActions` vit dans `./page-actions` : les deux bridges en avaient une copie
+// IDENTIQUE au caractère près (aucune classe, aucun token). Une copie sans
+// divergence est une dette, pas un découplage.
+export { PageActions } from "./page-actions";
 
 export function Disclaimer({ children }: { children: React.ReactNode }) {
   return (

@@ -33,8 +33,6 @@ const WARN_ONLY = process.argv.includes("--warn");
 const UI_DIR = resolve(SRC, "components/ui");
 const UI_ALLOWED = new Set([
   "provenance-badge.tsx",
-  "toaster.tsx",
-  "client-toaster.tsx",
   "README.md",
   // shadcn/Recharts chart primitives, fully tokenised to --ct-* (no hardcoded
   // colours). These are the Recharts wrapper infrastructure for the
@@ -101,7 +99,7 @@ for (const name of readdirSync(UI_DIR)) {
       lineNo: 0,
       text: name,
       reason:
-        "New file in src/components/ui/ — Catalyst is the single UI source. Only the 3 non-visual helpers (provenance-badge, toaster, client-toaster) may live here.",
+        "New file in src/components/ui/ — Catalyst is the single UI source. Only provenance-badge (non-visual helper) may live here; toaster/client-toaster were removed as dead duplicates of @/ui/toast.",
       fix: "Move the component to src/components/catalyst/ and import from there.",
     });
   }
