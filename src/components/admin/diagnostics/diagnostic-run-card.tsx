@@ -33,7 +33,19 @@ export function DiagnosticRunCard({
   const s = result?.summary;
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={active}
       onClick={onSelect}
+      // La carte porte un <button> « Run suite » : elle ne peut pas être un
+      // <button> natif (imbrication invalide). role+tabIndex+clavier donnent
+      // l'équivalent accessible — Espace/Entrée sélectionnent la suite.
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
       className={`flex cursor-pointer flex-col rounded-xl border bg-surface-card p-4 transition-colors ${
         active
           ? "border-[var(--ct-accent)]"

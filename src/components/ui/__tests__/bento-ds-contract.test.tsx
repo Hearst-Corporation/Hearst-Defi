@@ -23,33 +23,33 @@ const MONITORING_SRC = readFileSync(
 );
 
 describe("bento DS contract", () => {
-  it("BentoPanel uses ct-glass-panel, not bg-black in classNames", () => {
-    expect(BENTO_SRC).toContain("ct-glass-panel");
+  it("BentoPanel uses the hc-surface recipe, not bg-black in classNames", () => {
+    expect(BENTO_SRC).toContain("hc-surface");
     expect(BENTO_SRC).not.toMatch(/className=.*bg-black/);
   });
 
-  it("BentoPageShell uses ct-bento-page token shell", () => {
-    expect(BENTO_SRC).toContain("ct-bento-page");
+  it("BentoPageShell uses hc-page token shell", () => {
+    expect(BENTO_SRC).toContain("hc-page");
     expect(BENTO_SRC).not.toContain("bg-zinc-900");
   });
 
-  it("BentoPanel render exposes ct-glass-panel class", () => {
+  it("BentoPanel render exposes hc-surface class", () => {
     const html = renderToStaticMarkup(
       <BentoPanel>
         <span>child</span>
       </BentoPanel>,
     );
-    expect(html).toContain("ct-glass-panel");
+    expect(html).toContain("hc-surface");
     expect(html).not.toContain("bg-black");
   });
 
-  it("BentoPageShell render exposes ct-bento-page class", () => {
+  it("BentoPageShell render exposes hc-page class", () => {
     const html = renderToStaticMarkup(
       <BentoPageShell testId="shell">
         <span>child</span>
       </BentoPageShell>,
     );
-    expect(html).toContain("ct-bento-page");
+    expect(html).toContain("hc-page");
     expect(html).not.toContain("bg-zinc-900");
   });
 });

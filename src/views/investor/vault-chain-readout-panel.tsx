@@ -43,13 +43,7 @@ export async function VaultChainReadoutPanel({
         />
         <Row
           label="TVL (on-chain)"
-          value={
-            tvl.status === "wired"
-              ? formatUsdcAmount(tvl.data)
-              : core.status === "unavailable"
-                ? "—"
-                : "—"
-          }
+          value={tvl.status === "wired" ? formatUsdcAmount(tvl.data) : "—"}
         />
         <Row
           label="NAV / share"
