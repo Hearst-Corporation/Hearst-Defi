@@ -1,9 +1,11 @@
 import Link from "next/link";
 
+import { FORM_SURFACE } from "@/components/admin/admin-page-shell";
 import { formatShareAmount } from "@/lib/chain/wired-view";
 import type { Wired, UserShares, WhitelistStatus } from "@/lib/chain/dynavault";
-import type { PortfolioPosition } from "@/lib/data/portfolio";
+import type { NavSeriesKind, PortfolioPosition } from "@/lib/data/portfolio";
 import type { VaultMode } from "@/lib/chain/vault-mode";
+import type { Provenance } from "@/lib/provenance";
 import { formatUsdcGrouped } from "@/lib/vaults/product-display";
 import {
   PageActions,
@@ -16,6 +18,32 @@ import {
 } from "@/views/_shared/layout";
 import { investProductPath } from "@/lib/vaults/invest-routes";
 import { Badge, EmptyState, Kpi, KpiGrid, ProvenanceBadge } from "@/ui";
+// Deep import on purpose: `@/ui` does NOT re-export the charts, so recharts
+// stays out of the bundle of every route that has no plot.
+import {
+  PerformanceChart,
+  type PerformanceChartState,
+  type PerformancePoint,
+} from "@/ui/chart";
+
+/**
+ * Copy for the value card. Two facts the reader is owed, and neither is
+ * decoration:
+ *   - the CADENCE (hourly) — the newest point can be up to an hour old, so the
+ *     curve is never "real-time";
+ *   - the ORIGIN — a reconstructed path says so, in its subtitle AND in its
+ *     provenance badge ("Estimated"), never quietly.
+ */
+const VALUE_SUBTITLE: Record<NavSeriesKind, string> = {
+  measured:
+    "Recorded value of your position, one point per hour in USDC. The newest point can be up to an hour old.",
+  reconstructed:
+    "Reconstructed from your real position anchors — hourly value prints do not cover this period yet. Endpoints are real, the path between them is modelled.",
+  none: "Value points are recorded hourly in USDC once a position is active.",
+};
+
+const VALUE_EMPTY_MESSAGE =
+  "No value points recorded yet — the hourly job writes one point per hour once a position is active.";
 
 export function PortfolioView({
   modeLabel,
@@ -24,6 +52,10 @@ export function PortfolioView({
   whitelist,
   positions,
   principalUsdc,
+  valuePoints,
+  valueProvenance,
+  valueSeriesKind,
+  valueSourceReachable,
 }: {
   mode: VaultMode;
   modeLabel: string;
@@ -32,7 +64,52 @@ export function PortfolioView({
   whitelist: Wired<WhitelistStatus>;
   positions: PortfolioPosition[];
   principalUsdc: number;
+  /** Hourly value series, epoch-ms timestamps (RSC-serialisable). */
+  valuePoints: PerformancePoint[];
+  /** Provenance of `valuePoints` — derived at the loader, never chosen here. */
+  valueProvenance: Provenance;
+  /** Measured prints vs deterministic reconstruction vs nothing. */
+  valueSeriesKind: NavSeriesKind;
+  /**
+   * false when the portfolio loader fell back (no investor record for this
+   * session) — the series was never read, which is NOT "the series is empty".
+   */
+  valueSourceReachable: boolean;
 }) {
+  // empty ≠ unavailable: an unreachable source cannot claim "no points".
+  const valueState: PerformanceChartState = !valueSourceReachable
+    ? {
+        kind: "unavailable",
+        reason:
+          "no investor record is linked to this session, so no value history could be read.",
+      }
+    : valuePoints.length === 0
+      ? { kind: "empty", message: VALUE_EMPTY_MESSAGE }
+      : { kind: "ready", points: valuePoints };
+
+  const valueCard = (
+    <Panel title="Position value" description={VALUE_SUBTITLE[valueSeriesKind]}>
+      <div className={FORM_SURFACE}>
+        {/* No formatValue/formatDate passed: functions do not cross the RSC
+            boundary. The client component owns its defaults. */}
+        <PerformanceChart
+          state={valueState}
+          provenance={valueProvenance}
+          seriesLabel="Value (USDC)"
+          ariaLabel="Position value over time, in USDC, from hourly value points"
+          // The caveat travels WITH the plot, not only in the card subtitle:
+          // the chart is portable, the card chrome is not.
+          footnote={
+            valueSeriesKind === "reconstructed"
+              ? "Modelled path between real position anchors — not an hourly measurement."
+              : undefined
+          }
+        />
+      </div>
+    </Panel>
+  );
+
+
   if (!wallet) {
     return (
       <PageLayout>
@@ -50,6 +127,10 @@ export function PortfolioView({
             </Link>
           }
         />
+        {/* The value series is investor-level (database), not wallet-level:
+            it is real and readable even before a wallet is linked, so hiding
+            it here would understate what we actually hold. */}
+        {valueCard}
       </PageLayout>
     );
   }
@@ -119,6 +200,8 @@ export function PortfolioView({
           </div>
         </Panel>
       </KpiGrid>
+
+      {valueCard}
 
       <Section title="Positions">
         <Panel>

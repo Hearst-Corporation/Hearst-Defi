@@ -9,11 +9,13 @@ import {
   type YieldHistory,
   type YieldTxn,
 } from "@/lib/portfolio/yield-history";
+import type { Provenance } from "@/lib/provenance";
 
 import {
   loadInvestorDistributions,
   loadPortfolio,
   loadPosition,
+  type NavSeriesKind,
   type PortfolioPosition,
 } from "./portfolio";
 
@@ -29,6 +31,35 @@ import {
  * Honesty rules baked in: APY is always a LOW→HIGH range (never a point);
  * projected yield is a range, realized yield is what was actually paid.
  */
+
+/**
+ * Provenance of the value series, derived from its origin — never chosen by a
+ * renderer.
+ *
+ *   - measured      → "attested"  : real persisted prints, verifiable row by
+ *                                   row against InvestorNavSnapshot.
+ *   - reconstructed → "estimated" : deterministic path derived from real
+ *                                   position anchors. Real endpoints, modelled
+ *                                   middle — an estimate, and it says so.
+ *   - none          → "stale"     : no series yet. NOT an error and NOT a
+ *                                   measurement of nil; the hourly job simply
+ *                                   has not printed for this investor yet
+ *                                   ("Data awaiting update from source").
+ *
+ * `"live"` is unreachable on purpose: even measured prints are hourly, so the
+ * newest point can be up to an hour old — calling that real-time would be the
+ * exact overclaim this discriminant exists to prevent.
+ */
+export function navSeriesProvenance(kind: NavSeriesKind): Provenance {
+  switch (kind) {
+    case "measured":
+      return "attested";
+    case "reconstructed":
+      return "estimated";
+    case "none":
+      return "stale";
+  }
+}
 
 export interface PortfolioDistribution {
   id: string;
@@ -76,6 +107,10 @@ export interface PortfolioDashboard {
   status: PortfolioPosition["status"] | null;
   /** Value-over-time series (real NAV prints or reconstructed anchors). */
   navPoints: ChartValuePoint[];
+  /** Which of the two the points above actually are. See {@link NavSeriesKind}. */
+  navSeriesKind: NavSeriesKind;
+  /** Badge-ready provenance of `navPoints` — {@link navSeriesProvenance}. */
+  navProvenance: Provenance;
   /** Monthly realized + projected-range yield series (null when no position). */
   yieldHistory: YieldHistory | null;
   /** Real distribution payouts, newest first. */
@@ -134,6 +169,8 @@ export const loadPortfolioDashboard = cache(
         nextDistributionAt: portfolio.nextDistributionAt,
         status: null,
         navPoints: [],
+        navSeriesKind: portfolio.navSeriesKind,
+        navProvenance: navSeriesProvenance(portfolio.navSeriesKind),
         yieldHistory: null,
         distributions: [],
         positions: [],
@@ -204,6 +241,10 @@ export const loadPortfolioDashboard = cache(
       at: s.at,
       value: s.valueUsdc,
     }));
+    // The points and their provenance leave this module TOGETHER. Mapping the
+    // series without carrying `navSeriesKind` is what made a reconstruction
+    // indistinguishable from a measurement in the first place.
+    const navProvenance = navSeriesProvenance(portfolio.navSeriesKind);
 
     // Yield history reconciled with the header: ALL investor-wide distribution
     // transactions (not just the anchor position's), and the TOTAL deposited
@@ -260,6 +301,8 @@ export const loadPortfolioDashboard = cache(
       nextDistributionAt: portfolio.nextDistributionAt,
       status: anchorPosition?.status ?? null,
       navPoints,
+      navSeriesKind: portfolio.navSeriesKind,
+      navProvenance,
       yieldHistory,
       distributions,
       positions,

@@ -115,6 +115,25 @@ export interface PortfolioTransaction {
   positionVaultName?: string;
 }
 
+/**
+ * Where `PortfolioData.hourlyValueSnapshots` actually comes from.
+ *
+ * WHY THIS EXISTS: the loader picks between two series that have the same
+ * SHAPE but not the same TRUTH — real persisted prints from the hourly cron,
+ * and a deterministic reconstruction from position anchors
+ * (`reconstructInvestorNavSeries`, whose own docstring says the result is
+ * "never live"). Until this discriminant existed both arrived under the same
+ * field name and a renderer had no way to tell them apart — so a DERIVED curve
+ * could be badged "Live". A derived series must never be presented as a
+ * measurement: it carries `estimated`, the measured one carries `attested`
+ * (mapping in portfolio-dashboard.ts).
+ *
+ *   - "measured"      : real InvestorNavSnapshot prints (cron `computed` rows).
+ *   - "reconstructed" : straight-line path derived from real position anchors.
+ *   - "none"          : no series at all — nothing to plot, nothing to badge.
+ */
+export type NavSeriesKind = "measured" | "reconstructed" | "none";
+
 export interface PortfolioData {
   positions: PortfolioPosition[];
   totalValueUsdc: number;
@@ -150,6 +169,12 @@ export interface PortfolioData {
    * Empty when no prints exist yet — chart falls back to ledger_sparse.
    */
   hourlyValueSnapshots: HourlyValueSnapshot[];
+  /**
+   * Provenance of `hourlyValueSnapshots` — measured prints vs deterministic
+   * reconstruction vs nothing. Travels WITH the series so no consumer can
+   * badge a derived curve as live. See {@link NavSeriesKind}.
+   */
+  navSeriesKind: NavSeriesKind;
   /** Aggregate P&L across positions. Optional — consumers render when present. */
   pnl?: LpPnl;
   /** "live" = real DB data, "fallback" = unauthenticated / empty state */
@@ -298,6 +323,9 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
       recentTransactions: [],
       valueChartTransactions: [],
       hourlyValueSnapshots: [],
+      // No investor row ⇒ no series was even attempted. "none", never a kind
+      // that would let a consumer label an absent curve.
+      navSeriesKind: "none",
       source: "fallback",
     };
   }
@@ -352,10 +380,21 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
   // value path deterministically from the real position anchors instead. Zero
   // accounts reconstruct to [] (stay empty).
   const distinctValues = new Set(navSnapshots.map((s) => s.valueUsdc)).size;
-  const valueSeries =
-    distinctValues >= 2
-      ? navSnapshots
-      : await reconstructInvestorNavSeries(investor.id, chartStart);
+  const seriesIsMeasured = distinctValues >= 2;
+  const valueSeries = seriesIsMeasured
+    ? navSnapshots
+    : await reconstructInvestorNavSeries(investor.id, chartStart);
+  // THE choice point above is the ONLY place that knows which of the two
+  // series won. Label it here, next to the branch, or the information is lost
+  // forever: downstream both are `HourlyValueSnapshot[]` and indistinguishable.
+  // An empty reconstruction is "none" (zero account) — not an "estimated"
+  // series with no points, which would badge provenance onto nothing.
+  const navSeriesKind: NavSeriesKind =
+    valueSeries.length === 0
+      ? "none"
+      : seriesIsMeasured
+        ? "measured"
+        : "reconstructed";
 
   const positions: PortfolioPosition[] = rawPositions.map((p) => {
     const principal = toNumber(p.principalUsdc);
@@ -448,6 +487,7 @@ export const loadPortfolio = cache(async (): Promise<PortfolioData> => {
     recentTransactions,
     valueChartTransactions,
     hourlyValueSnapshots: valueSeries,
+    navSeriesKind,
     pnl,
     source: "live",
     // Snapshot freshness when available; otherwise positions were just read live.
