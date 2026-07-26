@@ -15,14 +15,17 @@
  * sur disque : c'est déterministe, sans navigateur, sans serveur, donc sans la
  * variance qui rend un Lighthouse CI inutilisable comme gate.
  *
- * CE QU'IL PROTÈGE
- * Deux mesures, toutes deux en ratchet descendant :
- *   1. le poids gzip cumulé des chunks clients ;
- *   2. le NOMBRE DE CHUNKS qui embarquent un paquet lourd (`recharts`,
- *      `framer-motion`). C'est la métrique juste : après colmatage, Recharts
- *      reste légitimement dans SON chunk lazy — ce qui doit baisser, c'est le
- *      nombre de chunks qui le traînent sans l'utiliser. Un paquet qui tombe à
- *      0 chunk (framer-motion, retiré) devient un invariant dur.
+ * CE QU'IL PROTÈGE — et ce qu'il ne prétend pas protéger
+ * Le RATCHET porte sur une seule métrique fiable : le poids gzip cumulé des
+ * chunks clients. C'est déterministe et ça ne se laisse pas berner.
+ *
+ * Le compte de chunks par paquet est INFORMATIF, pas un gate — sauf quand un
+ * `maxChunks` explicite est déclaré. Raison mesurée : passer un module en
+ * `next/dynamic` fait MONTER son nombre de chunks (le splitting l'éclate) alors
+ * même qu'on vient de le sortir du First Load. Un compte en hausse peut donc
+ * signifier une amélioration ; en faire un gate produirait des faux rouges.
+ * `maxChunks: 0` reste légitime pour un paquet censé avoir DISPARU du repo :
+ * là, zéro veut dire zéro.
  *
  * CE QU'IL NE MESURE PAS — à dire, pour ne pas surinterpréter
  * Pas le First Load JS par route : `next build` sous Turbopack ne l'imprime
@@ -220,15 +223,14 @@ if (existsSync(BASELINE_PATH)) {
     );
   }
 
+  // Informatif — voir l'en-tête : un compte en hausse peut signaler un
+  // `next/dynamic` qui vient de sortir le paquet du First Load. Seul un
+  // `maxChunks` explicite fait échouer (traité plus haut).
   for (const [id, n] of Object.entries(result.packageChunks)) {
     const was = base.packageChunks?.[id];
     if (was === undefined) continue;
-    if (n > was) {
-      failed = true;
-      console.error(`✖ ${id} : ${was} → ${n} chunk(s) — en hausse`);
-    } else {
-      console.log(`✓ ${id} : ${was} → ${n} chunk(s)`);
-    }
+    const arrow = n === was ? "=" : n < was ? "↓" : "↑";
+    console.log(`  ${id.padEnd(14)} ${was} → ${n} chunk(s) ${arrow}`);
   }
 } else {
   console.log("\n(pas de baseline — lance --write pour la poser)");
