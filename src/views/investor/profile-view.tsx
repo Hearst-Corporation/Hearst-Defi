@@ -78,7 +78,7 @@ export function ProfileView({
             <p className="text-sm text-muted">
               We couldn&apos;t reach the data. {data.detail}
             </p>
-            <p className="ct-metric-caption mt-2">
+            <p className="hc-caption mt-2">
               This is a read failure on our side — it says nothing about the
               state of your account.
             </p>

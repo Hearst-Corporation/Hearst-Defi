@@ -52,7 +52,7 @@ export function DetailsList({
           <div className="min-w-0">
             <dt className="text-sm text-muted">{item.label}</dt>
             {item.hint ? (
-              <dd className="ct-metric-caption m-0 mt-0.5">{item.hint}</dd>
+              <dd className="hc-caption m-0 mt-0.5">{item.hint}</dd>
             ) : null}
           </div>
           <dd

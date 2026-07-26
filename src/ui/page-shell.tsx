@@ -49,7 +49,7 @@ export function PageTitle({
         {eyebrow ? <p className="hc-eyebrow">{eyebrow}</p> : null}
         <h1 className="h1">{title}</h1>
         {description ? (
-          <p className="body-md ct-prose-md mt-1">{description}</p>
+          <p className="hc-prose mt-1">{description}</p>
         ) : null}
       </div>
       {actions ? (
@@ -85,7 +85,7 @@ export function PageSection({
         <div className="min-w-0">
           <h2 className="h2">{title}</h2>
           {description ? (
-            <p className="ct-metric-caption mt-0.5">{description}</p>
+            <p className="hc-caption mt-0.5">{description}</p>
           ) : null}
         </div>
         {actions ? (

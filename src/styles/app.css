@@ -86,8 +86,24 @@
     @apply border-t border-border-subtle;
   }
 
+  /* `text-accent-ink` et NON `text-accent` : un lien est du TEXTE. Le vert de
+     remplissage (#a7fb90) plafonne à ~1,2:1 sur une surface claire — le lien
+     canonique du produit était donc illisible dès que le thème clair s'allumait. */
   .hc-link {
-    @apply text-accent underline-offset-4 transition-colors hover:text-accent-hover hover:underline;
+    @apply text-accent-ink underline-offset-4 transition-colors hover:text-accent-hover hover:underline;
+  }
+
+  /* Prose de description : la largeur de lecture est un choix typographique,
+     pas une décoration — 65ch est la limite au-delà de laquelle l'œil perd sa
+     ligne au retour chariot. Remplace `.ct-prose-md` côté greenfield. */
+  .hc-prose {
+    @apply max-w-[65ch] text-sm leading-relaxed text-muted;
+  }
+
+  /* Sous-ligne descriptive sous un titre ou une valeur.
+     Remplace `.ct-metric-caption` côté greenfield. */
+  .hc-caption {
+    @apply text-xs leading-normal tracking-[0.04em] text-muted;
   }
 
   .hc-sr-only {

@@ -95,7 +95,7 @@ export function StatusValue({
       />
       <span className={cn("font-medium", TONE[kind])}>{text}</span>
       {kind === "unavailable" && reason ? (
-        <span className="ct-metric-caption">— {reason}</span>
+        <span className="hc-caption">— {reason}</span>
       ) : null}
     </span>
   );
