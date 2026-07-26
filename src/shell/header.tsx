@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { isAdminRoute } from "@/shell/nav";
+import { ThemeToggle } from "@/shell/theme-toggle";
 import { Button } from "@/ui/button";
 
 export function Header({
@@ -32,6 +33,8 @@ export function Header({
       </div>
 
       <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <div className="h-4 w-px bg-border" aria-hidden />
         {isAdmin ? (
           <Link
             href="/dashboard"

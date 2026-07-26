@@ -25,8 +25,11 @@ inventory. »). Vocabulaire interdit : `yield`, `APY`, `coupon`, `distribution`.
 
 ## Design system
 
-- Canon : `src/components/catalyst/` + tokens greenfield `--color-*` (`src/styles/theme.css`) + rôles typo (`src/styles/typography.css`). `--ct-*` = compat RATCHET DESCENDANT (`src/styles/legacy-bridge.css`) — aucun nouvel usage, chaque shim porte sa cible de migration. `src/app/cockpit.css` + `globals.css` = archives Storybook, JAMAIS rechargées au runtime. `src/components/ui/` = legacy shims.
-- **Un seul accent : vert `#A7FB90`. Un seul vert, zéro rouge.** Absent/négatif = gris. Aucune classe `dark:` (dark-only).
+- Canon : `src/components/catalyst/` + **valeurs dans `src/styles/palette.css` (`--hc-*`, SEUL fichier portant un hex)**, exposées à Tailwind par `@theme inline` dans `src/styles/theme.css` (`--color-*`) + rôles typo (`src/styles/typography.css`). `--ct-*` = compat RATCHET DESCENDANT (`src/styles/legacy-bridge.css`) — aucun nouvel usage, chaque shim porte sa cible de migration. `src/app/cockpit.css` + `globals.css` = archives Storybook, JAMAIS rechargées au runtime. `src/components/ui/` = legacy shims.
+- **Un seul accent : vert `#A7FB90`. Un seul vert, zéro rouge.** Absent/négatif = gris. Une seule teinte verte (107°), **deux luminances** : `--hc-green-50` (#A7FB90 — remplissages et texte sur sombre) et `--hc-green-700` (#2B6220 — encre sur fond clair ; #A7FB90 sur blanc plafonne à 1,25:1). Ce n'est pas un second vert, c'est la même teinte ramenée au seuil AA.
+- **Thème DUAL, piloté par attribut** : `[data-theme="dark"|"light"]` sur `<html>`, posé avant la première peinture par `src/shell/ui-prefs.ts`, persisté en cookie `hc-theme`. Défaut sans cookie = sombre.
+- **Aucune classe `dark:` — la règle est MAINTENUE et DURCIE** (elle change de raison). Un composant n'écrit jamais une couleur ni une variante de thème : il écrit un rôle (`bg-surface-card`, `text-muted`, `border-border`). Le basculement est porté par les tokens, jamais par un modificateur dupliqué ni par une classe `dark` figée. Gardé par `src/lib/ds/__tests__/no-dark-class.test.ts` (allowlist vide).
+- **Contrat de contraste** : les 3 rangs de texte (`foreground`/`muted`/`subtle`) atteignent AA (≥ 4,5:1) sur les 6 surfaces × 2 thèmes ; `--color-faint` est **NON-TEXTUEL** (filets, points, désactivé — ≥ 3:1), jamais pour du texte. Calculé et vérifié par `src/lib/ds/__tests__/theme-contrast-contract.test.ts` (CI).
 - **Charts : Recharts uniquement** (`catalyst/chart*`), gardé par `pnpm ds:guard:chart-engine`. HIS/Chart.js retirés — ne jamais réintroduire.
 - Storybook : `pnpm storybook` (port 6106) — référence exécutable ; a11y bloquante via test-storybook.
 - **Typo admin (règle)** : H1 = `AdminPageHeader` UNIQUEMENT (gardien CI bloque tout `<h1` manuel) ·
