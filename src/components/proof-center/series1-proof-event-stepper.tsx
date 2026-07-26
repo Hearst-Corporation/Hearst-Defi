@@ -29,7 +29,7 @@ function NetworkBadge({ networkKind, label }: { networkKind: Series1ProofNetwork
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-[0.06em] uppercase",
+        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[length:var(--ct-text-deci)] font-semibold tracking-[0.06em] uppercase",
         networkKind === "network_mismatch"
           ? "text-(--ct-status-warning) ring-1 ring-(--ct-status-warning)"
           : "text-(--ct-text-muted) ring-1 ring-(--ct-border-soft)",
@@ -52,7 +52,7 @@ function shortAddress(address: string): string {
 
 export function Series1ProofEventDetail({ event }: { event: Series1ProofEventNodeModel }) {
   return (
-    <dl className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3 text-[11px] leading-5 sm:grid-cols-3">
+    <dl className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3 text-[length:var(--ct-text-micro)] leading-5 sm:grid-cols-3">
       <div>
         <dt className="text-(--ct-text-faint) uppercase tracking-[0.08em]">Block</dt>
         <dd className="mono tabular text-(--ct-text-body)">{event.blockNumber}</dd>
@@ -137,9 +137,9 @@ export function Series1ProofEventNode({
       <div className="min-w-0 flex-1 pt-0.5">
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-sm font-semibold text-(--ct-text-strong)">{event.displayLabel}</p>
-          <span className="mono text-[10px] text-(--ct-text-faint)">{event.eventName}</span>
+          <span className="mono text-[length:var(--ct-text-deci)] text-(--ct-text-faint)">{event.eventName}</span>
           {!event.isKnownEventType ? (
-            <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-(--ct-text-muted) uppercase ring-1 ring-(--ct-border-soft)">
+            <span className="rounded-full px-2 py-0.5 text-[length:var(--ct-text-deci)] font-semibold text-(--ct-text-muted) uppercase ring-1 ring-(--ct-border-soft)">
               Uncatalogued type
             </span>
           ) : null}
