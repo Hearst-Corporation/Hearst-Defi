@@ -194,7 +194,7 @@ export async function AdminDistributionsView({
                         {vaultHref && label ? (
                           <Link
                             href={vaultHref}
-                            className="text-accent hover:underline"
+                            className="text-accent-ink hover:underline"
                           >
                             {label}
                           </Link>

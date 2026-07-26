@@ -63,8 +63,8 @@ export interface KpiProps {
  * qui les distingue est le glyphe, jamais la teinte. C'est aussi la bonne
  * pratique d'accessibilité : la direction n'est pas portée par la couleur. */
 function deltaTone(trend: KpiTrend | undefined, positive: boolean | undefined) {
-  if (trend) return trend === "up" ? "text-accent" : "text-muted";
-  return positive ? "text-accent" : "text-muted";
+  if (trend) return trend === "up" ? "text-accent-ink" : "text-muted";
+  return positive ? "text-accent-ink" : "text-muted";
 }
 
 const TREND_GLYPH: Record<KpiTrend, string> = {

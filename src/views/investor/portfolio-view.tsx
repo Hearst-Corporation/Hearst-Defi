@@ -126,7 +126,7 @@ export function PortfolioView({
           title="No wallet linked"
           description="Link a wallet in Profile to see your on-chain position."
           action={
-            <Link href="/profile" className="text-sm text-accent hover:underline">
+            <Link href="/profile" className="text-sm text-accent-ink hover:underline">
               Go to Profile
             </Link>
           }

@@ -18,23 +18,23 @@ export default function LegalLayout({
       <header className="mb-8 flex flex-wrap items-baseline justify-between gap-4 border-b border-border-subtle pb-6">
         <Link
           href="/"
-          className="text-lg font-semibold tracking-tight text-foreground hover:text-accent"
+          className="text-lg font-semibold tracking-tight text-foreground hover:text-accent-ink"
         >
           Hearst Connect
         </Link>
         <nav className="flex gap-5 text-sm" aria-label="Legal documents">
-          <Link href="/legal/privacy" className="text-muted hover:text-accent">
+          <Link href="/legal/privacy" className="text-muted hover:text-accent-ink">
             Privacy
           </Link>
-          <Link href="/legal/terms" className="text-muted hover:text-accent">
+          <Link href="/legal/terms" className="text-muted hover:text-accent-ink">
             Terms
           </Link>
-          <Link href="/legal/disclaimer" className="text-muted hover:text-accent">
+          <Link href="/legal/disclaimer" className="text-muted hover:text-accent-ink">
             Disclaimer
           </Link>
         </nav>
       </header>
-      <article className="prose prose-invert max-w-none text-sm leading-relaxed text-muted [&_h1]:text-2xl [&_h1]:font-semibold [&_h1]:text-foreground [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:text-accent [&_a]:text-accent">
+      <article className="prose prose-invert max-w-none text-sm leading-relaxed text-muted [&_h1]:text-2xl [&_h1]:font-semibold [&_h1]:text-foreground [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:text-accent-ink [&_a]:text-accent-ink">
         {children}
       </article>
     </div>

@@ -66,7 +66,7 @@ export function AdminCustomerDetailView({
       />
 
       <p className="-mt-4 text-sm">
-        <Link href="/admin/customers" className="text-accent hover:underline">
+        <Link href="/admin/customers" className="text-accent-ink hover:underline">
           ← Investors
         </Link>
       </p>
@@ -179,7 +179,7 @@ export function AdminCustomerDetailView({
               <Row
                 label="Segments"
                 value={
-                  <span className="text-accent">
+                  <span className="text-accent-ink">
                     {persona.segments.join(", ") || "—"}
                   </span>
                 }
@@ -202,7 +202,7 @@ export function AdminCustomerDetailView({
                 <Row
                   label="Preset"
                   value={
-                    <span className="text-accent">{applied.template.label}</span>
+                    <span className="text-accent-ink">{applied.template.label}</span>
                   }
                 />
               ) : null}

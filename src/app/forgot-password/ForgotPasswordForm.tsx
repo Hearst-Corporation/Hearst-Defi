@@ -47,7 +47,7 @@ export function ForgotPasswordForm() {
       ) : null}
 
       {message ? (
-        <p className="text-xs text-accent" role="status">
+        <p className="text-xs text-accent-ink" role="status">
           {message}
         </p>
       ) : null}
@@ -62,7 +62,7 @@ export function ForgotPasswordForm() {
       </Button>
 
       <p className="text-center text-xs text-muted">
-        <Link href="/login" className="text-accent hover:underline">
+        <Link href="/login" className="text-accent-ink hover:underline">
           Back to sign in
         </Link>
       </p>

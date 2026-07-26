@@ -203,7 +203,7 @@ export function VaultDetailView({ vault, backend }: VaultDetailData) {
               <Row
                 label="Proof status"
                 value={
-                  <Link href="/proof-center" className="text-accent hover:underline">
+                  <Link href="/proof-center" className="text-accent-ink hover:underline">
                     Proof Center
                   </Link>
                 }

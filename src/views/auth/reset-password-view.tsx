@@ -31,7 +31,7 @@ export function ResetPasswordView({ token }: { token?: string }) {
         used once.
       </p>
       <p className="text-center text-xs text-muted">
-        <Link href="/login" className="text-accent hover:underline">
+        <Link href="/login" className="text-accent-ink hover:underline">
           Back to sign in
         </Link>
       </p>

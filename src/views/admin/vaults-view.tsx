@@ -175,7 +175,7 @@ export async function AdminVaultsView({
               title="No deployments found"
               description="Vault deployments will appear here once created."
               action={
-                <Link href="/admin/vaults/new" className="text-sm text-accent hover:underline">
+                <Link href="/admin/vaults/new" className="text-sm text-accent-ink hover:underline">
                   Create the first one
                 </Link>
               }

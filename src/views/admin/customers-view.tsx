@@ -112,7 +112,7 @@ export async function AdminCustomersView({ page = 1 }: { page?: number }) {
                     <TableCell>
                       <Link
                         href={`/admin/customers/${inv.id}`}
-                        className="text-xs text-accent hover:underline"
+                        className="text-xs text-accent-ink hover:underline"
                       >
                         Open
                       </Link>

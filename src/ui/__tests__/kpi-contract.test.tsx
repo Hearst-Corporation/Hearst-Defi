@@ -47,9 +47,9 @@ const GOLDEN_MINIMAL =
 const GOLDEN_FULL =
   '<div class="flex flex-col gap-1">' +
   '<div class="flex items-center gap-2"><span class="hc-metric-label">Total value locked</span>' +
-  '<span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium bg-accent-muted text-accent">Live</span></div>' +
+  '<span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium bg-accent-muted text-accent-ink">Live</span></div>' +
   '<div class="flex items-baseline gap-2"><span class="hc-metric-value">$1,234</span>' +
-  '<span class="text-xs font-medium tabular-nums text-accent">+2.4%</span></div>' +
+  '<span class="text-xs font-medium tabular-nums text-accent-ink">+2.4%</span></div>' +
   '<p class="text-xs text-subtle">On-chain vault assets</p>' +
   "</div>";
 
@@ -389,7 +389,7 @@ describe("trend — la direction neutre que le booléen ne savait pas dire", () 
       <Kpi label="L" value="V" trend="flat" delta={{ value: "0.0%" }} />,
     );
     expect(html).toContain("text-muted");
-    expect(html).not.toContain("text-accent");
+    expect(html).not.toContain("text-accent-ink");
   });
 
   it("`trend` l'emporte sur `delta.positive`", () => {
@@ -397,12 +397,12 @@ describe("trend — la direction neutre que le booléen ne savait pas dire", () 
       <Kpi label="L" value="V" trend="down" delta={{ value: "+1%", positive: true }} />,
     );
     expect(down).toContain("text-muted");
-    expect(down).not.toContain("text-accent");
+    expect(down).not.toContain("text-accent-ink");
 
     const up = renderToStaticMarkup(
       <Kpi label="L" value="V" trend="up" delta={{ value: "-1%", positive: false }} />,
     );
-    expect(up).toContain("text-accent");
+    expect(up).toContain("text-accent-ink");
   });
 
   it("aucune baisse n'est rouge (un seul vert, zéro rouge)", () => {

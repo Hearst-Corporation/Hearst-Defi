@@ -49,7 +49,7 @@ export function InvestFlowShell({
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {titleLead}{" "}
               {titleAccent ? (
-                <span className="text-accent">{titleAccent}</span>
+                <span className="text-accent-ink">{titleAccent}</span>
               ) : null}
             </h1>
             {description ? <div className="text-sm text-muted">{description}</div> : null}

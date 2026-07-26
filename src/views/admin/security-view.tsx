@@ -66,7 +66,7 @@ export function AdminSecurityView({ totpEnabled }: { totpEnabled: boolean }) {
                     className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[var(--ct-border)] bg-surface-inset"
                     aria-hidden="true"
                   >
-                    <item.icon className="size-4 text-accent" />
+                    <item.icon className="size-4 text-accent-ink" />
                   </span>
                   <span className="flex min-w-0 flex-col gap-1.5">
                     <span className="text-sm font-semibold text-[var(--ct-text-strong)]">

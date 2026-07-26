@@ -46,7 +46,7 @@ export function InvestStepProgress({ active }: { active: InvestStepId }) {
                   "flex size-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold tabular-nums transition-colors",
                   isActive && "border-transparent bg-accent text-accent-foreground",
                   isDone &&
-                    "border-accent bg-accent-muted text-accent",
+                    "border-accent bg-accent-muted text-accent-ink",
                   !isActive &&
                     !isDone &&
                     "border-border bg-surface-inset text-faint",
@@ -77,7 +77,7 @@ export function InvestStepProgress({ active }: { active: InvestStepId }) {
                 className={cn(
                   "hidden text-[10px] font-bold uppercase tracking-[0.14em] transition-colors sm:block",
                   isActive && "text-foreground",
-                  isDone && "text-accent",
+                  isDone && "text-accent-ink",
                   !isActive && !isDone && "text-faint",
                 )}
               >

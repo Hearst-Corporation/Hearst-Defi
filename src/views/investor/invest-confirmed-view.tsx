@@ -70,18 +70,18 @@ export function InvestConfirmedView({
         >
           <Check className="size-6" strokeWidth={3} />
         </div>
-        <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+        <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-accent-ink">
           <span className="size-1.5 rounded-full bg-accent" />
           Deposit confirmed
         </span>
         <h2 className="mt-3 text-2xl font-semibold leading-none tracking-tight text-foreground">
           {amount !== "—" ? (
             <>
-              {amount} <span className="text-accent">deposited</span>
+              {amount} <span className="text-accent-ink">deposited</span>
             </>
           ) : (
             <>
-              Deposit <span className="text-accent">recorded</span>
+              Deposit <span className="text-accent-ink">recorded</span>
             </>
           )}
         </h2>
@@ -126,7 +126,7 @@ export function InvestConfirmedView({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View transaction on Base Sepolia (opens in new tab)"
-                  className="shrink-0 text-xs font-medium text-accent transition-colors hover:text-foreground"
+                  className="shrink-0 text-xs font-medium text-accent-ink transition-colors hover:text-foreground"
                 >
                   BaseScan ↗
                 </a>

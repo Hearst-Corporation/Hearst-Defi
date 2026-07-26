@@ -36,7 +36,7 @@ export async function LoginPage() {
           {apyRange ? (
             <p className="text-sm text-subtle">
               Current note target range:{" "}
-              <span className="font-medium text-accent">{apyRange}</span>
+              <span className="font-medium text-accent-ink">{apyRange}</span>
             </p>
           ) : null}
         </div>

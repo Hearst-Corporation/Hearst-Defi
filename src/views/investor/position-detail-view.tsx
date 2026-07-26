@@ -123,7 +123,7 @@ export function PositionDetailView({ position }: { position: PositionDetail }) {
                     href={explorerTxUrl(position.txHashOpen)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-xs text-accent hover:underline"
+                    className="font-mono text-xs text-accent-ink hover:underline"
                   >
                     {position.txHashOpen.slice(0, 10)}…
                   </a>
@@ -181,7 +181,7 @@ export function PositionDetailView({ position }: { position: PositionDetail }) {
                           href={explorerTxUrl(tx.txHash)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-mono text-xs text-accent hover:underline"
+                          className="font-mono text-xs text-accent-ink hover:underline"
                         >
                           View ↗
                         </a>

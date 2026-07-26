@@ -51,7 +51,7 @@ export function InvestDepositView({
       lead={
         <Link
           href={investProductPath(vault.id)}
-          className="text-sm text-accent hover:underline"
+          className="text-sm text-accent-ink hover:underline"
           aria-label="Back to term sheet"
         >
           ← Term sheet

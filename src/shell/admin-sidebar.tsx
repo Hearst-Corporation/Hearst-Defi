@@ -33,12 +33,12 @@ export function AdminSidebar() {
               className={cn(
                 "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 active
-                  ? "bg-accent-muted font-semibold text-accent"
+                  ? "bg-accent-muted font-semibold text-accent-ink"
                   : "text-muted hover:bg-surface-raised hover:text-foreground",
               )}
             >
               <Icon
-                className={cn("size-4 shrink-0", active && "text-accent")}
+                className={cn("size-4 shrink-0", active && "text-accent-ink")}
                 aria-hidden
               />
               <span className="truncate">{section.label}</span>

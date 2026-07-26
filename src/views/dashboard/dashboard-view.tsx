@@ -160,7 +160,7 @@ export function DashboardView({ data }: { data: DashboardPageData }) {
               action={
                 <Link
                   href="/portfolio"
-                  className="text-sm font-medium text-accent underline-offset-4 hover:underline"
+                  className="text-sm font-medium text-accent-ink underline-offset-4 hover:underline"
                 >
                   Open portfolio
                 </Link>
