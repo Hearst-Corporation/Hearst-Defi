@@ -45,6 +45,16 @@
  *
  * EXIT : 0 = ok · 1 = budget dépassé ou invariant violé · 2 = mesure impossible
  * (jamais un faux vert : pas de build ⇒ on le dit, on ne passe pas).
+ *
+ * PIÈGE VÉCU — .next PÉRIMÉ (2026-07-26)
+ * Une baseline a été posée depuis un `.next` vieux de 4 h, sans rebuild : elle
+ * a enregistré 3904,8 kB pour un arbre qui en produisait 3942,7. Toute mesure
+ * ultérieure affichait « +37,8 kB » — une régression qui n'existait pas, et qui
+ * a failli être imputée à un travail sans rapport. Un build de contrôle sur le
+ * commit ANTÉRIEUR donnait déjà le même +37,8, ce qui a démasqué la baseline.
+ * D'où le garde-fou `assertFreshBuild` ci-dessous : on refuse de mesurer un
+ * `.next` plus ancien que les sources. Le corollaire vaut pour tout ratchet :
+ * un chiffre de référence n'a de sens que daté du même arbre que la mesure.
  */
 
 import { gzipSync } from "node:zlib";
@@ -94,6 +104,59 @@ function walk(dir, out = []) {
   return out;
 }
 
+/**
+ * Refuse de mesurer un `.next` plus ancien que les sources.
+ *
+ * Sans ce contrôle, `--write` fige un chiffre qui décrit un arbre RÉVOLU, et
+ * toute mesure ultérieure invente une régression (voir « PIÈGE VÉCU » en tête).
+ * Un ratchet nourri d'une mesure périmée est pire que pas de ratchet : il est
+ * rouge sans raison, donc on apprend à l'ignorer.
+ *
+ * Marge de 60 s : `next build` écrit ses chunks pendant que les sources sont
+ * déjà à leur mtime final — sans tolérance, un build légitime paraîtrait vieux.
+ */
+function assertFreshBuild(chunkFiles) {
+  const newestBuild = Math.max(...chunkFiles.map((f) => statSync(f).mtimeMs));
+  let newestSrc = 0;
+  let newestSrcFile = "";
+  const stack = [join(ROOT, "src")];
+  while (stack.length) {
+    const dir = stack.pop();
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const e of entries) {
+      const abs = join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name === "node_modules" || e.name === "__tests__") continue;
+        stack.push(abs);
+        continue;
+      }
+      if (!/\.(tsx?|css)$/.test(e.name)) continue;
+      const m = statSync(abs).mtimeMs;
+      if (m > newestSrc) {
+        newestSrc = m;
+        newestSrcFile = relative(ROOT, abs);
+      }
+    }
+  }
+
+  if (newestSrc > newestBuild + 60_000) {
+    const minutes = Math.round((newestSrc - newestBuild) / 60_000);
+    console.error(
+      `[qa-bundle] BUILD PÉRIMÉ : ${newestSrcFile} est ${minutes} min plus récent ` +
+        `que les chunks mesurés.\n` +
+        `            Mesurer maintenant décrirait un arbre qui n'existe plus — et ` +
+        `poser une baseline\n            depuis cet état inventerait une régression ` +
+        `au prochain build. Lance \`pnpm build\`.`,
+    );
+    process.exit(2);
+  }
+}
+
 function measure() {
   const staticChunks = join(NEXT_DIR, "static", "chunks");
   if (!existsSync(staticChunks)) {
@@ -108,6 +171,8 @@ function measure() {
     console.error("[qa-bundle] aucun chunk .js trouvé — build incomplet ?");
     process.exit(2);
   }
+
+  assertFreshBuild(files);
 
   let rawTotal = 0;
   let gzTotal = 0;
