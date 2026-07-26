@@ -139,3 +139,85 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Coque applicative — 3 paliers responsive ──────────────────────────────
+ * Avant : `grid-cols-[var(--width-sidebar)_minmax(0,1fr)]` sans AUCUN
+ * breakpoint — la grille 2 colonnes s'appliquait dès 320 px de large.
+ *
+ * La largeur passe par `--hc-sidebar-w` (palette.css §5), résolu avant la
+ * première peinture : aucune media query ne vit dans le TSX, le composant ne
+ * connaît qu'un attribut.
+ *   < 1024px  rail hors flux (tiroir) + voile
+ *   1024-1279 replié d'office (la préférence utilisateur est ignorée)
+ *   >= 1280   préférence respectée (cookie hc-sidebar)
+ */
+@layer components {
+  .hc-shell {
+    display: grid;
+    height: 100dvh;
+    min-height: 100dvh;
+    grid-template-columns: var(--hc-sidebar-w) minmax(0, 1fr);
+    background: var(--hc-canvas);
+    transition: grid-template-columns var(--dur-base) var(--ease-standard);
+  }
+
+  .hc-rail {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    border-right: 1px solid var(--hc-border);
+    background: var(--hc-surface);
+  }
+
+  /* Replié : les libellés s'effacent sans `display:none`, qui casserait le
+     `truncate` au retour. */
+  .hc-rail__label {
+    transition: opacity var(--dur-fast) var(--ease-standard);
+  }
+
+  :root[data-sidebar="collapsed"] .hc-rail__label {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .hc-scrim {
+    display: none;
+  }
+}
+
+@media (min-width: 64rem) and (max-width: 79.999rem) {
+  /* Palier intermédiaire : le rail est replié d'office — à cette largeur, le
+     contenu a plus besoin de place que la navigation n'a besoin de mots. */
+  :root {
+    --hc-sidebar-w: var(--width-sidebar-collapsed);
+  }
+}
+
+@media (max-width: 63.999rem) {
+  .hc-rail {
+    position: fixed;
+    inset-block: 0;
+    left: 0;
+    width: var(--width-sidebar);
+    z-index: var(--z-sidebar);
+    transform: translateX(-100%);
+    transition: transform var(--dur-base) var(--ease-standard);
+    box-shadow: var(--hc-elev-lg);
+  }
+
+  :root[data-sidebar="open"] .hc-rail {
+    transform: none;
+  }
+
+  :root[data-sidebar="open"] .hc-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-sidebar) - 1);
+    background: color-mix(in oklab, #000 45%, transparent);
+  }
+}
