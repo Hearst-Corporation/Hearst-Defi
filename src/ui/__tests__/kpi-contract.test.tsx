@@ -37,18 +37,32 @@ function stripComments(source: string): string {
 
 const CODE = stripComments(SRC);
 
-// ── Empreintes capturées sur le composant d'avant P3-2 ───────────────────────
+/* ── Empreintes capturées sur le composant d'avant P3-2 ──────────────────────
+ *
+ * RÉVISION 2026-07-26 — stabilité géométrique (règle produit d'Adrien)
+ * Ces GOLDEN portent désormais `min-h-8` sur la boîte de valeur et
+ * `min-w-[12ch]` sur la valeur elle-même. Ce n'est PAS une mise à jour de
+ * confort : l'ancien DOM laissait la tuile changer de forme selon la donnée
+ * reçue — `0 USDC` et `1,250,000 USDC` occupaient des largeurs différentes, et
+ * l'état `unavailable` rendait un `<p>` hors du conteneur de valeur, si bien
+ * qu'une raison sur deux lignes poussait le hint.
+ *
+ * Ce que ces GOLDEN garantissent reste inchangé : les 13 vues qui rendent déjà
+ * `<Kpi>` produisent un DOM stable et vérifié. Ce qui a changé, c'est que ce
+ * DOM réserve maintenant sa place. La règle d'ÉGALITÉ entre les quatre états
+ * vit dans `kpi-geometry-contract.test.tsx` — ici on fige un rendu, là-bas on
+ * fige une relation. */
 const GOLDEN_MINIMAL =
   '<div class="flex flex-col gap-1">' +
   '<div class="flex items-center gap-2"><span class="hc-metric-label">L</span></div>' +
-  '<div class="flex items-baseline gap-2"><span class="hc-metric-value">V</span></div>' +
+  '<div class="flex min-h-8 items-baseline gap-2"><span class="hc-metric-value min-w-[12ch]">V</span></div>' +
   "</div>";
 
 const GOLDEN_FULL =
   '<div class="flex flex-col gap-1">' +
   '<div class="flex items-center gap-2"><span class="hc-metric-label">Total value locked</span>' +
   '<span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium bg-accent-muted text-accent-ink">Live</span></div>' +
-  '<div class="flex items-baseline gap-2"><span class="hc-metric-value">$1,234</span>' +
+  '<div class="flex min-h-8 items-baseline gap-2"><span class="hc-metric-value min-w-[12ch]">$1,234</span>' +
   '<span class="text-xs font-medium tabular-nums text-accent-ink">+2.4%</span></div>' +
   '<p class="text-xs text-subtle">On-chain vault assets</p>' +
   "</div>";
@@ -56,7 +70,7 @@ const GOLDEN_FULL =
 const GOLDEN_NEGATIVE_DELTA =
   '<div class="flex flex-col gap-1 extra">' +
   '<div class="flex items-center gap-2"><span class="hc-metric-label">L</span></div>' +
-  '<div class="flex items-baseline gap-2"><span class="hc-metric-value">V</span>' +
+  '<div class="flex min-h-8 items-baseline gap-2"><span class="hc-metric-value min-w-[12ch]">V</span>' +
   '<span class="text-xs font-medium tabular-nums text-muted">-1%</span></div>' +
   "</div>";
 

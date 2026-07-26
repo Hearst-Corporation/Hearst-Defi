@@ -223,6 +223,39 @@ const SKELETON_H = {
   spark: "h-5",
 } as const;
 
+/* ── STABILITÉ GÉOMÉTRIQUE (règle produit) ──────────────────────────────────
+ * « Chaque placeholder a l'espace, chaque data a l'espace, et il n'y a AUCUN
+ * changement de forme ni de volume quand une donnée arrive. »
+ *
+ * Trois réservations, chacune corrigeant un saut MESURÉ sur le DOM rendu :
+ *
+ * 1. LIGNE DE LABEL — le squelette rendait une simple barre, sans le conteneur
+ *    `flex items-center gap-2` qui porte le badge de provenance. Au chargement
+ *    le badge apparaissait et poussait la ligne. Le squelette rend désormais le
+ *    MÊME conteneur, avec une pastille de badge déjà dimensionnée.
+ *
+ * 2. LARGEUR DE VALEUR — `0 USDC` et `1,250,000 USDC` n'ont pas la même largeur
+ *    naturelle : la colonne se redimensionnait selon la donnée reçue. `ch` est
+ *    l'unité juste ici parce que `.hc-metric-value` est en `tabular-nums` :
+ *    tous les chiffres ont exactement la largeur d'un `0`, donc 12ch est une
+ *    réservation EXACTE, pas une approximation. C'est un plancher (`min-w`) :
+ *    une valeur plus longue reste lisible, elle n'est jamais tronquée.
+ *
+ * 3. HAUTEUR DE VALEUR — `unavailable` rendait un `<p>` hors du conteneur de
+ *    valeur ; une raison longue passait sur deux lignes et poussait le hint.
+ *    Les trois états partagent maintenant le même conteneur `min-h-8`, et la
+ *    raison est bornée à une ligne (`line-clamp-1`) avec le texte complet en
+ *    `title` — l'information n'est pas perdue, seule la casse de mise en page
+ *    l'est.
+ *
+ * Verrouillé par `kpi-geometry-contract.test.tsx`, qui compare les quatre
+ * états entre eux plutôt que chacun à un golden figé : c'est l'ÉGALITÉ qui est
+ * le contrat, pas une chaîne particulière. */
+const VALUE_BOX = "flex min-h-8 items-baseline gap-2";
+const VALUE_RESERVE = "min-w-[12ch]";
+/** Pastille de provenance au repos : `px-2 py-0.5 text-xs` ≈ 3.5rem × 1.25rem. */
+const BADGE_RESERVE = "h-[1.25rem] w-14";
+
 function Bar({ className }: { className?: string }) {
   return (
     <div
@@ -329,8 +362,24 @@ export function Kpi({
             l'AT sache CE QUI charge et pas seulement « qu'il se passe quelque
             chose ». */}
         <span className="sr-only">{`${label} — loading`}</span>
-        <Bar className={cn(SKELETON_H.label, "w-24 animate-skeleton-in")} />
-        <Bar className={cn(SKELETON_H.value, "w-32 animate-skeleton-in")} />
+        {/* MÊME conteneur de ligne que `ready`/`unavailable` : sans lui, le
+            badge de provenance apparaissait au chargement et poussait la
+            ligne. La pastille est réservée que l'appelant passe `provenance`
+            ou non — au chargement on ne SAIT PAS encore s'il y en aura une,
+            et réserver la place est le seul choix qui ne bouge jamais. */}
+        <div className="flex items-center gap-2">
+          <Bar className={cn(SKELETON_H.label, "w-24 animate-skeleton-in")} />
+          <Bar className={cn(BADGE_RESERVE, "animate-skeleton-in")} />
+        </div>
+        <div className={VALUE_BOX}>
+          <Bar
+            className={cn(
+              SKELETON_H.value,
+              VALUE_RESERVE,
+              "animate-skeleton-in",
+            )}
+          />
+        </div>
         {spark && spark.length >= 2 ? (
           <Bar className={cn(SKELETON_H.spark, "mt-1 w-full animate-skeleton-in")} />
         ) : null}
@@ -343,6 +392,7 @@ export function Kpi({
 
   /* ── unavailable ──────────────────────────────────────────────────────── */
   if (state === "unavailable") {
+    const reason = unavailableReason || KPI_UNAVAILABLE_FALLBACK;
     return (
       <div className={rootClass} style={rootStyle}>
         <div className="flex items-center gap-2">
@@ -353,12 +403,20 @@ export function Kpi({
               une erreur (cf. provenance-contract.test.ts). */}
           <ProvenanceBadge source="stale" />
         </div>
-        {/* `min-h-8` = la hauteur de .hc-metric-value : la tuile indisponible
-            occupe la même place que ses voisines, la rangée reste droite.
-            Aucun « 0 », aucun « — » : on affiche LE MOTIF. */}
-        <p className="flex min-h-8 items-center text-sm text-muted">
-          {unavailableReason || KPI_UNAVAILABLE_FALLBACK}
-        </p>
+        {/* MÊME conteneur que `ready` : la tuile indisponible occupe la place
+            exacte de ses voisines. Aucun « 0 », aucun « — » : on affiche LE
+            MOTIF — mais borné à une ligne, sinon une raison longue pousse le
+            hint et casse l'alignement de la rangée. Le texte intégral reste
+            accessible en `title` et pour les lecteurs d'écran : on borne
+            l'affichage, jamais l'information. */}
+        <div className={VALUE_BOX}>
+          <p
+            className={cn(VALUE_RESERVE, "line-clamp-1 text-sm text-muted")}
+            title={reason}
+          >
+            {reason}
+          </p>
+        </div>
         {hint ? <p className="text-xs text-subtle">{hint}</p> : null}
       </div>
     );
@@ -389,8 +447,12 @@ export function Kpi({
         {provenance ? <ProvenanceBadge source={provenance} /> : null}
         {href ? <Chevron /> : null}
       </div>
-      <div className="flex items-baseline gap-2">
-        <span className="hc-metric-value">{value}</span>
+      {/* VALUE_BOX + VALUE_RESERVE : la boîte de valeur a la même hauteur et la
+          même largeur minimale dans les trois états. Une valeur qui arrive ne
+          redimensionne donc jamais sa colonne — `0 USDC` et `1,250,000 USDC`
+          occupent la même place. */}
+      <div className={VALUE_BOX}>
+        <span className={cn("hc-metric-value", VALUE_RESERVE)}>{value}</span>
         {deltaNode}
       </div>
       {spark ? <Sparkline values={spark} /> : null}
