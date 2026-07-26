@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./palette.css";
 @import "./theme.css";
 @import "./legacy-bridge.css";
 @import "./typography.css";
@@ -19,10 +20,13 @@
 }
 
 @layer base {
+  /* Ces règles lisent `--hc-*` et NON `--color-*` : écrites à la main (hors
+     utilitaire Tailwind), elles seraient sinon résolues sur :root et un îlot
+     `[data-theme]` imbriqué ne les ferait pas basculer. */
   *,
   *::before,
   *::after {
-    border-color: var(--color-border);
+    border-color: var(--hc-border);
   }
 
   html {
@@ -32,17 +36,24 @@
   }
 
   body {
-    @apply bg-background font-sans text-foreground antialiased;
+    background: var(--hc-canvas);
+    color: var(--hc-fg);
+    @apply font-sans antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
+  /* `--hc-accent-ink` et non `--hc-accent` : en thème clair, un anneau
+     #a7fb90 sur blanc plafonne à 1,25:1, donc invisible. L'encre descend à
+     #2b6220 (6,8:1), bien au-delà des 3:1 exigés pour un indicateur. */
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-accent;
+    outline: 2px solid var(--hc-accent-ink);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-accent) 35%, transparent);
-    color: var(--color-foreground);
+    background: color-mix(in oklab, var(--hc-accent) 35%, transparent);
+    color: var(--hc-fg);
   }
 }
 
@@ -87,5 +98,44 @@
 @layer utilities {
   .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ── Reduced motion — l'interrupteur unique ────────────────────────────────
+ * HORS @layer, volontairement : une règle posée dans `@layer base` PERDRAIT
+ * contre les utilitaires Tailwind (ordre v4 : theme → base → components →
+ * utilities), donc contre un `duration-200` littéral. Du CSS sans couche bat
+ * toute règle en couche, quel que soit l'ordre d'écriture.
+ *
+ * Deux étages, volontairement redondants :
+ *   1. on écrase les TOKENS → toute transition tokenisée tombe d'un coup,
+ *      sans toucher une seule ligne de composant ;
+ *   2. filet universel pour les durées littérales, les @keyframes et les
+ *      bibliothèques tierces.
+ *
+ * 0.01ms et non 0 : `transitionend` / `animationend` continuent de se
+ * déclencher — sinon on casse toute logique qui les attend.
+ * `animation-iteration-count: 1` arrête les boucles (WCAG 2.2.2) : le sheen
+ * des squelettes se fige en bloc statique, c'est le comportement voulu.
+ *
+ * C'est la PREMIÈRE règle prefers-reduced-motion du runtime : les 11 blocs
+ * existants vivaient tous dans des feuilles jamais chargées. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0.01ms;
+    --dur-base: 0.01ms;
+    --dur-slow: 0.01ms;
+    --default-transition-duration: 0.01ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

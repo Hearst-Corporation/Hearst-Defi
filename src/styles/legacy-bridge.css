@@ -18,17 +18,24 @@
  * ─────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* ── Socle historique (pré-Z1) ── */
-  --ct-accent: #a7fb90;
-  --ct-bg-deep: #09090b;
-  --ct-border: color-mix(in oklab, white 10%, transparent);
-  --ct-border-soft: color-mix(in oklab, white 5%, transparent);
-  --ct-text-muted: #a1a1aa;
-  --ct-text-strong: #f4f4f5;
-  --ct-text-faint: #52525b;
-  --ct-text-body: #d4d4d8;
-  --ct-text-primary: #f4f4f5;
-  --ct-shadow-soft: 0 4px 16px color-mix(in oklab, black 50%, transparent);
+  /* ── Socle historique — RETARGETÉ sur la palette duale (--hc-*) ──
+     Ces lignes portaient des hex sombres EN DUR qui bypassaient les tokens :
+     elles seraient restées sombres en thème clair, sur ~600 usages en aval.
+     Le retarget ne fait qu'échanger des VALEURS — aucun shim ajouté, aucun
+     retiré : le ratchet descendant du fichier est respecté au sens strict. */
+  --ct-accent: var(--hc-accent-ink); /* `ink` : lisible dans les DEUX thèmes */
+  --ct-bg-deep: var(--hc-canvas);
+  --ct-border: var(--hc-border);
+  --ct-border-soft: var(--hc-border-subtle);
+  --ct-text-muted: var(--hc-muted);
+  --ct-text-strong: var(--hc-fg);
+  /* REMONTÉ de `faint` à `subtle` : ces 156 usages sont du TEXTE, et `faint`
+     plafonnait à 2,29:1 — sous le seuil AA. `faint` est désormais réservé au
+     non-textuel (filets, points, états désactivés). Correctif a11y gratuit. */
+  --ct-text-faint: var(--hc-subtle);
+  --ct-text-body: var(--hc-muted);
+  --ct-text-primary: var(--hc-fg);
+  --ct-shadow-soft: var(--hc-elev-md);
   --ct-text-sm: 0.9375rem; /* 15px — canon cockpit (mentait : 13px) */
   --ct-text-xs: 0.8125rem; /* 13px — canon cockpit (mentait : 11px) */
   --ct-text-micro: 0.6875rem; /* 11px — canon cockpit (mentait : 10px) */
@@ -48,20 +55,20 @@
   --ct-font-semibold: 600;
 
   /* ── Shims Z1 — tokens fantômes du périmètre admin, ALIAS greenfield ── */
-  --ct-text-secondary: var(--color-muted); /* compat : 21 usages, migrer vers --color-muted */
-  --ct-text-tertiary: var(--color-subtle); /* compat : 12 usages, migrer vers --color-subtle */
-  --ct-surface-inset: var(--color-surface-inset); /* compat : 15 usages, migrer vers --color-surface-inset */
-  --ct-border-strong: var(--color-border-strong); /* compat : 11 usages, migrer vers --color-border-strong */
-  --ct-status-warning: var(--color-warning); /* compat : 57 usages, migrer vers --color-warning */
-  --ct-status-info: var(--color-info); /* compat : 22 usages, migrer vers --color-info */
-  --ct-status-danger: var(--color-danger); /* compat : 91 usages, migrer vers --color-danger */
-  --ct-status-success: var(--color-accent); /* compat : 7 usages, migrer vers --color-success — un seul vert */
-  --ct-status-danger-soft: color-mix(in srgb, var(--color-danger) 10%, transparent); /* compat : 8 usages, migrer vers color-mix sur --color-danger */
-  --ct-status-danger-border: color-mix(in srgb, var(--color-danger) 25%, transparent); /* compat : 8 usages, migrer vers color-mix sur --color-danger */
-  --ct-status-warning-soft: color-mix(in srgb, var(--color-warning) 10%, transparent); /* compat : 3 usages, migrer vers color-mix sur --color-warning */
-  --ct-status-warning-border: color-mix(in srgb, var(--color-warning) 25%, transparent); /* compat : 2 usages, migrer vers color-mix sur --color-warning */
-  --ct-status-success-soft: color-mix(in srgb, var(--color-accent) 10%, transparent); /* compat : 2 usages, migrer vers color-mix sur --color-accent */
-  --ct-status-success-border: color-mix(in srgb, var(--color-accent) 25%, transparent); /* compat : 3 usages, migrer vers color-mix sur --color-accent */
+  --ct-text-secondary: var(--hc-muted); /* compat : 21 usages, migrer vers --color-muted */
+  --ct-text-tertiary: var(--hc-subtle); /* compat : 12 usages, migrer vers --color-subtle */
+  --ct-surface-inset: var(--hc-surface-inset); /* compat : 15 usages, migrer vers --color-surface-inset */
+  --ct-border-strong: var(--hc-border-strong); /* compat : 11 usages, migrer vers --color-border-strong */
+  --ct-status-warning: var(--hc-warning); /* compat : 57 usages, migrer vers --color-warning */
+  --ct-status-info: var(--hc-info); /* compat : 22 usages, migrer vers --color-info */
+  --ct-status-danger: var(--hc-danger); /* compat : 91 usages, migrer vers --color-danger */
+  --ct-status-success: var(--hc-accent-ink); /* compat : 7 usages, migrer vers --color-success — un seul vert */
+  --ct-status-danger-soft: color-mix(in oklab, var(--hc-danger) 10%, transparent); /* compat : 8 usages, migrer vers color-mix sur --color-danger */
+  --ct-status-danger-border: color-mix(in oklab, var(--hc-danger) 25%, transparent); /* compat : 8 usages, migrer vers color-mix sur --color-danger */
+  --ct-status-warning-soft: color-mix(in oklab, var(--hc-warning) 10%, transparent); /* compat : 3 usages, migrer vers color-mix sur --color-warning */
+  --ct-status-warning-border: color-mix(in oklab, var(--hc-warning) 25%, transparent); /* compat : 2 usages, migrer vers color-mix sur --color-warning */
+  --ct-status-success-soft: color-mix(in oklab, var(--hc-accent-ink) 10%, transparent); /* compat : 2 usages, migrer vers color-mix sur --color-accent */
+  --ct-status-success-border: color-mix(in oklab, var(--hc-accent-ink) 25%, transparent); /* compat : 3 usages, migrer vers color-mix sur --color-accent */
   --ct-radius-sm: 0.5rem; /* compat : 5 usages, migrer vers --radius-md (0.5rem greenfield) */
   --ct-opacity-40: 0.4; /* compat : 2 usages, migrer vers une opacité Tailwind */
   --ct-opacity-70: 0.7; /* compat : 5 usages, migrer vers une opacité Tailwind */
@@ -75,7 +82,7 @@
   --ct-text-deci: 0.625rem; /* compat : 8 usages (10px), migrer vers un rôle typo canon */
   --ct-text-xl-fixed: 1.125rem; /* compat : 8 usages (18px), migrer vers un rôle typo canon */
   --ct-text-3xl-fixed: 1.5rem; /* compat : 2 usages (24px), migrer vers .h1 */
-  --ct-accent-strong: color-mix(in srgb, var(--color-accent) 82%, #ffffff); /* compat : 6 usages, migrer vers --color-accent-hover */
+  --ct-accent-strong: var(--hc-accent-hover); /* compat : 6 usages, migrer vers --color-accent-hover */
 }
 
 /* ── Utilitaires de surface / couleur encore consommés par le canon admin.
@@ -83,15 +90,15 @@
       a été déplacé vers typography.css en Mission Z1.) ── */
 
 .bg-surface-card {
-  background-color: var(--color-surface-card);
+  background-color: var(--hc-surface-card);
 }
 
 .bg-surface-page {
-  background-color: var(--color-surface-page);
+  background-color: var(--hc-surface);
 }
 
 .bg-surface-inset {
-  background-color: var(--color-surface-inset);
+  background-color: var(--hc-surface-inset);
 }
 
 .ct-link-accent {

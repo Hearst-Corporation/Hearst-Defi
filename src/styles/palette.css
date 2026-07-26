@@ -1,0 +1,245 @@
+/* ───────────────────────────────────────────────────────────────────────────
+ * Hearst Connect — PALETTE DUALE. Source de vérité des VALEURS.
+ *
+ * Trois couches, une seule direction :
+ *   --hc-*     ← CE FICHIER. Valeur thémée. Change avec [data-theme].
+ *   --color-*  ← theme.css (@theme inline). Surface d'utilitaires Tailwind.
+ *   --ct-*     ← legacy-bridge.css. Compat descendante, alias uniquement.
+ *
+ * RÈGLE : aucun hex hors de ce fichier. Aucune règle `dark:`. Un composant
+ * n'écrit jamais une couleur — il écrit un rôle (`bg-surface-card`,
+ * `text-muted`, `border-border`).
+ *
+ * POURQUOI LE RECALIBRAGE N'EST PAS COSMÉTIQUE : le thème sombre précédent
+ * échouait déjà WCAG AA — `--color-subtle` (#71717a) plafonnait à 3,90:1 et
+ * `--color-faint` (#52525b) à 2,29:1, ce dernier servant de couleur de TEXTE
+ * sur 156 sites via `--ct-text-faint`. Les rangs ci-dessous sont calculés, et
+ * un test les vérifie (src/lib/ds/__tests__/theme-contrast-contract.test.ts).
+ *
+ * Ratios en commentaire : mesurés sur la surface la plus exigeante du thème
+ * (la plus claire en sombre : `overlay` ; la plus foncée en clair : `inset`).
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* ══ 1. RAMPES BRUTES — les seules valeurs littérales du design system ══ */
+:root {
+  /* Ardoise froide (~228°), chroma faible. Pas de noir pur : le plancher est
+     #0b0d11. Un #000 sur écran OLED crée un contraste dur avec les surfaces
+     et écrase la hiérarchie d'élévation. */
+  --hc-slate-1000: #0b0d11;
+  --hc-slate-975: #0e1116;
+  --hc-slate-950: #101319;
+  --hc-slate-925: #14181e;
+  --hc-slate-900: #1a1f26;
+  --hc-slate-850: #1f242c;
+  --hc-slate-500: #6e7685;
+  --hc-slate-450: #7a8290;
+  --hc-slate-400: #8b93a2;
+  --hc-slate-300: #a6acb9;
+  --hc-slate-100: #eff1f5;
+  --hc-slate-75: #f6f7f9;
+  --hc-slate-50: #fbfbfc;
+  --hc-slate-0: #ffffff;
+  --hc-ink: #0d1117;
+  --hc-ink-2: #4e5666;
+  --hc-ink-3: #5e6675;
+
+  /* UN SEUL VERT — une teinte (107°), deux luminances (une par thème).
+     -50 est la valeur de marque. -700 est LA MÊME TEINTE descendue pour rester
+     lisible sur fond clair : #a7fb90 sur blanc plafonne à 1,25:1, inutilisable
+     pour du texte ou un anneau de focus. Ce n'est pas un second vert. */
+  --hc-green-50: #a7fb90;
+  --hc-green-100: #bffdaa;
+  --hc-green-700: #2b6220;
+  --hc-green-800: #1f4a17;
+  --hc-green-950: #052e16;
+
+  /* Statuts SYSTÈME (validation de formulaire, panne d'infra) — jamais un
+     signal financier : la doctrine produit dit « absent/négatif = gris ».
+     Deux luminances chacun, même raison que le vert. */
+  --hc-amber-400: #fbbf24;
+  --hc-amber-800: #8a5a00;
+  --hc-red-400: #f87171;
+  --hc-red-800: #b4232b;
+  --hc-blue-400: #7db3ff;
+  --hc-blue-800: #1f5fbf;
+}
+
+/* ══ 2. THÈME SOMBRE — défaut (pas d'attribut = sombre) ══ */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces — 6 rangs, du fond d'app au popover */
+  --hc-canvas: var(--hc-slate-1000);
+  --hc-surface: var(--hc-slate-950);
+  --hc-surface-inset: var(--hc-slate-975);
+  --hc-surface-card: var(--hc-slate-925);
+  --hc-surface-raised: var(--hc-slate-900);
+  --hc-surface-overlay: var(--hc-slate-850);
+
+  /* Bordures 1px — blanc alpha sur sombre */
+  --hc-border: color-mix(in oklab, var(--hc-slate-0) 9%, transparent);
+  --hc-border-subtle: color-mix(in oklab, var(--hc-slate-0) 5%, transparent);
+  --hc-border-strong: color-mix(in oklab, var(--hc-slate-0) 18%, transparent);
+
+  /* Texte — 3 rangs AA sur TOUTES les surfaces + 1 rang décoratif */
+  --hc-fg: #e8eaef; /* 12.62:1 sur overlay — AAA */
+  --hc-muted: var(--hc-slate-300); /*  6.67:1 sur overlay — AA  */
+  --hc-subtle: var(--hc-slate-400); /*  5.04:1 sur overlay — AA  */
+  --hc-faint: var(--hc-slate-500); /*  3.4:1  — NON-TEXTE       */
+
+  /* Accent */
+  --hc-accent: var(--hc-green-50);
+  --hc-accent-hover: var(--hc-green-100);
+  --hc-accent-ink: var(--hc-green-50); /* texte/lien/focus */
+  --hc-accent-on: var(--hc-green-950); /* texte SUR remplissage */
+  --hc-accent-soft: color-mix(in oklab, var(--hc-green-50) 16%, transparent);
+  --hc-accent-soft-border: color-mix(
+    in oklab,
+    var(--hc-green-50) 28%,
+    transparent
+  );
+
+  --hc-warning: var(--hc-amber-400);
+  --hc-danger: var(--hc-red-400);
+  --hc-info: var(--hc-blue-400);
+
+  /* Micro-gradient de carte : LA GÉOMÉTRIE EST FIXE (une seule règle CSS,
+     dans typography.css), seuls les arrêts sont thémés. C'est ce qui évite de
+     dupliquer chaque déclaration par thème.
+     Sombre : lumière rasante par le haut — la carte « décolle » du canevas. */
+  --hc-sheen-from: color-mix(in oklab, var(--hc-slate-0) 4.5%, transparent);
+  --hc-sheen-to: transparent;
+  --hc-sheen-stop: 46%;
+
+  /* Élévation — sur sombre elle vient du liseré, pas de l'ombre */
+  --hc-elev-xs: 0 0 0 1px color-mix(in oklab, var(--hc-slate-0) 4%, transparent);
+  --hc-elev-sm: 0 1px 2px color-mix(in oklab, #000 55%, transparent);
+  --hc-elev-md:
+    0 4px 12px color-mix(in oklab, #000 55%, transparent),
+    0 1px 2px color-mix(in oklab, #000 40%, transparent);
+  --hc-elev-lg:
+    0 16px 40px color-mix(in oklab, #000 65%, transparent),
+    0 2px 6px color-mix(in oklab, #000 45%, transparent);
+
+  /* Data-viz */
+  --hc-chart-1: var(--hc-green-50);
+  --hc-chart-2: color-mix(in oklab, var(--hc-green-50) 66%, var(--hc-surface-card));
+  --hc-chart-3: color-mix(in oklab, var(--hc-green-50) 40%, var(--hc-surface-card));
+  --hc-chart-4: color-mix(in oklab, var(--hc-green-50) 22%, var(--hc-surface-card));
+  --hc-chart-neutral: var(--hc-slate-500);
+  --hc-chart-grid: var(--hc-border-subtle);
+}
+
+/* ══ 3. THÈME CLAIR ══ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Hiérarchie inversée : le canevas est gris ardoise très clair, la carte est
+     BLANCHE et flotte au-dessus. Jamais de blanc pur en fond de page — sinon
+     les cartes n'ont plus rien contre quoi se détacher. */
+  --hc-canvas: var(--hc-slate-75);
+  --hc-surface: var(--hc-slate-0);
+  --hc-surface-inset: var(--hc-slate-100);
+  --hc-surface-card: var(--hc-slate-0);
+  --hc-surface-raised: var(--hc-slate-50);
+  --hc-surface-overlay: var(--hc-slate-0);
+
+  /* Bordures : encre alpha, PAS blanc alpha (du blanc sur du clair est nul) */
+  --hc-border: color-mix(in oklab, var(--hc-ink) 12%, transparent);
+  --hc-border-subtle: color-mix(in oklab, var(--hc-ink) 7%, transparent);
+  --hc-border-strong: color-mix(in oklab, var(--hc-ink) 22%, transparent);
+
+  --hc-fg: var(--hc-ink); /* 16.74:1 sur inset — AAA */
+  --hc-muted: var(--hc-ink-2); /*  6.52:1 sur inset — AA  */
+  --hc-subtle: var(--hc-ink-3); /*  5.11:1 sur inset — AA  */
+  --hc-faint: var(--hc-slate-450); /*  3.5:1  — NON-TEXTE     */
+
+  /* L'accent, point critique du thème clair : le REMPLISSAGE reste le vert de
+     marque (bouton primaire, série de chart), mais l'ENCRE — texte, icône,
+     lien, anneau de focus — descend à green-700 (7,32:1 sur blanc). */
+  --hc-accent: var(--hc-green-50);
+  --hc-accent-hover: #93ec7a;
+  --hc-accent-ink: var(--hc-green-700);
+  --hc-accent-on: var(--hc-green-950); /* 11.96:1 sur le remplissage */
+  --hc-accent-soft: color-mix(in oklab, var(--hc-green-50) 22%, var(--hc-slate-0));
+  --hc-accent-soft-border: color-mix(
+    in oklab,
+    var(--hc-green-700) 22%,
+    transparent
+  );
+
+  --hc-warning: var(--hc-amber-800);
+  --hc-danger: var(--hc-red-800);
+  --hc-info: var(--hc-blue-800);
+
+  /* Micro-gradient inversé : blanc en haut → voile d'encre en bas. MÊME règle
+     CSS que le sombre, arrêts différents. */
+  --hc-sheen-from: color-mix(in oklab, var(--hc-slate-0) 100%, transparent);
+  --hc-sheen-to: color-mix(in oklab, var(--hc-ink) 1.6%, transparent);
+  --hc-sheen-stop: 100%;
+
+  /* Sur clair, c'est l'ombre qui porte la hiérarchie */
+  --hc-elev-xs: 0 1px 1px color-mix(in oklab, var(--hc-ink) 4%, transparent);
+  --hc-elev-sm:
+    0 1px 2px color-mix(in oklab, var(--hc-ink) 6%, transparent),
+    0 1px 1px color-mix(in oklab, var(--hc-ink) 4%, transparent);
+  --hc-elev-md:
+    0 4px 12px color-mix(in oklab, var(--hc-ink) 8%, transparent),
+    0 1px 2px color-mix(in oklab, var(--hc-ink) 6%, transparent);
+  --hc-elev-lg:
+    0 16px 40px color-mix(in oklab, var(--hc-ink) 12%, transparent),
+    0 2px 6px color-mix(in oklab, var(--hc-ink) 8%, transparent);
+
+  --hc-chart-1: var(--hc-green-700);
+  --hc-chart-2: color-mix(in oklab, var(--hc-green-700) 68%, var(--hc-slate-0));
+  --hc-chart-3: color-mix(in oklab, var(--hc-green-700) 44%, var(--hc-slate-0));
+  --hc-chart-4: color-mix(in oklab, var(--hc-green-700) 24%, var(--hc-slate-0));
+  --hc-chart-neutral: var(--hc-slate-450);
+  --hc-chart-grid: var(--hc-border-subtle);
+}
+
+/* ══ 4. ÎLOTS — un bloc peut forcer un thème (aperçu PDF, doc, tooltip) ══
+   Fonctionne parce que theme.css utilise `@theme inline` : l'utilitaire compile
+   en `var(--hc-…)`, donc la résolution se fait sur l'élément consommateur. */
+[data-theme="light"] [data-theme="dark"] {
+  color-scheme: dark;
+}
+[data-theme="dark"] [data-theme="light"] {
+  color-scheme: light;
+}
+
+/* ══ 5. LARGEUR DE RAIL — pilotée par attribut, résolue avant peinture ══
+   Posée ici et non dans le composant : l'état initial doit être connu du CSS
+   avant le premier paint, sinon la grille saute à l'hydratation. */
+:root {
+  --hc-sidebar-w: var(--width-sidebar);
+}
+:root[data-sidebar="collapsed"] {
+  --hc-sidebar-w: var(--width-sidebar-collapsed);
+}
+@media (max-width: 63.999rem) {
+  :root,
+  :root[data-sidebar="collapsed"] {
+    --hc-sidebar-w: 0rem;
+  }
+}
+
+/* ══ 6. TRANSITION DE BASCULEMENT — posée le temps du switch seulement ══
+   Une transition permanente sur `background-color` ralentirait chaque hover. */
+html[data-theme-switching],
+html[data-theme-switching] *,
+html[data-theme-switching] *::before,
+html[data-theme-switching] *::after {
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-switching],
+  html[data-theme-switching] * {
+    transition: none !important;
+  }
+}
