@@ -1,25 +1,24 @@
 {
-  "chunkCount": 244,
-  "rawBytes": 13310342,
-  "gzBytes": 4115514,
-  "staticBytes": 13448367,
+  "chunkCount": 236,
+  "rawBytes": 12600254,
+  "gzBytes": 3871667,
+  "staticBytes": 12740422,
   "packageChunks": {
-    "recharts": 3,
-    "framer-motion": 1,
-    "sonner": 1
+    "recharts": 1,
+    "framer-motion": 0,
+    "sonner": 5
   },
   "packageSamples": {
     "sonner": [
-      "0-6a.2ib-.72w.js"
-    ],
-    "framer-motion": [
-      "03kpk371z50s7.js"
+      "0.eht-lo0gy38.js",
+      "0.p~fy~gwflc5.js",
+      "0jmw1zrfj0k.~.js",
+      "0pp0vo0z8ewa5.js",
+      "0syo43nfao9wr.js"
     ],
     "recharts": [
-      "0ksigm9ytw51z.js",
-      "0lpo5g3m8zo_n.js",
-      "112fh~_kfwgc-.js"
+      "0v~v5gvwrn4ha.js"
     ]
   },
-  "updatedAt": "2026-07-26T01:10:30.132Z"
+  "updatedAt": "2026-07-26T01:22:40.040Z"
 }
