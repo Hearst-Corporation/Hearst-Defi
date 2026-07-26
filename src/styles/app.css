@@ -151,42 +151,45 @@
  *   1024-1279 replié d'office (la préférence utilisateur est ignorée)
  *   >= 1280   préférence respectée (cookie hc-sidebar)
  */
-@layer components {
-  .hc-shell {
-    display: grid;
-    height: 100dvh;
-    min-height: 100dvh;
-    grid-template-columns: var(--hc-sidebar-w) minmax(0, 1fr);
-    background: var(--hc-canvas);
-    transition: grid-template-columns var(--dur-base) var(--ease-standard);
-  }
+/* HORS @layer, volontairement : un SECOND bloc `@layer components` placé
+   après `@layer utilities` n'est pas compilé par Tailwind v4 — les règles
+   sont silencieusement absentes du CSS produit. Constaté en dev : la coque
+   rendait sans grille et le rail sans surface. Le vocabulaire canon
+   (.hc-surface, typography.css) vit déjà hors layer pour la même raison. */
+.hc-shell {
+  display: grid;
+  height: 100dvh;
+  min-height: 100dvh;
+  grid-template-columns: var(--hc-sidebar-w) minmax(0, 1fr);
+  background: var(--hc-canvas);
+  transition: grid-template-columns var(--dur-base) var(--ease-standard);
+}
 
-  .hc-rail {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    border-right: 1px solid var(--hc-border);
-    background: var(--hc-surface);
-  }
+.hc-rail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-right: 1px solid var(--hc-border);
+  background: var(--hc-surface);
+}
 
-  /* Replié : les libellés s'effacent sans `display:none`, qui casserait le
-     `truncate` au retour. */
-  .hc-rail__label {
-    transition: opacity var(--dur-fast) var(--ease-standard);
-  }
+/* Replié : les libellés s'effacent sans `display:none`, qui casserait le
+   `truncate` au retour. */
+.hc-rail__label {
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
 
-  :root[data-sidebar="collapsed"] .hc-rail__label {
-    opacity: 0;
-    width: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
+:root[data-sidebar="collapsed"] .hc-rail__label {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
 
-  .hc-scrim {
-    display: none;
-  }
+.hc-scrim {
+  display: none;
 }
 
 @media (min-width: 64rem) and (max-width: 79.999rem) {
