@@ -36,10 +36,10 @@
   --ct-text-body: var(--hc-muted);
   --ct-text-primary: var(--hc-fg);
   --ct-shadow-soft: var(--hc-elev-md);
-  --ct-text-sm: 0.9375rem; /* 15px — canon cockpit (mentait : 13px) */
-  --ct-text-xs: 0.8125rem; /* 13px — canon cockpit (mentait : 11px) */
-  --ct-text-micro: 0.6875rem; /* 11px — canon cockpit (mentait : 10px) */
-  --ct-text-2xs: 0.75rem; /* 12px — canon cockpit (mentait : 9px) */
+  --ct-text-sm: var(--text-base); /* 15px — aligné sur l'échelle canon */
+  --ct-text-xs: var(--text-sm); /* 13 → 14px — aligné sur le CORPS canon */
+  --ct-text-micro: var(--text-2xs); /* 11px — aligné sur l'échelle canon */
+  --ct-text-2xs: var(--text-xs); /* 12px — aligné sur l'échelle canon */
   --ct-text-14: 0.875rem;
   --ct-text-2xl: 1.5rem;
   --ct-text-5xl: 2.25rem;
@@ -78,8 +78,8 @@
   --ct-space-8: 2rem; /* compat : 20 usages, migrer vers l'échelle spacing Tailwind (gap-8) */
 
   /* ── Shims Z1 — valeur cockpit reprise (AUCUN équivalent greenfield) ── */
-  --ct-text-nano: 0.5625rem; /* compat : 25 usages (9px), migrer vers un rôle typo canon */
-  --ct-text-deci: 0.625rem; /* compat : 8 usages (10px), migrer vers un rôle typo canon */
+  --ct-text-nano: var(--text-2xs); /* 9px → 11px : plancher éradiqué. 70 usages, migrer vers text-2xs */
+  --ct-text-deci: var(--text-2xs); /* 10px → 11px : plancher éradiqué. 30 usages, migrer vers text-2xs */
   --ct-text-xl-fixed: 1.125rem; /* compat : 8 usages (18px), migrer vers un rôle typo canon */
   --ct-text-3xl-fixed: 1.5rem; /* compat : 2 usages (24px), migrer vers .h1 */
   --ct-accent-strong: var(--hc-accent-hover); /* compat : 6 usages, migrer vers --color-accent-hover */

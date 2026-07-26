@@ -63,7 +63,7 @@
   }
 
   .hc-section-title {
-    @apply text-sm font-semibold tracking-tight text-foreground;
+    @apply text-base font-semibold tracking-tight text-foreground;
   }
 
   .hc-section-subtitle {
@@ -71,11 +71,11 @@
   }
 
   .hc-eyebrow {
-    @apply text-xs font-semibold uppercase tracking-[0.14em] text-subtle;
+    @apply text-2xs font-semibold uppercase tracking-[0.14em] text-subtle;
   }
 
   .hc-metric-label {
-    @apply text-xs font-medium uppercase tracking-[0.08em] text-subtle;
+    @apply text-2xs font-medium uppercase tracking-[0.08em] text-subtle;
   }
 
   .hc-metric-value {

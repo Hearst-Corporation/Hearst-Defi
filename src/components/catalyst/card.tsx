@@ -1,14 +1,20 @@
 /**
- * Catalyst Card — canonical module-surface container for Hearst Connect.
+ * Catalyst Card — LA surface de module de Hearst Connect.
  *
- * Token-only (all surfaces, spacing and motion come from `--ct-*` / the
- * `.ct-*` class layer in cockpit.css). This is the canon: `src/components/ui/card`
- * is a thin compatibility wrapper that re-exports these symbols. New code should
- * import Card / CardHeader / CardTitle from `@/components/catalyst/card`.
+ * POURQUOI CE FICHIER A ÉTÉ RECONSTRUIT
+ * Il s'appuyait sur `.ct-card`, `.ct-glass-panel`, `.ct-overlay-surface0`,
+ * `.ct-z-base` et `.ct-transition-opacity-slow` — cinq classes qui ne vivent
+ * QUE dans `cockpit.css`, archive Storybook jamais chargée par l'application.
+ * Résultat : chez ses 11 importeurs (proof-center, features/investor-ui,
+ * error-shell…), `<Card>` rendait un `<div>` **sans fond, sans bordure et sans
+ * padding**. Le composant existait, son style non.
  *
- * `glass` (default) renders the opaque graphite module surface (legacy class name
- * `.ct-glass-panel`, no real frosted glass); `flat` keeps the same opaque fill for
- * dense lists/tables (anti cage-in-cage). Dark mode only — no `dark:` modifiers.
+ * Il repose désormais sur `.hc-surface` (src/styles/typography.css), écrite sur
+ * les tokens duals `--hc-*` : une seule règle, deux thèmes, micro-gradient et
+ * élévation compris.
+ *
+ * L'API publique est INCHANGÉE (`material`, `density`, `hoverOverlay`,
+ * `contentClassName`) — aucun importeur n'a une ligne à modifier.
  */
 
 import { cn } from "@/lib/cn";
@@ -23,29 +29,35 @@ export function Card({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   hoverOverlay?: boolean;
-  /** Layout/spacing on the inner content shell (`.ct-z-base`). Use when stacking
-   *  CardTitle + body — flex/grid on the outer `.ct-card` does not reach children. */
+  /** Layout/espacement de la coque interne — le flex/grid posé sur la carte
+   *  elle-même n'atteint pas les enfants. */
   contentClassName?: string;
   density?: "default" | "compact";
-  /** `glass` (default) = opaque graphite module surface (legacy class `.ct-glass-panel`);
-   *  `flat` = same opaque fill, for dense lists/tables (anti cage-in-cage). */
+  /** `glass` (défaut) = surface de module avec sheen et élévation ;
+   *  `flat` = même fond, sans sheen ni ombre, pour les listes et tables denses
+   *  (évite l'effet cage-dans-cage). */
   material?: "glass" | "flat";
 }) {
   return (
     <div
       className={cn(
-        "ct-card ct-glass-panel relative overflow-hidden",
-        material === "flat" && "ct-glass-panel--flat",
-        density === "compact" && "ct-card--compact",
-        hoverOverlay && "group",
+        "hc-surface overflow-hidden",
+        material === "flat" && "hc-surface--flat",
+        // `hoverOverlay` signifie « cette carte réagit au survol » : on active
+        // l'affordance interactive plutôt qu'un calque d'opacité maison.
+        hoverOverlay && "hc-surface--interactive",
         className,
       )}
       {...props}
     >
-      {hoverOverlay ? (
-        <div className="absolute inset-0 ct-overlay-surface0 opacity-0 group-hover:opacity-100 ct-transition-opacity-slow pointer-events-none" />
-      ) : null}
-      <div className={cn("relative ct-z-base", contentClassName)}>{children}</div>
+      <div
+        className={cn(
+          density === "compact" ? "p-4" : "hc-surface__body",
+          contentClassName,
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -56,10 +68,7 @@ export function CardHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        "mb-[var(--ct-space-6)] flex items-start justify-between gap-[var(--ct-space-3)]",
-        className,
-      )}
+      className={cn("mb-4 flex items-start justify-between gap-3", className)}
       {...props}
     />
   );
@@ -69,23 +78,21 @@ export function CardTitle({
   className,
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("h3 ct-text-strong", className)} {...props} />;
+  // `.h3` est désormais défini au runtime (typography.css §8) — il ne l'était
+  // pas, et ces titres rendaient avec le style navigateur par défaut.
+  return <h3 className={cn("h3", className)} {...props} />;
 }
 
 export function CardDescription({
   className,
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
-  return (
-    <p className={cn("ct-metric-caption ct-text-muted", className)} {...props} />
-  );
+  return <p className={cn("ct-metric-caption", className)} {...props} />;
 }
 
 export function CardContent({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div className={cn("px-[var(--ct-space-5)]", className)} {...props} />
-  );
+  return <div className={cn(className)} {...props} />;
 }

@@ -8,14 +8,20 @@ import { cn } from "@/lib/cn";
 import { ProvenanceBadge, type Provenance } from "@/components/ui/provenance-badge";
 
 /**
- * Shared bento primitives — token-backed surfaces for product + admin pages.
+ * Primitives bento — surfaces partagées produit + admin.
  *
- * Uses cockpit tokens (--ct-*) and .ct-glass-panel for module chrome instead of
- * ad-hoc bg-surface-card / border-white/* hardcodes. Typography via .ct-bento-* classes
- * in doc-flow.css.
+ * RECONSTRUIT : ce module s'appuyait sur `.ct-glass-panel` et les classes
+ * `.ct-bento-*`, définies uniquement dans `cockpit.css` / `doc-flow.css` —
+ * deux feuilles qui ne sont PAS chargées par l'application (archives
+ * Storybook, la seconde ayant même été supprimée). Ses 19 importeurs
+ * rendaient donc des surfaces sans fond, sans bordure et sans rythme.
+ *
+ * Il repose désormais sur la recette canon `.hc-surface` et les rôles typo
+ * réellement définis au runtime (`ct-section-title`, `ct-metric-caption`,
+ * `ct-metric-value`), tous écrits sur les tokens duals `--hc-*`.
  */
 
-/** Outer page shell: graphite surface + padded body stack. */
+/** Coque de page : rythme vertical, sans surface propre. */
 export function BentoPageShell({
   children,
   className,
@@ -25,15 +31,16 @@ export function BentoPageShell({
   return (
     <div
       {...rest}
-      className={cn("ct-bento-page", className)}
+      className={cn("hc-page", className)}
       data-testid={testId}
     >
-      <div className="ct-bento-page__body">{children}</div>
+      <div className="flex min-w-0 flex-col gap-6">{children}</div>
     </div>
   );
 }
 
-/** Panel surface: ct-glass-panel card with overflow clip. */
+/** Surface de panneau — recette canon `.hc-surface` (variante flat : ces
+ *  panneaux contiennent des grilles denses, un sheen ferait cage-dans-cage). */
 export function BentoPanel({
   children,
   className,
@@ -43,7 +50,7 @@ export function BentoPanel({
     <div
       {...rest}
       className={cn(
-        "ct-glass-panel flex flex-col overflow-hidden shadow-none",
+        "hc-surface hc-surface--flat flex min-w-0 flex-col overflow-hidden",
         className,
       )}
     >
@@ -69,13 +76,13 @@ export function BentoHeader({
   id?: string;
 }) {
   return (
-    <div className={cn("ct-bento-panel-header", className)}>
+    <div className={cn("hc-surface__header", className)}>
       <div className="flex min-w-0 flex-col">
-        <Heading id={id} className="ct-bento-card-title">
+        <Heading id={id} className="ct-section-title">
           {title}
         </Heading>
         {subtitle ? (
-          <p className="ct-bento-card-subtitle">{subtitle}</p>
+          <p className="ct-metric-caption">{subtitle}</p>
         ) : null}
       </div>
       {trailing ? (
@@ -141,9 +148,9 @@ export function BentoKpiTile({
       </LabelTag>
       <ValueTag
         className={cn(
-          "ct-bento-metric block w-full min-w-0 truncate [&>*]:justify-center",
+          "ct-metric-value block w-full min-w-0 truncate [&>*]:justify-center",
           dl && "m-0",
-          accent && "ct-bento-metric--accent",
+          accent && "text-accent-ink",
         )}
       >
         {value}
@@ -173,9 +180,9 @@ export function BentoDetailRow({
   className?: string;
 }) {
   return (
-    <div className={cn("ct-bento-detail-row", className)}>
-      <span className="ct-bento-detail-row__label">{label}</span>
-      <span className="ct-bento-detail-row__value">{children}</span>
+    <div className={cn("flex items-baseline justify-between gap-3 py-1.5", className)}>
+      <span className="ct-metric-caption min-w-0 truncate">{label}</span>
+      <span className="text-sm tabular-nums text-foreground">{children}</span>
     </div>
   );
 }
