@@ -135,10 +135,39 @@ function measure() {
     packageChunks: Object.fromEntries(
       TRACKED_PACKAGES.map(({ id }) => [id, offenders.get(id)?.size ?? 0]),
     ),
+    // Le vrai invariant : un paquet lourd dans le bundle racine est payé par
+    // TOUTES les routes. Le compte total de chunks, lui, monte légitimement
+    // quand on isole un module en lazy — il ne peut donc pas servir de gate.
+    packagesInRoot: Object.fromEntries(
+      TRACKED_PACKAGES.map(({ id }) => {
+        const roots = rootChunks();
+        const hits = [...(offenders.get(id) ?? [])].filter((c) =>
+          roots.includes(c.split("/").pop()),
+        );
+        return [id, hits];
+      }),
+    ),
     packageSamples: Object.fromEntries(
       [...offenders].map(([k, v]) => [k, [...v].slice(0, 5)]),
     ),
   };
+}
+
+/**
+ * Chunks du bundle RACINE (chargés sur absolument toutes les routes).
+ * Un paquet lourd qui atterrit ici est payé par tout le monde, y compris les
+ * pages qui ne s'en servent jamais — c'est l'invariant le plus utile qu'on
+ * puisse vérifier sans navigateur.
+ */
+function rootChunks() {
+  const manifest = join(NEXT_DIR, "build-manifest.json");
+  if (!existsSync(manifest)) return [];
+  try {
+    const bm = JSON.parse(readFileSync(manifest, "utf8"));
+    return (bm.rootMainFiles ?? []).map((f) => f.split("/").pop());
+  } catch {
+    return [];
+  }
 }
 
 function dirSize(dir) {
@@ -194,6 +223,20 @@ if (flag("--write")) {
 }
 
 let failed = false;
+
+// ── Invariant dur : aucun paquet suivi dans le bundle RACINE ────────────────
+// Toujours vrai, sans baseline : un paquet lourd chargé sur toutes les routes
+// est une régression, quelle que soit sa taille.
+for (const [id, hits] of Object.entries(result.packagesInRoot)) {
+  if (hits.length) {
+    failed = true;
+    console.error(
+      `\n✖ ${id} est dans le bundle RACINE (payé par toutes les routes) :`,
+    );
+    for (const h of hits) console.error(`    ${h}`);
+    console.error(`  → charge-le à la demande (next/dynamic) ou retire-le.`);
+  }
+}
 
 // ── Invariants durs (maxChunks explicite) ───────────────────────────────────
 for (const { id, maxChunks } of TRACKED_PACKAGES) {
