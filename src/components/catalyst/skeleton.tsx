@@ -56,7 +56,7 @@ interface AdminTableLoadingProps {
 export function AdminTableLoading({ label, rows = 5 }: AdminTableLoadingProps) {
   return (
     <div
-      className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8"
+      className="flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page [--gutter:theme(spacing.8)] mb-8"
       aria-busy="true"
       aria-label={label}
     >

@@ -25,7 +25,7 @@ export function BentoPageShell({
   return (
     <div
       {...rest}
-      className={cn("ct-bento-page dark", className)}
+      className={cn("ct-bento-page", className)}
       data-testid={testId}
     >
       <div className="ct-bento-page__body">{children}</div>

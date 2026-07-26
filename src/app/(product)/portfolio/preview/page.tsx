@@ -134,7 +134,7 @@ export default async function PortfolioPreviewPage() {
   const uptimeCauses = orderedUptime(UPTIME_SEGMENTS).filter((s) => s.cause !== "online");
 
   return (
-    <div className="dark flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
+    <div className="flex flex-col rounded-2xl bg-surface-page [--gutter:theme(spacing.8)] mb-8">
       <div className="flex flex-col gap-y-8 p-5 lg:p-6">
         {/* S0 — access ribbon (Hearst letterhead + one line of chips) */}
         <div className="flex flex-wrap items-center gap-2">

@@ -5,7 +5,7 @@
 export default function AdminProofCenterFullLoading() {
   return (
     <div
-      className="dark flex flex-col gap-y-5"
+      className="flex flex-col gap-y-5"
       aria-busy="true"
       aria-label="Loading proof center full log"
     >

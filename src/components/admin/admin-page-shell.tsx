@@ -55,7 +55,7 @@ export function AdminPageFrame({
   return (
     <div
       className={cn(
-        "dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8",
+        "flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8",
         className,
       )}
     >

@@ -90,7 +90,7 @@ export default async function PortfolioTaxPage() {
   const provenanceKind = preview.dataSource === "live" ? "estimated" : "simulated";
 
   return (
-    <div className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
+    <div className="flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8">
       <div className="p-5 lg:p-6 flex flex-col gap-y-5">
         <PortfolioLeafHeader
           titleLead="Tax"

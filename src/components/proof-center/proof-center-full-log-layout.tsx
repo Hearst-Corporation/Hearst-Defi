@@ -51,7 +51,7 @@ export function ProofCenterFullLogLayout({
   );
 
   return (
-    <div className="dark flex flex-col gap-y-5">
+    <div className="flex flex-col gap-y-5">
       {admin ? (
         <AdminPageHeader
           titleLead="Full"

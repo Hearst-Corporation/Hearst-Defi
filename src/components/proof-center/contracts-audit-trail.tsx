@@ -306,7 +306,7 @@ export function ContractsAuditTrail({
     : "manual";
 
   return (
-    <div className="dark flex flex-col gap-y-5">
+    <div className="flex flex-col gap-y-5">
       {platformAddresses.length > 0 ? (
         <AdminSectionCard
           title="On-chain addresses"

@@ -4,7 +4,7 @@
 export default function TaxLoading() {
   return (
     <div
-      className="dark flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8"
+      className="flex flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page mb-8"
       aria-busy="true"
       aria-label="Loading tax preview"
     >

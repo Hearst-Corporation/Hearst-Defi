@@ -469,7 +469,7 @@ function InvestFormUnconfigured({
   };
 
   return (
-    <div className="dark flex flex-col gap-5">
+    <div className="flex flex-col gap-5">
       <AmountSection
         vault={vault}
         maxAmount={maxAmount}
@@ -729,7 +729,7 @@ function InvestFormLive({
   const ptai = buildPtai(deferredAmount, vault);
 
   return (
-    <div className="dark flex flex-col gap-5">
+    <div className="flex flex-col gap-5">
       <AmountSection
         vault={vault}
         maxAmount={maxAmount}

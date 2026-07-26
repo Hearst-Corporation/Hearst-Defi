@@ -32,7 +32,7 @@ export function Table({
       <div className="flow-root min-w-0">
         <div {...props} className={cn(className, 'min-w-0 overflow-x-auto whitespace-nowrap')}>
           <div className="inline-block min-w-full align-middle">
-            <table className="min-w-full text-left text-sm/6 text-[var(--ct-text-strong)] dark:text-[var(--ct-text-strong)]">{children}</table>
+            <table className="min-w-full text-left text-sm/6 text-[var(--ct-text-strong)]">{children}</table>
           </div>
         </div>
       </div>
@@ -41,7 +41,11 @@ export function Table({
 }
 
 export function TableHead({ className, ...props }: React.ComponentPropsWithoutRef<'thead'>) {
-  return <thead {...props} className={cn(className, 'text-[var(--ct-text-faint)] dark:text-[var(--ct-text-muted)]')} />
+  // Column heads read at `--ct-text-muted`, not `--ct-text-faint`: `faint` is a
+  // decorative tier, and a table head is a label users must actually read. This
+  // was the ONE divergent `dark:` twin in this file — the retired modifier used
+  // to promote the head to `muted` only under `prefers-color-scheme: dark`.
+  return <thead {...props} className={cn(className, 'text-[var(--ct-text-muted)]')} />
 }
 
 export function TableBody(props: React.ComponentPropsWithoutRef<'tbody'>) {
@@ -69,11 +73,17 @@ export function TableRow({
         {...props}
         className={cn(
           className,
+          // A11Y FIX: the row focus-within highlight used to be written
+          // `dark:focus-within:bg-…`, which Tailwind compiles to
+          // `@media (prefers-color-scheme: dark)` — so a user whose OS is in
+          // light mode got NO visible highlight when tabbing through rows. The
+          // modifier is dropped, not converted: the surface is token-driven and
+          // the highlight must exist unconditionally.
           href &&
-            'has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:[outline-color:var(--ct-accent)] dark:focus-within:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)]',
-          striped && 'even:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] dark:even:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)]',
-          href && striped && 'hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)] dark:hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
-          href && !striped && 'hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)] dark:hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)]'
+            'has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:[outline-color:var(--ct-accent)] focus-within:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)]',
+          striped && 'even:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)]',
+          href && striped && 'hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_5%,transparent)]',
+          href && !striped && 'hover:bg-[color-mix(in_srgb,var(--ct-text-strong)_2.5%,transparent)]'
         )}
       />
     </TableRowContext.Provider>
@@ -94,8 +104,8 @@ export function TableHeader({ className, ...props }: React.ComponentPropsWithout
         // same amount on the right. The old destructive edge override (an
         // undefined --gutter var then a 4px sm override) is removed — it glued
         // the edge columns to the frame and broke left/right symmetry.
-        'border-b border-b-[var(--ct-border)] px-4 py-2 font-medium first:pl-5 last:pr-5 dark:border-b-[var(--ct-border)]',
-        grid && 'border-l border-l-[var(--ct-border-soft)] first:border-l-0 dark:border-l-[var(--ct-border-soft)]'
+        'border-b border-b-[var(--ct-border)] px-4 py-2 font-medium first:pl-5 last:pr-5',
+        grid && 'border-l border-l-[var(--ct-border-soft)] first:border-l-0'
       )}
     />
   )
@@ -116,8 +126,8 @@ export function TableCell({ className, children, ...props }: React.ComponentProp
         // everywhere, first:pl-5 / last:pr-5 edge gutter, no destructive 4px
         // edge override.
         'relative px-4 first:pl-5 last:pr-5',
-        !striped && 'border-b border-[var(--ct-border-soft)] dark:border-[var(--ct-border-soft)]',
-        grid && 'border-l border-l-[var(--ct-border-soft)] first:border-l-0 dark:border-l-[var(--ct-border-soft)]',
+        !striped && 'border-b border-[var(--ct-border-soft)]',
+        grid && 'border-l border-l-[var(--ct-border-soft)] first:border-l-0',
         dense ? 'py-2.5' : 'py-4'
       )}
     >

@@ -48,7 +48,7 @@ export function ProofCenterFullSections({
   variant = "product",
 }: ProofCenterFullSectionsProps) {
   return (
-    <div className="dark flex flex-col gap-y-5">
+    <div className="flex flex-col gap-y-5">
       <AdminSectionCard
         title={<span id="event-timeline-heading">On-chain event log</span>}
         subtitle="Latest published vault events"

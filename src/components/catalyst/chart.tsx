@@ -20,7 +20,11 @@ import { cn } from "@/lib/cn";
  * import from `@/components/catalyst/chart`.
  */
 
-const THEMES = { light: "", dark: ".dark" } as const;
+// Sélecteur de thème du ChartStyle. `.dark` était MORT : aucune règle chargée
+// au runtime ne cible cette classe (le @custom-variant vit dans globals.css,
+// archive Storybook). Le basculement du produit se fait par [data-theme] sur
+// <html> — c'est donc ce sélecteur qui doit porter la branche sombre.
+const THEMES = { light: "", dark: '[data-theme="dark"]' } as const;
 
 export type ChartConfig = {
   [k in string]: {

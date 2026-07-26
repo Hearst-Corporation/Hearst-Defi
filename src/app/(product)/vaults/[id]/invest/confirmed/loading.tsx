@@ -5,7 +5,7 @@
 export default function InvestConfirmedLoading() {
   return (
     <div
-      className="dark mx-auto flex w-full max-w-2xl flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page p-5 lg:p-6 mb-8"
+      className="mx-auto flex w-full max-w-2xl flex-col rounded-2xl border border-[var(--ct-border)] bg-surface-page p-5 lg:p-6 mb-8"
       aria-busy="true"
       aria-label="Loading deposit confirmation"
     >
