@@ -67,7 +67,7 @@ export function SidebarToggle({ className }: { className?: string }) {
       aria-expanded={!collapsed}
       aria-controls="main-content"
       aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-      title={`${collapsed ? "Expand" : "Collapse"} sidebar (⌘\\)`}
+      title={String.raw`${collapsed ? "Expand" : "Collapse"} sidebar (⌘\)`}
       className={cn(
         "inline-flex size-8 items-center justify-center rounded-md text-subtle",
         "transition-colors duration-(--dur-fast) ease-standard",

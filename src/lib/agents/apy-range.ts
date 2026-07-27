@@ -54,18 +54,18 @@ import { normalizeForScan } from "@/lib/agents/forbidden-words";
  */
 const YIELD_CLAIM_RE = new RegExp(
   // TIER 1a: APY anywhere within 60 chars before a percentage
-  "\\bAPY\\b[^.!?\\n]{0,60}?\\d+(?:[.,]\\d+)?\\s?%" +
+  String.raw`\bAPY\b[^.!?\n]{0,60}?\d+(?:[.,]\d+)?\s?%` +
   "|" +
   // TIER 1b: rendement(s) anywhere within 60 chars before a percentage
-  "\\brendements?\\b[^.!?\\n]{0,60}?\\d+(?:[.,]\\d+)?\\s?%" +
+  String.raw`\brendements?\b[^.!?\n]{0,60}?\d+(?:[.,]\d+)?\s?%` +
   "|" +
   // TIER 2: yields? or returns? + explicit connector + number+%
   // Connector words: exactly, of, is, are, at, equals
   // No clause-break (;, comma, or sentence punct) allowed in the span.
-  "\\b(?:yields?|returns?)\\b[^.!?\\n;,]{0,20}?\\b(?:exactly|of|is|are|at|equals)\\b[^.!?\\n;,]{0,20}?\\d+(?:[.,]\\d+)?\\s?%" +
+  String.raw`\b(?:yields?|returns?)\b[^.!?\n;,]{0,20}?\b(?:exactly|of|is|are|at|equals)\b[^.!?\n;,]{0,20}?\d+(?:[.,]\d+)?\s?%` +
   "|" +
   // Pattern B: number+% then ≤30 chars then yield keyword (reversed, e.g. "11% APY")
-  "\\d+(?:[.,]\\d+)?\\s?%[^.!?\\n]{0,30}?\\b(?:APY|yields?|returns?|rendements?)\\b",
+  String.raw`\d+(?:[.,]\d+)?\s?%[^.!?\n]{0,30}?\b(?:APY|yields?|returns?|rendements?)\b`,
   "i",
 );
 

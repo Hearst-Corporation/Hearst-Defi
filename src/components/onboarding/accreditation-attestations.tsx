@@ -122,16 +122,13 @@ export function AccreditationAttestationFields({
 
       <div aria-live="polite">
         {!allChecked ? (
-          <p
-            className="ct-bento-label m-0 flex items-center gap-2"
-            role="status"
-          >
+          <output className="ct-bento-label m-0 flex items-center gap-2">
             <span
               aria-hidden
               className="size-1 rounded-full bg-[var(--ct-text-muted)]"
             />
             All three attestations are required to continue.
-          </p>
+          </output>
         ) : (
           <p
             className="ct-bento-label ct-text-accent m-0 flex items-center gap-2 invisible"

@@ -743,7 +743,7 @@ export async function GET(
     include: { user: { select: { email: true } } },
   });
 
-  if (!investor || investor.userId !== userId) {
+  if (investor?.userId !== userId) {
     logger.warn("statements.pdf.not_found", { userId, requestedId: id });
     return NextResponse.json({ error: "Statement not found" }, { status: 404 });
   }

@@ -107,9 +107,9 @@ export function MiningCashFlowEvidence({
             provenance={BADGE[provenance]}
           />
         )}
-        <p className="p-5 text-sm leading-relaxed text-muted m-0" role="status">
+        <output className="block p-5 text-sm leading-relaxed text-muted m-0">
           {MINING_CASHFLOW_COPY[provenance]}
-        </p>
+        </output>
       </>
     );
     return bare ? (

@@ -119,14 +119,13 @@ export function AccordionCard({
     ) : null;
 
   const body = (
-    <div
+    <section
       id={bodyId}
-      role="region"
       aria-labelledby={headerId}
       className="border-t border-[var(--ct-border-soft)]"
     >
       {children}
-    </div>
+    </section>
   );
 
   return (

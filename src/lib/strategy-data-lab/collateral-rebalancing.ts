@@ -591,7 +591,7 @@ function deriveBuybackAnchorState(
   input: CollateralRebalancingInput,
 ): BuybackAnchorState {
   const feasibleSells = sellLadder.filter((step) => step.feasible);
-  const lastFeasibleSell = feasibleSells[feasibleSells.length - 1];
+  const lastFeasibleSell = feasibleSells.at(-1);
   const state: PositionState = lastFeasibleSell
     ? {
         debtUsdc: lastFeasibleSell.debtAfterUsdc,
@@ -1133,7 +1133,7 @@ export function simulateCollateralTimeline(
   );
 
   for (let month = 1; month <= normalized.timelineMonths; month += 1) {
-    const btcPriceUsd = path[month] ?? path[path.length - 1] ?? normalized.btcSpotPriceUsd;
+    const btcPriceUsd = path[month] ?? path.at(-1) ?? normalized.btcSpotPriceUsd;
 
     // Monthly economics accrue before policy actions.
     state = {
@@ -1268,7 +1268,7 @@ export function summarizeCollateralOptimization(
 
   const liquidationRow =
     timeline.find((row) => row.eventType === "LIQUIDATION") ?? null;
-  const lastRow = timeline[timeline.length - 1]!;
+  const lastRow = timeline.at(-1)!;
   const totalBtcSold = timeline.reduce(
     (sum, row) => sum + (row.event?.btcSold ?? 0),
     0,

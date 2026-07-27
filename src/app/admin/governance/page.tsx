@@ -9,7 +9,7 @@ const TAB_KEYS = ["all", "signing", "timelock", "executable"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
 function isTabKey(v: unknown): v is TabKey {
-  return TAB_KEYS.some((k) => k === v);
+  return (TAB_KEYS as readonly unknown[]).includes(v);
 }
 
 function filterProposals(

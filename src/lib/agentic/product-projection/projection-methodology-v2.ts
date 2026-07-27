@@ -149,7 +149,7 @@ export function buildProjectionDistribution(
       unit: bandUnit,
     });
   }
-  if (bands.length === 0 || bands[bands.length - 1]!.horizonMonth !== months) {
+  if (bands.length === 0 || bands.at(-1)!.horizonMonth !== months) {
     const yr = months / 12;
     const scale = hasCapital ? cap * yr : yr * 100;
     bands.push({

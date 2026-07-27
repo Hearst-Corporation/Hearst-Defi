@@ -187,14 +187,14 @@ export function mergeDailyHistory(
   // Synthetic backstops so a gap in real data never yields NaN.
   const span = days.length > 0 ? days : [new Date()];
   const synthBtc = new Map(
-    syntheticBtcSeries(span[0]!, span[span.length - 1]!).map((p) => [
+    syntheticBtcSeries(span[0]!, span.at(-1)!).map((p) => [
       p.date.getTime(),
       p.value,
     ]),
   );
   const synthDiff = syntheticDifficultySeries(
     span[0]!,
-    span[span.length - 1]!,
+    span.at(-1)!,
   );
 
   let lastBtc = 0;
@@ -257,7 +257,7 @@ async function fetchBtcDaily(
     // fall through to synthetic
   }
   const start = days[0] ?? new Date();
-  const end = days[days.length - 1] ?? new Date();
+  const end = days.at(-1) ?? new Date();
   return { series: syntheticBtcSeries(start, end), source: "synthetic" };
 }
 
@@ -278,7 +278,7 @@ async function fetchDifficulty(
     // fall through to synthetic
   }
   const start = days[0] ?? new Date();
-  const end = days[days.length - 1] ?? new Date();
+  const end = days.at(-1) ?? new Date();
   return { series: syntheticDifficultySeries(start, end), source: "synthetic" };
 }
 

@@ -103,9 +103,9 @@ export interface ProductStrategy {
 // ---------------------------------------------------------------------------
 
 export interface StrategySelectionRequest {
-  productFamily?: ProductFamily | string;
-  riskProfile?: RiskProfileKey | string;
-  priority?: Priority | string;
+  productFamily?: ProductFamily;
+  riskProfile?: RiskProfileKey;
+  priority?: Priority;
   horizonMonths?: number;
   /** Liquidity / income / capital-protection preference hints (optional). */
   liquidityPreference?: "high" | "medium" | "low";

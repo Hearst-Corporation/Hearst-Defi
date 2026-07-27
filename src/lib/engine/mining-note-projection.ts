@@ -257,7 +257,7 @@ function takeProfitBtc(
 
 function lastAccumulated(ledger: readonly MiningNoteMonth[]): number {
   if (ledger.length === 0) return 0;
-  return ledger[ledger.length - 1]!.btcAccumulated;
+  return ledger.at(-1)!.btcAccumulated;
 }
 
 function buildAssumptions(

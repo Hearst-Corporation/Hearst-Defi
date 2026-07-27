@@ -162,7 +162,7 @@ export function buildPerformanceModel(
   rows.sort((a, b) => a.t - b.t);
 
   const first = rows[0];
-  const last = rows[rows.length - 1];
+  const last = rows.at(-1);
   // Both are defined: the length check above guarantees at least two rows.
   if (!first || !last) return null;
 

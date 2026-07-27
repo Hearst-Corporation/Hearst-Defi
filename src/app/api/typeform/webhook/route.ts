@@ -97,7 +97,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const payload = parseBody(rawBody);
-  if (!payload || !payload.form_response) {
+  if (!payload?.form_response) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 

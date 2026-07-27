@@ -83,7 +83,7 @@ export interface Series1WordingResult {
 
 /** Escape a term for use inside a RegExp source. */
 function escapeRegExp(source: string): string {
-  return source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return source.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 /**
@@ -95,8 +95,8 @@ function termPattern(term: string): RegExp {
     .trim()
     .split(/\s+/)
     .map(escapeRegExp)
-    .join("\\s+");
-  return new RegExp(`\\b${body}\\b`, "gi");
+    .join(String.raw`\s+`);
+  return new RegExp(String.raw`\b${body}\b`, "gi");
 }
 
 const TERM_MATCHERS: ReadonlyArray<{ term: string; re: RegExp }> = SERIES1_BANNED_TERMS.map(

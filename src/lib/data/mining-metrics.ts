@@ -192,7 +192,7 @@ function deriveProduction(
     }
   }
 
-  const lastRow = rows[rows.length - 1];
+  const lastRow = rows.at(-1);
   const currentKey = lastRow ? monthKey(lastRow.takenAt) : null;
 
   const months = [...byMonth.entries()]

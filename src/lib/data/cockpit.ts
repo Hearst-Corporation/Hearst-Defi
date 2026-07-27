@@ -321,7 +321,7 @@ async function buildActionQueue(): Promise<Loaded<ActionQueueItem[]>> {
 
   // Sort: P0 first, then P1, then P2; within severity by createdAt desc
   const order: Record<ActionSeverity, number> = { P0: 0, P1: 1, P2: 2 };
-  const sorted = items.sort(
+  const sorted = [...items].sort(
     (a, b) =>
       order[a.severity] - order[b.severity] ||
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),

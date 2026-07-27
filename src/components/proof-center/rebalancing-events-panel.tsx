@@ -123,9 +123,8 @@ export function RebalancingEventsPanel({
                 : "Take-profit, curtailment and reserve events"}
             </p>
           </div>
-          <span
+          <output
             className="flex items-center gap-1.5 ct-bento-label"
-            role="status"
             aria-label={`Data provenance: ${PROVENANCE_LABEL[panelProvenance]}`}
           >
             <span
@@ -133,7 +132,7 @@ export function RebalancingEventsPanel({
               className={cn("inline-block h-1.5 w-1.5 rounded-full", PROVENANCE_DOT[panelProvenance])}
             />
             {PROVENANCE_LABEL[panelProvenance]}
-          </span>
+          </output>
         </div>
       )}
 
@@ -160,9 +159,8 @@ export function RebalancingEventsPanel({
                     {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
                   </span>
                 </div>
-                <span
+                <output
                   className="flex items-center gap-1.5 ct-bento-label shrink-0"
-                  role="status"
                   aria-label={`Data provenance: ${PROVENANCE_LABEL[eventProvenance]}`}
                 >
                   <span
@@ -170,7 +168,7 @@ export function RebalancingEventsPanel({
                     className={cn("inline-block h-1.5 w-1.5 rounded-full", PROVENANCE_DOT[eventProvenance])}
                   />
                   {PROVENANCE_LABEL[eventProvenance]}
-                </span>
+                </output>
               </div>
 
               {/* Meta block — nested bento sub-panel */}

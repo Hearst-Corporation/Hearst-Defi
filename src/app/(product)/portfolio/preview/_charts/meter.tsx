@@ -73,8 +73,8 @@ export function HcMeter({
 
   // Health gradient (never red): green clearing the top tick → light green mid → grey toward danger.
   const ats = [...ticks].map((t) => t.at).sort((a, b) => a - b);
-  const healthyFloor = ats.length > 0 ? ats[ats.length - 1]! : max * 0.6;
-  const midFloor = ats.length > 1 ? ats[ats.length - 2]! : healthyFloor * 0.8;
+  const healthyFloor = ats.length > 0 ? ats.at(-1)! : max * 0.6;
+  const midFloor = ats.length > 1 ? ats.at(-2)! : healthyFloor * 0.8;
   const zoneColor =
     value >= healthyFloor
       ? "var(--ct-accent)"

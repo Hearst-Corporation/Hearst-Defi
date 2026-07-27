@@ -51,7 +51,7 @@ const LP_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   {
     key: "profile",
     re: new RegExp(
-      `\\b(${NAV_VERB}.*profil|mon profil|my profile|statut kyc|mon compte)\\b`,
+      String.raw`\b(${NAV_VERB}.*profil|mon profil|my profile|statut kyc|mon compte)\b`,
       "i",
     ),
   },
@@ -62,7 +62,7 @@ const LP_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   // START (^) makes it a command, not a mention buried in a sentence.
   {
     key: "proof-center",
-    re: new RegExp(`\\b${NAV_VERB}.*(proof\\s*center|proof|preuve)\\b`, "i"),
+    re: new RegExp(String.raw`\b${NAV_VERB}.*(proof\s*center|proof|preuve)\b`, "i"),
   },
   // Leading proof-center COMMAND that carries an extra destination qualifier
   // ("proof center attestations", "preuve de réserve on-chain"). A bare two-word
@@ -81,14 +81,14 @@ const LP_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   {
     key: "vaults",
     re: new RegExp(
-      `\\b(${NAV_VERB}.*(produits?|vaults?|vaultes?|offres?|product page|page produit)|souscrire|subscribe|voir les produits|liste des vaults|open the product page|ouvre la page produit)\\b`,
+      String.raw`\b(${NAV_VERB}.*(produits?|vaults?|vaultes?|offres?|product page|page produit)|souscrire|subscribe|voir les produits|liste des vaults|open the product page|ouvre la page produit)\b`,
       "i",
     ),
   },
   {
     key: "portfolio",
     re: new RegExp(
-      `\\b(${NAV_VERB}.*(portefeuille|portfolio)|mon portefeuille|my portfolio|voir mon allocation)\\b`,
+      String.raw`\b(${NAV_VERB}.*(portefeuille|portfolio)|mon portefeuille|my portfolio|voir mon allocation)\b`,
       "i",
     ),
   },
@@ -110,13 +110,13 @@ const ADMIN_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   },
   {
     key: "admin-home",
-    re: new RegExp(`\\b${NAV_VERB}.*(?:control tower|tour de contr[oô]le|admin home|operations admin|cockpit admin)\\b`, "i"),
+    re: new RegExp(String.raw`\b${NAV_VERB}.*(?:control tower|tour de contr[oô]le|admin home|operations admin|cockpit admin)\b`, "i"),
   },
   {
     key: "admin-customers",
     re: new RegExp(
       [
-        `\\b${NAV_VERB}.*(customers?|clients?|investisseurs?)`,
+        String.raw`\b${NAV_VERB}.*(customers?|clients?|investisseurs?)`,
         "portefeuille (utilisateur|client|investisseur|lp)",
         "fiche (client|customer|investisseur)",
         "nouveau client",
@@ -133,28 +133,28 @@ const ADMIN_NAV_RULES: ReadonlyArray<{ key: string; re: RegExp }> = [
   {
     key: "admin-dashboard",
     re: new RegExp(
-      `\\b(${NAV_VERB}.*(dashboard admin|admin dashboard|tableau de bord admin)|admin[/-]dashboard)\\b`,
+      String.raw`\b(${NAV_VERB}.*(dashboard admin|admin dashboard|tableau de bord admin)|admin[/-]dashboard)\b`,
       "i",
     ),
   },
   {
     key: "admin-vaults",
     re: new RegExp(
-      `\\b(${NAV_VERB}.*(admin vaults?|vaults admin|gestion des vaults)|admin[/-]vaults)\\b`,
+      String.raw`\b(${NAV_VERB}.*(admin vaults?|vaults admin|gestion des vaults)|admin[/-]vaults)\b`,
       "i",
     ),
   },
   {
     key: "admin-proofs",
     re: new RegExp(
-      `\\b(${NAV_VERB}.*(admin proofs?|proofs admin)|admin[/-]proofs)\\b`,
+      String.raw`\b(${NAV_VERB}.*(admin proofs?|proofs admin)|admin[/-]proofs)\b`,
       "i",
     ),
   },
   {
     key: "admin-governance",
     re: new RegExp(
-      `\\b(${NAV_VERB}.*(gouvernance|governance)|admin[/-]governance)\\b`,
+      String.raw`\b(${NAV_VERB}.*(gouvernance|governance)|admin[/-]governance)\b`,
       "i",
     ),
   },
@@ -318,7 +318,7 @@ for (const key of CANONICAL_KEYS) {
 
 /** Escape regex metacharacters in a literal keyword. */
 function escapeRe(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 /** Route depth (segment count). Deeper = more specific → matched first so a
@@ -348,7 +348,7 @@ function buildDerivedRules(
         // fail right after an accented letter — "sécurité", "fiscalité",
         // "activité" all end in "é"). The `u` flag enables `\p{L}`.
         re: new RegExp(
-          `(?<![\\p{L}\\p{N}])${NAV_VERB}.*(?<![\\p{L}\\p{N}])(?:${kws})(?![\\p{L}\\p{N}])`,
+          String.raw`(?<![\p{L}\p{N}])${NAV_VERB}.*(?<![\p{L}\p{N}])(?:${kws})(?![\p{L}\p{N}])`,
           "iu",
         ),
       };

@@ -278,7 +278,7 @@ export function DiagnosticFlowTheater() {
 
   const runLive = useCallback(async (id: string) => {
     const sc = SCEN[id];
-    if (!sc || !sc.suite) return;
+    if (!sc?.suite) return;
     setLive({ status: "running", text: "calling /api/admin/diagnostics/" + sc.suite + " …", suite: sc.suite });
     // Every outcome also lands in the transcript as a NON-scripted line — the
     // "Live run transcript" label is only true because these entries are real.

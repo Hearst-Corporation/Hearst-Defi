@@ -47,9 +47,9 @@ export function ForgotPasswordForm() {
       ) : null}
 
       {message ? (
-        <p className="text-xs text-accent-ink" role="status">
+        <output className="block text-xs text-accent-ink">
           {message}
-        </p>
+        </output>
       ) : null}
 
       <Button

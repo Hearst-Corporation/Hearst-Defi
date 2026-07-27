@@ -107,14 +107,13 @@ export function Series1DataState({
   className?: string;
 }) {
   return (
-    <p
-      role="status"
-      className={cn("m-0 leading-relaxed text-[var(--ct-text-faint)]", className)}
+    <output
+      className={cn("block m-0 leading-relaxed text-[var(--ct-text-faint)]", className)}
       style={{ fontSize: "var(--ct-text-nano)" }}
     >
       <span className="font-semibold text-[var(--ct-text-muted)]">{motive}</span>
       {detail ? <> · {detail}</> : null}
-    </p>
+    </output>
   );
 }
 

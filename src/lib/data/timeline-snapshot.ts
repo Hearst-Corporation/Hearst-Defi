@@ -38,7 +38,7 @@ const LIVE_TIMELINE_SOURCES: ReadonlySet<TimelineSnapshotSource> = new Set([
  * staging). Unknown or nullish sources are conservative (false).
  */
 export function isLiveTimelineSource(
-  source: TimelineSnapshotSource | string | null | undefined,
+  source: TimelineSnapshotSource | (string & {}) | null | undefined,
 ): boolean {
   if (source == null) return false;
   return LIVE_TIMELINE_SOURCES.has(source as TimelineSnapshotSource);

@@ -9,9 +9,8 @@
 /** Strips ```json fences and, when needed, slices to the outermost `{…}` object. */
 export function extractLlmJsonCandidate(raw: string): string {
   const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  let candidate =
-    fenced && fenced[1] !== undefined ? fenced[1].trim() : trimmed;
+  const fenced = /^```(?:json)?\s*([\s\S]*?)\s*```$/i.exec(trimmed);
+  let candidate = fenced?.[1] !== undefined ? fenced[1].trim() : trimmed;
   if (!candidate.startsWith("{")) {
     const start = candidate.indexOf("{");
     const end = candidate.lastIndexOf("}");
@@ -38,7 +37,7 @@ export function parseLlmJsonObject(raw: string, context = "Agent"): unknown {
 }
 
 /** Like {@link parseLlmJsonObject} but returns `null` instead of throwing. */
-export function tryParseLlmJsonObject(raw: string): unknown | null {
+export function tryParseLlmJsonObject(raw: string): unknown {
   const candidate = extractLlmJsonCandidate(raw);
   try {
     return JSON.parse(candidate);

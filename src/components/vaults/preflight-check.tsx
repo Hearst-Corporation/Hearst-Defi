@@ -95,7 +95,7 @@ export function PreFlightCheck({
     const raw = (privyWallet as unknown as { chainId?: string }).chainId;
     if (!raw) return null;
     const parts = raw.split(":");
-    const id = parseInt(parts[parts.length - 1] ?? "", 10);
+    const id = parseInt(parts.at(-1) ?? "", 10);
     return Number.isNaN(id) ? null : id;
   })();
 

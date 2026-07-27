@@ -4,9 +4,8 @@
  */
 export function IdentityVendorPanel({ isProduction }: { isProduction: boolean }) {
   return (
-    <div
+    <section
       className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
-      role="region"
       aria-label="Identity verification unavailable"
     >
       <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-center justify-between gap-4">
@@ -28,6 +27,6 @@ export function IdentityVendorPanel({ isProduction }: { isProduction: boolean })
             : "Identity verification will be available shortly. You can continue your onboarding now and complete verification at any time."}
         </p>
       </div>
-    </div>
+    </section>
   );
 }

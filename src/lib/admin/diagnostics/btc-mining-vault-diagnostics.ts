@@ -471,8 +471,7 @@ const SPECS: readonly DiagnosticCheckSpec[] = [
       const wf = buildProductWaterfalls({ funding: gatedFunding });
       const distStep = wf.normal.steps.find((s) => s.rank === 4);
       const ok =
-        distStep !== undefined &&
-        distStep.status === "blocked" &&
+        distStep?.status === "blocked" &&
         gatedFunding.distributionAllowed === false;
       return ok
         ? pass("Coverage gated off → payout step blocked, not implied.", {

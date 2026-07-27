@@ -52,12 +52,10 @@ export async function getSpecIndex(): Promise<SpecIndexEntry[]> {
   if (process.env.NODE_ENV !== "production") {
     return computeSpecIndex();
   }
-  if (!specIndexCache) {
-    specIndexCache = computeSpecIndex().catch((err) => {
-      specIndexCache = null;
-      throw err;
-    });
-  }
+  specIndexCache ??= computeSpecIndex().catch((err) => {
+    specIndexCache = null;
+    throw err;
+  });
   return specIndexCache;
 }
 

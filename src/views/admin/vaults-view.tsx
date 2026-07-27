@@ -156,10 +156,10 @@ export async function AdminVaultsView({
             ariaLabel="Filter vaults by status"
           />
           {archivedVaults.length > 0 && activeFilter !== "archived" ? (
-            <p className="text-xs text-[var(--ct-text-muted)]" role="status">
+            <output className="block text-xs text-[var(--ct-text-muted)]">
               {archivedVaults.length} single-run draft(s) hidden — closed drafts
               from the run wizard. See the Archived ({archivedVaults.length}) tab.
-            </p>
+            </output>
           ) : null}
           {activeFilter === "archived" ? (
             <p className="text-xs text-[var(--ct-text-muted)]">

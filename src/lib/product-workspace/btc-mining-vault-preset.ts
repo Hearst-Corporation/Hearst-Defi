@@ -190,7 +190,7 @@ function normalize(text: string): string {
 
 /** True when the objective names the BTC Mining Performance Vault. Deterministic. */
 export function matchesBtcMiningVaultObjective(objective: string): boolean {
-  if (!objective || !objective.trim()) return false;
+  if (!objective?.trim()) return false;
   return BTC_MINING_VAULT_OBJECTIVE_RE.test(normalize(objective));
 }
 

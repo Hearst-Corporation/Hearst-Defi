@@ -172,9 +172,7 @@ export function deriveRegimeAllocation(
   const btcScenarios = BTC_MINING_PERFORMANCE_VAULT.levers.btcScenarios.value;
 
   const btcExpectedReturnPct =
-    btcExpectedReturnPctOverride !== undefined
-      ? btcExpectedReturnPctOverride
-      : btcScenarioForRegime(regime, btcScenarios);
+    btcExpectedReturnPctOverride ?? btcScenarioForRegime(regime, btcScenarios);
 
   // Per-regime bounds from BASE_MIX + product floor.
   // The allocator works in percent (0–100).  The mining floor is 30% minimum.
@@ -300,9 +298,7 @@ export function deriveRawAllocation(args: {
   const base = BASE_MIX_BY_MODE[regime];
   const btcScenarios = BTC_MINING_PERFORMANCE_VAULT.levers.btcScenarios.value;
   const btcExpectedReturnPct =
-    btcExpectedReturnPctOverride !== undefined
-      ? btcExpectedReturnPctOverride
-      : btcScenarioForRegime(regime, btcScenarios);
+    btcExpectedReturnPctOverride ?? btcScenarioForRegime(regime, btcScenarios);
 
   // Mining lower bound 0 (NO floor) so the allocator's true preference shows.
   const miningMaxPct = Math.min(45, base.mining + 10);

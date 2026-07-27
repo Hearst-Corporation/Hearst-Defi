@@ -119,12 +119,12 @@ function lastSentenceBoundary(text: string): number {
  */
 const BTC_ACCUMULATION_CLAIM_RE = new RegExp(
   // verb/cue BEFORE the amount, within 60 chars
-  "\\b(?:accumulate\\w*|accumul\\w*|deliver\\w*|livr\\w*|receive\\w*|recev\\w*|touch\\w*|get|earn\\w*|gagn\\w*|project\\w*|estimat\\w*|expect\\w*|attend\\w*|obtiendr\\w*|will\\s+hold|end\\s+with)\\b" +
-    "[^.!?\\n]{0,60}?\\d+(?:[.,]\\d+)?\\s?(?:BTC|₿|bitcoins?)\\b" +
+  String.raw`\b(?:accumulate\w*|accumul\w*|deliver\w*|livr\w*|receive\w*|recev\w*|touch\w*|get|earn\w*|gagn\w*|project\w*|estimat\w*|expect\w*|attend\w*|obtiendr\w*|will\s+hold|end\s+with)\b` +
+    String.raw`[^.!?\n]{0,60}?\d+(?:[.,]\d+)?\s?(?:BTC|₿|bitcoins?)\b` +
     "|" +
     // amount BEFORE the cue (reversed: "0.85 BTC accumulated / delivered")
-    "\\d+(?:[.,]\\d+)?\\s?(?:BTC|₿|bitcoins?)\\b[^.!?\\n]{0,40}?" +
-    "\\b(?:accumulate\\w*|accumul\\w*|deliver\\w*|livr\\w*|projected|estimated|expected|attendu\\w*|garanti\\w*|guaranteed)\\b",
+    String.raw`\d+(?:[.,]\d+)?\s?(?:BTC|₿|bitcoins?)\b[^.!?\n]{0,40}?` +
+    String.raw`\b(?:accumulate\w*|accumul\w*|deliver\w*|livr\w*|projected|estimated|expected|attendu\w*|garanti\w*|guaranteed)\b`,
   "i",
 );
 
@@ -191,11 +191,11 @@ export function hasSinglePointBtcClaim(text: string, final: boolean): boolean {
  * source-attribution exemptions so a legitimate BTC-return range is untouched.
  */
 const APY_YIELD_WORDING_RE = new RegExp(
-  "\\b(?:this\\s+(?:vault|note|instrument|product)|the\\s+(?:vault|note|instrument)|cette\\s+note|ce\\s+(?:vault|produit|instrument)|it)\\b" +
-    "[^.!?\\n]{0,40}?" +
-    "\\b(?:has|offers?|pays?|targets?|yields?|delivers?|earns?|a|an|its?|of|verse\\w*|offre\\w*|vise\\w*|rapporte\\w*)\\b" +
-    "[^.!?\\n]{0,40}?" +
-    "\\b(?:APY|annual\\s+percentage\\s+yield|(?:fixed\\s+)?annual\\s+yield|fixed\\s+(?:return|yield|apy)|target\\s+apy|rendement\\s+annuel|taux\\s+annuel|rendement\\s+fixe)\\b",
+  String.raw`\b(?:this\s+(?:vault|note|instrument|product)|the\s+(?:vault|note|instrument)|cette\s+note|ce\s+(?:vault|produit|instrument)|it)\b` +
+    String.raw`[^.!?\n]{0,40}?` +
+    String.raw`\b(?:has|offers?|pays?|targets?|yields?|delivers?|earns?|a|an|its?|of|verse\w*|offre\w*|vise\w*|rapporte\w*)\b` +
+    String.raw`[^.!?\n]{0,40}?` +
+    String.raw`\b(?:APY|annual\s+percentage\s+yield|(?:fixed\s+)?annual\s+yield|fixed\s+(?:return|yield|apy)|target\s+apy|rendement\s+annuel|taux\s+annuel|rendement\s+fixe)\b`,
   "i",
 );
 
@@ -205,13 +205,13 @@ const APY_YIELD_WORDING_RE = new RegExp(
  *  ("there is no monthly distribution" IS compliant) — so we exempt a preceding
  *  negation in the same clause. */
 const MONTHLY_DISTRIBUTION_RE = new RegExp(
-  "\\b(?:monthly|quarterly|periodic\\w*|mensuel\\w*|trimestriel\\w*|périodique\\w*|chaque\\s+mois|each\\s+month|every\\s+month)\\b" +
-    "[^.!?\\n]{0,40}?" +
-    "\\b(?:distribution\\w*|distribute\\w*|distribu\\w*|payout\\w*|payment\\w*|paiement\\w*|versement\\w*|verse\\w*|dividend\\w*|coupon\\w*|income|revenu\\w*)\\b" +
+  String.raw`\b(?:monthly|quarterly|periodic\w*|mensuel\w*|trimestriel\w*|périodique\w*|chaque\s+mois|each\s+month|every\s+month)\b` +
+    String.raw`[^.!?\n]{0,40}?` +
+    String.raw`\b(?:distribution\w*|distribute\w*|distribu\w*|payout\w*|payment\w*|paiement\w*|versement\w*|verse\w*|dividend\w*|coupon\w*|income|revenu\w*)\b` +
     "|" +
-    "\\b(?:distribution\\w*|distribute\\w*|distribu\\w*|payout\\w*|versement\\w*|dividend\\w*|coupon\\w*)\\b" +
-    "[^.!?\\n]{0,30}?" +
-    "\\b(?:monthly|quarterly|mensuel\\w*|trimestriel\\w*|chaque\\s+mois|per\\s+month|par\\s+mois)\\b",
+    String.raw`\b(?:distribution\w*|distribute\w*|distribu\w*|payout\w*|versement\w*|dividend\w*|coupon\w*)\b` +
+    String.raw`[^.!?\n]{0,30}?` +
+    String.raw`\b(?:monthly|quarterly|mensuel\w*|trimestriel\w*|chaque\s+mois|per\s+month|par\s+mois)\b`,
   "i",
 );
 
@@ -234,13 +234,13 @@ function assertsMonthlyDistribution(sentence: string): boolean {
  *  guaranteed to receive X BTC", "livraison garantie de X BTC"). Any preceding
  *  in-clause negation ("delivery is not guaranteed") is compliant → exempt. */
 const GUARANTEED_DELIVERY_RE = new RegExp(
-  "\\b(?:guaranteed|guarantee\\w*|assured|garanti\\w*|assur[ée]?\\w*)\\b" +
-    "[^.!?\\n]{0,40}?" +
-    "\\b(?:deliver\\w*|delivery|livr\\w*|receive\\w*|recev\\w*|accumul\\w*|payout|maturity|maturité|BTC|₿|bitcoins?)\\b" +
+  String.raw`\b(?:guaranteed|guarantee\w*|assured|garanti\w*|assur[ée]?\w*)\b` +
+    String.raw`[^.!?\n]{0,40}?` +
+    String.raw`\b(?:deliver\w*|delivery|livr\w*|receive\w*|recev\w*|accumul\w*|payout|maturity|maturité|BTC|₿|bitcoins?)\b` +
     "|" +
-    "\\b(?:deliver\\w*|delivery|livr\\w*)\\b" +
-    "[^.!?\\n]{0,30}?" +
-    "\\b(?:guaranteed|guarantee\\w*|garanti\\w*|assur[ée]?\\w*)\\b",
+    String.raw`\b(?:deliver\w*|delivery|livr\w*)\b` +
+    String.raw`[^.!?\n]{0,30}?` +
+    String.raw`\b(?:guaranteed|guarantee\w*|garanti\w*|assur[ée]?\w*)\b`,
   "i",
 );
 const DELIVERY_NEGATION_RE =

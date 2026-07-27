@@ -48,7 +48,7 @@ export class ForwardSimulationRunner {
         rules,
         seed,
       });
-      const last = report.snapshots[report.snapshots.length - 1]!;
+      const last = report.snapshots.at(-1)!;
       finalRois.push(report.finalRoiBps);
       finalEquity.push(last.netEquityUsdc);
       if (report.liquidationCount > 0) liquidations += 1;
@@ -104,7 +104,7 @@ export class ForwardSimulationRunner {
 
     const sortedByRoi = [...summaries].sort((a, b) => a.finalRoiBps - b.finalRoiBps);
     const worstPath = sortedByRoi[0]!;
-    const bestPath = sortedByRoi[sortedByRoi.length - 1]!;
+    const bestPath = sortedByRoi.at(-1)!;
     const medianPath = sortedByRoi[Math.floor(sortedByRoi.length / 2)]!;
 
     return {

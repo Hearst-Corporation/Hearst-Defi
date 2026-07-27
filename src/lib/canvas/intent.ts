@@ -80,7 +80,7 @@ export function detectActiveCanvasFromHistory(
 ): CanvasId | null {
   for (let i = history.length - 1; i >= 0; i--) {
     const entry = history[i];
-    if (!entry || entry.role !== "assistant") continue;
+    if (entry?.role !== "assistant") continue;
     const m = OPEN_MARKER_RE.exec(entry.content);
     if (m) {
       const id = (m[1] ?? "").toLowerCase();

@@ -249,5 +249,5 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
 export function getFallbackStrategy(strategies: ProductStrategy[] = PRODUCT_STRATEGIES): ProductStrategy {
   const fb = strategies.find((s) => s.isFallback && s.status === "active");
   // The config always contains exactly one; the non-null path is validated.
-  return fb ?? strategies[strategies.length - 1]!;
+  return fb ?? strategies.at(-1)!;
 }

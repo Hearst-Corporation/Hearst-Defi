@@ -874,6 +874,9 @@ body {
 
 .projection-studio-shell {
   container-name: projection-shell;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ct-doc-flow-gap);
 }
 
 .scenario-lab-shell {
@@ -888,12 +891,6 @@ body {
   min-width: 0;
   flex-direction: column;
   gap: var(--ct-doc-flow-stack-gap);
-}
-
-.projection-studio-shell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ct-doc-flow-gap);
 }
 
 /* Toolbar row: Scenario/Backtest (left) · Single/Compare (right, scenario tab). */
@@ -3967,9 +3964,6 @@ button.ct-choice-card {
   width: var(--ct-rail-right-expanded);
 }
 
-.ct-rail-right-header {
-  background: transparent !important;
-}
 /* Chat body = fond noir OPAQUE : le halo vert ambiant (.ct-ambient-glow) ne doit
    PAS transparaître à travers le chat (sinon voile vert sur les panneaux). Le halo
    reste visible sur le shell/fond, jamais comme voile sur le module chat. */
@@ -3981,6 +3975,7 @@ button.ct-choice-card {
    bordures de ses boutons utilisaient var(--ct-border), trop sombre sur le
    charcoal du rail. Relief subtil esprit Hearst Flow. */
 .ct-rail-right-header {
+  background: transparent !important;
   border-bottom-color: var(--ct-border-on-dark);
 }
 .ct-rail-right-btn {
@@ -4053,7 +4048,6 @@ button.ct-choice-card {
    --ct-surface-2 (#1E1E1E, admin + product) < boxes --ct-graphite-subtle-bg
    (noir) < nested --ct-graphite-nested-bg (gris). Wrappers transparents ;
    couleur portée par .ct-page-area (une seule plaque). */
-.ct-center-panel { background: transparent !important; }
 .ct-page-area {
   /* Canvas central : fond gris #191B22 + dot-grid retirés (ancien DS).
      2026-06-27 — refonte UI A→Z. Le fond vient désormais de chaque page. */
@@ -4071,6 +4065,7 @@ button.ct-choice-card {
    chat-ouvert restait cassé. Désormais global. Les cartes gèrent ensuite leur propre
    reflow via min-w-0/truncate/overflow-x interne. */
 .ct-center-panel {
+  background: transparent !important;
   min-width: 0 !important;
   min-height: 0;
   flex: 1 1 auto;
@@ -6461,12 +6456,6 @@ main#main-content>.admin-doc.admin-doc-shell {
   min-width: 0;
 }
 
-/* Actions stay vertically centered — the buttons read as a balanced affordance
-   rather than pinned to the top edge of the tall identity column. */
-.admin-vaults-list__actions {
-  align-self: center;
-}
-
 .admin-vaults-list__header {
   padding: var(--ct-space-2) var(--ct-space-5);
   border-bottom: 1px solid var(--ct-border-soft);
@@ -6515,7 +6504,10 @@ main#main-content>.admin-doc.admin-doc-shell {
   white-space: nowrap;
 }
 
+/* Actions stay vertically centered — the buttons read as a balanced affordance
+   rather than pinned to the top edge of the tall identity column. */
 .admin-vaults-list__actions {
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: flex-end;

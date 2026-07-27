@@ -232,7 +232,7 @@ function resolveField<T>(
   constant: T,
   chain: ChainRead<T> | undefined,
 ): FactsheetField<T> {
-  if (chain !== undefined && chain.status === "wired") {
+  if (chain?.status === "wired") {
     return { value: chain.data, provenance: "live", source: CHAIN_SOURCE };
   }
   const base: FactsheetField<T> = {

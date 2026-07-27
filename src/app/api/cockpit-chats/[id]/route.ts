@@ -38,7 +38,7 @@ export async function GET(
     where: { id },
     select: { userId: true, title: true },
   });
-  if (!chat || chat.userId !== userId) {
+  if (chat?.userId !== userId) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 

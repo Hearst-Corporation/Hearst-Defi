@@ -38,19 +38,17 @@ function readConfig() {
 
 /** Lazily connect (or reuse) the MTProto client. */
 export async function getTelegramClient(): Promise<TelegramClient> {
-  if (!cached) {
-    cached = (async () => {
-      const { apiId, apiHash, session } = readConfig();
-      const client = new TelegramClient(
-        new StringSession(session),
-        apiId,
-        apiHash,
-        { connectionRetries: 3 },
-      );
-      await client.connect();
-      return client;
-    })();
-  }
+  cached ??= (async () => {
+    const { apiId, apiHash, session } = readConfig();
+    const client = new TelegramClient(
+      new StringSession(session),
+      apiId,
+      apiHash,
+      { connectionRetries: 3 },
+    );
+    await client.connect();
+    return client;
+  })();
   return cached;
 }
 

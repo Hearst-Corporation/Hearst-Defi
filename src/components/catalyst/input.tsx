@@ -19,8 +19,11 @@ export function InputGroup({ children }: React.ComponentPropsWithoutRef<'span'>)
   )
 }
 
-const dateTypes = ['date', 'datetime-local', 'month', 'time', 'week']
+const dateTypes = ['date', 'datetime-local', 'month', 'time', 'week'] as const
 type DateType = (typeof dateTypes)[number]
+// Widened view for the runtime membership test: `includes` on the `as const`
+// tuple would only accept a DateType, but `props.type` is the wider input union.
+const dateTypeValues: readonly string[] = dateTypes
 
 export const Input = forwardRef(function Input(
   {
@@ -53,7 +56,7 @@ export const Input = forwardRef(function Input(
         className={cn([
           // Date classes
           props.type &&
-            dateTypes.includes(props.type) && [
+            dateTypeValues.includes(props.type) && [
               '[&::-webkit-datetime-edit-fields-wrapper]:p-0',
               '[&::-webkit-date-and-time-value]:min-h-[1.5em]',
               '[&::-webkit-datetime-edit]:inline-flex',

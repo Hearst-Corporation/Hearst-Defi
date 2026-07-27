@@ -61,8 +61,8 @@ const MONTHS: Record<string, string> = {
 
 /** Parse "(26th June. 2026)" / "25th June. 2026" → "2026-06-26". */
 export function parseListDate(text: string): string | null {
-  const m = text.match(/(\d{1,2})(?:st|nd|rd|th)?\.?\s+([A-Za-z]{3})[A-Za-z.]*\.?\s+(\d{4})/);
-  if (!m || !m[1] || !m[2] || !m[3]) return null;
+  const m = /(\d{1,2})(?:st|nd|rd|th)?\.?\s+([A-Za-z]{3})[A-Za-z.]*\.?\s+(\d{4})/.exec(text);
+  if (!m?.[1] || !m[2] || !m[3]) return null;
   const day = m[1].padStart(2, "0");
   const mon = MONTHS[m[2].slice(0, 3).toLowerCase()];
   const year = m[3];
@@ -90,7 +90,7 @@ function coolingFromModel(model: string): Cooling | null {
 
 /** First TH value in a line: "235T", "372/374/390T", "4.8TH/s", "90T". */
 function parseTh(label: string): number | null {
-  const m = label.match(/(\d+(?:\.\d+)?)\s*T(?:H)?(?:\/s)?\b/i);
+  const m = /(\d+(?:\.\d+)?)\s*T(?:H)?(?:\/s)?\b/i.exec(label);
   if (!m) return null;
   const v = Number(m[1]);
   return Number.isFinite(v) && v > 0 ? v : null;
@@ -124,7 +124,7 @@ export function parsePriceLine(
   region: Region = "china",
 ): MachinePriceSample | null {
   const line = rawLine.trim();
-  if (!line || !line.includes("$")) return null;
+  if (!line?.includes("$")) return null;
 
   // Split "model : price" on the LAST colon before the first '$'.
   const dollarIdx = line.indexOf("$");
@@ -140,8 +140,8 @@ export function parsePriceLine(
 
   // Price token: either "$6.6/T" (per-TH) or "$1296" (unit).
   const priceChunk = line.slice(dollarIdx);
-  const perThMatch = priceChunk.match(/\$\s*(\d+(?:\.\d+)?)\s*\/\s*T/i);
-  const unitMatch = priceChunk.match(/\$\s*(\d+(?:[.,]\d+)?)/);
+  const perThMatch = /\$\s*(\d+(?:\.\d+)?)\s*\/\s*T/i.exec(priceChunk);
+  const unitMatch = /\$\s*(\d+(?:[.,]\d+)?)/.exec(priceChunk);
 
   let priceUsd: number;
   let perThUsd: number;

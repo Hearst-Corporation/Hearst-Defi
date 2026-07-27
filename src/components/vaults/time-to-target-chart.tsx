@@ -48,7 +48,7 @@ function areaPath(xs: number[], ys: number[]): string {
     .map((x, i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)},${(ys[i] ?? PAD_T).toFixed(2)}`)
     .join(" ");
   const firstX = (xs[0] ?? PAD_L).toFixed(2);
-  const lastX = (xs[xs.length - 1] ?? PAD_L + INNER_W).toFixed(2);
+  const lastX = (xs.at(-1) ?? PAD_L + INNER_W).toFixed(2);
   const baselineY = (PAD_T + INNER_H).toFixed(2);
   return `${line} L${lastX},${baselineY} L${firstX},${baselineY} Z`;
 }

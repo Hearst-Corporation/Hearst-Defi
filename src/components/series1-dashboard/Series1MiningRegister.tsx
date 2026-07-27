@@ -100,8 +100,7 @@ export function Series1MiningRegister({
         // is deliberately NOT a row grid: printing "Not reported" against a
         // dozen labels would read as a broken report; withholding the whole
         // band and saying why reads as honest.
-        <div
-          role="status"
+        <output
           data-mining-gate={gatedState}
           className={cn(
             surfaceNoticeWell,
@@ -112,7 +111,7 @@ export function Series1MiningRegister({
             motive={GATE_MOTIVE[gatedState]}
             detail={gate?.detail ?? GATE_DETAIL[gatedState]}
           />
-        </div>
+        </output>
       ) : (
         <>
           <div className="flex flex-1 flex-col">

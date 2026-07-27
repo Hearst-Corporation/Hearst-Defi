@@ -224,7 +224,7 @@ export function normalizeForScan(text: string): string {
 
 /** Escape regex meta-characters in a literal needle. */
 function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return s.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 /**
@@ -237,8 +237,8 @@ function escapeRegex(s: string): string {
  */
 function buildNeedlePattern(needle: string): RegExp {
   const tokens = needle.split(/\s+/);
-  const body = tokens.map((t) => escapeRegex(t)).join("\\s+");
-  return new RegExp(`\\b${body}\\w*`, "gi");
+  const body = tokens.map((t) => escapeRegex(t)).join(String.raw`\s+`);
+  return new RegExp(String.raw`\b${body}\w*`, "gi");
 }
 
 /** Strip non-alpha chars so hyphenated tokens like "guaranteed-not-applicable"

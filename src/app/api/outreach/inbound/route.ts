@@ -49,7 +49,7 @@ interface InboundEvent {
 function extractAddress(from: InboundPayload["from"]): string | null {
   if (!from) return null;
   const raw = typeof from === "string" ? from : from.email ?? "";
-  const match = raw.match(/<([^>]+)>/);
+  const match = /<([^>]+)>/.exec(raw);
   const addr = (match?.[1] ?? raw).trim().toLowerCase();
   return addr.includes("@") ? addr : null;
 }

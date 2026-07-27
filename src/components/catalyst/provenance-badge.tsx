@@ -76,8 +76,7 @@ export function ProvenanceBadge({
   if (resolved === "strip") {
     return (
       <Tooltip content={tip}>
-        <span
-          role="status"
+        <output
           className={cn("provenance-badge--strip shrink-0", stripDotTone[kind])}
           aria-label={`Data provenance: ${labels[kind]}`}
         >
@@ -86,7 +85,7 @@ export function ProvenanceBadge({
             className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current"
           />
           <span className="sr-only">{labels[kind]}</span>
-        </span>
+        </output>
       </Tooltip>
     );
   }

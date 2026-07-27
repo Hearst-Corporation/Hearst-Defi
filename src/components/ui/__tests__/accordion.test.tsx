@@ -13,7 +13,9 @@ describe("AccordionCard", () => {
     expect(html).toContain("<button");
     expect(html).toContain('aria-expanded="false"');
     expect(html).toContain('aria-controls=');
-    expect(html).toContain('role="region"');
+    // `<section aria-labelledby>` IS an implicit role=region — React does not
+    // serialise implicit roles, so assert the element + its accessible name.
+    expect(html).toMatch(/<section [^>]*aria-labelledby=/);
     // numeric prefix rendered as "2. Yield History"
     expect(html).toContain("2. Yield History");
     // closed body is inert (kept in DOM for the open animation, out of the a11y tree)
@@ -40,7 +42,8 @@ describe("AccordionCard", () => {
     expect(html).not.toContain("aria-expanded");
     expect(html).toContain("1. Position Overview");
     expect(html).toContain("hero-body");
-    expect(html).toContain('role="region"');
+    // Implicit role=region, same contract as the collapsible case above.
+    expect(html).toMatch(/<section [^>]*aria-labelledby=/);
   });
 
   it("renders a subtitle and a trailing header slot", () => {

@@ -219,7 +219,7 @@ function escapeForChannel(value: unknown, channel: NotifChannel): string {
         .replace(/'/g, "&#39;");
     case "telegram":
       // MarkdownV2 escape — https://core.telegram.org/bots/api#markdownv2-style
-      return str.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
+      return str.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, String.raw`\$1`);
     case "in_app":
       // Strip C0/DEL control chars, then HTML-escape for safety
       return str

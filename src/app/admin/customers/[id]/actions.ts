@@ -55,7 +55,7 @@ async function assertMemoryOwned(userId: string, memoryId: string): Promise<void
     where: { id: memoryId },
     select: { userId: true },
   });
-  if (!row || row.userId !== userId) throw new Error("Memory not found");
+  if (row?.userId !== userId) throw new Error("Memory not found");
 }
 
 /**

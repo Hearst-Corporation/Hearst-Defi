@@ -17,7 +17,7 @@ export function computeMetrics(
   const snaps = report.snapshots;
   const equity = snaps.map((s) => s.netEquityUsdc);
   const start = equity[0] ?? 0;
-  const end = equity[equity.length - 1] ?? 0;
+  const end = equity.at(-1) ?? 0;
   const months = snaps.length - 1;
 
   // Monthly equity returns (fractions).
@@ -96,7 +96,7 @@ export function computeMetrics(
 
   // Breakeven BTC price: the price at which final net equity == start equity,
   // holding the final collateral/debt/reserve. Approx from the final snapshot.
-  const last = snaps[snaps.length - 1]!;
+  const last = snaps.at(-1)!;
   const nonBtcEquity = last.reserveUsdc - last.debtUsdc;
   const breakeven = last.btcCollateral > 0 ? Math.max(0, (start - nonBtcEquity) / last.btcCollateral) : 0;
 

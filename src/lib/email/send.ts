@@ -58,7 +58,7 @@ function isResendSendResponse(value: unknown): value is ResendSendResponse {
  */
 function deriveReplyTo(from: string, replyTo?: string): string | undefined {
   if (replyTo && replyTo.trim().length > 0) return replyTo.trim();
-  const match = from.match(/<([^>]+)>/);
+  const match = /<([^>]+)>/.exec(from);
   return match?.[1];
 }
 

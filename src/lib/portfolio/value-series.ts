@@ -137,7 +137,7 @@ function buildFromHourlySnapshots(
     });
   }
 
-  const last = points[points.length - 1];
+  const last = points.at(-1);
   const needsLiveAnchor =
     !last || Math.abs(windowEnd.getTime() - last.at.getTime()) > HOUR_MS / 2;
 
@@ -202,7 +202,7 @@ function buildFromLedger(
 
   raw.push({ at: windowStart, valueUsdc: currentValue, phase: 0 });
 
-  return raw
+  return [...raw]
     .sort((a, b) => a.at.getTime() - b.at.getTime() || a.phase - b.phase)
     .map(
       (p): ValueSeriesPoint => ({
@@ -387,7 +387,7 @@ export function resolvePortfolioChartWindow(
   }
 
   const firstAt = points[0]!.at;
-  const lastAt = points[points.length - 1]!.at;
+  const lastAt = points.at(-1)!.at;
   const toMs = (a: Date | number | string): number =>
     (a instanceof Date ? a : new Date(a)).getTime();
   const spanDays = Math.max(0, (toMs(lastAt) - toMs(firstAt)) / DAY_MS);
@@ -417,7 +417,7 @@ export function resolvePortfolioChartWindow(
     }),
   );
 
-  const latestValue = points[points.length - 1]!.value;
+  const latestValue = points.at(-1)!.value;
   const isLowBalance = latestValue <= PORTFOLIO_SEED_BALANCE_USDC;
   // Live only when real-sourced AND there is a genuine span to plot.
   const isLive = !isDemo && spanDays > 0;

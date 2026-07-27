@@ -75,7 +75,7 @@ export async function redeem(
       select: { principalUsdc: true, status: true },
     });
 
-    if (!fresh || fresh.status !== "active") {
+    if (fresh?.status !== "active") {
       throw new Error("Position is not active.");
     }
 

@@ -804,7 +804,7 @@ async function runMasterAgentTurn(args: {
   //     ack ("nothing is created until you confirm").
   // It NEVER creates a draft, sources leads, or announces an automatic action.
   // ────────────────────────────────────────────────────────────────────────
-  if (canvasActive && canvasIntent && canvasIntent.canvasId === "outreach") {
+  if (canvasActive && canvasIntent?.canvasId === "outreach") {
     const priorUserMessages = history
       .filter((m) => m.role === "user")
       .map((m) => m.content);

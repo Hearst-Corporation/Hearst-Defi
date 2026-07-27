@@ -38,13 +38,12 @@ const ACTION_LABELS: Record<string, string> = {
 export function ActionQueue({ items }: ActionQueueProps) {
   if (items.length === 0) {
     return (
-      <div
-        role="status"
+      <output
         aria-label="Operator queue"
         className="flex flex-1 items-center justify-center py-8 text-center text-[length:var(--ct-text-xs)] text-[var(--ct-text-muted)]"
       >
         All clear — no operator actions queued.
-      </div>
+      </output>
     );
   }
 

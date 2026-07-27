@@ -120,9 +120,15 @@ export function constructionDraftToVaultForm(
 export function encodeVaultFormPrefill(prefill: VaultFormPrefill): string {
   const json = JSON.stringify(prefill);
   // btoa is available in both the browser and the Node runtime used here.
-  return typeof btoa === "function"
-    ? btoa(unescape(encodeURIComponent(json)))
-    : Buffer.from(json, "utf-8").toString("base64");
+  // btoa needs one byte per char: encode to UTF-8 bytes first (TextEncoder),
+  // which is the modern equivalent of the legacy unescape(encodeURIComponent()).
+  if (typeof btoa === "function") {
+    const bytes = new TextEncoder().encode(json);
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return btoa(binary);
+  }
+  return Buffer.from(json, "utf-8").toString("base64");
 }
 
 /** Decode a URL prefill param back to a partial form. Returns null on garbage. */
@@ -131,10 +137,17 @@ export function decodeVaultFormPrefill(
 ): Partial<VaultFormPrefill> | null {
   if (!raw) return null;
   try {
-    const json =
-      typeof atob === "function"
-        ? decodeURIComponent(escape(atob(raw)))
-        : Buffer.from(raw, "base64").toString("utf-8");
+    let json: string;
+    if (typeof atob === "function") {
+      // atob returns one char per byte; rebuild the UTF-8 bytes and decode them
+      // (modern equivalent of the legacy decodeURIComponent(escape())).
+      const binary = atob(raw);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      json = new TextDecoder().decode(bytes);
+    } else {
+      json = Buffer.from(raw, "base64").toString("utf-8");
+    }
     const parsed = JSON.parse(json) as unknown;
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return null;

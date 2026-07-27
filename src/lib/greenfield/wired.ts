@@ -22,7 +22,7 @@ export function reasonLabel(reason: string): string {
   return map[reason] ?? reason.replace(/_/g, " ");
 }
 
-export function vaultModeLabel(mode: VaultMode | string): string {
+export function vaultModeLabel(mode: VaultMode | (string & {})): string {
   switch (mode) {
     case "v2":
       return "PermissionedDynaVault v2.1";

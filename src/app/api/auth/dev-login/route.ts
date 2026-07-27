@@ -20,7 +20,7 @@ const RETIRED_ADMIN_ROUTES: Record<string, string> = {
 
 function resolveRedirectPath(req: NextRequest, role: string): string {
   const requested = req.nextUrl.searchParams.get("next")?.trim();
-  if (requested && requested.startsWith("/") && !requested.startsWith("//")) {
+  if (requested?.startsWith("/") && !requested.startsWith("//")) {
     for (const [retired, successor] of Object.entries(RETIRED_ADMIN_ROUTES)) {
       if (requested === retired || requested.startsWith(`${retired}/`)) {
         return successor;

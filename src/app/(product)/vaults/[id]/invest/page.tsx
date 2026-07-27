@@ -24,7 +24,7 @@ export default async function InvestDepositPage({ params }: PageProps) {
     getSession(),
   ]);
 
-  if (!vault || vault.status !== "live") notFound();
+  if (vault?.status !== "live") notFound();
 
   const investFrom = `/vaults/${id}/invest`;
   if (!investor?.accreditationAttestedAt) {

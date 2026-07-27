@@ -138,7 +138,7 @@ describe("selectProductStrategy — deterministic matching", () => {
   });
 
   it("is deterministic: same request → same result", () => {
-    const req = { productFamily: "btc_mining", riskProfile: "safe" as const };
+    const req = { productFamily: "btc_mining" as const, riskProfile: "safe" as const };
     expect(selectProductStrategy(req, PRODUCT_STRATEGIES)).toEqual(
       selectProductStrategy(req, PRODUCT_STRATEGIES),
     );

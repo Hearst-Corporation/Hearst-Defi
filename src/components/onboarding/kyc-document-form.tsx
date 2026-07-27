@@ -218,10 +218,10 @@ export function KycDocumentForm({ onSuccess, className }: KycDocumentFormProps) 
         </CockpitButton>
 
         {succeeded ? (
-          <p className="body-xs ct-text-accent m-0" role="status">
+          <output className="body-xs ct-text-accent m-0">
             Document submitted — verification in progress. You will be notified
             by email once your identity has been verified.
-          </p>
+          </output>
         ) : null}
 
         {state.status === "error" ? (

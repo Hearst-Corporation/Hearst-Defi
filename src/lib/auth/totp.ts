@@ -141,7 +141,7 @@ export async function verifyTotpCode(
     select: { email: true, totpSecret: true, totpEnabledAt: true, totpLastUsedStep: true },
   });
 
-  if (!user || !user.totpSecret || !user.totpEnabledAt) return false;
+  if (!user?.totpSecret || !user.totpEnabledAt) return false;
 
   let base32Secret: string;
   try {

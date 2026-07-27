@@ -47,7 +47,7 @@ export function runPersistenceDiagnostics(
       sideEffect: deps.rollbackProbe?.executed ? "rolled-back" : "skipped",
       run: () => {
         const p = deps.rollbackProbe;
-        if (!p || !p.executed)
+        if (!p?.executed)
           return skip(
             "SKIPPED — needs a server DB; the route injects a real create→rollback probe.",
           );

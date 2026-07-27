@@ -34,7 +34,7 @@ export function writePref(name: string, value: string): void {
 }
 
 export function readPref(name: string): string | null {
-  const m = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  const m = new RegExp(`(?:^|; )${name}=([^;]*)`).exec(document.cookie);
   return m ? decodeURIComponent(m[1]!) : null;
 }
 

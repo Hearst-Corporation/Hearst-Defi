@@ -18,7 +18,7 @@ interface IdentityChamberProps {
   mayContinue: boolean;
   isProduction: boolean;
   /** Investor's real KYC state, or null when no investor row resolved yet. */
-  kycStatus: "pending" | "approved" | "rejected" | string | null;
+  kycStatus: "pending" | "approved" | "rejected" | (string & {}) | null;
   /** Demo-only shortcut controls, rendered in the sole. Null for real accounts. */
   demoTools?: React.ReactNode;
 }
@@ -103,12 +103,9 @@ export function IdentityChamber({
                   <Link href="/onboarding/wallet">Continue to wallet binding</Link>
                 </Button>
               ) : kycVendorReady && kycStatus == null ? (
-                <p
-                  className="ct-metric-caption m-0 text-center"
-                  role="status"
-                >
+                <output className="ct-metric-caption m-0 text-center">
                   Launch identity verification above to continue.
-                </p>
+                </output>
               ) : kycVendorReady ? null : (
                 // Sumsub not configured. In every environment (prod included)
                 // we still offer an in-app way forward to the optional wallet
@@ -144,9 +141,8 @@ export function IdentityChamber({
  */
 function IdentitySubmittedPanel({ verified }: { verified: boolean }) {
   return (
-    <div
+    <section
       className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
-      role="region"
       aria-label="Identity verification status"
     >
       <div className="p-5 border-b border-[var(--ct-border-soft)] flex items-center justify-between gap-4">
@@ -173,6 +169,6 @@ function IdentitySubmittedPanel({ verified }: { verified: boolean }) {
             : "It is now under review — no further action is needed. You will be notified by email once a decision is made."}
         </p>
       </div>
-    </div>
+    </section>
   );
 }

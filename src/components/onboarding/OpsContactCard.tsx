@@ -16,9 +16,8 @@ export function OpsContactCard({
   calendlyHref,
 }: OpsContactCardProps) {
   return (
-    <section
+    <aside
       className="rounded-2xl border border-[var(--ct-border)] bg-surface-card shadow-[var(--ct-shadow-soft)] overflow-hidden flex flex-col"
-      role="complementary"
       aria-label="Investor Relations contact"
     >
       <div className="flex items-end justify-between p-5 border-b border-[var(--ct-border-soft)]">
@@ -68,6 +67,6 @@ export function OpsContactCard({
           <span>Book a call ↗</span>
         </a>
       </div>
-    </section>
+    </aside>
   );
 }
