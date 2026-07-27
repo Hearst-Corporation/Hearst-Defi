@@ -341,7 +341,10 @@ export function buildSeries1Proof(input: {
       lastUpdated:
         [attestationTs, latestEventTs, custody?.asOf ?? null]
           .filter((x): x is string => x !== null)
-          .sort()
+          // ISO-8601 strings are lexicographically ordered: a binary compare IS
+          // the chronological order. `localeCompare` would be wrong here — it is
+          // locale-dependent and can treat separators/digits inconsistently.
+          .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
           .at(-1) ?? null,
       evidenceCount: onChainEvents.length + (attestation ? 1 : 0) + (custodyPresent ? 1 : 0),
     },

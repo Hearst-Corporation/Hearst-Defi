@@ -68,5 +68,11 @@ export async function getProductRoutes(): Promise<string[]> {
   const dirs: string[][] = [];
   await collectPageDirs(APP_DIR, [], dirs);
   const routes = dirs.map(segmentsToRoute);
-  return Array.from(new Set(routes)).sort();
+  // Routes are technical URL identifiers, not human-facing labels: sort them
+  // with an explicit BINARY comparator, never `localeCompare`. Linguistic
+  // collation reweights punctuation ("/", "-", "[") and varies with the host
+  // locale, which would make the inventory order environment-dependent.
+  return Array.from(new Set(routes)).sort((a, b) =>
+    a < b ? -1 : a > b ? 1 : 0,
+  );
 }

@@ -126,7 +126,12 @@ export async function fetchBinancePrices(
   if (normalized.length === 0) {
     return fallbackSnapshot(new Date(), []);
   }
-  const cacheKey = `binance:${normalized.slice().sort().join(",")}`;
+  // Binary sort (NOT localeCompare): symbols are technical ASCII identifiers and
+  // this key must be byte-stable across locales, not linguistically ordered.
+  const cacheKey = `binance:${normalized
+    .slice()
+    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+    .join(",")}`;
 
   const cached = cache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {

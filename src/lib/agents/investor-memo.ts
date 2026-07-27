@@ -181,7 +181,9 @@ function buildUserPrompt(
   input: InvestorMemoInput,
   methodologyVersion: MethodologyVersion,
 ): string {
-  const backtestBlocks = input.backtests.map(buildBacktestBlock).join("\n\n");
+  const backtestBlocks = input.backtests
+    .map((bt, idx) => buildBacktestBlock(bt, idx))
+    .join("\n\n");
   const prov = input.provenance ?? DEFAULT_MEMO_PROVENANCE;
   // Fallback matches the preset canon — the retired "Yield Vault" name must
   // not resurface in the memo when a caller omits the label.

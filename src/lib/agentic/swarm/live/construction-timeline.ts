@@ -158,8 +158,9 @@ const PROVENANCE_RANK: Record<StageProvenance, number> = {
 
 function weakest(provs: StageProvenance[]): StageProvenance {
   if (provs.length === 0) return "UNKNOWN";
-  return provs.reduce((acc, p) =>
-    PROVENANCE_RANK[p] < PROVENANCE_RANK[acc] ? p : acc,
+  return provs.reduce<StageProvenance>(
+    (acc, p) => (PROVENANCE_RANK[p] < PROVENANCE_RANK[acc] ? p : acc),
+    "LIVE",
   );
 }
 
