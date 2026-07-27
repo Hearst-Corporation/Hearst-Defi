@@ -135,3 +135,6 @@ storybook-static/
 # to GitHub would redistribute licensed content. Source: ~/Downloads.
 design-refs/
 .storybook-consulted
+
+# SonarQube scanner working dir
+.scannerwork/
